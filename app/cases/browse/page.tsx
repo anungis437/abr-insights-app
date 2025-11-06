@@ -568,7 +568,7 @@ function CasesBrowserContent() {
                             View
                           </button>
                           <Link
-                            href={`/cases/detail/${caseItem.id}`}
+                            href={`/cases/${caseItem.id}`}
                             className="text-blue-600 hover:text-blue-900 font-medium"
                           >
                             Details
@@ -647,7 +647,7 @@ function CasesBrowserContent() {
                           Quick View
                         </button>
                         <Link
-                          href={`/cases/detail/${caseItem.id}`}
+                          href={`/cases/${caseItem.id}`}
                           className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-center text-sm font-medium"
                         >
                           Full Details
@@ -806,7 +806,7 @@ function CasesBrowserContent() {
                 {/* Actions */}
                 <div className="flex gap-3">
                   <Link
-                    href={`/cases/detail/${selectedCase.id}`}
+                    href={`/cases/${selectedCase.id}`}
                     className="flex-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-center font-medium"
                   >
                     View Full Details
