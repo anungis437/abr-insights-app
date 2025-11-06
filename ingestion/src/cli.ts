@@ -11,6 +11,10 @@
  *   npm run ingest -- --resume  # Resume from last checkpoint
  */
 
+// Load environment variables from .env.local
+import { config } from 'dotenv';
+config({ path: '.env.local' });
+
 import { SOURCE_CONFIGS } from './config';
 import { IngestionOrchestrator } from './orchestrator';
 
