@@ -112,6 +112,160 @@ export const SOURCE_CONFIGS = {
       maxPages: 10,
     },
   },
+  
+  // British Columbia - High volume, diverse population
+  canlii_bchrt: {
+    sourceSystem: 'canlii_bchrt' as const,
+    baseUrl: 'https://www.canlii.org',
+    listingUrl: 'https://www.canlii.org/en/bc/bchrt/',
+    selectors: {
+      listingResults: '.result-title a',
+      resultDate: '.date',
+      resultPreview: '.summary',
+      contentContainer: '.documentcontent',
+      caseNumber: '.citation',
+      tribunal: '.tribunal-name',
+      decisionDate: '.decision-date',
+      parties: '.parties',
+    },
+    pagination: {
+      enabled: true,
+      paramName: 'page',
+      maxPages: 15, // BC has high case volume
+    },
+  },
+  
+  // Alberta - Growing Black population, oil industry cases
+  canlii_abhr: {
+    sourceSystem: 'canlii_abhr' as const,
+    baseUrl: 'https://www.canlii.org',
+    listingUrl: 'https://www.canlii.org/en/ab/abhrc/',
+    selectors: {
+      listingResults: '.result-title a',
+      resultDate: '.date',
+      resultPreview: '.summary',
+      contentContainer: '.documentcontent',
+      caseNumber: '.citation',
+      tribunal: '.tribunal-name',
+      decisionDate: '.decision-date',
+      parties: '.parties',
+    },
+    pagination: {
+      enabled: true,
+      paramName: 'page',
+      maxPages: 10,
+    },
+  },
+  
+  // Saskatchewan - Prairie provinces coverage
+  canlii_skhr: {
+    sourceSystem: 'canlii_skhr' as const,
+    baseUrl: 'https://www.canlii.org',
+    listingUrl: 'https://www.canlii.org/en/sk/skhrc/',
+    selectors: {
+      listingResults: '.result-title a',
+      resultDate: '.date',
+      resultPreview: '.summary',
+      contentContainer: '.documentcontent',
+      caseNumber: '.citation',
+      tribunal: '.tribunal-name',
+      decisionDate: '.decision-date',
+      parties: '.parties',
+    },
+    pagination: {
+      enabled: true,
+      paramName: 'page',
+      maxPages: 8,
+    },
+  },
+  
+  // Manitoba - Winnipeg has significant Black community
+  canlii_mbhr: {
+    sourceSystem: 'canlii_mbhr' as const,
+    baseUrl: 'https://www.canlii.org',
+    listingUrl: 'https://www.canlii.org/en/mb/mbhrc/',
+    selectors: {
+      listingResults: '.result-title a',
+      resultDate: '.date',
+      resultPreview: '.summary',
+      contentContainer: '.documentcontent',
+      caseNumber: '.citation',
+      tribunal: '.tribunal-name',
+      decisionDate: '.decision-date',
+      parties: '.parties',
+    },
+    pagination: {
+      enabled: true,
+      paramName: 'page',
+      maxPages: 8,
+    },
+  },
+  
+  // Quebec - Montreal has large Black/Haitian community, French language
+  canlii_qctdp: {
+    sourceSystem: 'canlii_qctdp' as const,
+    baseUrl: 'https://www.canlii.org',
+    listingUrl: 'https://www.canlii.org/en/qc/qctdp/',
+    selectors: {
+      listingResults: '.result-title a',
+      resultDate: '.date',
+      resultPreview: '.summary',
+      contentContainer: '.documentcontent',
+      caseNumber: '.citation',
+      tribunal: '.tribunal-name',
+      decisionDate: '.decision-date',
+      parties: '.parties',
+    },
+    pagination: {
+      enabled: true,
+      paramName: 'page',
+      maxPages: 12, // High volume
+    },
+  },
+  
+  // Nova Scotia - Halifax has significant African Nova Scotian community
+  canlii_nshr: {
+    sourceSystem: 'canlii_nshr' as const,
+    baseUrl: 'https://www.canlii.org',
+    listingUrl: 'https://www.canlii.org/en/ns/nshrc/',
+    selectors: {
+      listingResults: '.result-title a',
+      resultDate: '.date',
+      resultPreview: '.summary',
+      contentContainer: '.documentcontent',
+      caseNumber: '.citation',
+      tribunal: '.tribunal-name',
+      decisionDate: '.decision-date',
+      parties: '.parties',
+    },
+    pagination: {
+      enabled: true,
+      paramName: 'page',
+      maxPages: 8,
+    },
+  },
+  
+  // New Brunswick - Atlantic Canada coverage
+  canlii_nbhr: {
+    sourceSystem: 'canlii_nbhr' as const,
+    baseUrl: 'https://www.canlii.org',
+    listingUrl: 'https://www.canlii.org/en/nb/nbhrc/',
+    selectors: {
+      listingResults: '.result-title a',
+      resultDate: '.date',
+      resultPreview: '.summary',
+      contentContainer: '.documentcontent',
+      caseNumber: '.citation',
+      tribunal: '.tribunal-name',
+      decisionDate: '.decision-date',
+      parties: '.parties',
+    },
+    pagination: {
+      enabled: true,
+      paramName: 'page',
+      maxPages: 6,
+    },
+  },
 } as const;
 
 // ============================================================================

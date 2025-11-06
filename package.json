@@ -30,7 +30,7 @@
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "test:e2e": "playwright test",
     "test:smoke": "playwright test --grep @smoke",
-    "ingest": "ts-node --esm ingestion/src/cli.ts"
+    "ingest": "tsx ingestion/src/cli.ts"
   },
   "dependencies": {
     "@azure/openai": "^2.0.0",
@@ -75,6 +75,7 @@
     "prettier-plugin-tailwindcss": "^0.5.11",
     "tailwindcss": "^3.4.1",
     "ts-node": "^10.9.2",
+    "tsx": "^4.20.6",
     "typescript": "^5.3.3",
     "vitest": "^1.2.1"
   }
