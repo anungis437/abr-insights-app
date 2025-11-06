@@ -28,7 +28,7 @@ import {
   createError,
   getErrorMessage,
 } from '../utils';
-import { SCRAPER_CONFIG } from '../config';
+import { SCRAPER_CONFIG, SOURCE_CONFIGS } from '../config';
 
 // ============================================================================
 // SCRAPER CLASS
@@ -521,35 +521,17 @@ export class CanLIIScraper {
    * Gets source configuration
    */
   private getSourceConfig(sourceSystem: SourceSystem): SourceConfig {
-    // This would be imported from config, but for now inline
-    const configs: Record<SourceSystem, SourceConfig> = {
-      canlii_hrto: {
-        sourceSystem: 'canlii_hrto',
-        baseUrl: 'https://www.canlii.org',
-        listingUrl: 'https://www.canlii.org/en/on/onhrt/',
-        maxPages: 10,
-      },
-      canlii_chrt: {
-        sourceSystem: 'canlii_chrt',
-        baseUrl: 'https://www.canlii.org',
-        listingUrl: 'https://www.canlii.org/en/ca/chrt/',
-        maxPages: 10,
-      },
-      hrto_direct: {
-        sourceSystem: 'hrto_direct',
-        baseUrl: 'http://www.sjto.gov.on.ca',
-        listingUrl: 'http://www.sjto.gov.on.ca/hrto/decisions/',
-        maxPages: 5,
-      },
-      chrt_direct: {
-        sourceSystem: 'chrt_direct',
-        baseUrl: 'https://decisions.chrt-tcdp.gc.ca',
-        listingUrl: 'https://decisions.chrt-tcdp.gc.ca/chrt-tcdp/decisions/en/nav.do',
-        maxPages: 5,
-      },
-    };
-
-    return configs[sourceSystem];
+    const config = SOURCE_CONFIGS[sourceSystem as keyof typeof SOURCE_CONFIGS];
+    
+    if (!config) {
+      throw createError(
+        `No configuration found for source system: ${sourceSystem}. Only CanLII sources are currently configured.`,
+        'CONFIG_ERROR',
+        { sourceSystem }
+      );
+    }
+    
+    return config;
   }
 }
 

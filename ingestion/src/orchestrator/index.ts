@@ -82,7 +82,7 @@ interface OrchestrationResult {
 
 export class IngestionOrchestrator {
   private supabase: SupabaseClient;
-  private scraper: CanLIIScraper;
+  private scraper: CanLIIScraper | null = null;
   private classifier: CombinedClassifier;
   private jobId: string | null = null;
   private startTime: number = 0;
@@ -92,7 +92,7 @@ export class IngestionOrchestrator {
       ENV.SUPABASE_URL,
       ENV.SUPABASE_SERVICE_ROLE_KEY
     );
-    this.scraper = new CanLIIScraper();
+    // Scraper will be initialized in run() with proper source config
     this.classifier = new CombinedClassifier();
   }
 
@@ -118,6 +118,9 @@ export class IngestionOrchestrator {
     const errors: Array<{ stage: ErrorStage; message: string; url?: string }> = [];
     
     try {
+      // Step 0: Initialize scraper with source-specific config
+      this.scraper = new CanLIIScraper(sourceSystem);
+      
       // Step 1: Initialize job
       if (!options.dryRun) {
         this.jobId = await this.initializeJob(sourceSystem, sourceConfig, options);
@@ -253,12 +256,23 @@ export class IngestionOrchestrator {
     options: OrchestrationOptions
   ): Promise<DecisionLink[]> {
     try {
-      // Currently only support CanLII
-      if (sourceSystem !== 'canlii_hrto' && sourceSystem !== 'canlii_chrt') {
+      // Support all CanLII sources (any source starting with 'canlii_')
+      const isCanLII = sourceSystem.startsWith('canlii_');
+      const isDirect = sourceSystem.endsWith('_direct');
+      
+      if (!isCanLII && !isDirect) {
         throw createError(`Unsupported source system: ${sourceSystem}`, 'UNSUPPORTED_SOURCE');
       }
       
-      // Discover cases (default max 50)
+      // Direct scraping not yet implemented
+      if (isDirect) {
+        throw createError(`Direct scraping not yet implemented for: ${sourceSystem}`, 'UNSUPPORTED_SOURCE');
+      }
+      
+      // Discover cases from CanLII (default max 50)
+      if (!this.scraper) {
+        throw createError('Scraper not initialized', 'INTERNAL_ERROR');
+      }
       const links = await this.scraper.discoverDecisions(options.limit || 50);
       
       return links;
@@ -280,6 +294,9 @@ export class IngestionOrchestrator {
    */
   private async fetchCase(url: string): Promise<DecisionContent> {
     try {
+      if (!this.scraper) {
+        throw createError('Scraper not initialized', 'INTERNAL_ERROR');
+      }
       const content = await this.scraper.fetchDecisionContent(url);
       return content;
     } catch (error) {
