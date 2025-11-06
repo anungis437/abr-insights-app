@@ -18,9 +18,14 @@ const nextConfig = {
     NEXT_PUBLIC_ENVIRONMENT: process.env.NEXT_PUBLIC_ENVIRONMENT,
   },
 
-  // Azure Static Web Apps configuration
-  output: 'standalone',
-  trailingSlash: false,
+  // Azure Static Web Apps configuration - must use export for static hosting
+  output: 'export',
+  trailingSlash: true,
+  
+  // Disable features that don't work with static export
+  images: {
+    unoptimized: true,
+  },
 
   webpack: (config, { isServer }) => {
     // Fixes npm packages that depend on `fs` module

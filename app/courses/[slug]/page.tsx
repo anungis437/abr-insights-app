@@ -6,6 +6,15 @@ import { Clock, Users, BarChart3, Award, PlayCircle, FileText, CheckCircle, Star
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Badge } from '@/components/ui/badge'
 
+// Generate static paths for all courses
+export async function generateStaticParams() {
+  return [
+    { slug: 'understanding-anti-black-racism' },
+    { slug: 'workplace-allyship-action' },
+    { slug: 'implicit-bias-decision-making' },
+  ]
+}
+
 // TODO: Replace with actual database fetch
 async function getCourse(slug: string) {
   // Placeholder course data
