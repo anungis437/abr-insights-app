@@ -3,8 +3,8 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   
-  // Azure Static Web Apps requires standalone output for Next.js
-  output: 'standalone',
+  // Azure Static Web Apps requires static export
+  output: 'export',
   
   images: {
     domains: [
@@ -12,7 +12,7 @@ const nextConfig = {
       'images.unsplash.com',
       'via.placeholder.com',
     ],
-    unoptimized: true, // Required for Azure Static Web Apps
+    unoptimized: true, // Required for static export
   },
 
   env: {
