@@ -26,24 +26,49 @@ npm run ingest -- --demo --source canlii_bchrt --limit 15 --dry-run
 
 ## Demo Data Characteristics
 
-The demo generator creates realistic synthetic decisions with:
+The demo generator creates highly realistic synthetic tribunal decisions with:
 
-- **Applicants**: Diverse names representing different communities
-- **Respondents**: Various types of organizations and employers
-- **Issues**: Common human rights complaints (discrimination, harassment, etc.)
-- **Grounds**: Protected characteristics under human rights law
-- **Outcomes**: Range of tribunal decisions
+### Names and Parties
+
+- **Applicants**: 20 diverse names
+  - 15 Black/African Canadian names (Marcus Johnson, Keisha Williams, Kwame Osei, Aminata Diallo, etc.)
+  - 5 control names for non-anti-Black cases (Wei Chen, Priya Sharma, Maria Garcia, etc.)
+- **Respondents**: 15 organizations across sectors
+  - Private sector: Global Financial Services, MapleTech Solutions, Northern Retail, etc.
+  - Public sector: Ministry of Community Services, Provincial School Board, Regional Police, etc.
+
+### Legal Content
+
+- **Issues**: 15 discrimination scenarios
+  - 8 anti-Black racism specific (racial harassment, profiling, microaggressions, etc.)
+  - 7 general discrimination (failure to accommodate, reprisal, unequal treatment, etc.)
+- **Grounds**: 10 protected characteristics (race, colour, ancestry, disability, sex, age, etc.)
+- **Outcomes**: 6 decision types (allowed, allowed in part, dismissed, settlement, withdrawn)
+
+### Decision Structure (7,846 characters average)
+
+Each decision includes:
+- **Parties and Nature of Application**: Standard tribunal format
+- **Facts**: Detailed evidence including witness testimony, documentary evidence
+- **Legal Framework**: Canadian human rights law test for discrimination
+- **Analysis**: Application of law to facts, credibility assessment, nexus analysis
+- **Respondent's Defence**: Credibility evaluation of employer explanations
+- **Decision**: Finding of discrimination or dismissal
+- **Remedy**: Monetary damages ($25k dignity + $42k wages) and systemic orders
+- **Conclusion**: Summary of findings and human rights principles
 
 ### Anti-Black Racism Content
 
-By default, **50% of generated decisions contain anti-Black racism content** with explicit keywords:
+By default, **50% of generated decisions contain anti-Black racism content** with explicit, realistic terminology:
 
-- ✅ Keywords: "Black", "African Canadian", "of African descent", "Caribbean", "Afro-Canadian"
-- ✅ Discrimination terms: "racial discrimination", "anti-Black racism", "racial slurs", "racial profiling"
-- ✅ Pattern evidence: Documented differential treatment, harassment, systemic discrimination
-- ✅ Credibility findings: Analysis of anti-Black bias in evidence
+- ✅ **Race identifiers** (31× per case): "Black", "African Canadian", "of African descent", "Caribbean Canadian", "Afro-Canadian", "Black person", "person of African heritage"
+- ✅ **Anti-Black terms** (17× per case): "anti-Black racism", "anti-Black discrimination", "anti-Black stereotypes", "anti-Black bias"
+- ✅ **Discrimination terms** (20× per case): "racial discrimination", "racist comments", "racial slurs", "N-word", "racial profiling"
+- ✅ **Evidence patterns**: Documented use of racial slurs, stereotypical comments ("aggressive", "lazy"), differential treatment, poisoned work environment
+- ✅ **Legal analysis**: Prima facie case establishment, nexus to Black identity, credibility findings, systemic discrimination findings
+- ✅ **Remedies**: Substantial damages, anti-racism training, policy review, monitoring orders
 
-The other 50% contain race-neutral content with generic discrimination terminology.
+The other 50% contain race-neutral or general discrimination content without anti-Black specific terminology.
 
 ## Pipeline Processing
 
