@@ -66,9 +66,9 @@ describe('RuleBasedClassifier', () => {
       const result = await classifier.classify(content);
 
       expect(result.isRaceRelated).toBe(true);
-      expect(result.isAntiBlackLikely).toBe('race');
+      expect(result.isAntiBlackLikely).toBe(true);
       expect(result.confidence).toBeGreaterThan(0.8); // Higher confidence for specific keywords
-      expect(result.keywordMatches).toContain('anti-Black racism');
+      expect(result.keywordMatches.blackKeywords).toContain('anti-Black racism');
     });
 
     it('should classify irrelevant case with low confidence', async () => {
