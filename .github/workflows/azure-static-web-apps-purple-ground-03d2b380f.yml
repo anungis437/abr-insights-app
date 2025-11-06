@@ -45,7 +45,7 @@ jobs:
           mkdir -p deploy-static
           cp -r .next/standalone/. deploy-static/
           cp -r .next/static deploy-static/.next/static
-          cp -r public deploy-static/public
+          if [ -d "public" ]; then cp -r public deploy-static/public; fi
           cp staticwebapp.config.json deploy-static/ || true
           cp package.json deploy-static/
         shell: bash
