@@ -3,12 +3,16 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   
+  // Azure Static Web Apps requires standalone output for Next.js
+  output: 'standalone',
+  
   images: {
     domains: [
       'your-project.supabase.co', // Replace with actual Supabase project ID
       'images.unsplash.com',
       'via.placeholder.com',
     ],
+    unoptimized: true, // Required for Azure Static Web Apps
   },
 
   env: {
@@ -18,16 +22,7 @@ const nextConfig = {
     NEXT_PUBLIC_ENVIRONMENT: process.env.NEXT_PUBLIC_ENVIRONMENT,
   },
 
-  // Azure Static Web Apps configuration - must use export for static hosting
-  // NOTE: Commented out during development to enable API routes
-  // Re-enable for Azure SWA deployment (API routes will be handled by Azure Functions)
-  // output: 'export',
   trailingSlash: true,
-  
-  // Disable features that don't work with static export
-  images: {
-    unoptimized: true,
-  },
 
   webpack: (config, { isServer }) => {
     // Fixes npm packages that depend on `fs` module
