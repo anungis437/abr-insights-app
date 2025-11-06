@@ -9,16 +9,37 @@ import axios from 'axios';
 import { CanLIIScraper } from '../src/scrapers/canlii';
 import type { DecisionLink } from '../src/types';
 
-// Mock axios
-vi.mock('axios');
-const mockedAxios = vi.mocked(axios, true);
+// Create mock axios instance
+const mockAxiosInstance = {
+  get: vi.fn(),
+  post: vi.fn(),
+  put: vi.fn(),
+  delete: vi.fn(),
+  patch: vi.fn(),
+  defaults: {
+    headers: {
+      common: {},
+    },
+  },
+};
+
+// Mock axios.create to return our mock instance
+vi.mock('axios', () => {
+  return {
+    default: {
+      create: vi.fn(() => mockAxiosInstance),
+      get: vi.fn(),
+      post: vi.fn(),
+    },
+  };
+});
 
 describe('CanLIIScraper', () => {
   let scraper: CanLIIScraper;
 
   beforeEach(() => {
-    scraper = new CanLIIScraper('canlii_hrto');
     vi.clearAllMocks();
+    scraper = new CanLIIScraper('canlii_hrto');
   });
 
   afterEach(() => {
@@ -59,7 +80,7 @@ describe('CanLIIScraper', () => {
         </html>
       `;
 
-      mockedAxios.get.mockResolvedValueOnce({ data: mockHtml, status: 200 });
+      mockAxiosInstance.get.mockResolvedValueOnce({ data: mockHtml, status: 200 });
 
       const decisions = await scraper.discoverDecisions(10);
 
@@ -86,7 +107,7 @@ describe('CanLIIScraper', () => {
         </html>
       `;
 
-      mockedAxios.get.mockResolvedValueOnce({ data: mockHtml, status: 200 });
+      mockAxiosInstance.get.mockResolvedValueOnce({ data: mockHtml, status: 200 });
 
       const decisions = await scraper.discoverDecisions(10);
 
@@ -102,7 +123,7 @@ describe('CanLIIScraper', () => {
         </html>
       `;
 
-      mockedAxios.get.mockResolvedValueOnce({ data: mockHtml, status: 200 });
+      mockAxiosInstance.get.mockResolvedValueOnce({ data: mockHtml, status: 200 });
 
       const decisions = await scraper.discoverDecisions(10);
 
@@ -124,11 +145,11 @@ describe('CanLIIScraper', () => {
         </html>
       `;
 
-      mockedAxios.get.mockResolvedValueOnce({ data: mockHtml, status: 200 });
+      mockAxiosInstance.get.mockResolvedValueOnce({ data: mockHtml, status: 200 });
 
       const decisions = await scraper.discoverDecisions(10, 1);
 
-      expect(mockedAxios.get).toHaveBeenCalledWith(
+      expect(mockAxiosInstance.get).toHaveBeenCalledWith(
         expect.stringContaining('page=1'),
         expect.any(Object)
       );
@@ -137,13 +158,13 @@ describe('CanLIIScraper', () => {
     it('should retry on network failure', async () => {
       const mockHtml = `<html><body><div class="results"><div class="result"><a href="/test">Test</a></div></div></body></html>`;
 
-      mockedAxios.get
+      mockAxiosInstance.get
         .mockRejectedValueOnce(new Error('Network error'))
         .mockResolvedValueOnce({ data: mockHtml, status: 200 });
 
       const decisions = await scraper.discoverDecisions(10);
 
-      expect(mockedAxios.get).toHaveBeenCalledTimes(2);
+      expect(mockAxiosInstance.get).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -167,7 +188,7 @@ describe('CanLIIScraper', () => {
         </html>
       `;
 
-      mockedAxios.get.mockResolvedValueOnce({ data: mockHtml, status: 200 });
+      mockAxiosInstance.get.mockResolvedValueOnce({ data: mockHtml, status: 200 });
 
       const content = await scraper.fetchDecisionContent(
         'https://www.canlii.org/en/on/onhrt/doc/2024/2024hrto123/2024hrto123.html'
@@ -190,7 +211,7 @@ describe('CanLIIScraper', () => {
         </html>
       `;
 
-      mockedAxios.get.mockResolvedValueOnce({ data: mockHtml, status: 200 });
+      mockAxiosInstance.get.mockResolvedValueOnce({ data: mockHtml, status: 200 });
 
       const content = await scraper.fetchDecisionContent(
         'https://www.canlii.org/en/on/onhrt/doc/2024/2024hrto000/2024hrto000.html'
@@ -203,7 +224,7 @@ describe('CanLIIScraper', () => {
     it('should validate content length', async () => {
       const mockHtml = `<html><head><title>Short</title></head><body><div>Too short</div></body></html>`;
 
-      mockedAxios.get.mockResolvedValueOnce({ data: mockHtml, status: 200 });
+      mockAxiosInstance.get.mockResolvedValueOnce({ data: mockHtml, status: 200 });
 
       const content = await scraper.fetchDecisionContent('https://test.com');
 
@@ -214,13 +235,13 @@ describe('CanLIIScraper', () => {
     it('should retry on network failure', async () => {
       const mockHtml = `<html><head><title>Test</title></head><body><div>Content</div></body></html>`;
 
-      mockedAxios.get
+      mockAxiosInstance.get
         .mockRejectedValueOnce(new Error('Network error'))
         .mockResolvedValueOnce({ data: mockHtml, status: 200 });
 
       const content = await scraper.fetchDecisionContent('https://test.com');
 
-      expect(mockedAxios.get).toHaveBeenCalledTimes(2);
+      expect(mockAxiosInstance.get).toHaveBeenCalledTimes(2);
       expect(content.fullText).toContain('Content');
     });
   });

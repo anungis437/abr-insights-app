@@ -30,6 +30,21 @@ export interface SourceConfig {
   startDate?: Date;
   endDate?: Date;
   filters?: Record<string, string>;
+  selectors?: {
+    listingResults?: string;
+    resultDate?: string;
+    resultPreview?: string;
+    contentContainer?: string;
+    caseNumber?: string;
+    tribunal?: string;
+    decisionDate?: string;
+    parties?: string;
+  };
+  pagination?: {
+    enabled: boolean;
+    paramName?: string;
+    maxPages?: number;
+  };
 }
 
 /**
