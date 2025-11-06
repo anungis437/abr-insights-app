@@ -47,11 +47,11 @@ describe('RuleBasedClassifier', () => {
 
       const result = await classifier.classify(content);
 
-      expect(result.isRelevant).toBe(true);
-      expect(result.detectedGrounds).toContain('race');
-      expect(result.detectedGrounds).toContain('sex');
-      expect(result.detectedGrounds).toContain('disability');
-      expect(result.detectedGrounds.length).toBeGreaterThanOrEqual(3);
+      expect(result.isRaceRelated).toBe(true);
+      expect(result.groundsDetected).toContain('race');
+      expect(result.groundsDetected).toContain('sex');
+      expect(result.groundsDetected).toContain('disability');
+      expect(result.groundsDetected.length).toBeGreaterThanOrEqual(3);
     });
 
     it('should recognize anti-Black racism specific keywords', async () => {
@@ -65,10 +65,10 @@ describe('RuleBasedClassifier', () => {
 
       const result = await classifier.classify(content);
 
-      expect(result.isRelevant).toBe(true);
-      expect(result.primaryGround).toBe('race');
+      expect(result.isRaceRelated).toBe(true);
+      expect(result.isAntiBlackLikely).toBe('race');
       expect(result.confidence).toBeGreaterThan(0.8); // Higher confidence for specific keywords
-      expect(result.matchedKeywords).toContain('anti-Black racism');
+      expect(result.keywordMatches).toContain('anti-Black racism');
     });
 
     it('should classify irrelevant case with low confidence', async () => {
@@ -82,9 +82,9 @@ describe('RuleBasedClassifier', () => {
 
       const result = await classifier.classify(content);
 
-      expect(result.isRelevant).toBe(false);
+      expect(result.isRaceRelated).toBe(false);
       expect(result.confidence).toBeLessThan(0.3);
-      expect(result.detectedGrounds).toHaveLength(0);
+      expect(result.groundsDetected).toHaveLength(0);
     });
 
     it('should handle edge case: employment without discrimination', async () => {
@@ -98,8 +98,8 @@ describe('RuleBasedClassifier', () => {
 
       const result = await classifier.classify(content);
 
-      expect(result.isRelevant).toBe(false);
-      expect(result.detectedGrounds).toHaveLength(0);
+      expect(result.isRaceRelated).toBe(false);
+      expect(result.groundsDetected).toHaveLength(0);
     });
 
     it('should detect colour as separate ground', async () => {
@@ -113,8 +113,8 @@ describe('RuleBasedClassifier', () => {
 
       const result = await classifier.classify(content);
 
-      expect(result.isRelevant).toBe(true);
-      expect(result.detectedGrounds).toContain('colour');
+      expect(result.isRaceRelated).toBe(true);
+      expect(result.groundsDetected).toContain('colour');
     });
 
     it('should handle French language content', async () => {
@@ -129,8 +129,8 @@ describe('RuleBasedClassifier', () => {
 
       const result = await classifier.classify(content);
 
-      expect(result.isRelevant).toBe(true);
-      expect(result.detectedGrounds).toContain('race');
+      expect(result.isRaceRelated).toBe(true);
+      expect(result.groundsDetected).toContain('race');
     });
 
     it('should calculate confidence based on keyword density', async () => {
@@ -168,7 +168,7 @@ describe('RuleBasedClassifier', () => {
 
       const result = await classifier.classify(content);
 
-      expect(result.isRelevant).toBe(false);
+      expect(result.isRaceRelated).toBe(false);
       expect(result.confidence).toBe(0);
     });
 
@@ -198,7 +198,7 @@ describe('RuleBasedClassifier', () => {
       const result = await classifier.classify(content);
       const elapsed = Date.now() - startTime;
 
-      expect(result.isRelevant).toBe(true);
+      expect(result.isRaceRelated).toBe(true);
       expect(elapsed).toBeLessThan(1000); // Should complete quickly
     });
   });
@@ -350,3 +350,4 @@ describe('CombinedClassifier', () => {
     });
   });
 });
+
