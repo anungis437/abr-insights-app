@@ -19,8 +19,8 @@ const nextConfig = {
   },
 
   // Azure Static Web Apps configuration
-  output: 'export',
-  trailingSlash: true,
+  output: 'standalone',
+  trailingSlash: false,
 
   webpack: (config, { isServer }) => {
     // Fixes npm packages that depend on `fs` module
