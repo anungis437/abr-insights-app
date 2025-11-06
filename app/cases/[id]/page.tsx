@@ -21,6 +21,15 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
+// Generate static paths for sample cases
+export async function generateStaticParams() {
+  return [
+    { id: '1' },
+    { id: '2' },
+    { id: '3' },
+  ]
+}
+
 // TODO: Replace with actual database fetch
 async function getCaseStudy(id: string) {
   // Placeholder case data
