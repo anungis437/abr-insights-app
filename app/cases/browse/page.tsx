@@ -14,6 +14,7 @@
 import { useEffect, useState, Suspense, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { supabase } from '@/lib/supabase';
 
 // ============================================================================
 // TYPES
@@ -99,23 +100,64 @@ function CasesBrowserContent() {
     setError(null);
 
     try {
-      const params = new URLSearchParams(searchParams.toString());
-      const response = await fetch(`/api/cases?${params.toString()}`);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch cases: ${response.statusText}`);
+      // Build query
+      let query = supabase
+        .from('cases')
+        .select('*', { count: 'exact' });
+
+      // Apply filters
+      if (classification) {
+        query = query.or(`rule_based_classification->>category.eq.${classification},ai_classification->>category.eq.${classification}`);
+      }
+      if (source) {
+        query = query.eq('source_system', source);
+      }
+      if (docType) {
+        query = query.eq('document_type', docType);
+      }
+      if (dateFrom) {
+        query = query.gte('decision_date', dateFrom);
+      }
+      if (dateTo) {
+        query = query.lte('decision_date', dateTo);
+      }
+      if (minConfidence !== '0') {
+        query = query.gte('combined_confidence', parseFloat(minConfidence));
+      }
+      if (needsReview) {
+        query = query.eq('needs_review', needsReview === 'true');
       }
 
-      const data: CasesResponse = await response.json();
-      setCases(data.data);
-      setPagination(data.pagination);
+      // Apply sorting
+      query = query.order(sort as any, { ascending: order === 'asc' });
+
+      // Apply pagination
+      const pageNum = parseInt(page);
+      const limitNum = parseInt(limit);
+      const from = (pageNum - 1) * limitNum;
+      const to = from + limitNum - 1;
+      query = query.range(from, to);
+
+      const { data, error: supabaseError, count } = await query;
+
+      if (supabaseError) throw supabaseError;
+
+      setCases(data || []);
+      setPagination({
+        page: pageNum,
+        limit: limitNum,
+        total: count || 0,
+        totalPages: Math.ceil((count || 0) / limitNum),
+        hasNextPage: (count || 0) > pageNum * limitNum,
+        hasPreviousPage: pageNum > 1,
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load cases');
       console.error('Error fetching cases:', err);
     } finally {
       setLoading(false);
     }
-  }, [searchParams]);
+  }, [page, limit, classification, source, docType, dateFrom, dateTo, minConfidence, needsReview, sort, order]);
 
   useEffect(() => {
     fetchCases();

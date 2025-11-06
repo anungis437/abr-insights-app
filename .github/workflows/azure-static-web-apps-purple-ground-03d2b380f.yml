@@ -43,11 +43,8 @@ jobs:
       - name: Prepare deployment artifacts
         run: |
           mkdir -p deploy-static
-          cp -r .next/standalone/. deploy-static/
-          cp -r .next/static deploy-static/.next/static
-          if [ -d "public" ]; then cp -r public deploy-static/public; fi
+          cp -r out/. deploy-static/
           cp staticwebapp.config.json deploy-static/ || true
-          cp package.json deploy-static/
         shell: bash
       
       - name: Build And Deploy
