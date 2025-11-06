@@ -19,7 +19,9 @@ const nextConfig = {
   },
 
   // Azure Static Web Apps configuration - must use export for static hosting
-  output: 'export',
+  // NOTE: Commented out during development to enable API routes
+  // Re-enable for Azure SWA deployment (API routes will be handled by Azure Functions)
+  // output: 'export',
   trailingSlash: true,
   
   // Disable features that don't work with static export

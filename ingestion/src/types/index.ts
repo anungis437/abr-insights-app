@@ -103,11 +103,14 @@ export interface DecisionContent {
   textLength: number;
   
   // Extracted metadata
+  id?: string; // Source system ID
   caseNumber?: string;
   caseTitle?: string;
+  title?: string; // Alias for caseTitle
   tribunal?: string;
   province?: string;
   decisionDate?: Date;
+  date?: string; // String format date
   filingDate?: Date;
   applicant?: string;
   respondent?: string;
