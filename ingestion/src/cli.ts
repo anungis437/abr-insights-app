@@ -64,7 +64,8 @@ async function runDemoIngestion(
       
       // Pass the entire DecisionContent object to classifier
       const classification = await (orchestrator as any).classifier.classify(content);
-      console.log(`   Classified: ${classification.isAntiBlackLikely ? '✓ YES' : '✗ NO'}`);
+      const isAntiBlack = classification.finalCategory === 'anti_black_racism';
+      console.log(`   Classified: ${isAntiBlack ? '✓ YES' : '✗ NO'}`);
       classified++;
       
       // Store if not dry run
