@@ -40,11 +40,15 @@ jobs:
         env:
           NODE_ENV: production
       
-      - name: Prepare static files for deployment
+      - name: Prepare deployment artifacts
         run: |
           mkdir -p deploy-static
-          cp -r out/* deploy-static/
+          cp -r .next/standalone/. deploy-static/
+          cp -r .next/static deploy-static/.next/static
+          cp -r public deploy-static/public
           cp staticwebapp.config.json deploy-static/ || true
+          cp package.json deploy-static/
+        shell: bash
       
       - name: Build And Deploy
         id: builddeploy
