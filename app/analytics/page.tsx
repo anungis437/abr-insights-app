@@ -4,22 +4,44 @@ export const dynamic = 'force-dynamic';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { supabase } from '@/lib/supabase';
 
 export default function AnalyticsPage() {
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/cases/stats')
-      .then(res => res.json())
-      .then(data => {
-        setStats(data);
-        setLoading(false);
-      })
-      .catch(err => {
+    async function fetchStats() {
+      try {
+        // Get total count
+        const { count: totalCount } = await supabase
+          .from('cases')
+          .select('*', { count: 'exact', head: true });
+
+        // Get ABR count
+        const { count: abrCount } = await supabase
+          .from('cases')
+          .select('*', { count: 'exact', head: true })
+          .or('rule_based_classification->>category.eq.anti_black_racism,ai_classification->>category.eq.anti_black_racism');
+
+        // Get cases needing review
+        const { count: needsReviewCount } = await supabase
+          .from('cases')
+          .select('*', { count: 'exact', head: true })
+          .eq('needs_review', true);
+
+        setStats({
+          totalCases: totalCount || 0,
+          antiBlackRacismCases: abrCount || 0,
+          needsReview: needsReviewCount || 0,
+        });
+      } catch (err) {
         console.error(err);
+      } finally {
         setLoading(false);
-      });
+      }
+    }
+    fetchStats();
   }, []);
 
   if (loading) {
