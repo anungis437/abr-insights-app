@@ -13,10 +13,44 @@
  * Supported source systems for tribunal case ingestion
  */
 export type SourceSystem = 
-  | 'canlii_hrto'       // CanLII - Human Rights Tribunal of Ontario
+  // Federal
   | 'canlii_chrt'       // CanLII - Canadian Human Rights Tribunal
+  | 'chrt_direct'       // Direct CHRT website
+  
+  // Ontario
+  | 'canlii_hrto'       // CanLII - Human Rights Tribunal of Ontario
   | 'hrto_direct'       // Direct HRTO website
-  | 'chrt_direct';      // Direct CHRT website
+  
+  // British Columbia
+  | 'canlii_bchrt'      // CanLII - BC Human Rights Tribunal
+  | 'bchrt_direct'      // Direct BCHRT website
+  
+  // Alberta
+  | 'canlii_abhr'       // CanLII - Alberta Human Rights Commission
+  | 'abhr_direct'       // Direct Alberta website
+  
+  // Saskatchewan
+  | 'canlii_skhr'       // CanLII - Saskatchewan Human Rights Commission
+  | 'skhr_direct'       // Direct Saskatchewan website
+  
+  // Manitoba
+  | 'canlii_mbhr'       // CanLII - Manitoba Human Rights Commission
+  | 'mbhr_direct'       // Direct Manitoba website
+  
+  // Quebec
+  | 'canlii_qctdp'      // CanLII - Quebec Tribunal des droits de la personne
+  | 'qctdp_direct'      // Direct Quebec website
+  
+  // Atlantic Provinces
+  | 'canlii_nbhr'       // CanLII - New Brunswick Human Rights
+  | 'canlii_nshr'       // CanLII - Nova Scotia Human Rights
+  | 'canlii_peihr'      // CanLII - PEI Human Rights
+  | 'canlii_nlhr'       // CanLII - Newfoundland & Labrador Human Rights
+  
+  // Territories
+  | 'canlii_ythr'       // CanLII - Yukon Human Rights
+  | 'canlii_nthr'       // CanLII - Northwest Territories Human Rights
+  | 'canlii_nuhr';      // CanLII - Nunavut Human Rights
 
 /**
  * Configuration for a scraping source

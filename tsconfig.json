@@ -14,6 +14,7 @@
     "forceConsistentCasingInFileNames": true,
     "incremental": true,
     "isolatedModules": true,
+    "allowImportingTsExtensions": false,
     "paths": {
       "@/*": ["./*"]
     },
