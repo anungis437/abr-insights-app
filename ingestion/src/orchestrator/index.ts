@@ -358,33 +358,40 @@ export class IngestionOrchestrator {
         citation: content.citation,
         full_text: content.fullText,
         text_length: content.fullText.length,
+        document_type: 'decision',
         
-        // Classification - Rule-based
-        rule_based_is_race_related: classification.ruleBasedResult.isRaceRelated,
-        rule_based_is_anti_black: classification.ruleBasedResult.isAntiBlackLikely,
-        rule_based_confidence: classification.ruleBasedResult.confidence,
-        rule_based_grounds: classification.ruleBasedResult.groundsDetected,
-        rule_based_keywords: classification.ruleBasedResult.keywordMatches,
-        rule_based_reasoning: classification.ruleBasedResult.reasoning,
+        // Classification - Store as JSONB
+        rule_based_classification: {
+          isRaceRelated: classification.ruleBasedResult.isRaceRelated,
+          isAntiBlackLikely: classification.ruleBasedResult.isAntiBlackLikely,
+          confidence: classification.ruleBasedResult.confidence,
+          category: classification.finalCategory,
+          groundsDetected: classification.ruleBasedResult.groundsDetected,
+          keywordMatches: classification.ruleBasedResult.keywordMatches,
+          reasoning: classification.ruleBasedResult.reasoning,
+        },
         
-        // Classification - AI
-        ai_category: classification.aiResult?.category,
-        ai_confidence: classification.aiResult?.confidence,
-        ai_reasoning: classification.aiResult?.reasoning,
-        ai_key_phrases: classification.aiResult?.keyPhrases,
-        ai_grounds: classification.aiResult?.groundsDetected,
-        ai_key_issues: classification.aiResult?.keyIssues,
-        ai_remedies: classification.aiResult?.remedies,
-        ai_sentiment: classification.aiResult?.sentiment,
-        ai_legislation: classification.aiResult?.legislationCited,
+        // AI Classification - Store as JSONB if available
+        ai_classification: classification.aiResult ? {
+          category: classification.aiResult.category,
+          confidence: classification.aiResult.confidence,
+          reasoning: classification.aiResult.reasoning,
+          keyPhrases: classification.aiResult.keyPhrases,
+          groundsDetected: classification.aiResult.groundsDetected,
+          keyIssues: classification.aiResult.keyIssues,
+          remedies: classification.aiResult.remedies,
+          sentiment: classification.aiResult.sentiment,
+          legislationCited: classification.aiResult.legislationCited,
+        } : null,
         
-        // Combined
-        final_confidence: classification.finalConfidence,
-        final_category: classification.finalCategory,
+        // Combined confidence and review flag
+        combined_confidence: classification.finalConfidence,
         needs_review: classification.needsReview,
         
-        // Status
-        ingestion_status: 'pending_review',
+        // Store grounds and issues for querying
+        discrimination_grounds: classification.ruleBasedResult.groundsDetected,
+        key_issues: classification.aiResult?.keyIssues || [],
+        remedies: classification.aiResult?.remedies || [],
       };
       
       // Insert into tribunal_cases_raw first
@@ -433,11 +440,18 @@ export class IngestionOrchestrator {
       
       if (caseError) {
         // Log but don't fail if cases table doesn't exist yet
-        console.warn(`Warning: Could not insert into cases table: ${caseError.message}`);
+        console.warn(`Warning: Could not insert into cases table:`, caseError);
       }
     } catch (error) {
+      // Better error message for Supabase errors
+      const errorMsg = error instanceof Error 
+        ? error.message 
+        : typeof error === 'object' && error !== null
+          ? JSON.stringify(error, null, 2)
+          : String(error);
+      
       throw createError(
-        `Storage failed: ${getErrorMessage(error)}`,
+        `Storage failed: ${errorMsg}`,
         'STORAGE_ERROR',
         { url: content.url }
       );
