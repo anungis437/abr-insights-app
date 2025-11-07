@@ -50,6 +50,7 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO auth.identities (
   id,
   user_id,
+  provider_id,
   identity_data,
   provider,
   last_sign_in_at,
@@ -57,15 +58,15 @@ INSERT INTO auth.identities (
   updated_at
 )
 VALUES
-  (gen_random_uuid(), '00000000-0000-0000-0000-000000000001', '{"sub":"00000000-0000-0000-0000-000000000001","email":"super_admin@abr-insights.com"}', 'email', now(), now(), now()),
-  (gen_random_uuid(), '00000000-0000-0000-0000-000000000002', '{"sub":"00000000-0000-0000-0000-000000000002","email":"compliance@abr-insights.com"}', 'email', now(), now(), now()),
-  (gen_random_uuid(), '00000000-0000-0000-0000-000000000003', '{"sub":"00000000-0000-0000-0000-000000000003","email":"orgadmin@abr-insights.com"}', 'email', now(), now(), now()),
-  (gen_random_uuid(), '00000000-0000-0000-0000-000000000004', '{"sub":"00000000-0000-0000-0000-000000000004","email":"analyst@abr-insights.com"}', 'email', now(), now(), now()),
-  (gen_random_uuid(), '00000000-0000-0000-0000-000000000005', '{"sub":"00000000-0000-0000-0000-000000000005","email":"investigator@abr-insights.com"}', 'email', now(), now(), now()),
-  (gen_random_uuid(), '00000000-0000-0000-0000-000000000006', '{"sub":"00000000-0000-0000-0000-000000000006","email":"educator@abr-insights.com"}', 'email', now(), now(), now()),
-  (gen_random_uuid(), '00000000-0000-0000-0000-000000000007', '{"sub":"00000000-0000-0000-0000-000000000007","email":"learner@abr-insights.com"}', 'email', now(), now(), now()),
-  (gen_random_uuid(), '00000000-0000-0000-0000-000000000008', '{"sub":"00000000-0000-0000-0000-000000000008","email":"viewer@abr-insights.com"}', 'email', now(), now(), now()),
-  (gen_random_uuid(), '00000000-0000-0000-0000-000000000009', '{"sub":"00000000-0000-0000-0000-000000000009","email":"guest@abr-insights.com"}', 'email', now(), now(), now())
+  (gen_random_uuid(), '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', '{"sub":"00000000-0000-0000-0000-000000000001","email":"super_admin@abr-insights.com"}', 'email', now(), now(), now()),
+  (gen_random_uuid(), '00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000002', '{"sub":"00000000-0000-0000-0000-000000000002","email":"compliance@abr-insights.com"}', 'email', now(), now(), now()),
+  (gen_random_uuid(), '00000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000003', '{"sub":"00000000-0000-0000-0000-000000000003","email":"orgadmin@abr-insights.com"}', 'email', now(), now(), now()),
+  (gen_random_uuid(), '00000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-000000000004', '{"sub":"00000000-0000-0000-0000-000000000004","email":"analyst@abr-insights.com"}', 'email', now(), now(), now()),
+  (gen_random_uuid(), '00000000-0000-0000-0000-000000000005', '00000000-0000-0000-0000-000000000005', '{"sub":"00000000-0000-0000-0000-000000000005","email":"investigator@abr-insights.com"}', 'email', now(), now(), now()),
+  (gen_random_uuid(), '00000000-0000-0000-0000-000000000006', '00000000-0000-0000-0000-000000000006', '{"sub":"00000000-0000-0000-0000-000000000006","email":"educator@abr-insights.com"}', 'email', now(), now(), now()),
+  (gen_random_uuid(), '00000000-0000-0000-0000-000000000007', '00000000-0000-0000-0000-000000000007', '{"sub":"00000000-0000-0000-0000-000000000007","email":"learner@abr-insights.com"}', 'email', now(), now(), now()),
+  (gen_random_uuid(), '00000000-0000-0000-0000-000000000008', '00000000-0000-0000-0000-000000000008', '{"sub":"00000000-0000-0000-0000-000000000008","email":"viewer@abr-insights.com"}', 'email', now(), now(), now()),
+  (gen_random_uuid(), '00000000-0000-0000-0000-000000000009', '00000000-0000-0000-0000-000000000009', '{"sub":"00000000-0000-0000-0000-000000000009","email":"guest@abr-insights.com"}', 'email', now(), now(), now())
 ON CONFLICT (provider, provider_id) DO NOTHING;
 
 -- Create corresponding profiles with roles
