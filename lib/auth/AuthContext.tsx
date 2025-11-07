@@ -11,6 +11,7 @@ export type Profile = {
   first_name: string | null
   last_name: string | null
   display_name: string | null
+  role: string | null
   avatar_url: string | null
   organization_id: string | null
   job_title: string | null

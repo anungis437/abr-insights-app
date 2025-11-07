@@ -3,8 +3,6 @@
 import Link from 'next/link'
 import { BookOpen, Scale, Users, TrendingUp, ArrowRight, Clock, Award } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import Navigation from '@/components/shared/Navigation'
-import Footer from '@/components/shared/Footer'
 import Testimonials from '@/components/shared/Testimonials'
 import { tribunalCasesService, coursesService, getFeaturedTestimonials } from '@/lib/supabase/services'
 import type { Course, Testimonial } from '@/lib/supabase/services'
@@ -25,39 +23,46 @@ export default function HomePage() {
         // Fetch tribunal case stats
         const caseStats = await tribunalCasesService.getStats();
         
-        // Fetch featured courses (latest 3 published courses)
-        const { data: courses } = await coursesService.list(
-          { status: 'published' },
-          { limit: 3 }
-        );
-
-        // Fetch featured testimonials
-        const testimonialsData = await getFeaturedTestimonials(3);
-
         setStats({
           totalCases: caseStats?.total_cases || 0,
           abrCases: caseStats?.abr_cases || 0,
           totalCourses: caseStats?.total_courses || 0,
           loading: false,
         });
+      } catch (err) {
+        console.error('Failed to fetch case stats:', err);
+        setStats(prev => ({ ...prev, loading: false }));
+      }
+
+      // Fetch courses independently to prevent one failure from affecting others
+      try {
+        const { data: courses } = await coursesService.list(
+          { status: 'published' },
+          { limit: 3 }
+        );
         
         if (courses) {
           setFeaturedCourses(courses);
         }
-        
-        setTestimonials(testimonialsData);
       } catch (err) {
-        console.error('Failed to fetch data:', err);
-        setStats(prev => ({ ...prev, loading: false }));
+        console.error('Failed to fetch featured courses:', err);
+      }
+
+      // Fetch testimonials independently
+      try {
+        const testimonialsData = await getFeaturedTestimonials(3);
+        setTestimonials(testimonialsData || []);
+      } catch (err) {
+        console.error('Failed to fetch testimonials:', err);
+        // Testimonials table might not exist yet, fail gracefully
+        setTestimonials([]);
       }
     }
     fetchData();
   }, []);
 
   return (
-    <div className="min-h-screen">
-      <Navigation />
-      {/* Hero Section */}
+    <div className="min-h-screen">      {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary-600 to-secondary-600 py-20 text-white">
         <div className="container-custom">
           <div className="grid items-center gap-12 lg:grid-cols-2">
@@ -216,10 +221,7 @@ export default function HomePage() {
             </Link>
           </div>
         </div>
-      </section>
-
-      <Footer />
-    </div>
+      </section>    </div>
   )
 }
 

@@ -2,6 +2,8 @@ import { Poppins } from 'next/font/google'
 import './globals.css'
 import type { Metadata } from 'next'
 import { AuthProvider } from '@/lib/auth/AuthContext'
+import NavigationWrapper from '@/components/shared/navigation/NavigationWrapper'
+import FooterWrapper from '@/components/shared/footer/FooterWrapper'
 
 const poppins = Poppins({
   weight: ['300', '400', '500', '600', '700'],
@@ -73,7 +75,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={poppins.variable}>
       <body className="font-sans">
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <NavigationWrapper />
+          <main>{children}</main>
+          <FooterWrapper />
+        </AuthProvider>
       </body>
     </html>
   )

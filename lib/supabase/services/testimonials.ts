@@ -35,20 +35,25 @@ export interface TestimonialsFilters {
  * Get featured testimonials for homepage
  */
 export async function getFeaturedTestimonials(limit = 3) {
-  const { data, error } = await supabase
-    .from('testimonials')
-    .select('*')
-    .eq('featured', true)
-    .eq('active', true)
-    .order('display_order', { ascending: true })
-    .limit(limit)
+  try {
+    const { data, error } = await supabase
+      .from('testimonials')
+      .select('*')
+      .eq('featured', true)
+      .eq('active', true)
+      .order('display_order', { ascending: true })
+      .limit(limit)
 
-  if (error) {
-    console.error('Error fetching featured testimonials:', error)
+    if (error) {
+      console.error('Error fetching featured testimonials:', error)
+      return []
+    }
+
+    return data as Testimonial[]
+  } catch (err) {
+    console.error('Exception fetching featured testimonials:', err)
     return []
   }
-
-  return data as Testimonial[]
 }
 
 /**

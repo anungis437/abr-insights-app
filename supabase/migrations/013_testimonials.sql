@@ -38,6 +38,7 @@ CREATE INDEX IF NOT EXISTS idx_testimonials_rating ON testimonials(rating);
 CREATE INDEX IF NOT EXISTS idx_testimonials_search ON testimonials USING gin(search_vector);
 
 -- Create updated_at trigger
+DROP TRIGGER IF EXISTS set_testimonials_updated_at ON testimonials;
 CREATE TRIGGER set_testimonials_updated_at
   BEFORE UPDATE ON testimonials
   FOR EACH ROW

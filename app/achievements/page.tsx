@@ -9,8 +9,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Trophy, Award, Star, Target, TrendingUp, Lock } from 'lucide-react'
-import Navigation from '@/components/shared/Navigation'
-import Footer from '@/components/shared/Footer'
 import { createClient } from '@/lib/supabase/client'
 import { AchievementsService, type UserPoints } from '@/lib/supabase/services/achievements'
 
@@ -108,9 +106,7 @@ export default function AchievementsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <Navigation />
-        <div className="container-custom py-20">
+      <div className="min-h-screen bg-gray-50">        <div className="container-custom py-20">
           <div className="mx-auto max-w-4xl text-center">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-600 border-t-transparent mx-auto" />
             <p className="mt-4 text-gray-600">Loading achievements...</p>
@@ -121,9 +117,7 @@ export default function AchievementsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navigation />
-      
+    <div className="min-h-screen bg-gray-50">      
       <div className="container-custom py-12">
         <div className="mx-auto max-w-6xl">
           {/* Header */}
@@ -308,9 +302,6 @@ export default function AchievementsPage() {
             </div>
           )}
         </div>
-      </div>
-
-      <Footer />
-    </div>
+      </div>    </div>
   )
 }

@@ -17,7 +17,6 @@ import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
-import Navigation from '@/components/shared/Navigation';
 
 // ============================================================================
 // TYPES
@@ -324,9 +323,7 @@ export default function DataExplorer() {
 
   // Render
   return (
-    <>
-      <Navigation />
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12 pt-24">
+    <>      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12 pt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-12">

@@ -319,24 +319,31 @@ CREATE INDEX IF NOT EXISTS idx_course_reviews_is_published ON course_reviews(is_
 -- TRIGGERS
 -- ============================================================================
 
+DROP TRIGGER IF EXISTS update_enrollments_updated_at ON enrollments;
 CREATE TRIGGER update_enrollments_updated_at BEFORE UPDATE ON enrollments
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_lesson_progress_updated_at ON lesson_progress;
 CREATE TRIGGER update_lesson_progress_updated_at BEFORE UPDATE ON lesson_progress
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_quiz_attempts_updated_at ON quiz_attempts;
 CREATE TRIGGER update_quiz_attempts_updated_at BEFORE UPDATE ON quiz_attempts
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_achievements_updated_at ON achievements;
 CREATE TRIGGER update_achievements_updated_at BEFORE UPDATE ON achievements
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_learning_streaks_updated_at ON learning_streaks;
 CREATE TRIGGER update_learning_streaks_updated_at BEFORE UPDATE ON learning_streaks
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_bookmarks_updated_at ON bookmarks;
 CREATE TRIGGER update_bookmarks_updated_at BEFORE UPDATE ON bookmarks
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_course_reviews_updated_at ON course_reviews;
 CREATE TRIGGER update_course_reviews_updated_at BEFORE UPDATE ON course_reviews
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 

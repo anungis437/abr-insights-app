@@ -15,7 +15,6 @@ import { useEffect, useState, Suspense, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
-import Navigation from '@/components/shared/Navigation';
 
 // ============================================================================
 // TYPES
@@ -232,9 +231,7 @@ function CasesBrowserContent() {
   }
 
   return (
-    <>
-      <Navigation />
-      <div className="min-h-screen bg-gray-50 pt-16">
+    <>      <div className="min-h-screen bg-gray-50 pt-16">
         <div className="container mx-auto px-4 py-8">
           {/* Header */}
           <div className="flex justify-between items-center mb-6">

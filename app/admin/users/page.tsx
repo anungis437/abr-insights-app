@@ -4,9 +4,7 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import Navigation from '@/components/shared/Navigation'
-import Footer from '@/components/shared/Footer'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/client'
 import {
   Users,
   Search,
@@ -49,11 +47,18 @@ function hasPermission(
   action: string
 ): boolean {
   if (!user || !user.role) return false
-  if (user.role === 'admin') {
+  // Map database roles to permission keys
+  if (user.role === 'super_admin') {
+    return DEFAULT_PERMISSIONS['Super Admin']?.[category]?.[action] || false
+  }
+  if (user.role === 'org_admin') {
     return DEFAULT_PERMISSIONS['Admin']?.[category]?.[action] || false
   }
-  const userRole = user.role_name || user.role
-  return DEFAULT_PERMISSIONS[userRole as string]?.[category]?.[action] || false
+  if (user.role === 'analyst') {
+    return DEFAULT_PERMISSIONS['Analyst']?.[category]?.[action] || false
+  }
+  // Default to Viewer for other roles
+  return DEFAULT_PERMISSIONS['Viewer']?.[category]?.[action] || false
 }
 
 type PermissionGateProps = {
@@ -125,31 +130,42 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     const checkAuthAndLoadUsers = async () => {
+      const supabase = createClient()
       // Check auth
       const { data: { user: currentUser } } = await supabase.auth.getUser()
+      console.log('[Users Page] Current user:', currentUser?.id, currentUser?.email)
       if (!currentUser) {
+        console.log('[Users Page] No user found, redirecting to login')
         router.push('/auth/login')
         return
       }
       setUser(currentUser)
       // Get full profile (with role)
-      const { data: profileData } = await supabase
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', currentUser.id)
         .single()
+      console.log('[Users Page] Profile data:', profileData)
+      console.log('[Users Page] Profile error:', profileError)
       if (!profileData) {
-        router.push('/')
+        console.log('[Users Page] No profile found, redirecting to dashboard')
+        router.push('/dashboard')
         return
       }
+      
+      // Only allow admins/super admins/compliance officers
+      const role = profileData.role
+      console.log('[Users Page] User role:', role)
+      if (role !== 'super_admin' && role !== 'org_admin' && role !== 'compliance_officer') {
+        console.log('[Users Page] Unauthorized role, redirecting to dashboard')
+        router.push('/dashboard')
+        return
+      }
+      
+      console.log('[Users Page] Authorization successful, loading users')
       setProfile(profileData)
-      // Only allow admins/super admins
-      const role = profileData.role_name || profileData.role
-      if (role !== 'Super Admin' && role !== 'Admin' && profileData.role !== 'admin') {
-        setIsLoading(false)
-        setProfile(profileData)
-        return
-      }
+      
       // Load users
       const { data: usersData, error } = await supabase
         .from('profiles')
@@ -194,6 +210,7 @@ export default function AdminUsersPage() {
   }, [searchQuery, filterStatus, filterOrg, users])
 
   const handleStatusChange = async (userId: string, newStatus: string) => {
+    const supabase = createClient()
     const { error } = await supabase
       .from('profiles')
       .update({ status: newStatus })
@@ -217,6 +234,7 @@ export default function AdminUsersPage() {
   const handleSaveRole = async () => {
     if (!selectedUser) return
     setRoleUpdating(true)
+    const supabase = createClient()
     const updates: any = { role_name: newRole }
     if (newRole === 'Super Admin' || newRole === 'Admin') {
       updates.role = 'admin'
@@ -284,9 +302,7 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Navigation />
-      <main className="flex-1 pt-16">
+    <div className="min-h-screen bg-gray-50 flex flex-col">      <main className="flex-1 pt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           {/* Header */}
           <div className="mb-8">
@@ -525,8 +541,6 @@ export default function AdminUsersPage() {
             </div>
           )}
         </div>
-      </main>
-      <Footer />
-    </div>
+      </main>    </div>
   )
 }

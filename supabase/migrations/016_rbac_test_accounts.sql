@@ -21,53 +21,81 @@
 -- Note: Password is hashed using Supabase's crypt function with bcrypt
 -- Password for all accounts: TestPass123!
 
-INSERT INTO auth.users (
-  id,
-  instance_id,
-  email,
-  encrypted_password,
-  email_confirmed_at,
-  created_at,
-  updated_at,
-  raw_app_meta_data,
-  raw_user_meta_data,
-  aud,
-  role
-)
-VALUES
-  ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000000', 'super_admin@abr-insights.com', crypt('TestPass123!', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}', 'authenticated', 'authenticated'),
-  ('00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000000', 'compliance@abr-insights.com', crypt('TestPass123!', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}', 'authenticated', 'authenticated'),
-  ('00000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000000', 'orgadmin@abr-insights.com', crypt('TestPass123!', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}', 'authenticated', 'authenticated'),
-  ('00000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-000000000000', 'analyst@abr-insights.com', crypt('TestPass123!', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}', 'authenticated', 'authenticated'),
-  ('00000000-0000-0000-0000-000000000005', '00000000-0000-0000-0000-000000000000', 'investigator@abr-insights.com', crypt('TestPass123!', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}', 'authenticated', 'authenticated'),
-  ('00000000-0000-0000-0000-000000000006', '00000000-0000-0000-0000-000000000000', 'educator@abr-insights.com', crypt('TestPass123!', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}', 'authenticated', 'authenticated'),
-  ('00000000-0000-0000-0000-000000000007', '00000000-0000-0000-0000-000000000000', 'learner@abr-insights.com', crypt('TestPass123!', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}', 'authenticated', 'authenticated'),
-  ('00000000-0000-0000-0000-000000000008', '00000000-0000-0000-0000-000000000000', 'viewer@abr-insights.com', crypt('TestPass123!', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}', 'authenticated', 'authenticated'),
-  ('00000000-0000-0000-0000-000000000009', '00000000-0000-0000-0000-000000000000', 'guest@abr-insights.com', crypt('TestPass123!', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}', 'authenticated', 'authenticated')
-ON CONFLICT (id) DO NOTHING;
-
--- Insert corresponding identities for email auth
-INSERT INTO auth.identities (
-  id,
-  user_id,
-  provider_id,
-  identity_data,
-  provider,
-  last_sign_in_at,
-  created_at,
-  updated_at
-)
-VALUES
-  (gen_random_uuid(), '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', '{"sub":"00000000-0000-0000-0000-000000000001","email":"super_admin@abr-insights.com"}', 'email', now(), now(), now()),
-  (gen_random_uuid(), '00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000002', '{"sub":"00000000-0000-0000-0000-000000000002","email":"compliance@abr-insights.com"}', 'email', now(), now(), now()),
-  (gen_random_uuid(), '00000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000003', '{"sub":"00000000-0000-0000-0000-000000000003","email":"orgadmin@abr-insights.com"}', 'email', now(), now(), now()),
-  (gen_random_uuid(), '00000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-000000000004', '{"sub":"00000000-0000-0000-0000-000000000004","email":"analyst@abr-insights.com"}', 'email', now(), now(), now()),
-  (gen_random_uuid(), '00000000-0000-0000-0000-000000000005', '00000000-0000-0000-0000-000000000005', '{"sub":"00000000-0000-0000-0000-000000000005","email":"investigator@abr-insights.com"}', 'email', now(), now(), now()),
-  (gen_random_uuid(), '00000000-0000-0000-0000-000000000006', '00000000-0000-0000-0000-000000000006', '{"sub":"00000000-0000-0000-0000-000000000006","email":"educator@abr-insights.com"}', 'email', now(), now(), now()),
-  (gen_random_uuid(), '00000000-0000-0000-0000-000000000007', '00000000-0000-0000-0000-000000000007', '{"sub":"00000000-0000-0000-0000-000000000007","email":"learner@abr-insights.com"}', 'email', now(), now(), now()),
-  (gen_random_uuid(), '00000000-0000-0000-0000-000000000008', '00000000-0000-0000-0000-000000000008', '{"sub":"00000000-0000-0000-0000-000000000008","email":"viewer@abr-insights.com"}', 'email', now(), now(), now()),
-  (gen_random_uuid(), '00000000-0000-0000-0000-000000000009', '00000000-0000-0000-0000-000000000009', '{"sub":"00000000-0000-0000-0000-000000000009","email":"guest@abr-insights.com"}', 'email', now(), now(), now())
-ON CONFLICT (provider, provider_id) DO NOTHING;
+-- Check and insert test accounts only if they don't exist
+DO $$
+DECLARE
+  test_emails TEXT[] := ARRAY[
+    'super_admin@abr-insights.com',
+    'compliance@abr-insights.com',
+    'orgadmin@abr-insights.com',
+    'analyst@abr-insights.com',
+    'investigator@abr-insights.com',
+    'educator@abr-insights.com',
+    'learner@abr-insights.com',
+    'viewer@abr-insights.com',
+    'guest@abr-insights.com'
+  ];
+  existing_count INT;
+BEGIN
+  -- Count existing test accounts
+  SELECT COUNT(*) INTO existing_count
+  FROM auth.users
+  WHERE email = ANY(test_emails);
+  
+  IF existing_count > 0 THEN
+    RAISE NOTICE 'Test accounts already exist (% found). Skipping auth.users insert.', existing_count;
+  ELSE
+    RAISE NOTICE 'Creating test accounts in auth.users...';
+    
+    INSERT INTO auth.users (
+      id,
+      instance_id,
+      email,
+      encrypted_password,
+      email_confirmed_at,
+      created_at,
+      updated_at,
+      raw_app_meta_data,
+      raw_user_meta_data,
+      aud,
+      role
+    )
+    VALUES
+      ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000000', 'super_admin@abr-insights.com', crypt('TestPass123!', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}', 'authenticated', 'authenticated'),
+      ('00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000000', 'compliance@abr-insights.com', crypt('TestPass123!', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}', 'authenticated', 'authenticated'),
+      ('00000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000000', 'orgadmin@abr-insights.com', crypt('TestPass123!', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}', 'authenticated', 'authenticated'),
+      ('00000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-000000000000', 'analyst@abr-insights.com', crypt('TestPass123!', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}', 'authenticated', 'authenticated'),
+      ('00000000-0000-0000-0000-000000000005', '00000000-0000-0000-0000-000000000000', 'investigator@abr-insights.com', crypt('TestPass123!', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}', 'authenticated', 'authenticated'),
+      ('00000000-0000-0000-0000-000000000006', '00000000-0000-0000-0000-000000000000', 'educator@abr-insights.com', crypt('TestPass123!', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}', 'authenticated', 'authenticated'),
+      ('00000000-0000-0000-0000-000000000007', '00000000-0000-0000-0000-000000000000', 'learner@abr-insights.com', crypt('TestPass123!', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}', 'authenticated', 'authenticated'),
+      ('00000000-0000-0000-0000-000000000008', '00000000-0000-0000-0000-000000000000', 'viewer@abr-insights.com', crypt('TestPass123!', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}', 'authenticated', 'authenticated'),
+      ('00000000-0000-0000-0000-000000000009', '00000000-0000-0000-0000-000000000000', 'guest@abr-insights.com', crypt('TestPass123!', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}', 'authenticated', 'authenticated')
+    ON CONFLICT (id) DO NOTHING;
+    
+    -- Insert corresponding identities for email auth
+    INSERT INTO auth.identities (
+      id,
+      user_id,
+      provider_id,
+      identity_data,
+      provider,
+      last_sign_in_at,
+      created_at,
+      updated_at
+    )
+    VALUES
+      (gen_random_uuid(), '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', '{"sub":"00000000-0000-0000-0000-000000000001","email":"super_admin@abr-insights.com"}', 'email', now(), now(), now()),
+      (gen_random_uuid(), '00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000002', '{"sub":"00000000-0000-0000-0000-000000000002","email":"compliance@abr-insights.com"}', 'email', now(), now(), now()),
+      (gen_random_uuid(), '00000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000003', '{"sub":"00000000-0000-0000-0000-000000000003","email":"orgadmin@abr-insights.com"}', 'email', now(), now(), now()),
+      (gen_random_uuid(), '00000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-000000000004', '{"sub":"00000000-0000-0000-0000-000000000004","email":"analyst@abr-insights.com"}', 'email', now(), now(), now()),
+      (gen_random_uuid(), '00000000-0000-0000-0000-000000000005', '00000000-0000-0000-0000-000000000005', '{"sub":"00000000-0000-0000-0000-000000000005","email":"investigator@abr-insights.com"}', 'email', now(), now(), now()),
+      (gen_random_uuid(), '00000000-0000-0000-0000-000000000006', '00000000-0000-0000-0000-000000000006', '{"sub":"00000000-0000-0000-0000-000000000006","email":"educator@abr-insights.com"}', 'email', now(), now(), now()),
+      (gen_random_uuid(), '00000000-0000-0000-0000-000000000007', '00000000-0000-0000-0000-000000000007', '{"sub":"00000000-0000-0000-0000-000000000007","email":"learner@abr-insights.com"}', 'email', now(), now(), now()),
+      (gen_random_uuid(), '00000000-0000-0000-0000-000000000008', '00000000-0000-0000-0000-000000000008', '{"sub":"00000000-0000-0000-0000-000000000008","email":"viewer@abr-insights.com"}', 'email', now(), now(), now()),
+      (gen_random_uuid(), '00000000-0000-0000-0000-000000000009', '00000000-0000-0000-0000-000000000009', '{"sub":"00000000-0000-0000-0000-000000000009","email":"guest@abr-insights.com"}', 'email', now(), now(), now())
+    ON CONFLICT (provider, provider_id) DO NOTHING;
+  END IF;
+END $$;
 
 -- Create corresponding profiles with roles
 INSERT INTO profiles (id, email, first_name, last_name, display_name, role, created_at, updated_at) 
@@ -179,8 +207,11 @@ VALUES
     now(),
     now()
   )
-ON CONFLICT (id) DO UPDATE SET
+ON CONFLICT (email) DO UPDATE SET
   role = EXCLUDED.role,
+  display_name = EXCLUDED.display_name,
+  first_name = EXCLUDED.first_name,
+  last_name = EXCLUDED.last_name,
   updated_at = now();
 
 -- Create RLS policy to allow test accounts to be viewed

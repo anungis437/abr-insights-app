@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import Navigation from '@/components/shared/Navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -101,7 +100,7 @@ export default function AIModelManagementPage() {
       .eq('id', user.id)
       .single()
 
-    if (!profile || profile.role !== 'admin') {
+    if (!profile || profile.role !== 'super_admin') {
       router.push('/dashboard')
       return
     }
@@ -384,7 +383,6 @@ export default function AIModelManagementPage() {
 
   return (
     <>
-      <Navigation />
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12 pt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}

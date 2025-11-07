@@ -4,8 +4,6 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import Navigation from "@/components/shared/Navigation";
-import Footer from "@/components/shared/Footer";
 import { Users, UserPlus, Mail, Trash2, CheckCircle, Clock, AlertCircle, ArrowLeft, Download } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -194,9 +192,7 @@ export default function TeamManagementPage() {
   
   if (!user || !organization) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
-        <Navigation />
-        <div className="container mx-auto py-16 px-4">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">        <div className="container mx-auto py-16 px-4">
           <div className="max-w-md mx-auto text-center">
             <Users className="w-16 h-16 mx-auto mb-4 text-gray-400" />
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Admin Access Required</h2>
@@ -211,9 +207,7 @@ export default function TeamManagementPage() {
               Back to Dashboard
             </Link>
           </div>
-        </div>
-        <Footer />
-      </div>
+        </div>      </div>
     )
   }
 
@@ -227,9 +221,7 @@ export default function TeamManagementPage() {
     .filter((v: string, i: number, a: string[]) => a.indexOf(v) === i).length
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
-      <Navigation />
-      
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">      
       <div className="container mx-auto py-12 px-4">
         {/* Header */}
         <div className="mb-8">
@@ -396,9 +388,6 @@ export default function TeamManagementPage() {
           </table>
         </div>
       </div>
-      </div>
-      
-      <Footer />
-    </div>
+      </div>    </div>
   )
 }

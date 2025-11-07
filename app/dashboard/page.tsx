@@ -22,8 +22,6 @@ import {
   User,
   Search
 } from 'lucide-react'
-import Navigation from '@/components/shared/Navigation'
-import Footer from '@/components/shared/Footer'
 import { createClient } from '@/lib/supabase/client'
 import { getCurrentProfile, type Profile } from '@/lib/supabase/services/profiles'
 import { AchievementsService } from '@/lib/supabase/services/achievements'
@@ -104,9 +102,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <Navigation />
-        <div className="container-custom py-20">
+      <div className="min-h-screen bg-gray-50">        <div className="container-custom py-20">
           <div className="mx-auto max-w-4xl text-center">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-600 border-t-transparent mx-auto" />
             <p className="mt-4 text-gray-600">Loading dashboard...</p>
@@ -117,9 +113,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navigation />
-      
+    <div className="min-h-screen bg-gray-50">      
       <div className="container-custom py-12">
         <div className="mx-auto max-w-7xl">
           {/* Header */}
@@ -351,9 +345,6 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-      </div>
-
-      <Footer />
-    </div>
+      </div>    </div>
   )
 }

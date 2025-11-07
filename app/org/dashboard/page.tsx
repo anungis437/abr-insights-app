@@ -9,8 +9,6 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Progress } from '@/components/ui/progress'
-import Navigation from '@/components/shared/Navigation'
-import Footer from '@/components/shared/Footer'
 import {
   Building2,
   Users,
@@ -189,24 +187,18 @@ export default function OrgDashboardPage() {
 
   if (loading) {
     return (
-      <>
-        <Navigation />
-        <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12 flex items-center justify-center">
+      <>        <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12 flex items-center justify-center">
           <div className="text-center">
             <Loader2 className="w-12 h-12 text-teal-600 animate-spin mx-auto mb-4" />
             <p className="text-gray-600">Loading organization dashboard...</p>
           </div>
-        </div>
-        <Footer />
-      </>
+        </div>      </>
     )
   }
 
   if (error) {
     return (
-      <>
-        <Navigation />
-        <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12 flex items-center justify-center">
+      <>        <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12 flex items-center justify-center">
           <Card className="max-w-md">
             <CardContent className="p-12 text-center">
               <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
@@ -219,17 +211,13 @@ export default function OrgDashboardPage() {
               </Link>
             </CardContent>
           </Card>
-        </div>
-        <Footer />
-      </>
+        </div>      </>
     )
   }
 
   if (!organization) {
     return (
-      <>
-        <Navigation />
-        <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12 flex items-center justify-center">
+      <>        <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12 flex items-center justify-center">
           <Card className="max-w-md">
             <CardContent className="p-12 text-center">
               <Building2 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
@@ -244,9 +232,7 @@ export default function OrgDashboardPage() {
               </Link>
             </CardContent>
           </Card>
-        </div>
-        <Footer />
-      </>
+        </div>      </>
     )
   }
 
@@ -277,9 +263,7 @@ export default function OrgDashboardPage() {
   const notStarted = totalMembers - activeLearners
 
   return (
-    <>
-      <Navigation />
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12">
+    <>      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="mb-12">
@@ -550,8 +534,6 @@ export default function OrgDashboardPage() {
             </div>
           </div>
         </div>
-      </div>
-      <Footer />
-    </>
+      </div>    </>
   )
 }

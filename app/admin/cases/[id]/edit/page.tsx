@@ -4,8 +4,6 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { Plus, X, Save, ArrowLeft, AlertCircle } from 'lucide-react'
-import Navigation from '@/components/shared/Navigation'
-import Footer from '@/components/shared/Footer'
 import { supabase } from '@/lib/supabase'
 
 interface CaseFormData {
@@ -100,10 +98,10 @@ export default function EditCasePage() {
       .single()
 
     const isAdmin = 
-      profileData?.role === 'admin' ||
       profileData?.role === 'super_admin' ||
       profileData?.role === 'org_admin' ||
-      profileData?.role === 'compliance_officer'
+      profileData?.role === 'compliance_officer' ||
+      profileData?.role === 'educator'
 
     if (!isAdmin) {
       router.push('/')
@@ -281,7 +279,6 @@ export default function EditCasePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
-      <Navigation />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
@@ -756,7 +753,6 @@ export default function EditCasePage() {
         </div>
       </div>
 
-      <Footer />
     </div>
   )
 }

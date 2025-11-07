@@ -2,9 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import Navigation from '@/components/shared/Navigation'
-import Footer from '@/components/shared/Footer'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/client'
 import { 
   TrendingUp, 
   Users, 
@@ -64,10 +62,13 @@ export default function AdminAnalyticsPage() {
 
   useEffect(() => {
     const checkAuthAndLoadAnalytics = async () => {
+      const supabase = createClient()
       // Check auth
       const { data: { user: currentUser } } = await supabase.auth.getUser()
       
+      console.log('[Analytics Page] Current user:', currentUser?.id, currentUser?.email)
       if (!currentUser) {
+        console.log('[Analytics Page] No user found, redirecting to login')
         router.push('/auth/login')
         return
       }
@@ -75,17 +76,36 @@ export default function AdminAnalyticsPage() {
       setUser(currentUser)
 
       // Check admin role
-      const { data: profileData } = await supabase
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', currentUser.id)
         .single()
 
+      console.log('[Analytics Page] Profile data:', profileData)
+      console.log('[Analytics Page] Profile error:', profileError)
+
       if (!profileData) {
-        router.push('/')
+        console.log('[Analytics Page] No profile found, redirecting to dashboard')
+        router.push('/dashboard')
         return
       }
 
+      // Only allow admins and analysts
+      const isAdmin = 
+        profileData.role === 'super_admin' ||
+        profileData.role === 'org_admin' ||
+        profileData.role === 'analyst'
+
+      console.log('[Analytics Page] User role:', profileData.role, 'isAdmin:', isAdmin)
+
+      if (!isAdmin) {
+        console.log('[Analytics Page] Unauthorized, redirecting to dashboard')
+        router.push('/dashboard')
+        return
+      }
+
+      console.log('[Analytics Page] Authorization successful, loading analytics')
       // Load analytics data
       await loadAnalyticsData()
       setIsLoading(false)
@@ -95,6 +115,7 @@ export default function AdminAnalyticsPage() {
   }, [router])
 
   const loadAnalyticsData = async () => {
+    const supabase = createClient()
     try {
       // User Growth
       const { count: totalUsers } = await supabase
@@ -238,9 +259,7 @@ export default function AdminAnalyticsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Navigation />
-      
+    <div className="min-h-screen bg-gray-50 flex flex-col">      
       <main className="flex-1 pt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           {/* Header */}
@@ -445,9 +464,6 @@ export default function AdminAnalyticsPage() {
             </div>
           </div>
         </div>
-      </main>
-
-      <Footer />
-    </div>
+      </main>    </div>
   )
 }

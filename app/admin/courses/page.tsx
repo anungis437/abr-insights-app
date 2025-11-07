@@ -2,9 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import Navigation from '@/components/shared/Navigation'
-import Footer from '@/components/shared/Footer'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/client'
 import { 
   BookOpen, 
   Plus, 
@@ -51,10 +49,13 @@ export default function AdminCoursesPage() {
 
   useEffect(() => {
     const checkAuthAndLoadCourses = async () => {
+      const supabase = createClient()
       // Check auth
       const { data: { user: currentUser } } = await supabase.auth.getUser()
       
+      console.log('[Courses Page] Current user:', currentUser?.id, currentUser?.email)
       if (!currentUser) {
+        console.log('[Courses Page] No user found, redirecting to login')
         router.push('/auth/login')
         return
       }
@@ -62,23 +63,29 @@ export default function AdminCoursesPage() {
       setUser(currentUser)
 
       // Check admin role
-      const { data: profileData } = await supabase
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', currentUser.id)
         .single()
 
+      console.log('[Courses Page] Profile data:', profileData)
+      console.log('[Courses Page] Profile error:', profileError)
+
       const isAdmin = 
-        profileData?.role === 'admin' ||
         profileData?.role === 'super_admin' ||
         profileData?.role === 'org_admin' ||
-        profileData?.role === 'compliance_officer'
+        profileData?.role === 'educator'
+
+      console.log('[Courses Page] User role:', profileData?.role, 'isAdmin:', isAdmin)
 
       if (!isAdmin) {
-        router.push('/')
+        console.log('[Courses Page] Unauthorized, redirecting to dashboard')
+        router.push('/dashboard')
         return
       }
 
+      console.log('[Courses Page] Authorization successful, loading courses')
       // Load courses
       const { data: coursesData, error } = await supabase
         .from('courses')
@@ -130,6 +137,7 @@ export default function AdminCoursesPage() {
   }, [searchQuery, filterLevel, filterTier, filterStatus, courses])
 
   const handleTogglePublish = async (courseId: string, currentStatus: boolean) => {
+    const supabase = createClient()
     const { error } = await supabase
       .from('courses')
       .update({ 
@@ -148,6 +156,7 @@ export default function AdminCoursesPage() {
   }
 
   const handleToggleFeatured = async (courseId: string, currentStatus: boolean) => {
+    const supabase = createClient()
     const { error } = await supabase
       .from('courses')
       .update({ is_featured: !currentStatus })
@@ -167,6 +176,7 @@ export default function AdminCoursesPage() {
       return
     }
 
+    const supabase = createClient()
     const { error } = await supabase
       .from('courses')
       .delete()
@@ -195,9 +205,7 @@ export default function AdminCoursesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Navigation />
-      
+    <div className="min-h-screen bg-gray-50 flex flex-col">      
       <main className="flex-1 pt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           {/* Header */}
@@ -451,9 +459,6 @@ export default function AdminCoursesPage() {
             )}
           </div>
         </div>
-      </main>
-
-      <Footer />
-    </div>
+      </main>    </div>
   )
 }

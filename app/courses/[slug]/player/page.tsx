@@ -26,8 +26,6 @@ import {
   FileText
 } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
-import Navigation from '@/components/shared/Navigation'
-import Footer from '@/components/shared/Footer'
 
 // Types
 interface Course {
@@ -376,7 +374,6 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Navigation />
       
       <div className="flex-1 flex pt-16">
         {/* Sidebar */}
