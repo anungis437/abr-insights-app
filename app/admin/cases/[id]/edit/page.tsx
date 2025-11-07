@@ -371,10 +371,11 @@ export default function EditCasePage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="tribunal-province" className="block text-sm font-medium text-gray-700 mb-2">
                   Province/Territory
                 </label>
                 <select
+                  id="tribunal-province"
                   value={formData.tribunal_province}
                   onChange={(e) => setFormData(prev => ({ ...prev, tribunal_province: e.target.value }))}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
@@ -389,10 +390,11 @@ export default function EditCasePage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="decision-date" className="block text-sm font-medium text-gray-700 mb-2">
                   Decision Date *
                 </label>
                 <input
+                  id="decision-date"
                   type="date"
                   value={formData.decision_date}
                   onChange={(e) => setFormData(prev => ({ ...prev, decision_date: e.target.value }))}
@@ -402,10 +404,11 @@ export default function EditCasePage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="filing-date" className="block text-sm font-medium text-gray-700 mb-2">
                   Filing Date
                 </label>
                 <input
+                  id="filing-date"
                   type="date"
                   value={formData.filing_date}
                   onChange={(e) => setFormData(prev => ({ ...prev, filing_date: e.target.value }))}
@@ -532,6 +535,7 @@ export default function EditCasePage() {
                           type="button"
                           onClick={() => removeArrayItem('subcategories', index)}
                           className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                          aria-label="Remove subcategory"
                         >
                           <X className="w-5 h-5" />
                         </button>
@@ -569,6 +573,7 @@ export default function EditCasePage() {
                           type="button"
                           onClick={() => removeArrayItem('key_issues', index)}
                           className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                          aria-label="Remove key issue"
                         >
                           <X className="w-5 h-5" />
                         </button>
@@ -606,6 +611,7 @@ export default function EditCasePage() {
                           type="button"
                           onClick={() => removeArrayItem('remedies', index)}
                           className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                          aria-label="Remove remedy"
                         >
                           <X className="w-5 h-5" />
                         </button>
@@ -643,6 +649,7 @@ export default function EditCasePage() {
                           type="button"
                           onClick={() => removeArrayItem('outcomes', index)}
                           className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                          aria-label="Remove outcome"
                         >
                           <X className="w-5 h-5" />
                         </button>
@@ -680,6 +687,7 @@ export default function EditCasePage() {
                       type="button"
                       onClick={() => removeArrayItem('tags', index)}
                       className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                      aria-label="Remove tag"
                     >
                       <X className="w-5 h-5" />
                     </button>
