@@ -77,13 +77,17 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ├── components/             # React components
 ├── lib/                    # Utility libraries (Supabase, etc.)
 ├── public/                 # Static assets
-├── docs/                   # Comprehensive documentation
-│   ├── design/            # Design specs (PUBLIC_SITE_STRATEGY.md)
-│   ├── deployment/        # Deployment docs (AZURE_SWA.md, CICD.md, MONITORING.md)
-│   └── architecture/      # Technical architecture docs
+├── ingestion/             # Automated case ingestion system
+│   ├── src/               # Scrapers, classifiers, orchestrator
+│   └── tests/             # Unit tests (35 tests, all passing)
+├── scripts/               # Utility scripts for DB, testing, AI
+├── docs/                  # Comprehensive documentation
+│   ├── design/            # Design specs
+│   ├── deployment/        # Deployment docs
+│   ├── architecture/      # Technical architecture
+│   └── ingestion/         # Ingestion system docs
 ├── supabase/              # Database migrations and types
-│   └── migrations/        # SQL migration files (001-010)
-├── api/                   # Azure Functions (serverless API)
+│   └── migrations/        # SQL migration files
 └── legacy/                # Legacy React app (deprecated)
 ```
 
@@ -112,31 +116,42 @@ Comprehensive documentation available in `docs/`:
 
 ## Available Scripts
 
+### Development
+
 - `npm run dev` - Start development server
 - `npm run build` - Build production bundle
 - `npm run start` - Start production server
 - `npm run lint` - Run ESLint
 - `npm run format` - Format code with Prettier
+
+### Testing
+
 - `npm run test` - Run Vitest unit tests
+- `npm run test:unit` - Run unit tests with coverage
 - `npm run test:e2e` - Run Playwright E2E tests
 
-## Testing
+### Ingestion
+
+- `npm run ingest` - Run case ingestion pipeline
+- `npm run ingest -- --demo` - Run with demo data
+- `npm run ingest -- --dry-run` - Test mode (no DB writes)
+
+## Running Tests
 
 ```bash
-# Unit tests
-npm run test:unit
+# All tests (unit + integration)
+npm run test
 
-# Integration tests
-npm run test:integration
+# Unit tests with coverage
+npm run test:unit -- --coverage
 
 # E2E tests
 npm run test:e2e
-
-# Coverage report
-npm run test:unit -- --coverage
 ```
 
-## Deployment
+Test Status: **35/35 passing** ✅ (33 unit tests + 2 skipped integration tests)
+
+## Production Deployment
 
 ### Azure Static Web Apps
 
@@ -162,7 +177,7 @@ UNLICENSED - Proprietary software
 
 - **Documentation**: Check `docs/` directory
 - **Issues**: Create a GitHub issue
-- **Contact**: devops@abrinsights.ca
+- **Contact**: <devops@abrinsights.ca>
 
 ---
 

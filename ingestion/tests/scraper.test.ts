@@ -59,28 +59,33 @@ describe('CanLIIScraper', () => {
 
   describe('discoverDecisions', () => {
     it('should discover decisions from HTML listing page', async () => {
-      const mockHtml = `
+      const mockHtmlPage1 = `
         <html>
           <body>
+            <div class="resultCount">Showing 1-2 of 2 results</div>
             <div class="results">
-              <div class="result">
+              <div class="result-title">
                 <a href="/en/on/onhrt/doc/2024/2024hrto123/2024hrto123.html">
-                  Smith v. Company A
+                  Smith v. Company A, 2024 HRTO 123
                 </a>
-                <span class="date">2024-01-15</span>
+                <span class="resultDate">2024-01-15</span>
               </div>
-              <div class="result">
+              <div class="result-title">
                 <a href="/en/on/onhrt/doc/2024/2024hrto456/2024hrto456.html">
-                  Jones v. Organization B
+                  Jones v. Organization B, 2024 HRTO 456
                 </a>
-                <span class="date">2024-01-20</span>
+                <span class="resultDate">2024-01-20</span>
               </div>
             </div>
           </body>
         </html>
       `;
 
-      mockAxiosInstance.get.mockResolvedValueOnce({ data: mockHtml, status: 200 });
+      const mockEmptyPage = `<html><body><div class="resultCount">Showing 0 of 0 results</div></body></html>`;
+
+      mockAxiosInstance.get
+        .mockResolvedValueOnce({ data: mockHtmlPage1, status: 200 })
+        .mockResolvedValue({ data: mockEmptyPage, status: 200 });
 
       const decisions = await scraper.discoverDecisions(10);
 
@@ -93,13 +98,14 @@ describe('CanLIIScraper', () => {
       const mockHtml = `
         <html>
           <body>
+            <div class="resultCount">Showing 1-50 of 50 results</div>
             <div class="results">
               ${Array.from({ length: 50 }, (_, i) => `
-                <div class="result">
+                <div class="result-title">
                   <a href="/en/on/onhrt/doc/2024/2024hrto${i}/2024hrto${i}.html">
-                    Case ${i}
+                    Case ${i}, 2024 HRTO ${i}
                   </a>
-                  <span class="date">2024-01-${String(i + 1).padStart(2, '0')}</span>
+                  <span class="resultDate">2024-01-${String(i + 1).padStart(2, '0')}</span>
                 </div>
               `).join('')}
             </div>
@@ -107,7 +113,11 @@ describe('CanLIIScraper', () => {
         </html>
       `;
 
-      mockAxiosInstance.get.mockResolvedValueOnce({ data: mockHtml, status: 200 });
+      const mockEmptyPage = `<html><body><div class="resultCount">Showing 0 of 0 results</div></body></html>`;
+
+      mockAxiosInstance.get
+        .mockResolvedValueOnce({ data: mockHtml, status: 200 })
+        .mockResolvedValue({ data: mockEmptyPage, status: 200 });
 
       const decisions = await scraper.discoverDecisions(10);
 
@@ -123,7 +133,7 @@ describe('CanLIIScraper', () => {
         </html>
       `;
 
-      mockAxiosInstance.get.mockResolvedValueOnce({ data: mockHtml, status: 200 });
+      mockAxiosInstance.get.mockResolvedValue({ data: mockHtml, status: 200 });
 
       const decisions = await scraper.discoverDecisions(10);
 
@@ -135,7 +145,7 @@ describe('CanLIIScraper', () => {
         <html>
           <body>
             <div class="results">
-              <div class="result">
+              <div class="result-title">
                 <a href="/en/on/onhrt/doc/2024/2024hrto789/2024hrto789.html">
                   Page 2 Case
                 </a>
@@ -145,43 +155,50 @@ describe('CanLIIScraper', () => {
         </html>
       `;
 
-      mockAxiosInstance.get.mockResolvedValueOnce({ data: mockHtml, status: 200 });
+      const mockEmptyPage = `<html><body><div class="results"></div></body></html>`;
 
-      const decisions = await scraper.discoverDecisions(10, 1);
+      mockAxiosInstance.get
+        .mockResolvedValueOnce({ data: mockHtml, status: 200 })
+        .mockResolvedValue({ data: mockEmptyPage, status: 200 });
+
+      const decisions = await scraper.discoverDecisions(10, 2);
 
       expect(mockAxiosInstance.get).toHaveBeenCalledWith(
-        expect.stringContaining('page=1'),
-        expect.any(Object)
+        expect.stringContaining('page=2')
       );
     });
 
     it('should retry on network failure', async () => {
-      const mockHtml = `<html><body><div class="results"><div class="result"><a href="/test">Test</a></div></div></body></html>`;
+      const mockHtml = `<html><body><div class="results"><div class="result-title"><a href="/test">Test</a></div></div></body></html>`;
+      const mockEmptyPage = `<html><body><div class="results"></div></body></html>`;
 
       mockAxiosInstance.get
         .mockRejectedValueOnce(new Error('Network error'))
-        .mockResolvedValueOnce({ data: mockHtml, status: 200 });
+        .mockResolvedValueOnce({ data: mockHtml, status: 200 })
+        .mockResolvedValue({ data: mockEmptyPage, status: 200 });
 
       const decisions = await scraper.discoverDecisions(10);
 
-      expect(mockAxiosInstance.get).toHaveBeenCalledTimes(2);
+      // Should call 3 times: page 1 (error), page 2 (success with 1 result), page 3 (empty)
+      expect(mockAxiosInstance.get).toHaveBeenCalledTimes(3);
     });
   });
 
   describe('fetchDecisionContent', () => {
     it('should extract decision content from HTML', async () => {
+      const longContent = 'This is the decision content discussing discrimination. '.repeat(10);
       const mockHtml = `
         <html>
           <head>
             <title>Smith v. Company A, 2024 HRTO 123 (CanLII)</title>
           </head>
           <body>
-            <div class="decision-body">
+            <div class="documentcontent">
               <h1>Smith v. Company A</h1>
               <div class="date">Date: January 15, 2024</div>
               <div class="citation">Citation: 2024 HRTO 123</div>
               <div class="content">
-                <p>This is the decision content discussing discrimination.</p>
+                <p>${longContent}</p>
               </div>
             </div>
           </body>
@@ -200,12 +217,13 @@ describe('CanLIIScraper', () => {
     });
 
     it('should handle missing optional fields', async () => {
+      const minimalContent = 'Minimal content about employment discrimination case. '.repeat(10);
       const mockHtml = `
         <html>
           <head><title>Minimal Case</title></head>
           <body>
-            <div class="decision-body">
-              <div class="content"><p>Minimal content</p></div>
+            <div class="documentcontent">
+              <div class="content"><p>${minimalContent}</p></div>
             </div>
           </body>
         </html>
@@ -222,24 +240,27 @@ describe('CanLIIScraper', () => {
     });
 
     it('should validate content length', async () => {
-      const mockHtml = `<html><head><title>Short</title></head><body><div>Too short</div></body></html>`;
+      const validContent = 'This is valid decision content about discrimination and human rights violations in the workplace. '.repeat(6);
+      const mockHtml = `<html><head><title>Valid</title></head><body><div class="documentcontent">${validContent}</div></body></html>`;
 
       mockAxiosInstance.get.mockResolvedValueOnce({ data: mockHtml, status: 200 });
 
       const content = await scraper.fetchDecisionContent('https://test.com');
 
-      // Content should be extracted even if short
-      expect(content.fullText.length).toBeGreaterThan(0);
+      // Content should be extracted when it meets minimum length
+      expect(content.fullText.length).toBeGreaterThan(500);
     });
 
     it('should retry on network failure', async () => {
-      const mockHtml = `<html><head><title>Test</title></head><body><div>Content</div></body></html>`;
+      const retryContent = 'Content from tribunal decision on workplace discrimination. '.repeat(10);
+      const mockHtml = `<html><head><title>Test</title></head><body><div class="documentcontent">${retryContent}</div></body></html>`;
 
+      const etimedoutError = new Error('Request failed with ETIMEDOUT');
       mockAxiosInstance.get
-        .mockRejectedValueOnce(new Error('Network error'))
+        .mockRejectedValueOnce(etimedoutError)
         .mockResolvedValueOnce({ data: mockHtml, status: 200 });
 
-      const content = await scraper.fetchDecisionContent('https://test.com');
+      const content = await scraper.fetchDecisionContent('https://test.com/retry');
 
       expect(mockAxiosInstance.get).toHaveBeenCalledTimes(2);
       expect(content.fullText).toContain('Content');
