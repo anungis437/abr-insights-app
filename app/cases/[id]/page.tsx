@@ -20,9 +20,31 @@ import {
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { createClient } from '@supabase/supabase-js'
 
-// Generate static paths for sample cases
+// Generate static paths for all cases in database
 export async function generateStaticParams() {
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+    
+    const { data: cases } = await supabase
+      .from('cases')
+      .select('id')
+      .order('id', { ascending: true })
+    
+    if (cases && cases.length > 0) {
+      return cases.map((c) => ({
+        id: c.id.toString(),
+      }))
+    }
+  } catch (error) {
+    console.error('Error fetching cases for generateStaticParams:', error)
+  }
+  
+  // Fallback to sample cases if database fetch fails
   return [
     { id: '1' },
     { id: '2' },
@@ -124,8 +146,9 @@ This case highlights the importance of:
   return cases[id] || null
 }
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const caseStudy = await getCaseStudy(params.id)
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params
+  const caseStudy = await getCaseStudy(id)
 
   if (!caseStudy) {
     return {
@@ -139,8 +162,9 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   }
 }
 
-export default async function CasePage({ params }: { params: { id: string } }) {
-  const caseStudy = await getCaseStudy(params.id)
+export default async function CasePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const caseStudy = await getCaseStudy(id)
 
   if (!caseStudy) {
     notFound()
