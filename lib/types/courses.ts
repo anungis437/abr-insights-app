@@ -721,3 +721,18 @@ export interface ReviewFilters {
   page?: number
   page_size?: number
 }
+
+// ============================================================================
+// HELPER TYPES FOR SERVICE LAYER
+// ============================================================================
+
+// Module with populated lessons
+export interface CourseModuleWithLessons extends CourseModule {
+  lessons: Lesson[]
+}
+
+// Enrollment with populated course data and progress
+export interface EnrollmentWithProgress extends Enrollment {
+  lesson_progress?: LessonProgress[]
+  certificate?: any
+}
