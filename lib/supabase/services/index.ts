@@ -18,6 +18,9 @@ export * from './achievements'
 
 // User Engagement
 export * from './notifications'
+
+// Public Site
+export * from './testimonials'
 export * from './resources'
 export * from './savedSearches'
 
