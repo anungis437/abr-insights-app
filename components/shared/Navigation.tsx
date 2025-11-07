@@ -11,6 +11,7 @@ export default function Navigation() {
     { href: '/about', label: 'About' },
     { href: '/courses', label: 'Courses' },
     { href: '/cases', label: 'Case Explorer' },
+    { href: '/analytics', label: 'Analytics' },
     { href: '/pricing', label: 'Pricing' },
     { href: '/resources', label: 'Resources' },
     { href: '/contact', label: 'Contact' },
