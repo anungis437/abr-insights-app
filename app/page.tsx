@@ -1,35 +1,50 @@
 'use client';
 
 import Link from 'next/link'
-import { BookOpen, Scale, Users, TrendingUp, ArrowRight } from 'lucide-react'
+import { BookOpen, Scale, Users, TrendingUp, ArrowRight, Clock, Award } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import Navigation from '@/components/shared/Navigation'
 import Footer from '@/components/shared/Footer'
-import { supabase } from '@/lib/supabase'
+import { tribunalCasesService, coursesService } from '@/lib/supabase/services'
+import type { Course } from '@/lib/supabase/services'
 
 export default function HomePage() {
-  const [stats, setStats] = useState({ totalCases: 465, abrCases: 228 });
+  const [stats, setStats] = useState({ 
+    totalCases: 0, 
+    abrCases: 0,
+    totalCourses: 0,
+    loading: true 
+  });
+  const [featuredCourses, setFeaturedCourses] = useState<Course[]>([]);
 
   useEffect(() => {
-    async function fetchStats() {
+    async function fetchData() {
       try {
-        const { count: totalCount } = await supabase
-          .from('cases')
-          .select('*', { count: 'exact', head: true });
+        // Fetch tribunal case stats
+        const caseStats = await tribunalCasesService.getStats();
+        
+        // Fetch featured courses (latest 3 published courses)
+        const { data: courses } = await coursesService.list(
+          { status: 'published' },
+          { limit: 3 }
+        );
 
-        const { count: abrCount } = await supabase
-          .from('cases')
-          .select('*', { count: 'exact', head: true })
-          .or('rule_based_classification->>category.eq.anti_black_racism,ai_classification->>category.eq.anti_black_racism');
-
-        if (totalCount !== null && abrCount !== null) {
-          setStats({ totalCases: totalCount, abrCases: abrCount });
+        setStats({
+          totalCases: caseStats?.total_cases || 0,
+          abrCases: caseStats?.abr_cases || 0,
+          totalCourses: caseStats?.total_courses || 0,
+          loading: false,
+        });
+        
+        if (courses) {
+          setFeaturedCourses(courses);
         }
       } catch (err) {
-        console.error('Failed to fetch stats:', err);
+        console.error('Failed to fetch data:', err);
+        setStats(prev => ({ ...prev, loading: false }));
       }
     }
-    fetchStats();
+    fetchData();
   }, []);
 
   return (
@@ -126,13 +141,54 @@ export default function HomePage() {
       <section className="bg-gray-50 py-20">
         <div className="container-custom">
           <div className="grid gap-8 md:grid-cols-4">
-            <StatCard number={stats.totalCases.toLocaleString()} label="Tribunal Cases Analyzed" />
-            <StatCard number={stats.abrCases.toLocaleString()} label="ABR Cases Identified" />
-            <StatCard number="3" label="Interactive Courses" />
-            <StatCard number="100%" label="AI-Enhanced Classification" />
+            <StatCard 
+              number={stats.loading ? '...' : stats.totalCases.toLocaleString()} 
+              label="Tribunal Cases Analyzed" 
+            />
+            <StatCard 
+              number={stats.loading ? '...' : stats.abrCases.toLocaleString()} 
+              label="ABR Cases Identified" 
+            />
+            <StatCard 
+              number={stats.loading ? '...' : stats.totalCourses.toLocaleString()} 
+              label="Interactive Courses" 
+            />
+            <StatCard 
+              number="100%" 
+              label="AI-Enhanced Classification" 
+            />
           </div>
         </div>
       </section>
+
+      {/* Featured Courses Section */}
+      {featuredCourses.length > 0 && (
+        <section className="py-20">
+          <div className="container-custom">
+            <div className="mb-12 text-center">
+              <h2 className="mb-4 text-4xl font-bold text-gray-900">
+                Featured Training Courses
+              </h2>
+              <p className="mx-auto max-w-2xl text-xl text-gray-600">
+                Start your anti-racism journey with our expert-designed courses
+              </p>
+            </div>
+            
+            <div className="grid gap-8 md:grid-cols-3">
+              {featuredCourses.map((course) => (
+                <CourseCard key={course.id} course={course} />
+              ))}
+            </div>
+
+            <div className="mt-12 text-center">
+              <Link href="/courses" className="btn-primary">
+                View All Courses
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* CTA Section */}
       <section className="py-20">
@@ -188,4 +244,46 @@ function StatCard({ number, label }: { number: string; label: string }) {
   )
 }
 
-      <Footer />
+function CourseCard({ course }: { course: Course }) {
+  const levelColor = {
+    beginner: 'bg-green-100 text-green-800',
+    intermediate: 'bg-blue-100 text-blue-800',
+    advanced: 'bg-purple-100 text-purple-800',
+  }[course.level] || 'bg-gray-100 text-gray-800';
+
+  return (
+    <Link href={`/courses/${course.slug}`} className="group card hover:shadow-xl transition-shadow">
+      <div className="mb-4 flex items-center justify-between">
+        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${levelColor}`}>
+          {course.level.charAt(0).toUpperCase() + course.level.slice(1)}
+        </span>
+        {course.duration_minutes && (
+          <span className="flex items-center text-sm text-gray-500">
+            <Clock className="mr-1 h-4 w-4" />
+            {course.duration_minutes} min
+          </span>
+        )}
+      </div>
+      
+      <h3 className="mb-2 text-xl font-semibold text-gray-900 group-hover:text-primary-600">
+        {course.title}
+      </h3>
+      
+      {course.description && (
+        <p className="mb-4 text-sm text-gray-600 line-clamp-3">
+          {course.description}
+        </p>
+      )}
+      
+      <div className="flex items-center justify-between text-sm text-gray-500">
+        <span className="flex items-center">
+          <BookOpen className="mr-1 h-4 w-4" />
+          {course.total_lessons || 0} lessons
+        </span>
+        <span className="text-primary-600 group-hover:underline">
+          Start Learning →
+        </span>
+      </div>
+    </Link>
+  )
+}
