@@ -5,8 +5,9 @@ import { BookOpen, Scale, Users, TrendingUp, ArrowRight, Clock, Award } from 'lu
 import { useEffect, useState } from 'react'
 import Navigation from '@/components/shared/Navigation'
 import Footer from '@/components/shared/Footer'
-import { tribunalCasesService, coursesService } from '@/lib/supabase/services'
-import type { Course } from '@/lib/supabase/services'
+import Testimonials from '@/components/shared/Testimonials'
+import { tribunalCasesService, coursesService, getFeaturedTestimonials } from '@/lib/supabase/services'
+import type { Course, Testimonial } from '@/lib/supabase/services'
 
 export default function HomePage() {
   const [stats, setStats] = useState({ 
@@ -16,6 +17,7 @@ export default function HomePage() {
     loading: true 
   });
   const [featuredCourses, setFeaturedCourses] = useState<Course[]>([]);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
 
   useEffect(() => {
     async function fetchData() {
@@ -29,6 +31,9 @@ export default function HomePage() {
           { limit: 3 }
         );
 
+        // Fetch featured testimonials
+        const testimonialsData = await getFeaturedTestimonials(3);
+
         setStats({
           totalCases: caseStats?.total_cases || 0,
           abrCases: caseStats?.abr_cases || 0,
@@ -39,6 +44,8 @@ export default function HomePage() {
         if (courses) {
           setFeaturedCourses(courses);
         }
+        
+        setTestimonials(testimonialsData);
       } catch (err) {
         console.error('Failed to fetch data:', err);
         setStats(prev => ({ ...prev, loading: false }));
@@ -189,6 +196,9 @@ export default function HomePage() {
           </div>
         </section>
       )}
+
+      {/* Testimonials Section */}
+      <Testimonials testimonials={testimonials} />
 
       {/* CTA Section */}
       <section className="py-20">
