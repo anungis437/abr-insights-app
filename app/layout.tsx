@@ -21,11 +21,12 @@ export const metadata: Metadata = {
     'workplace equity',
   ],
   authors: [{ name: 'ABR Insights Team' }],
+  metadataBase: new URL('https://purple-ground-03d2b380f.3.azurestaticapps.net'),
   openGraph: {
     type: 'website',
     locale: 'en_CA',
     alternateLocale: ['fr_CA'],
-    url: 'https://abrinsights.ca',
+    url: 'https://purple-ground-03d2b380f.3.azurestaticapps.net',
     siteName: 'ABR Insights',
     title: 'ABR Insights | Anti-Black Racism Training & Resources',
     description: 'Comprehensive anti-Black racism training platform',

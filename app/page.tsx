@@ -1,9 +1,37 @@
+'use client';
+
 import Link from 'next/link'
 import { BookOpen, Scale, Users, TrendingUp, ArrowRight } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import Navigation from '@/components/shared/Navigation'
 import Footer from '@/components/shared/Footer'
+import { supabase } from '@/lib/supabase'
 
 export default function HomePage() {
+  const [stats, setStats] = useState({ totalCases: 465, abrCases: 228 });
+
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        const { count: totalCount } = await supabase
+          .from('cases')
+          .select('*', { count: 'exact', head: true });
+
+        const { count: abrCount } = await supabase
+          .from('cases')
+          .select('*', { count: 'exact', head: true })
+          .or('rule_based_classification->>category.eq.anti_black_racism,ai_classification->>category.eq.anti_black_racism');
+
+        if (totalCount !== null && abrCount !== null) {
+          setStats({ totalCases: totalCount, abrCases: abrCount });
+        }
+      } catch (err) {
+        console.error('Failed to fetch stats:', err);
+      }
+    }
+    fetchStats();
+  }, []);
+
   return (
     <div className="min-h-screen">
       <Navigation />
@@ -97,10 +125,11 @@ export default function HomePage() {
       {/* Stats Section */}
       <section className="bg-gray-50 py-20">
         <div className="container-custom">
-          <div className="grid gap-8 md:grid-cols-3">
-            <StatCard number="10,000+" label="Tribunal Cases Indexed" />
-            <StatCard number="50+" label="Expert-Led Courses" />
-            <StatCard number="500+" label="Organizations Trained" />
+          <div className="grid gap-8 md:grid-cols-4">
+            <StatCard number={stats.totalCases.toLocaleString()} label="Tribunal Cases Analyzed" />
+            <StatCard number={stats.abrCases.toLocaleString()} label="ABR Cases Identified" />
+            <StatCard number="3" label="Interactive Courses" />
+            <StatCard number="100%" label="AI-Enhanced Classification" />
           </div>
         </div>
       </section>
