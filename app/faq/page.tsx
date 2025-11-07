@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import { HelpCircle, ChevronDown } from 'lucide-react'
+import Navigation from '@/components/shared/Navigation'
 import {
   Accordion,
   AccordionContent,
@@ -167,7 +168,9 @@ const faqCategories = [
 
 export default function FAQPage() {
   return (
-    <div className="min-h-screen bg-white">
+    <>
+      <Navigation />
+      <div className="min-h-screen bg-white pt-16">
       {/* Header */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary-600 to-secondary-600 py-20 text-white">
         <div className="container-custom">
@@ -250,5 +253,6 @@ export default function FAQPage() {
         </div>
       </section>
     </div>
+    </>
   )
 }
