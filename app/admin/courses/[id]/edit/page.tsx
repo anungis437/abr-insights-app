@@ -308,10 +308,11 @@ export default function EditCoursePage() {
               {/* Category & Instructor */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="edit-course-category" className="block text-sm font-medium text-gray-700 mb-2">
                     Category *
                   </label>
                   <select
+                    id="edit-course-category"
                     value={formData.category_id}
                     onChange={(e) => setFormData(prev => ({ ...prev, category_id: e.target.value }))}
                     className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${errors.category_id ? 'border-red-500' : 'border-gray-300'}`}
@@ -325,10 +326,11 @@ export default function EditCoursePage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="edit-course-instructor" className="block text-sm font-medium text-gray-700 mb-2">
                     Instructor *
                   </label>
                   <select
+                    id="edit-course-instructor"
                     value={formData.instructor_id}
                     onChange={(e) => setFormData(prev => ({ ...prev, instructor_id: e.target.value }))}
                     className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${errors.instructor_id ? 'border-red-500' : 'border-gray-300'}`}
@@ -345,10 +347,11 @@ export default function EditCoursePage() {
               {/* Level, Duration, Tier */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="edit-course-level" className="block text-sm font-medium text-gray-700 mb-2">
                     Level *
                   </label>
                   <select
+                    id="edit-course-level"
                     value={formData.level}
                     onChange={(e) => setFormData(prev => ({ ...prev, level: e.target.value }))}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
@@ -361,10 +364,11 @@ export default function EditCoursePage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="edit-course-duration" className="block text-sm font-medium text-gray-700 mb-2">
                     Duration (minutes) *
                   </label>
                   <input
+                    id="edit-course-duration"
                     type="number"
                     value={formData.estimated_duration_minutes}
                     onChange={(e) => setFormData(prev => ({ ...prev, estimated_duration_minutes: parseInt(e.target.value) || 0 }))}
@@ -375,10 +379,11 @@ export default function EditCoursePage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="edit-course-tier" className="block text-sm font-medium text-gray-700 mb-2">
                     Required Tier *
                   </label>
                   <select
+                    id="edit-course-tier"
                     value={formData.required_tier}
                     onChange={(e) => setFormData(prev => ({ ...prev, required_tier: e.target.value }))}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
@@ -410,6 +415,7 @@ export default function EditCoursePage() {
                       type="button"
                       onClick={() => removeArrayItem('learning_objectives', index)}
                       className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                      aria-label="Remove learning objective"
                     >
                       <X className="w-5 h-5" />
                     </button>
@@ -445,6 +451,7 @@ export default function EditCoursePage() {
                       type="button"
                       onClick={() => removeArrayItem('prerequisites', index)}
                       className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                      aria-label="Remove prerequisite"
                     >
                       <X className="w-5 h-5" />
                     </button>
@@ -480,6 +487,7 @@ export default function EditCoursePage() {
                       type="button"
                       onClick={() => removeArrayItem('tags', index)}
                       className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                      aria-label="Remove tag"
                     >
                       <X className="w-5 h-5" />
                     </button>
