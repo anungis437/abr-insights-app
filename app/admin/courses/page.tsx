@@ -314,6 +314,7 @@ export default function AdminCoursesPage() {
                   value={filterLevel}
                   onChange={(e) => setFilterLevel(e.target.value)}
                   className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  aria-label="Filter courses by level"
                 >
                   <option value="all">All Levels</option>
                   <option value="beginner">Beginner</option>
@@ -327,6 +328,7 @@ export default function AdminCoursesPage() {
                   value={filterTier}
                   onChange={(e) => setFilterTier(e.target.value)}
                   className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  aria-label="Filter courses by tier"
                 >
                   <option value="all">All Tiers</option>
                   <option value="free">Free</option>
@@ -339,6 +341,7 @@ export default function AdminCoursesPage() {
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
                   className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  aria-label="Filter courses by status"
                 >
                   <option value="all">All Status</option>
                   <option value="published">Published</option>
