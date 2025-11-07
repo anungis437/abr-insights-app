@@ -1,6 +1,25 @@
 import { Check, X } from 'lucide-react'
 import Navigation from '@/components/shared/Navigation'
 import Footer from '@/components/shared/Footer'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Pricing Plans | ABR Insights - Start Free Today',
+  description: 'Flexible pricing for organizations of all sizes. Free plan available. Access tribunal case databases, expert training, and analytics to build more equitable workplaces.',
+  keywords: ['pricing', 'plans', 'free trial', 'anti-racism training cost', 'EDI platform pricing', 'HR analytics pricing'],
+  openGraph: {
+    title: 'ABR Insights Pricing | Plans Starting Free',
+    description: 'Choose the right plan for your organization. Free, Professional, and Enterprise options available with transparent pricing.',
+    type: 'website',
+    url: 'https://abrinsights.ca/pricing',
+    siteName: 'ABR Insights',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'ABR Insights Pricing',
+    description: 'Transparent pricing for anti-racism training and workplace equity tools.',
+  },
+}
 
 export default function PricingPage() {
   return (

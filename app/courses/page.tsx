@@ -1,6 +1,25 @@
 import { BookOpen, Clock, Users, Star, Filter, Search } from 'lucide-react'
 import Navigation from '@/components/shared/Navigation'
 import Footer from '@/components/shared/Footer'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Training Courses | ABR Insights - Expert-Led Anti-Racism Education',
+  description: 'Access 50+ expert-led courses on anti-Black racism, workplace equity, and inclusive leadership. Designed by legal experts and EDI professionals.',
+  keywords: ['anti-racism training', 'diversity courses', 'EDI certification', 'implicit bias training', 'inclusive leadership', 'workplace equity courses'],
+  openGraph: {
+    title: 'Expert Training Courses | ABR Insights',
+    description: 'Build expertise in anti-Black racism through comprehensive courses designed by legal experts and EDI professionals.',
+    type: 'website',
+    url: 'https://abrinsights.ca/courses',
+    siteName: 'ABR Insights',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'ABR Insights Training Courses',
+    description: '50+ expert-led courses on workplace equity and anti-racism.',
+  },
+}
 
 export default function CoursesPage() {
   return (

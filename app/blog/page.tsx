@@ -1,6 +1,25 @@
 import { BookOpen, Calendar, User, ArrowRight, TrendingUp } from 'lucide-react'
 import Navigation from '@/components/shared/Navigation'
 import Footer from '@/components/shared/Footer'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Blog | ABR Insights - Expert Commentary on Workplace Equity',
+  description: 'Stay informed with expert insights on anti-Black racism, workplace equity, legal developments, and best practices for building inclusive organizations.',
+  keywords: ['anti-racism blog', 'workplace equity insights', 'EDI best practices', 'tribunal case analysis', 'HR compliance', 'diversity commentary'],
+  openGraph: {
+    title: 'ABR Insights Blog | Expert Workplace Equity Commentary',
+    description: 'Expert insights on anti-Black racism, tribunal cases, and building equitable workplaces in Canada.',
+    type: 'website',
+    url: 'https://abrinsights.ca/blog',
+    siteName: 'ABR Insights',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'ABR Insights Blog',
+    description: 'Expert insights on workplace equity and anti-Black racism.',
+  },
+}
 
 export default function BlogPage() {
   return (
