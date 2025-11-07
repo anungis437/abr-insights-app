@@ -1,12 +1,25 @@
 # ABR Insights App - Refactor Strategy
 
-**Version**: 2.0.0
-**Date**: November 2025
-**Status**: In Progress
+**Version**: 2.1.0
+**Date**: November 7, 2025
+**Status**: In Progress - Phase 2 Complete ✅
 
 ## Executive Summary
 
 This document outlines the comprehensive refactoring strategy for migrating the ABR Insights application from a Base44-dependent architecture to a modern, cloud-native stack using Supabase (PostgreSQL + Auth + Storage) and Azure Static Web Apps. This migration addresses competitive gaps, improves scalability, reduces vendor lock-in, and positions the platform for enterprise adoption.
+
+### 🎯 Base44 Elimination Strategy
+
+**Primary Goal**: Complete elimination of Base44 SDK and all legacy code
+
+**Approach**:
+1. ✅ **Phase 1-2 Complete**: Foundation (auth, UI components, ingestion)
+2. 🔄 **Phase 3 (Current)**: Replace ALL `@base44/sdk` usage with Supabase service layer
+3. **Phase 4-6**: Migrate all pages from `legacy/src/pages/` to Next.js `app/` router
+4. **Phase 7**: **DELETE entire `legacy/` folder** - Base44 fully eliminated
+5. **Phase 8**: Production launch with zero Base44 dependencies
+
+**Timeline**: Legacy folder deletion targeted for end of Phase 7 (after all page migrations complete)
 
 ---
 
@@ -116,91 +129,177 @@ This document outlines the comprehensive refactoring strategy for migrating the 
 
 ### Phase-Based Approach
 
-#### Phase 1: Foundation (Weeks 1-2)
+#### Phase 1: Foundation & Authentication ✅ COMPLETE
 
-**Goal**: Set up infrastructure and data layer
+**Goal**: Set up infrastructure and authentication layer
 
-- [ ] Provision Supabase project (PostgreSQL 15+)
-- [ ] Design and create database schema with RLS policies
-- [ ] Set up Azure Static Web Apps + Functions
-- [ ] Configure authentication (Supabase Auth + Azure AD B2C)
-- [ ] Implement basic CRUD operations
-- [ ] Set up CI/CD pipeline (GitHub Actions)
+- [x] Provision Supabase project (PostgreSQL 15+)
+- [x] Design and create database schema with RLS policies
+- [x] Set up Next.js app with App Router
+- [x] Configure authentication (Supabase Auth with SSR)
+- [x] Implement AuthContext with React hooks
+- [x] Create login/signup/reset password flows
+- [x] Set up email verification callback
+- [x] Test authentication end-to-end
+
+**Deliverables**: ✅ All Complete
+
+- ✅ Supabase database with all tables and relationships
+- ✅ Authentication flow working (signup, login, email verification)
+- ✅ Protected route middleware
+- ✅ AuthContext providing global auth state
+- ✅ Build successful (497 pages)
+
+**Commit**: `481327e` (Nov 7, 2025)
+
+#### Phase 2: Core UI Components & Ingestion System ✅ COMPLETE
+
+**Goal**: Migrate UI components + Build automated ingestion pipeline
+
+##### Sub-Phase 2A: UI Components Migration
+
+- [x] Migrate Navigation component with Supabase auth state
+- [x] Verify Footer component (already Next.js compatible)
+- [x] Create ProtectedRoute wrapper component
+- [x] Migrate utility hooks (useMobile to TypeScript)
+- [x] Create component index files for easier imports
+- [x] Verify shadcn/ui components work in Next.js
+
+##### Sub-Phase 2B: Ingestion Pipeline (Complete - Separate Track)
+
+- [x] Create `tribunal_cases_raw`, `tribunal_sources`, `ingestion_jobs` tables
+- [x] Build scraper module with pluggable adapters (HRTO, CanLII)
+- [x] Implement content fetcher with throttling/retry logic
+- [x] Create rule-based classifier (keyword matching)
+- [x] Integrate Azure OpenAI for AI classification
+- [x] Build admin UI for reviewing ingested cases
+- [x] Test end-to-end with demo data (35/35 tests passing)
+- [x] Storage integration complete (Supabase + Azure Blob)
+
+**Deliverables**: ✅ All Complete
+
+- ✅ All UI components working in Next.js with auth integration
+- ✅ Navigation shows user state (signed in/out)
+- ✅ ProtectedRoute component for auth-required pages
+- ✅ Working ingestion system with HRTO and CanLII sources
+- ✅ Admin dashboard at `/admin/ingestion`
+- ✅ AI classification with Azure OpenAI
+- ✅ Build successful (497 pages)
+
+**Commit**: `023d22f` (Nov 7, 2025)
+
+**Note on Base44 Data**: Legacy Base44 data migration is **NOT REQUIRED**. The ingestion system replaces Base44 by fetching tribunal cases directly from public sources. No Base44 export needed.
+
+#### Phase 3: Data Layer & Base44 Elimination (Current Phase)
+
+**Goal**: Create Supabase service layer to replace ALL Base44 SDK usage
+
+**Critical**: This phase eliminates ALL dependencies on `@base44/sdk`. The `legacy/` folder will be deleted after Phase 3.
+
+- [ ] Create Supabase service layer (`lib/supabase/services/`)
+  - [ ] `tribunalCases.ts` - Replace `base44.entities.TribunalCase`
+  - [ ] `courses.ts` - Replace `base44.entities.Course`
+  - [ ] `progress.ts` - Replace `base44.entities.Progress`
+  - [ ] `achievements.ts` - Replace `base44.entities.UserAchievement`
+  - [ ] `organizations.ts` - Replace `base44.entities.Organization`
+  - [ ] `resources.ts` - Replace `base44.entities.Resource`
+  - [ ] `notifications.ts` - Replace `base44.entities.Notification`
+  - [ ] `bookmarks.ts` - Replace `base44.entities.Bookmark`
+  - [ ] `certificates.ts` - Replace `base44.entities.Certificate`
+  - [ ] (15+ more entity mappings - see MIGRATION_PLAN.md)
+- [ ] Map all Base44 entity methods to Supabase PostgREST queries
+- [ ] Implement Row-Level Security (RLS) policies for all tables
+- [ ] Create React Query hooks for data fetching
+- [ ] Replace `@base44/sdk` imports in legacy components
+- [ ] Test data fetching with real Supabase data
+- [ ] Verify NO remaining Base44 SDK imports
 
 **Deliverables**:
 
-- Supabase database with all tables and relationships
-- Authentication flow working
-- Basic API endpoints operational
+- Complete Supabase service layer (20+ entity services)
+- RLS policies active on all tables
+- React Query hooks for all data operations
+- Zero `@base44/sdk` imports remaining
+- All tests passing with Supabase backend
 
-#### Phase 2: Data Migration & Ingestion Setup (Weeks 3-4)
+**Post-Phase 3**: Delete `legacy/` folder entirely (Base44 eliminated)
 
-**Goal**: Migrate existing data from Base44 + Build automated ingestion pipeline
+#### Phase 4: Page Migration - Foundation & Data Pages
 
-##### Sub-Phase 2A: Legacy Data Migration
+**Goal**: Migrate pages from `legacy/src/pages/` to Next.js `app/` router
 
-- [ ] Export data from Base44 (CSV/JSON)
-- [ ] Transform data to new schema
-- [ ] Import tribunal cases (20+ years of data)
-- [ ] Import user accounts and progress
-- [ ] Validate data integrity
-- [ ] Set up data backup strategy
+**Note**: This phase uses the Supabase service layer from Phase 3.
 
-##### Sub-Phase 2B: Ingestion Pipeline (Prototype)
-
-- [ ] Create `tribunal_cases_raw`, `tribunal_sources`, `ingestion_jobs` tables
-- [ ] Build scraper module with pluggable adapters (HRTO first)
-- [ ] Implement content fetcher with throttling/retry logic
-- [ ] Create rule-based classifier (keyword matching)
-- [ ] Integrate Azure OpenAI for AI classification
-- [ ] Build admin UI for reviewing ingested cases
-- [ ] Test end-to-end with 20-50 HRTO decisions
+- [ ] Migrate Profile page (`Profile.jsx` → `app/profile/page.tsx`)
+- [ ] Migrate Dashboard (`Dashboard.jsx` → `app/dashboard/page.tsx`)
+- [ ] Migrate Data Explorer (`DataExplorer.jsx` → `app/cases/browse/page.tsx`)
+- [ ] Migrate Case Details (`CaseDetails.jsx` → `app/cases/[id]/page.tsx`)
+- [ ] Update all data fetching to use Supabase services
+- [ ] Test protected routes with ProtectedRoute component
+- [ ] Verify all pages build successfully
 
 **Deliverables**:
 
-- All Base44 data successfully migrated
-- Data validation report
-- Backup and recovery procedures
-- Working ingestion prototype (HRTO source)
-- Admin dashboard showing classified cases
+- Foundation pages migrated to Next.js
+- All Base44 data fetching replaced with Supabase
+- Protected routes working correctly
 
-#### Phase 3: Core Features (Weeks 5-8)
+#### Phase 5: Page Migration - Training & Gamification
 
-**Goal**: Rebuild core functionality
+**Goal**: Migrate training and gamification features
 
-- [ ] Replace `@base44/sdk` with Supabase client
-- [ ] Reimplement authentication flow
-- [ ] Migrate Data Explorer with filters and search
-- [ ] Rebuild Training Hub with progress tracking
-- [ ] Implement Dashboard with analytics
-- [ ] Migrate gamification system (points, badges)
-- [ ] Add real-time notifications
+- [ ] Migrate Training Hub (`TrainingHub.jsx` → `app/courses/page.tsx`)
+- [ ] Migrate Course Player (`CoursePlayer.jsx` → `app/courses/[slug]/page.tsx`)
+- [ ] Migrate Achievements (`Achievements.jsx` → `app/achievements/page.tsx`)
+- [ ] Migrate Leaderboard (`Leaderboard.jsx` → `app/leaderboard/page.tsx`)
+- [ ] Test gamification features with Supabase backend
+- [ ] Verify progress tracking works correctly
 
 **Deliverables**:
 
-- Feature parity with legacy app
-- Performance benchmarks met
-- User acceptance testing passed
+- Training and gamification features migrated
+- Course completion tracking functional
+- Achievements and leaderboards working
 
-#### Phase 4: Enhancements (Weeks 9-12)
+#### Phase 6: Page Migration - Admin & AI Features
 
-**Goal**: Add competitive features
+**Goal**: Migrate admin and AI-powered features
 
+- [ ] Migrate AI Assistant (`AIAssistant.jsx` → `app/ai/assistant/page.tsx`)
+- [ ] Migrate AI Coach (`AICoach.jsx` → `app/ai/coach/page.tsx`)
+- [ ] Migrate Data Ingestion UI (already at `app/admin/ingestion/page.tsx`)
+- [ ] Migrate User Management (`UserManagement.jsx` → `app/admin/users/page.tsx`)
+- [ ] Migrate Team Management (`TeamManagement.jsx` → `app/admin/teams/page.tsx`)
+- [ ] Migrate Organization Settings (`OrgSettings.jsx` → `app/admin/org-settings/page.tsx`)
+- [ ] Test admin features with role-based access
+
+**Deliverables**:
+
+- All admin pages migrated
+- AI features integrated with Azure OpenAI
+- Role-based access control working
+
+#### Phase 7: Legacy Cleanup & Enhancement
+
+**Goal**: Remove legacy code and add enterprise features
+
+- [ ] **DELETE `legacy/` folder entirely** (Base44 eliminated)
+- [ ] Remove all `@base44/sdk` dependencies from package.json
+- [ ] Verify zero Base44 imports across entire codebase
 - [ ] Implement SSO (SAML 2.0, OAuth 2.0)
-- [ ] Add industry benchmarking
+- [ ] Add industry benchmarking features
 - [ ] Build compliance reporting templates
-- [ ] Create live webinar/event system
-- [ ] Add HRIS integration framework (Workday, BambooHR)
-- [ ] Implement WCAG 2.1 AA accessibility
+- [ ] Implement WCAG 2.1 AA accessibility improvements
 - [ ] Add mobile PWA support
 
 **Deliverables**:
 
-- All competitive gaps closed
-- Enterprise-ready features operational
+- Legacy folder deleted ✅
+- Base44 completely eliminated ✅
+- Enterprise features operational
 - Accessibility audit passed
 
-#### Phase 5: Testing & Launch (Weeks 13-14)
+#### Phase 8: Testing & Launch
 
 **Goal**: Comprehensive testing and production launch
 
@@ -210,13 +309,14 @@ This document outlines the comprehensive refactoring strategy for migrating the 
 - [ ] Beta launch with select users
 - [ ] Monitor performance and fix issues
 - [ ] Full production launch
-- [ ] Legacy system decommission
+- [ ] **Confirm Base44 decommissioned** ✅
 
 **Deliverables**:
 
 - Production-ready application
 - Performance and security reports
 - User migration complete
+- Base44 fully replaced with Supabase
 
 ---
 

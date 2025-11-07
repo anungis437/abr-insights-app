@@ -1,8 +1,20 @@
 # Legacy Application Migration Plan
 
-**Date**: 2025-06-01  
-**Status**: Planning Phase  
-**Goal**: Migrate legacy React+Vite+Base44 app to Next.js 14 + Supabase architecture
+**Date**: November 7, 2025  
+**Status**: Phase 2 Complete ✅ - Starting Phase 3  
+**Goal**: Migrate legacy React+Vite+Base44 app to Next.js 15 + Supabase architecture
+
+## 🎯 Base44 Elimination Strategy
+
+**CRITICAL**: This migration completely eliminates Base44 SDK. The `legacy/` folder will be **DELETED** after all pages are migrated.
+
+**Progress**:
+- ✅ Phase 1: Foundation & Authentication (Commit: `481327e`)
+- ✅ Phase 2: Core UI Components (Commit: `023d22f`)
+- 🔄 Phase 3: Data Layer (Current) - Replaces ALL `@base44/sdk` usage
+- ⏳ Phase 4-6: Page Migration (moves all pages from `legacy/` to `app/`)
+- ⏳ Phase 7: **DELETE `legacy/` folder entirely**
+- ⏳ Phase 8: Final Testing & Deployment
 
 ---
 
@@ -145,27 +157,44 @@ legacy/src/
 
 ---
 
-### Phase 3: Data Layer (Week 3)
-**Goal**: Replace Base44 entities with Supabase queries
+### Phase 3: Data Layer - Base44 SDK Elimination (Current Phase)
+**Goal**: Replace ALL Base44 entities with Supabase service layer
+
+**CRITICAL**: This phase eliminates ALL `@base44/sdk` imports. No Base44 code will remain after this phase.
 
 #### Tasks
-- [ ] Create Supabase service layer (`lib/supabase/`)
-  - [ ] `tribunalCases.ts` - Tribunal case queries
-  - [ ] `courses.ts` - Course queries
-  - [ ] `progress.ts` - User progress queries
-  - [ ] `achievements.ts` - Gamification queries
-  - [ ] `organizations.ts` - Organization queries
-  - [ ] `resources.ts` - Resource queries
-  - [ ] `notifications.ts` - Notification queries
-- [ ] Map Base44 entity methods to Supabase queries
-- [ ] Implement Row-Level Security (RLS) policies
-- [ ] Create React Query hooks for data fetching
-- [ ] Test data fetching with real data
+- [ ] Create Supabase service layer (`lib/supabase/services/`)
+  - [ ] `tribunalCases.ts` - Replace `base44.entities.TribunalCase`
+  - [ ] `courses.ts` - Replace `base44.entities.Course`
+  - [ ] `lessons.ts` - Replace `base44.entities.Lesson`
+  - [ ] `progress.ts` - Replace `base44.entities.Progress`
+  - [ ] `achievements.ts` - Replace `base44.entities.UserAchievement`
+  - [ ] `organizations.ts` - Replace `base44.entities.Organization`
+  - [ ] `resources.ts` - Replace `base44.entities.Resource`
+  - [ ] `notifications.ts` - Replace `base44.entities.Notification`
+  - [ ] `bookmarks.ts` - Replace `base44.entities.Bookmark`
+  - [ ] `certificates.ts` - Replace `base44.entities.Certificate`
+  - [ ] `onboarding.ts` - Replace `base44.entities.Onboarding`
+  - [ ] `aiSessions.ts` - Replace `base44.entities.AICoachingSession`
+  - [ ] `badges.ts` - Replace `base44.entities.CustomBadge`
+  - [ ] `learningPaths.ts` - Replace `base44.entities.LearningPath`
+  - [ ] `savedSearches.ts` - Replace `base44.entities.SavedSearch`
+  - [ ] (5+ more services as needed)
+- [ ] Map ALL Base44 entity methods to Supabase PostgREST queries
+- [ ] Implement Row-Level Security (RLS) policies for all tables
+- [ ] Create React Query hooks for all data operations
+- [ ] Create index file `lib/supabase/services/index.ts` for exports
+- [ ] Test all service methods with Supabase backend
+- [ ] **Verify ZERO `@base44/sdk` imports in service layer**
 
 **Deliverables**:
-- Complete Supabase service layer
-- RLS policies active
-- Data fetching working
+- Complete Supabase service layer (20+ entity services)
+- RLS policies active on all tables
+- React Query hooks for all data fetching
+- Zero Base44 SDK dependencies in service layer
+- All service tests passing
+
+**Post-Phase 3**: Service layer ready for page migrations (Phase 4-6)
 
 ---
 
@@ -315,39 +344,85 @@ legacy/src/
 
 ---
 
-### Phase 7: Testing & Validation (Week 8)
-**Goal**: Comprehensive testing
+### Phase 7: Legacy Cleanup - DELETE Base44 & Legacy Code
+**Goal**: Complete elimination of Base44 and legacy folder
+
+**CRITICAL**: This phase permanently removes all Base44 dependencies.
 
 #### Tasks
-- [ ] Unit tests for services
+- [ ] **Verify ZERO `@base44/sdk` imports across entire codebase**
+  - [ ] Search for `from '@base44/sdk'`
+  - [ ] Search for `base44.entities`
+  - [ ] Search for `base44.integrations`
+  - [ ] Confirm all imports replaced with Supabase services
+- [ ] **Verify all pages migrated from `legacy/src/pages/`**
+  - [ ] Confirm all 22 pages have equivalents in `app/`
+  - [ ] Test all migrated pages work correctly
+- [ ] **DELETE `legacy/` folder entirely** 🗑️
+  - [ ] Remove `legacy/src/`
+  - [ ] Remove `legacy/package.json`
+  - [ ] Remove any legacy config files
+- [ ] **Remove Base44 from package.json**
+  - [ ] Remove `@base44/sdk` dependency
+  - [ ] Run `npm install` to update lock file
+- [ ] **Update documentation**
+  - [ ] Remove Base44 references from README
+  - [ ] Update architecture diagrams
+  - [ ] Document Supabase migration complete
+- [ ] **Final verification build**
+  - [ ] Run `npm run build` successfully
+  - [ ] Verify zero Base44 imports remain
+  - [ ] Confirm all tests pass
+
+**Deliverables**:
+- ✅ `legacy/` folder deleted
+- ✅ Zero Base44 SDK dependencies
+- ✅ All pages migrated to Next.js
+- ✅ Build successful
+- ✅ Base44 completely eliminated
+
+---
+
+### Phase 8: Testing & Validation (Week 8)
+**Goal**: Comprehensive testing post-migration
+
+#### Tasks
+- [ ] Unit tests for all Supabase services
 - [ ] Integration tests for API calls
 - [ ] E2E tests for critical flows (Playwright)
 - [ ] User acceptance testing (UAT)
-- [ ] Performance testing
+- [ ] Performance testing (compare vs. Base44 baseline)
 - [ ] Accessibility audit (WCAG 2.1 AA)
-- [ ] Security audit
+- [ ] Security audit (RLS policies, auth)
 - [ ] Cross-browser testing
 
 **Deliverables**:
 - Test coverage > 80%
 - All UAT scenarios passing
-- Performance benchmarks met
+- Performance improved vs. Base44
+- Security audit passed
 
 ---
 
-### Phase 8: Deployment (Week 9)
-**Goal**: Production deployment
+### Phase 9: Deployment (Week 9)
+**Goal**: Production deployment with Supabase backend
 
 #### Tasks
 - [ ] Configure Azure Static Web Apps
 - [ ] Set up CI/CD pipeline (GitHub Actions)
-- [ ] Configure environment variables
-- [ ] Set up monitoring (Application Insights)
+- [ ] Configure environment variables (Supabase URLs, keys)
+- [ ] Set up monitoring (Application Insights + Supabase Analytics)
 - [ ] Create deployment documentation
 - [ ] Beta launch with test users
 - [ ] Monitor and fix issues
 - [ ] Full production launch
-- [ ] Decommission legacy app
+- [ ] **Confirm Base44 decommissioned** ✅
+
+**Deliverables**:
+- Production app running on Supabase
+- Zero Base44 dependencies
+- Monitoring active
+- Users successfully migrated
 
 **Deliverables**:
 - Production app live
