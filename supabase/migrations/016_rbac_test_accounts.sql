@@ -23,12 +23,14 @@
 -- Create corresponding profiles with roles
 -- These will be linked to auth users when they sign up
 
-INSERT INTO profiles (id, email, full_name, role, created_at, updated_at) 
+INSERT INTO profiles (id, email, first_name, last_name, display_name, role, created_at, updated_at) 
 VALUES
   -- Super Admin: Full platform access, can manage everything
   (
     '00000000-0000-0000-0000-000000000001',
     'super_admin@abr-insights.com',
+    'Super',
+    'Admin',
     'Super Admin User',
     'super_admin',
     now(),
@@ -39,6 +41,8 @@ VALUES
   (
     '00000000-0000-0000-0000-000000000002',
     'compliance@abr-insights.com',
+    'Compliance',
+    'Officer',
     'Compliance Officer',
     'compliance_officer',
     now(),
@@ -49,6 +53,8 @@ VALUES
   (
     '00000000-0000-0000-0000-000000000003',
     'orgadmin@abr-insights.com',
+    'Organization',
+    'Admin',
     'Organization Admin',
     'org_admin',
     now(),
@@ -59,6 +65,8 @@ VALUES
   (
     '00000000-0000-0000-0000-000000000004',
     'analyst@abr-insights.com',
+    'Data',
+    'Analyst',
     'Data Analyst',
     'analyst',
     now(),
@@ -69,6 +77,8 @@ VALUES
   (
     '00000000-0000-0000-0000-000000000005',
     'investigator@abr-insights.com',
+    'Case',
+    'Investigator',
     'Case Investigator',
     'investigator',
     now(),
@@ -79,6 +89,8 @@ VALUES
   (
     '00000000-0000-0000-0000-000000000006',
     'educator@abr-insights.com',
+    'Course',
+    'Educator',
     'Course Educator',
     'educator',
     now(),
@@ -89,6 +101,8 @@ VALUES
   (
     '00000000-0000-0000-0000-000000000007',
     'learner@abr-insights.com',
+    'Student',
+    'Learner',
     'Student Learner',
     'learner',
     now(),
@@ -99,6 +113,8 @@ VALUES
   (
     '00000000-0000-0000-0000-000000000008',
     'viewer@abr-insights.com',
+    'Read',
+    'Only',
     'Read Only Viewer',
     'viewer',
     now(),
@@ -109,6 +125,8 @@ VALUES
   (
     '00000000-0000-0000-0000-000000000009',
     'guest@abr-insights.com',
+    'Guest',
+    'User',
     'Guest User',
     'guest',
     now(),
