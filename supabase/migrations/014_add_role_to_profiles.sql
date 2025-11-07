@@ -63,14 +63,21 @@ CREATE POLICY "Compliance officers can update roles"
   ON profiles FOR UPDATE
   TO authenticated
   USING (
+    -- Must be an admin to update profiles
     auth.uid() IN (
       SELECT id FROM profiles 
       WHERE role IN ('super_admin', 'compliance_officer')
     )
   )
   WITH CHECK (
+    -- Must still be an admin after the update
+    auth.uid() IN (
+      SELECT id FROM profiles 
+      WHERE role IN ('super_admin', 'compliance_officer')
+    )
+    AND
     -- Cannot escalate to super_admin unless you are one
-    (NEW.role != 'super_admin' OR auth.uid() IN (
+    (role != 'super_admin' OR auth.uid() IN (
       SELECT id FROM profiles WHERE role = 'super_admin'
     ))
   );
