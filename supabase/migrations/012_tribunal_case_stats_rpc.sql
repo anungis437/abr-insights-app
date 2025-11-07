@@ -65,3 +65,6 @@ GRANT EXECUTE ON FUNCTION get_tribunal_case_stats() TO authenticated;
 
 -- Grant execute permission to anonymous users (for public home page)
 GRANT EXECUTE ON FUNCTION get_tribunal_case_stats() TO anon;
+
+
+

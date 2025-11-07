@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
+import {
+  sendContactFormNotification,
+  sendContactFormConfirmation,
+  type ContactFormData,
+} from '@/lib/email/service'
 
 // Contact form validation schema
 const contactSchema = z.object({
@@ -18,28 +23,19 @@ export async function POST(request: NextRequest) {
     // Validate input
     const validatedData = contactSchema.parse(body)
 
-    // TODO: Integrate with email service (SendGrid, Resend, or similar)
-    // For now, we'll just log and return success
-    console.log('Contact form submission:', {
-      ...validatedData,
-      timestamp: new Date().toISOString(),
-    })
+    // Send emails
+    const [notificationResult, confirmationResult] = await Promise.all([
+      sendContactFormNotification(validatedData as ContactFormData),
+      sendContactFormConfirmation(validatedData as ContactFormData),
+    ])
 
-    // In production, you would send an email here:
-    // await sendEmail({
-    //   to: process.env.CONTACT_EMAIL,
-    //   from: validatedData.email,
-    //   subject: `Contact Form: ${validatedData.subject}`,
-    //   html: `
-    //     <h2>New Contact Form Submission</h2>
-    //     <p><strong>Name:</strong> ${validatedData.name}</p>
-    //     <p><strong>Email:</strong> ${validatedData.email}</p>
-    //     <p><strong>Organization:</strong> ${validatedData.organization || 'Not provided'}</p>
-    //     <p><strong>Subject:</strong> ${validatedData.subject}</p>
-    //     <p><strong>Message:</strong></p>
-    //     <p>${validatedData.message}</p>
-    //   `,
-    // })
+    // Log results but don't fail the request if emails fail
+    if (!notificationResult.success) {
+      console.error('Failed to send notification email:', notificationResult.error)
+    }
+    if (!confirmationResult.success) {
+      console.error('Failed to send confirmation email:', confirmationResult.error)
+    }
 
     return NextResponse.json(
       {

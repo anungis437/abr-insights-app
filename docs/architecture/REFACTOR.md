@@ -1,8 +1,8 @@
 # ABR Insights App - Refactor Strategy
 
-**Version**: 2.1.0
+**Version**: 2.2.0
 **Date**: November 7, 2025
-**Status**: In Progress - Phase 2 Complete ✅
+**Status**: In Progress - Phase 5 Complete ✅
 
 ## Executive Summary
 
@@ -14,10 +14,11 @@ This document outlines the comprehensive refactoring strategy for migrating the 
 
 **Approach**:
 1. ✅ **Phase 1-2 Complete**: Foundation (auth, UI components, ingestion)
-2. 🔄 **Phase 3 (Current)**: Replace ALL `@base44/sdk` usage with Supabase service layer
-3. **Phase 4-6**: Migrate all pages from `legacy/src/pages/` to Next.js `app/` router
-4. **Phase 7**: **DELETE entire `legacy/` folder** - Base44 fully eliminated
-5. **Phase 8**: Production launch with zero Base44 dependencies
+2. ✅ **Phase 3-5 Complete**: Service layer + Page migrations (Profile, Achievements, Dashboard, DataExplorer, CaseDetails)
+3. 🔄 **Phase 6 (Current)**: Training Hub & Course Player migration
+4. **Phase 7**: AI features + Admin pages
+5. **Phase 8**: **DELETE entire `legacy/` folder** - Base44 fully eliminated
+6. **Phase 9**: Production launch with zero Base44 dependencies
 
 **Timeline**: Legacy folder deletion targeted for end of Phase 7 (after all page migrations complete)
 

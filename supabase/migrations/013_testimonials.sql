@@ -31,11 +31,11 @@ CREATE TABLE IF NOT EXISTS testimonials (
 );
 
 -- Create indexes for performance
-CREATE INDEX idx_testimonials_featured ON testimonials(featured) WHERE featured = true AND active = true;
-CREATE INDEX idx_testimonials_active ON testimonials(active) WHERE active = true;
-CREATE INDEX idx_testimonials_display_order ON testimonials(display_order);
-CREATE INDEX idx_testimonials_rating ON testimonials(rating);
-CREATE INDEX idx_testimonials_search ON testimonials USING gin(search_vector);
+CREATE INDEX IF NOT EXISTS idx_testimonials_featured ON testimonials(featured) WHERE featured = true AND active = true;
+CREATE INDEX IF NOT EXISTS idx_testimonials_active ON testimonials(active) WHERE active = true;
+CREATE INDEX IF NOT EXISTS idx_testimonials_display_order ON testimonials(display_order);
+CREATE INDEX IF NOT EXISTS idx_testimonials_rating ON testimonials(rating);
+CREATE INDEX IF NOT EXISTS idx_testimonials_search ON testimonials USING gin(search_vector);
 
 -- Create updated_at trigger
 CREATE TRIGGER set_testimonials_updated_at
@@ -45,6 +45,12 @@ CREATE TRIGGER set_testimonials_updated_at
 
 -- Enable RLS
 ALTER TABLE testimonials ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Testimonials are viewable by everyone" ON testimonials;
+DROP POLICY IF EXISTS "Admins can insert testimonials" ON testimonials;
+DROP POLICY IF EXISTS "Admins can update testimonials" ON testimonials;
+DROP POLICY IF EXISTS "Admins can delete testimonials" ON testimonials;
 
 -- Public read access for active testimonials
 CREATE POLICY "Testimonials are viewable by everyone"
@@ -100,7 +106,7 @@ INSERT INTO testimonials (name, role, organization, content, rating, featured, d
     'Dr. Aisha Patel',
     'Head of Learning & Development',
     'Healthcare Systems Ontario',
-    'What sets ABR Insights apart is the combination of legal precedents, expert training, and actionable analytics. We've been able to identify and address equity gaps we didn't even know existed. This platform is essential for any organization serious about EDI.',
+    'What sets ABR Insights apart is the combination of legal precedents, expert training, and actionable analytics. We''ve been able to identify and address equity gaps we didn''t even know existed. This platform is essential for any organization serious about EDI.',
     5,
     true,
     3,
@@ -119,3 +125,6 @@ INSERT INTO testimonials (name, role, organization, content, rating, featured, d
 
 -- Add comment
 COMMENT ON TABLE testimonials IS 'User testimonials and reviews for social proof on public site';
+
+
+

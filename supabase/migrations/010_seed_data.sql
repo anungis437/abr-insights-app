@@ -306,3 +306,6 @@ BEGIN
     RAISE NOTICE '✅ Seed data migration completed successfully';
     RAISE NOTICE '📊 Seeded: 8 roles, 20+ permissions, 6 categories, 13 achievements, 3 scrapers, 1 sample course';
 END $$;
+
+
+

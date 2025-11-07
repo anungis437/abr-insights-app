@@ -11,17 +11,23 @@ CREATE TABLE IF NOT EXISTS public.newsletter_subscribers (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Create index on email for faster lookups
+-- CREATE INDEX IF NOT EXISTS on email for faster lookups
 CREATE INDEX IF NOT EXISTS idx_newsletter_subscribers_email 
   ON public.newsletter_subscribers(email);
 
--- Create index on active subscribers
+-- CREATE INDEX IF NOT EXISTS on active subscribers
 CREATE INDEX IF NOT EXISTS idx_newsletter_subscribers_active 
   ON public.newsletter_subscribers(is_active) 
   WHERE is_active = true;
 
 -- Enable Row Level Security
 ALTER TABLE public.newsletter_subscribers ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Anyone can subscribe to newsletter" ON public.newsletter_subscribers;
+DROP POLICY IF EXISTS "Authenticated users can view subscribers" ON public.newsletter_subscribers;
+DROP POLICY IF EXISTS "Service role can update subscribers" ON public.newsletter_subscribers;
+DROP POLICY IF EXISTS "Service role can delete subscribers" ON public.newsletter_subscribers;
 
 -- RLS Policy: Anyone can subscribe (insert)
 CREATE POLICY "Anyone can subscribe to newsletter"
@@ -58,3 +64,6 @@ CREATE TRIGGER update_newsletter_subscribers_updated_at
 
 -- Comment
 COMMENT ON TABLE public.newsletter_subscribers IS 'Newsletter email subscriptions';
+
+
+
