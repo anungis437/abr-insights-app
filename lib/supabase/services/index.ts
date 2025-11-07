@@ -7,6 +7,7 @@
 // Core Services
 export * from './organizations'
 export * from './tribunalCases'
+export * from './profiles'
 
 // Learning & Progress
 export * from './courses'
