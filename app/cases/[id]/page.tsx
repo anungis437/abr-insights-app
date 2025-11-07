@@ -52,98 +52,66 @@ export async function generateStaticParams() {
   ]
 }
 
-// TODO: Replace with actual database fetch
+// Fetch case from database
 async function getCaseStudy(id: string) {
-  // Placeholder case data
-  const cases: Record<string, any> = {
-    '1': {
-      id: '1',
-      title: 'Workplace Discrimination and Wrongful Termination at Tech Company',
-      date: '2023-08-15',
-      location: 'Toronto, ON',
-      industry: 'Technology',
-      organizationType: 'Private Company',
-      severity: 'High',
-      outcome: 'Settlement',
-      status: 'Resolved',
-      summary: 'A senior software engineer experienced racial discrimination, microaggressions, and eventual wrongful termination after reporting concerns about workplace equity. The case was settled out of court with the company implementing mandatory anti-racism training and revising their performance review processes.',
-      fullText: `Background:
-A Black senior software engineer (referred to as "Engineer A") joined a major tech company in Toronto in 2021. Despite strong performance reviews in the first year, Engineer A began experiencing increased scrutiny and microaggressions after raising concerns about the lack of diversity in leadership positions during a company town hall.
-
-Incidents:
-- Manager began excluding Engineer A from key technical meetings and strategic planning sessions
-- Performance feedback became increasingly critical despite consistent code quality metrics
-- Comments from colleagues about Engineer A being "aggressive" and "not a cultural fit" when expressing technical opinions
-- Denied promotion despite meeting all stated criteria, while less experienced white colleagues were promoted
-- Placed on a Performance Improvement Plan (PIP) after raising discrimination concerns with HR
-
-Investigation:
-- Internal HR investigation found "no evidence of discrimination" despite documented patterns
-- Engineer A filed a complaint with the Ontario Human Rights Tribunal
-- Third-party review commissioned as part of tribunal proceedings revealed systemic issues:
-  * Only 2% of leadership positions held by Black employees
-  * Black employees 3x more likely to be placed on PIPs
-  * Promotion rates for Black employees significantly lower across all levels
-
-Outcome:
-- Case settled confidentially before tribunal hearing
-- Company agreed to:
-  * Implement mandatory anti-racism training for all staff and leadership
-  * Revise performance review processes with external audit
-  * Establish diversity targets for leadership positions
-  * Create independent reporting mechanism for discrimination complaints
-- Engineer A received financial settlement and non-disparagement agreement
-
-Lessons Learned:
-This case highlights the importance of:
-1. Taking employee discrimination complaints seriously and conducting thorough, impartial investigations
-2. Examining organizational data for patterns of racial disparity
-3. Creating safe reporting mechanisms independent of direct management chains
-4. Ensuring performance management systems are applied equitably
-5. Moving beyond diversity statements to measurable accountability`,
-      keyPhrases: [
-        'workplace discrimination',
-        'wrongful termination',
-        'microaggressions',
-        'performance improvement plan',
-        'Ontario Human Rights Tribunal',
-        'systemic racism',
-        'retaliation',
-        'cultural fit',
-      ],
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+    
+    const { data: caseData, error } = await supabase
+      .from('cases')
+      .select('*')
+      .eq('id', id)
+      .single()
+    
+    if (error || !caseData) {
+      console.error('Error fetching case:', error)
+      return null
+    }
+    
+    // Transform database format to component format
+    const ruleBasedClass = caseData.rule_based_classification || {}
+    const aiClass = caseData.ai_classification || {}
+    const category = ruleBasedClass.category || aiClass.category || 'unknown'
+    
+    return {
+      id: caseData.id,
+      title: caseData.case_title || 'Untitled Case',
+      date: caseData.decision_date || caseData.created_at?.split('T')[0] || 'N/A',
+      location: caseData.jurisdiction || 'Ontario',
+      industry: caseData.respondent_name || 'N/A',
+      organizationType: caseData.respondent_type || 'N/A',
+      severity: category === 'anti_black_racism' ? 'High' : 'Medium',
+      outcome: caseData.outcome || 'Pending',
+      status: caseData.outcome ? 'Resolved' : 'Pending',
+      summary: caseData.summary || caseData.case_summary || 'Case summary not available.',
+      fullText: caseData.full_text || caseData.summary || 'Full text not available.',
+      keyPhrases: caseData.key_phrases || [],
       classifications: [
-        { category: 'Type of Discrimination', value: 'Employment Discrimination' },
-        { category: 'Context', value: 'Workplace' },
-        { category: 'Sector', value: 'Technology' },
-        { category: 'Legal Mechanism', value: 'Human Rights Tribunal' },
-        { category: 'Stage', value: 'Settlement' },
+        { category: 'Category', value: category },
+        { category: 'Confidence', value: `${Math.round((caseData.combined_confidence || 0) * 100)}%` },
+        { category: 'Tribunal', value: caseData.tribunal || 'HRTO' },
+        { category: 'Source', value: caseData.source_url ? 'CanLII' : 'Demo' },
       ],
-      timeline: [
-        { date: '2021-03', event: 'Engineer A joins company', type: 'neutral' },
-        { date: '2022-02', event: 'First performance review - "Exceeds Expectations"', type: 'positive' },
-        { date: '2022-06', event: 'Raises diversity concerns at town hall', type: 'neutral' },
-        { date: '2022-08', event: 'Excluded from strategic planning meetings', type: 'negative' },
-        { date: '2022-11', event: 'Denied promotion despite meeting criteria', type: 'negative' },
-        { date: '2023-01', event: 'Files internal HR complaint', type: 'neutral' },
-        { date: '2023-02', event: 'Placed on Performance Improvement Plan', type: 'negative' },
-        { date: '2023-03', event: 'Files Ontario Human Rights Tribunal complaint', type: 'neutral' },
-        { date: '2023-06', event: 'Third-party investigation commissioned', type: 'neutral' },
-        { date: '2023-08', event: 'Case settled confidentially', type: 'positive' },
-      ],
+      timeline: [],
       impact: {
-        individual: 'Significant psychological distress, career disruption, financial loss during unemployment period',
-        organizational: 'Reputation damage, legal costs, mandatory organizational changes',
-        systemic: 'Highlighted need for tech industry to address diversity and inclusion gaps',
+        individual: aiClass.reasoning || ruleBasedClass.reasoning || 'Impact assessment not available.',
+        organizational: 'Organizational impact data not available.',
+        systemic: 'Systemic impact data not available.',
       },
-      relatedCases: [
-        { id: '2', title: 'Discriminatory Hiring Practices in Financial Services', similarity: 0.87, tags: ['Employment', 'Hiring'] },
-        { id: '3', title: 'Promotion Bias in Healthcare Administration', similarity: 0.82, tags: ['Employment', 'Advancement'] },
-        { id: '4', title: 'Retaliation After Discrimination Complaint', similarity: 0.79, tags: ['Retaliation', 'HR'] },
-      ],
-    },
+      relatedCases: [],
+      // Add AI classification data
+      aiClassification: aiClass,
+      ruleBasedClassification: ruleBasedClass,
+      combinedConfidence: caseData.combined_confidence,
+      needsReview: caseData.needs_review,
+    }
+  } catch (error) {
+    console.error('Error in getCaseStudy:', error)
+    return null
   }
-
-  return cases[id] || null
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
