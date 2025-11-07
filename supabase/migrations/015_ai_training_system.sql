@@ -166,7 +166,7 @@ CREATE POLICY "Admins can view all classification feedback"
     EXISTS (
       SELECT 1 FROM profiles
       WHERE profiles.id = auth.uid()
-      AND profiles.role = 'admin'
+      AND profiles.role IN ('super_admin', 'compliance_officer', 'org_admin')
     )
   );
 
@@ -178,7 +178,7 @@ CREATE POLICY "Admins can insert classification feedback"
     EXISTS (
       SELECT 1 FROM profiles
       WHERE profiles.id = auth.uid()
-      AND profiles.role = 'admin'
+      AND profiles.role IN ('super_admin', 'compliance_officer', 'org_admin')
     )
   );
 
@@ -190,7 +190,7 @@ CREATE POLICY "Admins can update classification feedback"
     EXISTS (
       SELECT 1 FROM profiles
       WHERE profiles.id = auth.uid()
-      AND profiles.role = 'admin'
+      AND profiles.role IN ('super_admin', 'compliance_officer', 'org_admin')
     )
   );
 
@@ -202,7 +202,7 @@ CREATE POLICY "Admins can view all training jobs"
     EXISTS (
       SELECT 1 FROM profiles
       WHERE profiles.id = auth.uid()
-      AND profiles.role = 'admin'
+      AND profiles.role IN ('super_admin', 'compliance_officer', 'org_admin')
     )
   );
 
@@ -214,7 +214,7 @@ CREATE POLICY "Admins can insert training jobs"
     EXISTS (
       SELECT 1 FROM profiles
       WHERE profiles.id = auth.uid()
-      AND profiles.role = 'admin'
+      AND profiles.role IN ('super_admin', 'compliance_officer', 'org_admin')
     )
   );
 
@@ -226,7 +226,7 @@ CREATE POLICY "Admins can update training jobs"
     EXISTS (
       SELECT 1 FROM profiles
       WHERE profiles.id = auth.uid()
-      AND profiles.role = 'admin'
+      AND profiles.role IN ('super_admin', 'compliance_officer', 'org_admin')
     )
   );
 
@@ -238,7 +238,7 @@ CREATE POLICY "Admins can view all automation configs"
     EXISTS (
       SELECT 1 FROM profiles
       WHERE profiles.id = auth.uid()
-      AND profiles.role = 'admin'
+      AND profiles.role IN ('super_admin', 'compliance_officer', 'org_admin')
     )
   );
 
@@ -250,7 +250,7 @@ CREATE POLICY "Admins can insert automation configs"
     EXISTS (
       SELECT 1 FROM profiles
       WHERE profiles.id = auth.uid()
-      AND profiles.role = 'admin'
+      AND profiles.role IN ('super_admin', 'compliance_officer', 'org_admin')
     )
   );
 
@@ -262,7 +262,7 @@ CREATE POLICY "Admins can update automation configs"
     EXISTS (
       SELECT 1 FROM profiles
       WHERE profiles.id = auth.uid()
-      AND profiles.role = 'admin'
+      AND profiles.role IN ('super_admin', 'compliance_officer', 'org_admin')
     )
   );
 
@@ -274,7 +274,7 @@ CREATE POLICY "Admins can delete automation configs"
     EXISTS (
       SELECT 1 FROM profiles
       WHERE profiles.id = auth.uid()
-      AND profiles.role = 'admin'
+      AND profiles.role IN ('super_admin', 'compliance_officer', 'org_admin')
     )
   );
 
