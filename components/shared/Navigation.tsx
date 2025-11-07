@@ -1,11 +1,13 @@
 'use client'
 
-import { Menu, X } from 'lucide-react'
+import { Menu, X, User, LogOut } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
+import { useAuth } from '@/lib/auth/AuthContext'
 
 export default function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { user, profile, signOut } = useAuth()
 
   const navigationLinks = [
     { href: '/about', label: 'About' },
@@ -44,15 +46,47 @@ export default function Navigation() {
 
           {/* Desktop CTA Buttons */}
           <div className="hidden items-center gap-4 md:flex">
-            <Link
-              href="/auth/login"
-              className="text-sm font-medium text-gray-700 transition-colors hover:text-primary-600"
-            >
-              Sign In
-            </Link>
-            <Link href="/auth/signup" className="btn-primary">
-              Get Started
-            </Link>
+            {user ? (
+              <>
+                <Link
+                  href="/analytics"
+                  className="text-sm font-medium text-gray-700 transition-colors hover:text-primary-600"
+                >
+                  Dashboard
+                </Link>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2">
+                    <User className="h-4 w-4 text-gray-600" />
+                    <span className="text-sm font-medium text-gray-700">
+                      {profile?.display_name || 
+                       (profile?.first_name && profile?.last_name 
+                         ? `${profile.first_name} ${profile.last_name}` 
+                         : user.email)}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => signOut()}
+                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100"
+                    aria-label="Sign out"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Sign Out
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/auth/login"
+                  className="text-sm font-medium text-gray-700 transition-colors hover:text-primary-600"
+                >
+                  Sign In
+                </Link>
+                <Link href="/auth/signup" className="btn-primary">
+                  Get Started
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -82,20 +116,52 @@ export default function Navigation() {
                 </Link>
               ))}
               <div className="mt-4 flex flex-col gap-3 border-t border-gray-200 pt-4">
-                <Link
-                  href="/auth/login"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="btn-secondary w-full text-center"
-                >
-                  Sign In
-                </Link>
-                <Link
-                  href="/auth/signup"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="btn-primary w-full text-center"
-                >
-                  Get Started
-                </Link>
+                {user ? (
+                  <>
+                    <Link
+                      href="/analytics"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="btn-secondary w-full text-center"
+                    >
+                      Dashboard
+                    </Link>
+                    <div className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2">
+                      <User className="h-4 w-4 text-gray-600" />
+                      <span className="text-sm font-medium text-gray-700">
+                        {profile?.display_name || 
+                         (profile?.first_name && profile?.last_name 
+                           ? `${profile.first_name} ${profile.last_name}` 
+                           : user.email)}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        signOut()
+                        setMobileMenuOpen(false)
+                      }}
+                      className="btn-secondary w-full text-center"
+                    >
+                      Sign Out
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href="/auth/login"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="btn-secondary w-full text-center"
+                    >
+                      Sign In
+                    </Link>
+                    <Link
+                      href="/auth/signup"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="btn-primary w-full text-center"
+                    >
+                      Get Started
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>
