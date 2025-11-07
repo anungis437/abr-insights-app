@@ -11,26 +11,32 @@ const poppins = Poppins({
 })
 
 export const metadata: Metadata = {
-  title: 'ABR Insights | Anti-Black Racism Training & Resources',
+  title: {
+    default: 'ABR Insights | Anti-Black Racism Training & Resources',
+    template: '%s | ABR Insights',
+  },
   description:
-    'Comprehensive anti-Black racism training platform with tribunal case explorer and bilingual learning resources for Canadian professionals.',
+    'Comprehensive anti-Black racism training platform with tribunal case explorer, expert-led courses, and workplace equity resources for Canadian professionals.',
   keywords: [
     'anti-black racism',
     'DEI training',
+    'EDI consulting',
     'human rights',
     'tribunal cases',
     'workplace equity',
+    'diversity training',
+    'inclusive leadership',
   ],
   authors: [{ name: 'ABR Insights Team' }],
-  metadataBase: new URL('https://purple-ground-03d2b380f.3.azurestaticapps.net'),
+  metadataBase: new URL('https://abrinsights.ca'),
   openGraph: {
     type: 'website',
     locale: 'en_CA',
     alternateLocale: ['fr_CA'],
-    url: 'https://purple-ground-03d2b380f.3.azurestaticapps.net',
+    url: 'https://abrinsights.ca',
     siteName: 'ABR Insights',
     title: 'ABR Insights | Anti-Black Racism Training & Resources',
-    description: 'Comprehensive anti-Black racism training platform',
+    description: 'Comprehensive anti-Black racism training platform with tribunal cases, expert courses, and workplace equity tools.',
     images: [
       {
         url: '/images/og-image.jpg',
