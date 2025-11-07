@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { supabase } from '@/lib/supabase'
+import { sendNewsletterWelcome, type NewsletterData } from '@/lib/email/service'
 
 // Newsletter subscription validation schema
 const newsletterSchema = z.object({
@@ -50,8 +51,13 @@ export async function POST(request: NextRequest) {
       throw new Error('Failed to subscribe')
     }
 
-    // TODO: Send welcome email via email service
-    // await sendWelcomeEmail(validatedData.email, validatedData.firstName)
+    // Send welcome email
+    const emailResult = await sendNewsletterWelcome(validatedData as NewsletterData)
+    
+    if (!emailResult.success) {
+      console.error('Failed to send welcome email:', emailResult.error)
+      // Continue anyway - subscription was successful
+    }
 
     return NextResponse.json(
       {

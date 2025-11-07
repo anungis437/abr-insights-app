@@ -27,6 +27,7 @@ import Footer from '@/components/shared/Footer'
 import { createClient } from '@/lib/supabase/client'
 import { getCurrentProfile, type Profile } from '@/lib/supabase/services/profiles'
 import { AchievementsService } from '@/lib/supabase/services/achievements'
+import { ProgressService } from '@/lib/supabase/services/progress'
 
 type DashboardStats = {
   coursesEnrolled: number
@@ -70,15 +71,20 @@ export default function DashboardPage() {
 
       // Load stats from services
       const achievementsService = new AchievementsService()
+      const progressService = new ProgressService()
 
-      const [points, achievements] = await Promise.all([
+      const [points, achievements, enrollments] = await Promise.all([
         achievementsService.getUserPoints(userId).catch(() => ({ total_points: 0 })),
-        achievementsService.getUserAchievements(userId).catch(() => [])
+        achievementsService.getUserAchievements(userId).catch(() => []),
+        progressService.getUserEnrollments(userId).catch(() => ({ data: [], count: 0 }))
       ])
 
+      // Count completed courses
+      const completedCount = enrollments.data.filter(e => e.completed_at !== null).length
+
       setStats({
-        coursesEnrolled: 0, // Placeholder - implement with progress service
-        coursesCompleted: 0, // Placeholder - implement with progress service
+        coursesEnrolled: enrollments.count || 0,
+        coursesCompleted: completedCount,
         totalPoints: points.total_points || 0,
         achievementsEarned: achievements.length,
         recentActivity: profileData?.last_activity_at 

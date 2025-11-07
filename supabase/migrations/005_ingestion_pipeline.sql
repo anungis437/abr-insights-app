@@ -82,16 +82,16 @@ CREATE TABLE IF NOT EXISTS tribunal_cases_raw (
 );
 
 -- Indexes for performance
-CREATE INDEX idx_tribunal_cases_raw_source_url ON tribunal_cases_raw(source_url);
-CREATE INDEX idx_tribunal_cases_raw_source_system ON tribunal_cases_raw(source_system);
-CREATE INDEX idx_tribunal_cases_raw_promotion_status ON tribunal_cases_raw(promotion_status);
-CREATE INDEX idx_tribunal_cases_raw_needs_review ON tribunal_cases_raw(needs_review) WHERE needs_review = TRUE;
-CREATE INDEX idx_tribunal_cases_raw_created_at ON tribunal_cases_raw(created_at DESC);
-CREATE INDEX idx_tribunal_cases_raw_job_id ON tribunal_cases_raw(ingestion_job_id);
-CREATE INDEX idx_tribunal_cases_raw_combined_confidence ON tribunal_cases_raw(combined_confidence DESC);
+CREATE INDEX IF NOT EXISTS idx_tribunal_cases_raw_source_url ON tribunal_cases_raw(source_url);
+CREATE INDEX IF NOT EXISTS idx_tribunal_cases_raw_source_system ON tribunal_cases_raw(source_system);
+CREATE INDEX IF NOT EXISTS idx_tribunal_cases_raw_promotion_status ON tribunal_cases_raw(promotion_status);
+CREATE INDEX IF NOT EXISTS idx_tribunal_cases_raw_needs_review ON tribunal_cases_raw(needs_review) WHERE needs_review = TRUE;
+CREATE INDEX IF NOT EXISTS idx_tribunal_cases_raw_created_at ON tribunal_cases_raw(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_tribunal_cases_raw_job_id ON tribunal_cases_raw(ingestion_job_id);
+CREATE INDEX IF NOT EXISTS idx_tribunal_cases_raw_combined_confidence ON tribunal_cases_raw(combined_confidence DESC);
 
 -- Full-text search on raw cases
-CREATE INDEX idx_tribunal_cases_raw_search ON tribunal_cases_raw USING GIN (
+CREATE INDEX IF NOT EXISTS idx_tribunal_cases_raw_search ON tribunal_cases_raw USING GIN (
     to_tsvector('english', COALESCE(case_title, '') || ' ' || COALESCE(full_text, ''))
 );
 
@@ -153,10 +153,10 @@ CREATE TABLE IF NOT EXISTS ingestion_jobs (
 );
 
 -- Indexes
-CREATE INDEX idx_ingestion_jobs_status ON ingestion_jobs(status);
-CREATE INDEX idx_ingestion_jobs_source_system ON ingestion_jobs(source_system);
-CREATE INDEX idx_ingestion_jobs_started_at ON ingestion_jobs(started_at DESC);
-CREATE INDEX idx_ingestion_jobs_triggered_by ON ingestion_jobs(triggered_by);
+CREATE INDEX IF NOT EXISTS idx_ingestion_jobs_status ON ingestion_jobs(status);
+CREATE INDEX IF NOT EXISTS idx_ingestion_jobs_source_system ON ingestion_jobs(source_system);
+CREATE INDEX IF NOT EXISTS idx_ingestion_jobs_started_at ON ingestion_jobs(started_at DESC);
+CREATE INDEX IF NOT EXISTS idx_ingestion_jobs_triggered_by ON ingestion_jobs(triggered_by);
 
 -- ============================================================================
 -- INGESTION ERRORS
@@ -202,11 +202,11 @@ CREATE TABLE IF NOT EXISTS ingestion_errors (
 );
 
 -- Indexes
-CREATE INDEX idx_ingestion_errors_job_id ON ingestion_errors(ingestion_job_id);
-CREATE INDEX idx_ingestion_errors_error_stage ON ingestion_errors(error_stage);
-CREATE INDEX idx_ingestion_errors_severity ON ingestion_errors(severity);
-CREATE INDEX idx_ingestion_errors_resolved ON ingestion_errors(resolved) WHERE resolved = FALSE;
-CREATE INDEX idx_ingestion_errors_created_at ON ingestion_errors(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_ingestion_errors_job_id ON ingestion_errors(ingestion_job_id);
+CREATE INDEX IF NOT EXISTS idx_ingestion_errors_error_stage ON ingestion_errors(error_stage);
+CREATE INDEX IF NOT EXISTS idx_ingestion_errors_severity ON ingestion_errors(severity);
+CREATE INDEX IF NOT EXISTS idx_ingestion_errors_resolved ON ingestion_errors(resolved) WHERE resolved = FALSE;
+CREATE INDEX IF NOT EXISTS idx_ingestion_errors_created_at ON ingestion_errors(created_at DESC);
 
 -- ============================================================================
 -- ADD FOREIGN KEY CONSTRAINT (Now that ingestion_jobs exists)
@@ -465,3 +465,6 @@ COMMENT ON TABLE ingestion_errors IS 'Detailed error logging for ingestion pipel
 COMMENT ON FUNCTION promote_case_to_production IS 'Promotes an approved raw case to the production tribunal_cases table';
 COMMENT ON VIEW vw_recent_ingestion_jobs IS 'Dashboard view of recent ingestion jobs with key metrics';
 COMMENT ON VIEW vw_high_confidence_pending_cases IS 'Cases with high AI confidence awaiting review for quick approval';
+
+
+

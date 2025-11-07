@@ -20,8 +20,8 @@ CREATE TABLE IF NOT EXISTS content_categories (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_content_categories_slug ON content_categories(slug);
-CREATE INDEX idx_content_categories_parent_id ON content_categories(parent_id);
+CREATE INDEX IF NOT EXISTS idx_content_categories_slug ON content_categories(slug);
+CREATE INDEX IF NOT EXISTS idx_content_categories_parent_id ON content_categories(parent_id);
 
 -- ============================================================================
 -- COURSES
@@ -76,17 +76,17 @@ CREATE TABLE IF NOT EXISTS courses (
     deleted_at TIMESTAMPTZ
 );
 
-CREATE INDEX idx_courses_slug ON courses(slug);
-CREATE INDEX idx_courses_category_id ON courses(category_id);
-CREATE INDEX idx_courses_instructor_id ON courses(instructor_id);
-CREATE INDEX idx_courses_is_published ON courses(is_published);
-CREATE INDEX idx_courses_is_featured ON courses(is_featured);
-CREATE INDEX idx_courses_required_tier ON courses(required_tier);
-CREATE INDEX idx_courses_level ON courses(level);
-CREATE INDEX idx_courses_tags ON courses USING GIN (tags);
+CREATE INDEX IF NOT EXISTS idx_courses_slug ON courses(slug);
+CREATE INDEX IF NOT EXISTS idx_courses_category_id ON courses(category_id);
+CREATE INDEX IF NOT EXISTS idx_courses_instructor_id ON courses(instructor_id);
+CREATE INDEX IF NOT EXISTS idx_courses_is_published ON courses(is_published);
+CREATE INDEX IF NOT EXISTS idx_courses_is_featured ON courses(is_featured);
+CREATE INDEX IF NOT EXISTS idx_courses_required_tier ON courses(required_tier);
+CREATE INDEX IF NOT EXISTS idx_courses_level ON courses(level);
+CREATE INDEX IF NOT EXISTS idx_courses_tags ON courses USING GIN (tags);
 
 -- Full-text search
-CREATE INDEX idx_courses_search ON courses USING GIN (to_tsvector('english', title || ' ' || COALESCE(description, '')));
+CREATE INDEX IF NOT EXISTS idx_courses_search ON courses USING GIN (to_tsvector('english', title || ' ' || COALESCE(description, '')));
 
 -- ============================================================================
 -- LESSONS
@@ -137,10 +137,10 @@ CREATE TABLE IF NOT EXISTS lessons (
     UNIQUE(course_id, slug)
 );
 
-CREATE INDEX idx_lessons_course_id ON lessons(course_id);
-CREATE INDEX idx_lessons_content_type ON lessons(content_type);
-CREATE INDEX idx_lessons_is_published ON lessons(is_published);
-CREATE INDEX idx_lessons_sort_order ON lessons(sort_order);
+CREATE INDEX IF NOT EXISTS idx_lessons_course_id ON lessons(course_id);
+CREATE INDEX IF NOT EXISTS idx_lessons_content_type ON lessons(content_type);
+CREATE INDEX IF NOT EXISTS idx_lessons_is_published ON lessons(is_published);
+CREATE INDEX IF NOT EXISTS idx_lessons_sort_order ON lessons(sort_order);
 
 -- ============================================================================
 -- QUIZZES
@@ -170,8 +170,8 @@ CREATE TABLE IF NOT EXISTS quizzes (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_quizzes_lesson_id ON quizzes(lesson_id);
-CREATE INDEX idx_quizzes_course_id ON quizzes(course_id);
+CREATE INDEX IF NOT EXISTS idx_quizzes_lesson_id ON quizzes(lesson_id);
+CREATE INDEX IF NOT EXISTS idx_quizzes_course_id ON quizzes(course_id);
 
 -- ============================================================================
 -- TRIBUNAL CASES
@@ -238,15 +238,15 @@ CREATE TABLE IF NOT EXISTS tribunal_cases (
     deleted_at TIMESTAMPTZ
 );
 
-CREATE INDEX idx_tribunal_cases_case_number ON tribunal_cases(case_number);
-CREATE INDEX idx_tribunal_cases_tribunal_name ON tribunal_cases(tribunal_name);
-CREATE INDEX idx_tribunal_cases_decision_date ON tribunal_cases(decision_date DESC);
-CREATE INDEX idx_tribunal_cases_primary_category ON tribunal_cases(primary_category);
-CREATE INDEX idx_tribunal_cases_tags ON tribunal_cases USING GIN (tags);
-CREATE INDEX idx_tribunal_cases_language ON tribunal_cases(language);
+CREATE INDEX IF NOT EXISTS idx_tribunal_cases_case_number ON tribunal_cases(case_number);
+CREATE INDEX IF NOT EXISTS idx_tribunal_cases_tribunal_name ON tribunal_cases(tribunal_name);
+CREATE INDEX IF NOT EXISTS idx_tribunal_cases_decision_date ON tribunal_cases(decision_date DESC);
+CREATE INDEX IF NOT EXISTS idx_tribunal_cases_primary_category ON tribunal_cases(primary_category);
+CREATE INDEX IF NOT EXISTS idx_tribunal_cases_tags ON tribunal_cases USING GIN (tags);
+CREATE INDEX IF NOT EXISTS idx_tribunal_cases_language ON tribunal_cases(language);
 
 -- Full-text search
-CREATE INDEX idx_tribunal_cases_search ON tribunal_cases USING GIN (
+CREATE INDEX IF NOT EXISTS idx_tribunal_cases_search ON tribunal_cases USING GIN (
     to_tsvector('english', 
         case_title || ' ' || 
         COALESCE(summary, '') || ' ' || 
@@ -281,3 +281,6 @@ COMMENT ON TABLE courses IS 'Training courses with learning objectives and gamif
 COMMENT ON TABLE lessons IS 'Individual lessons within courses (video, article, quiz, etc.)';
 COMMENT ON TABLE quizzes IS 'Assessments with questions and scoring logic';
 COMMENT ON TABLE tribunal_cases IS 'Tribunal decisions with AI-powered classification and analysis';
+
+
+
