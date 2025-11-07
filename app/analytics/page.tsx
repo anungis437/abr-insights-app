@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
+import Navigation from '@/components/shared/Navigation';
 
 interface AnalyticsStats {
   total_cases: number;
@@ -168,8 +169,10 @@ export default function AnalyticsPage() {
     : '0.0';
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto p-8">
+    <>
+      <Navigation />
+      <div className="min-h-screen bg-gray-50 pt-16">
+        <div className="container mx-auto p-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">Analytics Dashboard</h1>
@@ -343,5 +346,6 @@ export default function AnalyticsPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

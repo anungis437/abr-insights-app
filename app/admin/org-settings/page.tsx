@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Navigation from '@/components/shared/Navigation';
 
 export default function OrgSettingsPage() {
   const [formData, setFormData] = React.useState({
@@ -9,7 +10,9 @@ export default function OrgSettingsPage() {
   });
 
   return (
-    <div className="p-8 max-w-2xl mx-auto">
+    <>
+      <Navigation />
+      <div className="p-8 max-w-2xl mx-auto pt-24">
       <h1 className="text-2xl font-bold mb-6">Organization Settings</h1>
       <div className="bg-white rounded-xl border border-gray-200 p-8">
         <h2 className="text-lg font-semibold mb-4">Organization</h2>
@@ -41,5 +44,6 @@ export default function OrgSettingsPage() {
         </form>
       </div>
     </div>
+    </>
   );
 }
