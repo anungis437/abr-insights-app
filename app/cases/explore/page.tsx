@@ -538,7 +538,7 @@ export default function DataExplorer() {
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
                   {displayedCases.map((tribunalCase) => (
                     <div key={tribunalCase.id} className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 border-2 border-gray-200 hover:border-teal-500">
-                      <Link href={`/cases/${tribunalCase.id}`}>
+                      <Link href={`/tribunal-cases/${tribunalCase.id}`}>
                         <div className="p-6">
                           {/* Header */}
                           <div className="flex items-start justify-between mb-3">
