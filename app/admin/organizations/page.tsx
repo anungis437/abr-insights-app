@@ -109,14 +109,15 @@ export default function AdminOrganizationsPage() {
           type="search"
           placeholder="Search organizations..."
           className="input max-w-xs"
+          aria-label="Search organizations"
         />
-        <select className="input max-w-xs">
+        <select className="input max-w-xs" aria-label="Filter organizations by type">
           <option value="">All Types</option>
           <option value="federal">Federal</option>
           <option value="provincial">Provincial</option>
           <option value="municipal">Municipal</option>
         </select>
-        <select className="input max-w-xs">
+        <select className="input max-w-xs" aria-label="Filter organizations by status">
           <option value="">All Status</option>
           <option value="active">Active</option>
           <option value="trial">Trial</option>
@@ -192,7 +193,7 @@ export default function AdminOrganizationsPage() {
                   <button className="text-sm font-medium text-primary-600 hover:text-primary-700 mr-4">
                     View
                   </button>
-                  <button className="text-sm font-medium text-gray-600 hover:text-gray-700">
+                  <button className="text-sm font-medium text-gray-600 hover:text-gray-700" aria-label="Organization settings">
                     <Settings className="inline h-4 w-4" />
                   </button>
                 </td>

@@ -279,6 +279,7 @@ export default function AdminCasesPage() {
                   value={filterTribunal}
                   onChange={(e) => setFilterTribunal(e.target.value)}
                   className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  aria-label="Filter cases by tribunal"
                 >
                   <option value="all">All Tribunals</option>
                   {tribunals.map(tribunal => (
@@ -291,6 +292,7 @@ export default function AdminCasesPage() {
                   value={filterCategory}
                   onChange={(e) => setFilterCategory(e.target.value)}
                   className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  aria-label="Filter cases by category"
                 >
                   <option value="all">All Categories</option>
                   {categories.map(category => (
@@ -303,6 +305,7 @@ export default function AdminCasesPage() {
                   value={filterLanguage}
                   onChange={(e) => setFilterLanguage(e.target.value)}
                   className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  aria-label="Filter cases by language"
                 >
                   <option value="all">All Languages</option>
                   <option value="en">English</option>
