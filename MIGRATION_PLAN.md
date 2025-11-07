@@ -214,26 +214,89 @@ legacy/src/
 
 ---
 
-### Phase 4: Page Migration - Public Pages (Week 4)
-**Goal**: Migrate public/marketing pages
+### Phase 4: Public Site Integration & Enhancement 🔄 (Current Phase)
+**Goal**: Enhance existing public pages with Supabase integration and real data
 
-#### Priority Order
-1. **Home.jsx** → `app/page.tsx` (ALREADY EXISTS)
-   - Pure marketing content
-   - No Base44 dependencies
-   - Static/minimal data needs
-   - **Status**: ✅ Already migrated
+**Current Status**: All public pages already deployed and functional with placeholder data.
 
-2. **About** → `app/about/page.tsx` (EXISTS)
-3. **Pricing** → `app/pricing/page.tsx` (EXISTS)
-4. **Contact** → `app/contact/page.tsx` (EXISTS)
-5. **Blog** → `app/blog/page.tsx` (EXISTS)
-6. **FAQ** → `app/faq/page.tsx` (EXISTS)
+**Note**: Unlike Phases 1-3 which involved ground-up implementation, Phase 4 focuses on enhancing the existing deployed public site with:
+- Real data from Supabase (live stats, case counts, etc.)
+- Form submission APIs (contact, newsletter, etc.)
+- Dynamic content where appropriate
+- SEO optimization
+- Performance enhancements
+
+#### Existing Public Pages (Already Deployed ✅)
+1. **Home** (`app/page.tsx`)
+   - Hero section with gradient background
+   - Features section (Expert Training, Case Studies, Analytics, Community)
+   - Stats display (currently uses Supabase `cases` table)
+   - CTA buttons → signup/about
+   - **Enhancement Needed**: Real-time stats, featured courses, testimonials
+
+2. **About** (`app/about/page.tsx`)
+   - Mission & vision sections
+   - Team information (static)
+   - Values & approach
+   - **Enhancement Needed**: Dynamic team profiles, real metrics
+
+3. **Pricing** (`app/pricing/page.tsx`)
+   - Three-tier pricing (Free, Professional, Enterprise)
+   - Feature comparison table
+   - CTAs to signup
+   - **Enhancement Needed**: Stripe checkout integration, dynamic pricing
+
+4. **Contact** (`app/contact/page.tsx`)
+   - Contact form (client-side only)
+   - Contact information display
+   - **Enhancement Needed**: API route for form submission (`app/api/contact/route.ts`)
+
+5. **FAQ** (`app/faq/page.tsx`)
+   - Accordion-based FAQ sections
+   - Platform, Pricing, Data Security, Technical Support categories
+   - **Status**: ✅ Complete (static content is appropriate)
+
+6. **Team** (`app/team/page.tsx`)
+   - Team management interface
+   - Member list with roles
+   - **Note**: This appears to be an authenticated page, should move to Phase 5
+
+7. **Blog** (`app/blog/page.tsx`)
+   - Blog post grid
+   - Newsletter signup
+   - **Enhancement Needed**: Blog API route, dynamic posts from Supabase
+
+8. **Other Public Pages** (Already Complete ✅)
+   - Privacy Policy (`app/privacy/page.tsx`)
+   - Terms of Service (`app/terms/page.tsx`)
+   - Cookies Policy (`app/cookies/page.tsx`)
+   - Accessibility (`app/accessibility/page.tsx`)
+   - Security (`app/security/page.tsx`)
+   - Careers (`app/careers/page.tsx`)
+
+#### Phase 4 Tasks
+- [ ] Enhance Home page with real-time stats from `tribunalCasesService.getStats()`
+- [ ] Add featured courses section to Home using `coursesService.list({ filters: { featured: true } })`
+- [ ] Create contact form API route (`app/api/contact/route.ts`) with email service
+- [ ] Create newsletter signup API route (`app/api/newsletter/route.ts`)
+- [ ] Add dynamic testimonials section to Home (optional)
+- [ ] Integrate Stripe checkout to Pricing page (deferred - requires Stripe setup)
+- [ ] Add SEO metadata to all public pages (partially complete)
+- [ ] Optimize images and performance
+- [ ] Test all public pages for responsiveness
+- [ ] Verify all links and CTAs work correctly
 
 **Deliverables**:
-- All public pages working
-- SEO metadata correct
-- Links functional
+- ✅ All public pages deployed and accessible
+- 🔄 Contact form API integrated
+- 🔄 Newsletter signup working
+- 🔄 Real-time stats on Home page
+- 🔄 Featured courses displayed
+- ✅ SEO metadata on all pages
+- ✅ Responsive design working
+- ✅ Navigation and Footer functional
+
+**Post-Phase 4**: Public site fully functional with real data, ready for Phase 5 authenticated pages
 
 ---
 
