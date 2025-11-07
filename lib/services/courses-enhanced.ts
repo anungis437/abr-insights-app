@@ -18,11 +18,11 @@ import type {
   CourseModule,
   CourseVersion,
   LearningPath,
-  EnhancedEnrollment,
-  EnhancedLessonProgress,
-  EnhancedQuizAttempt,
   CourseDiscussion,
   LearningPathEnrollment,
+  Enrollment,
+  LessonProgress,
+  QuizAttempt,
   CourseModuleWithLessons,
   EnrollmentWithProgress,
 } from '@/lib/types/courses';
@@ -119,7 +119,7 @@ export async function enrollInCourse(
   courseId: string,
   learningPathId?: string,
   enrollmentSource?: string
-): Promise<EnhancedEnrollment> {
+): Promise<Enrollment> {
   const supabase = createClient();
   
   const enrollment = {
@@ -198,7 +198,7 @@ export async function updateEnrollmentProgress(
 ): Promise<void> {
   const supabase = createClient();
   
-  const updates: Partial<EnhancedEnrollment> = {
+  const updates: Partial<Enrollment> = {
     progress_percentage: progressPercentage,
     last_accessed_at: new Date().toISOString(),
   };
@@ -257,8 +257,8 @@ export async function trackLessonProgress(
   userId: string,
   lessonId: string,
   enrollmentId: string,
-  progress: Partial<EnhancedLessonProgress>
-): Promise<EnhancedLessonProgress> {
+  progress: Partial<LessonProgress>
+): Promise<LessonProgress> {
   const supabase = createClient();
   
   // Try to update existing progress first
@@ -306,7 +306,7 @@ export async function trackLessonProgress(
 export async function getLessonProgress(
   userId: string,
   lessonId: string
-): Promise<EnhancedLessonProgress | null> {
+): Promise<LessonProgress | null> {
   const supabase = createClient();
   
   const { data, error } = await supabase
@@ -336,7 +336,7 @@ export async function completeLessonProgress(
   
   await trackLessonProgress(userId, lessonId, enrollmentId, {
     status: 'completed',
-    completion_percentage: 100,
+    progress_percentage: 100,
     completed_at: new Date().toISOString(),
   });
   
@@ -368,7 +368,7 @@ export async function submitQuizAttempt(
   answers: Record<string, any>,
   score: number,
   passed: boolean
-): Promise<EnhancedQuizAttempt> {
+): Promise<QuizAttempt> {
   const supabase = createClient();
   
   // Get previous attempts count
@@ -384,7 +384,7 @@ export async function submitQuizAttempt(
     ? previousAttempts[0].attempt_number + 1
     : 1;
   
-  const attempt: Partial<EnhancedQuizAttempt> = {
+  const attempt: Partial<QuizAttempt> = {
     user_id: userId,
     quiz_id: quizId,
     lesson_id: lessonId,
@@ -443,7 +443,7 @@ async function updateEnrollmentQuizStats(enrollmentId: string, passed: boolean):
 export async function getQuizAttempts(
   userId: string,
   quizId: string
-): Promise<EnhancedQuizAttempt[]> {
+): Promise<QuizAttempt[]> {
   const supabase = createClient();
   
   const { data, error } = await supabase
@@ -677,8 +677,8 @@ export async function enrollInLearningPath(
   // Enroll user in all courses in the path
   const path = await getLearningPath(pathId);
   if (path?.course_sequence) {
-    const enrollmentPromises = path.course_sequence.map((courseId: string) =>
-      enrollInCourse(userId, courseId, pathId, 'learning_path')
+    const enrollmentPromises = path.course_sequence.map(item =>
+      enrollInCourse(userId, item.course_id, pathId, 'learning_path')
     );
     await Promise.all(enrollmentPromises);
   }
