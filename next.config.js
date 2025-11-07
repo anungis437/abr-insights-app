@@ -3,8 +3,8 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   
-  // Azure Static Web Apps requires static export
-  output: 'export',
+  // Note: Removed static export to support Supabase Auth callback routes
+  // Azure Static Web Apps supports Next.js hybrid rendering
   
   images: {
     domains: [

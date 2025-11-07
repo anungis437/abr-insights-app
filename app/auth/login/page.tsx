@@ -1,11 +1,12 @@
 'use client'
 
-import { Metadata } from 'next'
 import Link from 'next/link'
-import { useState } from 'react'
-import { Eye, EyeOff, Lock, Mail, Chrome, Github } from 'lucide-react'
+import { useState, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Eye, EyeOff, Lock, Mail, Chrome, Github, AlertCircle } from 'lucide-react'
+import { useAuth } from '@/lib/auth/AuthContext'
 
-export default function LoginPage() {
+function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [formState, setFormState] = useState({
     email: '',
@@ -13,28 +14,39 @@ export default function LoginPage() {
     rememberMe: false,
   })
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  
+  const { signIn } = useAuth()
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectTo = searchParams.get('redirect') || '/dashboard'
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    setError(null)
     
-    // TODO: Implement Supabase authentication
-    // await supabase.auth.signInWithPassword({
-    //   email: formState.email,
-    //   password: formState.password,
-    // })
-    
-    // Placeholder for authentication logic
-    
-    setTimeout(() => {
+    try {
+      const { error } = await signIn(formState.email, formState.password)
+      
+      if (error) {
+        setError(error.message)
+        setIsLoading(false)
+        return
+      }
+      
+      // Success - redirect handled by AuthContext
+      router.push(redirectTo)
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again.')
       setIsLoading(false)
-    }, 1500)
+    }
   }
 
-  const handleSocialLogin = (provider: 'google' | 'github') => {
-    // TODO: Implement Supabase social auth
-    // await supabase.auth.signInWithOAuth({ provider })
-    // Placeholder for social authentication logic
+  const handleSocialLogin = async (provider: 'google' | 'github') => {
+    setError(null)
+    // Social auth will be implemented in future iteration
+    setError('Social login is not yet configured. Please sign in with email and password.')
   }
 
   return (
@@ -55,6 +67,14 @@ export default function LoginPage() {
 
           {/* Login Card */}
           <div className="rounded-2xl bg-white p-8 shadow-xl">
+            {/* Error Message */}
+            {error && (
+              <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-4 flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-red-800">{error}</p>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Email Input */}
               <div>
@@ -201,5 +221,17 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+        <div className="text-gray-600">Loading...</div>
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   )
 }

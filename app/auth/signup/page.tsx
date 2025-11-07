@@ -1,9 +1,10 @@
 'use client'
 
-import { Metadata } from 'next'
 import Link from 'next/link'
 import { useState } from 'react'
-import { Eye, EyeOff, Lock, Mail, User, Building2, Chrome, Github, Check } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Eye, EyeOff, Lock, Mail, User, Building2, Chrome, Github, Check, AlertCircle } from 'lucide-react'
+import { useAuth } from '@/lib/auth/AuthContext'
 
 export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false)
@@ -27,48 +28,66 @@ export default function SignupPage() {
     agreedToMarketing: false,
   })
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
+  
+  const { signUp } = useAuth()
+  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError(null)
     
     if (step === 1) {
       // Validate passwords match
       if (formState.password !== formState.confirmPassword) {
-        alert('Passwords do not match')
+        setError('Passwords do not match')
         return
       }
+      
+      // Validate password strength
+      if (formState.password.length < 8) {
+        setError('Password must be at least 8 characters long')
+        return
+      }
+      
       setStep(2)
     } else {
       setIsLoading(true)
       
-      // TODO: Implement Supabase authentication
-      // await supabase.auth.signUp({
-      //   email: formState.email,
-      //   password: formState.password,
-      //   options: {
-      //     data: {
-      //       first_name: formState.firstName,
-      //       last_name: formState.lastName,
-      //       organization_name: formState.organizationName,
-      //       organization_type: formState.organizationType,
-      //       role: formState.role,
-      //       team_size: formState.teamSize,
-      //     }
-      //   }
-      // })
-      
-      // Placeholder for authentication logic
-      
-      setTimeout(() => {
+      try {
+        const { error } = await signUp(formState.email, formState.password, {
+          first_name: formState.firstName,
+          last_name: formState.lastName,
+          display_name: `${formState.firstName} ${formState.lastName}`,
+          organization_name: formState.organizationName,
+          organization_type: formState.organizationType,
+          job_title: formState.role,
+          team_size: formState.teamSize,
+        })
+        
+        if (error) {
+          setError(error.message)
+          setIsLoading(false)
+          return
+        }
+        
+        setSuccess(true)
+        // Note: User needs to verify email before accessing the app
+        setTimeout(() => {
+          router.push('/auth/login?verified=false')
+        }, 3000)
+      } catch (err) {
+        setError('An unexpected error occurred. Please try again.')
         setIsLoading(false)
-      }, 1500)
+      }
     }
   }
 
-  const handleSocialSignup = (provider: 'google' | 'github') => {
-    // TODO: Implement Supabase social auth
-    // await supabase.auth.signInWithOAuth({ provider })
-    // Placeholder for social authentication logic
+  const handleSocialSignup = async (provider: 'google' | 'github') => {
+    setError(null)
+    // Social auth will be implemented in future iteration
+    setError('Social signup is not yet configured. Please sign up with email and password.')
   }
 
   const organizationTypes = [
@@ -136,6 +155,25 @@ export default function SignupPage() {
 
           {/* Signup Card */}
           <div className="rounded-2xl bg-white p-8 shadow-xl">
+            {/* Error Message */}
+            {error && (
+              <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-4 flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-red-800">{error}</p>
+              </div>
+            )}
+
+            {/* Success Message */}
+            {success && (
+              <div className="mb-4 rounded-lg bg-green-50 border border-green-200 p-4 flex items-start gap-3">
+                <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                <div className="text-sm text-green-800">
+                  <p className="font-medium">Account created successfully!</p>
+                  <p className="mt-1">Please check your email to verify your account.</p>
+                </div>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-6">
               {step === 1 ? (
                 <>

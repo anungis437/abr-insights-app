@@ -1,4 +1,4 @@
-import { ENV } from './ingestion/src/config/index.js';
+import { ENV } from '../ingestion/src/config/index.js';
 
 console.log('\n🔍 Checking AI Classification Configuration...\n');
 
