@@ -1,9 +1,7 @@
-﻿'use client'
+'use client'
 
 import { Mail, MapPin, Phone, Send } from 'lucide-react'
 import { useState } from 'react'
-import Navigation from '@/components/shared/Navigation'
-import Footer from '@/components/shared/Footer'
 
 export default function ContactPage() {
   const [formState, setFormState] = useState({
@@ -60,9 +58,7 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <Navigation />
-      
+    <div className="min-h-screen bg-white">      
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary-600 to-secondary-600 py-20 text-white">
         <div className="container-custom">
@@ -287,10 +283,7 @@ export default function ContactPage() {
             </a>
           </div>
         </div>
-      </section>
-
-      <Footer />
-    </div>
+      </section>    </div>
   )
 }
 

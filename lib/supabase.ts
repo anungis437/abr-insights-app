@@ -10,10 +10,13 @@ export const supabase = createClient(
 export type Profile = {
   id: string
   email: string
-  full_name: string | null
-  avatar_url: string | null
-  organization_id: string
-  preferred_language: 'en' | 'fr'
+  first_name: string | null
+  last_name: string | null
+  display_name: string | null
+  role: string | null
+  organization_id?: string | null
+  avatar_url?: string | null
+  preferred_language?: 'en' | 'fr'
   created_at: string
   updated_at: string
 }

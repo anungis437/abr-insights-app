@@ -4,7 +4,7 @@
 
 -- Classification Feedback Table
 -- Stores user feedback on AI classification results for model improvement
-CREATE TABLE classification_feedback (
+CREATE TABLE IF NOT EXISTS classification_feedback (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now(),
@@ -35,7 +35,7 @@ CREATE TABLE classification_feedback (
 
 -- Training Jobs Table
 -- Tracks OpenAI fine-tuning jobs and their status
-CREATE TABLE training_jobs (
+CREATE TABLE IF NOT EXISTS training_jobs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now(),
@@ -86,7 +86,7 @@ CREATE TABLE training_jobs (
 
 -- Automated Training Configuration Table
 -- Stores schedules and rules for automatic model retraining
-CREATE TABLE automated_training_config (
+CREATE TABLE IF NOT EXISTS automated_training_config (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now(),
@@ -279,16 +279,19 @@ CREATE POLICY "Admins can delete automation configs"
   );
 
 -- Update triggers
+DROP TRIGGER IF EXISTS update_classification_feedback_updated_at ON classification_feedback;
 CREATE TRIGGER update_classification_feedback_updated_at
   BEFORE UPDATE ON classification_feedback
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_training_jobs_updated_at ON training_jobs;
 CREATE TRIGGER update_training_jobs_updated_at
   BEFORE UPDATE ON training_jobs
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_automated_training_config_updated_at ON automated_training_config;
 CREATE TRIGGER update_automated_training_config_updated_at
   BEFORE UPDATE ON automated_training_config
   FOR EACH ROW

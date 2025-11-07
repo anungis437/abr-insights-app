@@ -23,8 +23,6 @@ import {
   Filter
 } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
-import Navigation from '@/components/shared/Navigation'
-import Footer from '@/components/shared/Footer'
 
 // Types
 interface Profile {
@@ -256,9 +254,7 @@ export default function LeaderboardPage() {
   const userEntry = getUserEntry()
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Navigation />
-      
+    <div className="min-h-screen bg-gray-50 flex flex-col">      
       <main className="flex-1 pt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           {/* Header */}
@@ -518,9 +514,6 @@ export default function LeaderboardPage() {
             </div>
           </div>
         </div>
-      </main>
-
-      <Footer />
-    </div>
+      </main>    </div>
   )
 }

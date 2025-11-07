@@ -221,10 +221,12 @@ FOREIGN KEY (ingestion_job_id) REFERENCES ingestion_jobs(id) ON DELETE SET NULL;
 -- ============================================================================
 
 -- Auto-update updated_at timestamp
+DROP TRIGGER IF EXISTS update_tribunal_cases_raw_updated_at ON tribunal_cases_raw;
 CREATE TRIGGER update_tribunal_cases_raw_updated_at 
 BEFORE UPDATE ON tribunal_cases_raw
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_ingestion_jobs_updated_at ON ingestion_jobs;
 CREATE TRIGGER update_ingestion_jobs_updated_at 
 BEFORE UPDATE ON ingestion_jobs
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
@@ -240,6 +242,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS calculate_ingestion_job_duration ON ingestion_jobs;
 CREATE TRIGGER calculate_ingestion_job_duration
 BEFORE UPDATE ON ingestion_jobs
 FOR EACH ROW
@@ -430,7 +433,7 @@ SELECT
     ROUND(j.avg_confidence_score, 2) as avg_confidence,
     j.high_confidence_count,
     j.pipeline_version,
-    p.full_name as triggered_by_name,
+    COALESCE(p.display_name, CONCAT(p.first_name, ' ', p.last_name), p.email) as triggered_by_name,
     (SELECT COUNT(*) FROM ingestion_errors WHERE ingestion_job_id = j.id) as error_count
 FROM ingestion_jobs j
 LEFT JOIN profiles p ON j.triggered_by = p.id

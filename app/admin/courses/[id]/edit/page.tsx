@@ -3,8 +3,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import Navigation from '@/components/shared/Navigation'
-import Footer from '@/components/shared/Footer'
 import { ArrowLeft, Save, Eye, Plus, X, BookOpen, Loader2 } from 'lucide-react'
 
 export default function EditCoursePage() {
@@ -64,7 +62,6 @@ export default function EditCoursePage() {
       .single()
 
     const isAdmin = 
-      profileData?.role === 'admin' ||
       profileData?.role === 'super_admin' ||
       profileData?.role === 'org_admin' ||
       profileData?.role === 'educator'
@@ -239,7 +236,6 @@ export default function EditCoursePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
-      <Navigation />
       
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
@@ -598,7 +594,6 @@ export default function EditCoursePage() {
         </div>
       </div>
 
-      <Footer />
     </div>
   )
 }

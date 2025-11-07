@@ -1,12 +1,8 @@
 import { BookOpen, Download, ExternalLink, FileText, Video } from 'lucide-react'
-import Navigation from '@/components/shared/Navigation'
-import Footer from '@/components/shared/Footer'
 
 export default function ResourcesPage() {
   return (
-    <div className="min-h-screen bg-white">
-      <Navigation />
-      {/* Hero Section */}
+    <div className="min-h-screen bg-white">      {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary-600 to-secondary-600 py-20 text-white">
         <div className="container-custom">
           <div className="mx-auto max-w-3xl text-center">
@@ -274,10 +270,7 @@ export default function ResourcesPage() {
             </form>
           </div>
         </div>
-      </section>
-
-      <Footer />
-    </div>
+      </section>    </div>
   )
 }
 

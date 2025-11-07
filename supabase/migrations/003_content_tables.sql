@@ -258,18 +258,23 @@ CREATE INDEX IF NOT EXISTS idx_tribunal_cases_search ON tribunal_cases USING GIN
 -- TRIGGERS
 -- ============================================================================
 
+DROP TRIGGER IF EXISTS update_content_categories_updated_at ON content_categories;
 CREATE TRIGGER update_content_categories_updated_at BEFORE UPDATE ON content_categories
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_courses_updated_at ON courses;
 CREATE TRIGGER update_courses_updated_at BEFORE UPDATE ON courses
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_lessons_updated_at ON lessons;
 CREATE TRIGGER update_lessons_updated_at BEFORE UPDATE ON lessons
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_quizzes_updated_at ON quizzes;
 CREATE TRIGGER update_quizzes_updated_at BEFORE UPDATE ON quizzes
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_tribunal_cases_updated_at ON tribunal_cases;
 CREATE TRIGGER update_tribunal_cases_updated_at BEFORE UPDATE ON tribunal_cases
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 

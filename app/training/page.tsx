@@ -16,8 +16,6 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import type { User } from '@supabase/supabase-js'
-import Navigation from '@/components/shared/Navigation'
-import Footer from '@/components/shared/Footer'
 
 interface Course {
   id: string
@@ -166,9 +164,7 @@ export default function TrainingHubPage() {
   const inProgressCourses = getInProgressCourses()
 
   return (
-    <>
-      <Navigation />
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12">
+    <>      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-12">
             <div className="flex items-center gap-3 mb-4">
@@ -437,9 +433,7 @@ export default function TrainingHubPage() {
             )}
           </div>
         </div>
-      </div>
-      <Footer />
-    </>
+      </div>    </>
   )
 }
 

@@ -2,9 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import Navigation from '@/components/shared/Navigation'
-import Footer from '@/components/shared/Footer'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/client'
 import { 
   Scale, 
   Plus, 
@@ -47,10 +45,13 @@ export default function AdminCasesPage() {
 
   useEffect(() => {
     const checkAuthAndLoadCases = async () => {
+      const supabase = createClient()
       // Check auth
       const { data: { user: currentUser } } = await supabase.auth.getUser()
       
+      console.log('[Cases Page] Current user:', currentUser?.id, currentUser?.email)
       if (!currentUser) {
+        console.log('[Cases Page] No user found, redirecting to login')
         router.push('/auth/login')
         return
       }
@@ -58,23 +59,31 @@ export default function AdminCasesPage() {
       setUser(currentUser)
 
       // Check admin role
-      const { data: profileData } = await supabase
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', currentUser.id)
         .single()
 
+      console.log('[Cases Page] Profile data:', profileData)
+      console.log('[Cases Page] Profile error:', profileError)
+
       const isAdmin = 
-        profileData?.role === 'admin' ||
         profileData?.role === 'super_admin' ||
         profileData?.role === 'org_admin' ||
-        profileData?.role === 'compliance_officer'
+        profileData?.role === 'compliance_officer' ||
+        profileData?.role === 'educator'
+
+      console.log('[Cases Page] User role:', profileData?.role, 'isAdmin:', isAdmin)
 
       if (!isAdmin) {
+        console.log('[Cases Page] Unauthorized, redirecting to dashboard')
         router.push('/')
+        setIsLoading(false)
         return
       }
 
+      console.log('[Cases Page] Authorization successful, loading cases')
       // Load cases
       const { data: casesData, error } = await supabase
         .from('tribunal_cases')
@@ -130,6 +139,7 @@ export default function AdminCasesPage() {
       return
     }
 
+    const supabase = createClient()
     const { error } = await supabase
       .from('tribunal_cases')
       .delete()
@@ -160,9 +170,7 @@ export default function AdminCasesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Navigation />
-      
+    <div className="min-h-screen bg-gray-50 flex flex-col">      
       <main className="flex-1 pt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           {/* Header */}
@@ -397,9 +405,6 @@ export default function AdminCasesPage() {
             )}
           </div>
         </div>
-      </main>
-
-      <Footer />
-    </div>
+      </main>    </div>
   )
 }

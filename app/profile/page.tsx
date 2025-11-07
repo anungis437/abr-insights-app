@@ -10,8 +10,6 @@ import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { User, Mail, Briefcase, Building2, Globe, Bell, Save, Camera } from 'lucide-react'
-import Navigation from '@/components/shared/Navigation'
-import Footer from '@/components/shared/Footer'
 import { 
   getCurrentProfile, 
   updateProfile, 
@@ -136,9 +134,7 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <Navigation />
-        <div className="container-custom py-20">
+      <div className="min-h-screen bg-gray-50">        <div className="container-custom py-20">
           <div className="mx-auto max-w-4xl text-center">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-600 border-t-transparent mx-auto" />
             <p className="mt-4 text-gray-600">Loading profile...</p>
@@ -150,9 +146,7 @@ export default function ProfilePage() {
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <Navigation />
-        <div className="container-custom py-20">
+      <div className="min-h-screen bg-gray-50">        <div className="container-custom py-20">
           <div className="mx-auto max-w-4xl text-center">
             <p className="text-red-600">Profile not found</p>
           </div>
@@ -162,9 +156,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navigation />
-      
+    <div className="min-h-screen bg-gray-50">      
       <div className="container-custom py-12">
         <div className="mx-auto max-w-4xl">
           {/* Header */}
@@ -446,9 +438,6 @@ export default function ProfilePage() {
             </div>
           </form>
         </div>
-      </div>
-
-      <Footer />
-    </div>
+      </div>    </div>
   )
 }

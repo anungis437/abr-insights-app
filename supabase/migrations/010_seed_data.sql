@@ -212,89 +212,96 @@ BEGIN
     -- Get category
     SELECT id INTO category_id FROM content_categories WHERE slug = 'abr-fundamentals' LIMIT 1;
     
-    -- Create sample course
-    INSERT INTO courses (
-        title,
-        slug,
-        description,
-        category_id,
-        level,
-        estimated_duration_minutes,
-        is_published,
-        required_tier,
-        points_reward,
-        learning_objectives,
-        tags
-    ) VALUES (
-        'Introduction to Anti-Black Racism',
-        'intro-to-abr',
-        'Understand the fundamentals of anti-Black racism in Canada, its historical context, and contemporary manifestations in workplaces and institutions.',
-        category_id,
-        'beginner',
-        120,
-        true,
-        'free',
-        50,
-        '["Understand systemic racism", "Recognize microaggressions", "Apply anti-racist practices"]',
-        '["fundamentals", "introduction", "workplace"]'
-    )
-    RETURNING id INTO course_id;
+    -- Check if course already exists
+    SELECT id INTO course_id FROM courses WHERE slug = 'intro-to-abr' LIMIT 1;
     
-    -- Create sample lessons
-    INSERT INTO lessons (
-        course_id,
-        title,
-        slug,
-        description,
-        content_type,
-        module_number,
-        lesson_number,
-        sort_order,
-        is_published,
-        is_preview,
-        estimated_read_time_minutes
-    ) VALUES
-    (
-        course_id,
-        'What is Anti-Black Racism?',
-        'what-is-abr',
-        'Define anti-Black racism and understand its unique characteristics.',
-        'article',
-        1,
-        1,
-        1,
-        true,
-        true,
-        15
-    ),
-    (
-        course_id,
-        'Historical Context in Canada',
-        'historical-context',
-        'Explore the history of anti-Black racism in Canada from slavery to present day.',
-        'article',
-        1,
-        2,
-        2,
-        true,
-        false,
-        20
-    ),
-    (
-        course_id,
-        'Module 1 Quiz',
-        'module-1-quiz',
-        'Test your understanding of the fundamentals.',
-        'quiz',
-        1,
-        3,
-        3,
-        true,
-        false,
-        10
-    );
-    
-    RAISE NOTICE 'Sample course created with ID: %', course_id;
+    IF course_id IS NULL THEN
+        -- Create sample course only if it doesn't exist
+        INSERT INTO courses (
+            title,
+            slug,
+            description,
+            category_id,
+            level,
+            estimated_duration_minutes,
+            is_published,
+            required_tier,
+            points_reward,
+            learning_objectives,
+            tags
+        ) VALUES (
+            'Introduction to Anti-Black Racism',
+            'intro-to-abr',
+            'Understand the fundamentals of anti-Black racism in Canada, its historical context, and contemporary manifestations in workplaces and institutions.',
+            category_id,
+            'beginner',
+            120,
+            true,
+            'free',
+            50,
+            '["Understand systemic racism", "Recognize microaggressions", "Apply anti-racist practices"]',
+            '["fundamentals", "introduction", "workplace"]'
+        )
+        RETURNING id INTO course_id;
+        
+        -- Create sample lessons only if course was created
+        INSERT INTO lessons (
+            course_id,
+            title,
+            slug,
+            description,
+            content_type,
+            module_number,
+            lesson_number,
+            sort_order,
+            is_published,
+            is_preview,
+            estimated_read_time_minutes
+        ) VALUES
+        (
+            course_id,
+            'What is Anti-Black Racism?',
+            'what-is-abr',
+            'Define anti-Black racism and understand its unique characteristics.',
+            'article',
+            1,
+            1,
+            1,
+            true,
+            true,
+            15
+        ),
+        (
+            course_id,
+            'Historical Context in Canada',
+            'historical-context',
+            'Explore the history of anti-Black racism in Canada from slavery to present day.',
+            'article',
+            1,
+            2,
+            2,
+            true,
+            false,
+            20
+        ),
+        (
+            course_id,
+            'Module 1 Quiz',
+            'module-1-quiz',
+            'Test your understanding of the fundamentals.',
+            'quiz',
+            1,
+            3,
+            3,
+            true,
+            false,
+            10
+        );
+        
+        RAISE NOTICE 'Sample course created with ID: %', course_id;
+    ELSE
+        RAISE NOTICE 'Sample course already exists with ID: %', course_id;
+    END IF;
 END $$;
 
 -- ============================================================================

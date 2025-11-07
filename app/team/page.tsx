@@ -2,17 +2,13 @@
 
 import { useState } from 'react'
 import { Users, UserPlus, Mail, Shield, Settings, Search, Filter, MoreVertical, Crown, Edit, Trash2, CheckCircle, XCircle, Clock } from 'lucide-react'
-import Navigation from '@/components/shared/Navigation'
-import Footer from '@/components/shared/Footer'
 
 export default function TeamManagementPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [roleFilter, setRoleFilter] = useState('all')
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
-      <Navigation />
-      
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">      
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-primary-600 to-secondary-600 px-4 pb-16 pt-32 text-white">
         <div className="container-custom">
@@ -334,10 +330,7 @@ export default function TeamManagementPage() {
             </button>
           </div>
         </div>
-      </section>
-
-      <Footer />
-    </div>
+      </section>    </div>
   )
 }
 

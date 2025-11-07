@@ -11,11 +11,11 @@ CREATE TABLE IF NOT EXISTS public.newsletter_subscribers (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- CREATE INDEX IF NOT EXISTS on email for faster lookups
+-- Create index on email for faster lookups
 CREATE INDEX IF NOT EXISTS idx_newsletter_subscribers_email 
   ON public.newsletter_subscribers(email);
 
--- CREATE INDEX IF NOT EXISTS on active subscribers
+-- Create index on active subscribers
 CREATE INDEX IF NOT EXISTS idx_newsletter_subscribers_active 
   ON public.newsletter_subscribers(is_active) 
   WHERE is_active = true;
@@ -57,6 +57,7 @@ CREATE POLICY "Service role can delete subscribers"
   USING (true);
 
 -- Update timestamp trigger
+DROP TRIGGER IF EXISTS update_newsletter_subscribers_updated_at ON public.newsletter_subscribers;
 CREATE TRIGGER update_newsletter_subscribers_updated_at
   BEFORE UPDATE ON public.newsletter_subscribers
   FOR EACH ROW
@@ -64,6 +65,3 @@ CREATE TRIGGER update_newsletter_subscribers_updated_at
 
 -- Comment
 COMMENT ON TABLE public.newsletter_subscribers IS 'Newsletter email subscriptions';
-
-
-

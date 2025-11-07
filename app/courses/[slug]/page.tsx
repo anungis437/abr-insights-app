@@ -5,7 +5,6 @@ import { useParams } from "next/navigation";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { coursesService } from "@/lib/supabase/services/courses";
 import { progressService } from "@/lib/supabase/services/progress";
-import Navigation from '@/components/shared/Navigation';
 import type { CourseWithLessons, Lesson } from "@/lib/supabase/services/courses";
 import type { CourseEnrollment, LessonProgress } from "@/lib/supabase/services/progress";
 // Import UI components used in the JSX (Accordion, Badge, Link, etc.)

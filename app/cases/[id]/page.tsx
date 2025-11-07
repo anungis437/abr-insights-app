@@ -1,7 +1,6 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import Navigation from '@/components/shared/Navigation'
 import { 
   Calendar, 
   MapPin, 
@@ -168,7 +167,6 @@ export default async function CasePage({ params }: { params: Promise<{ id: strin
 
   return (
     <>
-      <Navigation />
       <main className="min-h-screen bg-gray-50 pt-16">
       {/* Header */}
       <section className="border-b border-gray-200 bg-white">
