@@ -70,10 +70,11 @@ async function runDemoIngestion(
       
       // Store if not dry run
       if (!dryRun) {
-        await (orchestrator as any).storage.storeDecision(
+        await (orchestrator as any).storeCase(
           content,
           classification,
-          sourceSystem
+          sourceSystem,
+          sourceConfig
         );
         console.log(`   💾 Stored in database\n`);
         stored++;

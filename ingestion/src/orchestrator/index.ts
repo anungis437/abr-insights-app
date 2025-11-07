@@ -387,15 +387,53 @@ export class IngestionOrchestrator {
         ingestion_status: 'pending_review',
       };
       
-      const { error } = await this.supabase
+      // Insert into tribunal_cases_raw first
+      const { error: rawError } = await this.supabase
         .from('tribunal_cases_raw')
         .upsert(record, { 
           onConflict: 'source_url',
           ignoreDuplicates: false 
         });
       
-      if (error) {
-        throw error;
+      if (rawError) {
+        throw rawError;
+      }
+
+      // Also insert into simplified cases table for the web app
+      const caseRecord = {
+        source_url: content.url,
+        source_system: sourceSystem,
+        case_title: content.caseTitle,
+        case_number: content.caseNumber,
+        citation: content.citation,
+        tribunal_name: content.tribunal,
+        decision_date: content.decisionDate,
+        applicant: content.applicant,
+        respondent: content.respondent,
+        full_text: content.fullText,
+        document_type: 'decision',
+        rule_based_classification: {
+          category: classification.finalCategory,
+          confidence: classification.ruleBasedResult.confidence,
+        },
+        ai_classification: classification.aiResult ? {
+          category: classification.aiResult.category,
+          confidence: classification.aiResult.confidence,
+        } : null,
+        combined_confidence: classification.finalConfidence,
+        needs_review: classification.needsReview,
+      };
+
+      const { error: caseError } = await this.supabase
+        .from('cases')
+        .upsert(caseRecord, { 
+          onConflict: 'source_url',
+          ignoreDuplicates: false 
+        });
+      
+      if (caseError) {
+        // Log but don't fail if cases table doesn't exist yet
+        console.warn(`Warning: Could not insert into cases table: ${caseError.message}`);
       }
     } catch (error) {
       throw createError(
