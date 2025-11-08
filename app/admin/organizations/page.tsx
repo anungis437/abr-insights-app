@@ -1,0 +1,207 @@
+import { Metadata } from 'next'
+import { Building2, Users, Settings, TrendingUp, Shield, Plus } from 'lucide-react'
+
+export const metadata: Metadata = {
+  title: 'Organizations | Admin | ABR Insights',
+  description: 'Manage organizations across the platform'
+}
+
+export default function AdminOrganizationsPage() {
+  // Mock data - replace with real data fetching
+  const organizations = [
+    {
+      id: 1,
+      name: 'RCMP Ontario',
+      type: 'Federal',
+      users: 1247,
+      activeUsers: 892,
+      status: 'active',
+      subscription: 'Enterprise',
+      joinedDate: '2024-01-15',
+    },
+    {
+      id: 2,
+      name: 'Toronto Police Service',
+      type: 'Municipal',
+      users: 856,
+      activeUsers: 623,
+      status: 'active',
+      subscription: 'Professional',
+      joinedDate: '2024-02-20',
+    },
+    {
+      id: 3,
+      name: 'Vancouver Police Department',
+      type: 'Municipal',
+      users: 542,
+      activeUsers: 387,
+      status: 'active',
+      subscription: 'Professional',
+      joinedDate: '2024-03-10',
+    },
+    {
+      id: 4,
+      name: 'Calgary Police Service',
+      type: 'Municipal',
+      users: 398,
+      activeUsers: 276,
+      status: 'active',
+      subscription: 'Standard',
+      joinedDate: '2024-04-05',
+    },
+    {
+      id: 5,
+      name: 'Montreal SPVM',
+      type: 'Municipal',
+      users: 723,
+      activeUsers: 512,
+      status: 'trial',
+      subscription: 'Trial',
+      joinedDate: '2024-10-15',
+    },
+  ]
+
+  const stats = [
+    { label: 'Total Organizations', value: '248', icon: Building2 },
+    { label: 'Active Subscriptions', value: '234', icon: Shield },
+    { label: 'Total Users', value: '12,847', icon: Users },
+    { label: 'Monthly Growth', value: '+12%', icon: TrendingUp },
+  ]
+
+  return (
+    <div className="container-custom py-8">
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Organizations</h1>
+          <p className="mt-2 text-gray-600">
+            Manage organizations and their subscriptions
+          </p>
+        </div>
+        <button className="btn-primary flex items-center gap-2">
+          <Plus className="h-4 w-4" />
+          Add Organization
+        </button>
+      </div>
+
+      {/* Stats */}
+      <div className="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {stats.map((stat) => {
+          const Icon = stat.icon
+          return (
+            <div key={stat.label} className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="rounded-full bg-primary-50 p-3">
+                  <Icon className="h-5 w-5 text-primary-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-600">{stat.label}</p>
+                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Filters */}
+      <div className="mb-6 flex flex-wrap items-center gap-4">
+        <input
+          type="search"
+          placeholder="Search organizations..."
+          className="input max-w-xs"
+          aria-label="Search organizations"
+        />
+        <select className="input max-w-xs" aria-label="Filter organizations by type">
+          <option value="">All Types</option>
+          <option value="federal">Federal</option>
+          <option value="provincial">Provincial</option>
+          <option value="municipal">Municipal</option>
+        </select>
+        <select className="input max-w-xs" aria-label="Filter organizations by status">
+          <option value="">All Status</option>
+          <option value="active">Active</option>
+          <option value="trial">Trial</option>
+          <option value="suspended">Suspended</option>
+        </select>
+      </div>
+
+      {/* Organizations Table */}
+      <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                Organization
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                Type
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                Users
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                Subscription
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                Status
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200 bg-white">
+            {organizations.map((org) => (
+              <tr key={org.id} className="hover:bg-gray-50">
+                <td className="px-6 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary-600 to-secondary-600">
+                      <Building2 className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">{org.name}</p>
+                      <p className="text-sm text-gray-500">Joined {org.joinedDate}</p>
+                    </div>
+                  </div>
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-900">{org.type}</td>
+                <td className="px-6 py-4">
+                  <div className="text-sm">
+                    <p className="font-medium text-gray-900">{org.users} total</p>
+                    <p className="text-gray-500">{org.activeUsers} active</p>
+                  </div>
+                </td>
+                <td className="px-6 py-4">
+                  <span className="inline-flex rounded-full bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-800">
+                    {org.subscription}
+                  </span>
+                </td>
+                <td className="px-6 py-4">
+                  <span
+                    className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
+                      org.status === 'active'
+                        ? 'bg-green-100 text-green-800'
+                        : org.status === 'trial'
+                        ? 'bg-yellow-100 text-yellow-800'
+                        : 'bg-red-100 text-red-800'
+                    }`}
+                  >
+                    {org.status}
+                  </span>
+                </td>
+                <td className="px-6 py-4">
+                  <button className="text-sm font-medium text-primary-600 hover:text-primary-700 mr-4">
+                    View
+                  </button>
+                  <button className="text-sm font-medium text-gray-600 hover:text-gray-700" aria-label="Organization settings">
+                    <Settings className="inline h-4 w-4" />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}

@@ -1,12 +1,8 @@
 import { Shield, Mail } from 'lucide-react'
-import Navigation from '@/components/shared/Navigation'
-import Footer from '@/components/shared/Footer'
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-white">
-      <Navigation />
-      
+    <div className="min-h-screen bg-white">      
       <div className="container-custom px-4 py-24">
         <div className="mx-auto max-w-4xl">
           {/* Header */}
@@ -255,9 +251,6 @@ export default function PrivacyPage() {
             </section>
           </div>
         </div>
-      </div>
-
-      <Footer />
-    </div>
+      </div>    </div>
   )
 }

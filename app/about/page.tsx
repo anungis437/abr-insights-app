@@ -1,12 +1,27 @@
 import { BookOpen, Target, Users, Award } from 'lucide-react'
-import Navigation from '@/components/shared/Navigation'
-import Footer from '@/components/shared/Footer'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'About ABR Insights | Empowering Equity Through Data',
+  description: 'Learn about ABR Insights mission to combat anti-Black racism in Canadian workplaces through data-driven insights, expert training, and comprehensive case studies.',
+  keywords: ['anti-Black racism', 'workplace equity', 'diversity training', 'HR analytics', 'Canadian tribunal cases', 'EDI consulting'],
+  openGraph: {
+    title: 'About ABR Insights | Empowering Equity Through Data',
+    description: 'Discover how ABR Insights helps organizations build more equitable workplaces through expert analysis and actionable insights.',
+    type: 'website',
+    url: 'https://abrinsights.ca/about',
+    siteName: 'ABR Insights',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'About ABR Insights',
+    description: 'Empowering organizations with data-driven insights to combat anti-Black racism.',
+  },
+}
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-white">
-      <Navigation />
-      {/* Hero Section */}
+    <div className="min-h-screen bg-white">      {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary-600 to-secondary-600 py-20 text-white">
         <div className="container-custom">
           <div className="mx-auto max-w-3xl text-center">
@@ -214,10 +229,7 @@ export default function AboutPage() {
             </div>
           </div>
         </div>
-      </section>
-
-      <Footer />
-    </div>
+      </section>    </div>
   )
 }
 

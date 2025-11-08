@@ -66,19 +66,67 @@ export default function IngestionReviewPage() {
   }, [loadCases]);
 
   async function approveCase(caseId: string) {
-    const { error } = await supabase
-      .from('tribunal_cases_raw')
-      .update({ ingestion_status: 'approved', reviewed_at: new Date().toISOString() })
-      .eq('id', caseId);
+    try {
+      // Get the raw case data
+      const { data: rawCase, error: fetchError } = await supabase
+        .from('tribunal_cases_raw')
+        .select('*')
+        .eq('id', caseId)
+        .single();
 
-    if (error) {
-      console.error('Error approving case:', error);
-      return;
+      if (fetchError || !rawCase) {
+        console.error('Error fetching case:', fetchError);
+        return;
+      }
+
+      // Insert into production tribunal_cases table
+      const { error: insertError } = await supabase
+        .from('tribunal_cases')
+        .insert({
+          case_number: rawCase.case_number,
+          case_title: rawCase.case_title,
+          tribunal_name: rawCase.tribunal_name,
+          province: rawCase.province,
+          filing_date: rawCase.filing_date,
+          decision_date: rawCase.decision_date,
+          summary: rawCase.summary,
+          full_text: rawCase.full_text,
+          decision: rawCase.decision,
+          applicant: rawCase.applicant,
+          respondent: rawCase.respondent,
+          primary_category: rawCase.primary_category,
+          subcategories: rawCase.subcategories,
+          key_issues: rawCase.key_issues,
+          remedies: rawCase.remedies,
+          outcomes: rawCase.outcomes,
+          citation: rawCase.citation,
+          language: rawCase.language,
+          tags: rawCase.tags,
+          related_cases: rawCase.related_cases,
+          document_url: rawCase.document_url,
+        });
+
+      if (insertError) {
+        console.error('Error inserting case into production:', insertError);
+        return;
+      }
+
+      // Mark as approved in raw table
+      const { error: updateError } = await supabase
+        .from('tribunal_cases_raw')
+        .update({ ingestion_status: 'approved', reviewed_at: new Date().toISOString() })
+        .eq('id', caseId);
+
+      if (updateError) {
+        console.error('Error approving case:', updateError);
+        return;
+      }
+
+      await loadCases();
+      setSelectedCase(null);
+    } catch (err) {
+      console.error('Error in approveCase:', err);
     }
-
-    // TODO: Copy to tribunal_cases production table
-    await loadCases();
-    setSelectedCase(null);
   }
 
   async function rejectCase(caseId: string) {
@@ -120,7 +168,8 @@ export default function IngestionReviewPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <>
+      <div className="container mx-auto px-4 py-8 pt-24">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Ingestion Review Dashboard</h1>
         <p className="text-muted-foreground">
@@ -262,5 +311,6 @@ export default function IngestionReviewPage() {
         </div>
       )}
     </div>
+    </>
   );
 }

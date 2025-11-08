@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -168,8 +168,8 @@ export default function AnalyticsPage() {
     : '0.0';
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto p-8">
+    <>      <div className="min-h-screen bg-gray-50 pt-16">
+        <div className="container mx-auto p-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">Analytics Dashboard</h1>
@@ -206,7 +206,7 @@ export default function AnalyticsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <div className="flex justify-between mb-2">
-                <span className="font-medium">🤖 AI-Enhanced</span>
+                <span className="font-medium">?? AI-Enhanced</span>
                 <span className="text-gray-600">{stats.ai_used_cases} cases ({aiPercentage}%)</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-3">
@@ -221,7 +221,7 @@ export default function AnalyticsPage() {
             </div>
             <div>
               <div className="flex justify-between mb-2">
-                <span className="font-medium">📋 Rule-Based Only</span>
+                <span className="font-medium">?? Rule-Based Only</span>
                 <span className="text-gray-600">{stats.rule_based_cases} cases ({(100 - parseFloat(aiPercentage)).toFixed(1)}%)</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-3">
@@ -343,5 +343,6 @@ export default function AnalyticsPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

@@ -166,7 +166,8 @@ export default async function CasePage({ params }: { params: Promise<{ id: strin
   }
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <>
+      <main className="min-h-screen bg-gray-50 pt-16">
       {/* Header */}
       <section className="border-b border-gray-200 bg-white">
         <div className="container-custom py-8">
@@ -441,5 +442,6 @@ export default async function CasePage({ params }: { params: Promise<{ id: strin
         </div>
       </section>
     </main>
+    </>
   )
 }

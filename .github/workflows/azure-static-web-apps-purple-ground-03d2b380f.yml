@@ -29,7 +29,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
       
       - name: Install dependencies
@@ -40,13 +40,6 @@ jobs:
         env:
           NODE_ENV: production
       
-      - name: Prepare deployment artifacts
-        run: |
-          mkdir -p deploy-static
-          cp -r out/. deploy-static/
-          cp staticwebapp.config.json deploy-static/ || true
-        shell: bash
-      
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
@@ -56,11 +49,13 @@ jobs:
           action: "upload"
           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
-          app_location: "deploy-static" # Clean directory with only static files
+          app_location: "/" # App source code path
           api_location: "" # No API
-          output_location: "" # No additional build needed
-          skip_app_build: true # We already built above
+          output_location: "" # Next.js handles output internally
+          skip_app_build: true # We already built above with correct Node version
           ###### End of Repository/Build Configurations ######
+        env:
+          NODE_VERSION: '20'
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
