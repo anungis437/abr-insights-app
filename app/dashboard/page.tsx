@@ -63,7 +63,7 @@ export default function DashboardPage() {
 
     setUserId(user.id)
     
-    // Track daily login (Phase 5)
+    // Track daily login (Phase 5) - Optional feature
     try {
       const { gamificationService } = await import('@/lib/services/gamification')
       
@@ -83,9 +83,12 @@ export default function DashboardPage() {
         'daily_login',
         new Date().toISOString()
       )
-    } catch (error) {
-      console.error('Error tracking daily login:', error)
-      // Don't block dashboard load if gamification fails
+    } catch (error: any) {
+      // Gamification is optional - don't block dashboard if disabled
+      if (error?.message) {
+        console.warn('Gamification unavailable:', error.message)
+      }
+      // Silently continue if gamification tables/functions not enabled
     }
     
     await loadData(user.id)
