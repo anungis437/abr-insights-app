@@ -39,11 +39,11 @@ CREATE TABLE IF NOT EXISTS enrollments (
     UNIQUE(user_id, course_id)
 );
 
-CREATE INDEX idx_enrollments_user_id ON enrollments(user_id);
-CREATE INDEX idx_enrollments_course_id ON enrollments(course_id);
-CREATE INDEX idx_enrollments_organization_id ON enrollments(organization_id);
-CREATE INDEX idx_enrollments_status ON enrollments(status);
-CREATE INDEX idx_enrollments_last_accessed_at ON enrollments(last_accessed_at DESC);
+CREATE INDEX IF NOT EXISTS idx_enrollments_user_id ON enrollments(user_id);
+CREATE INDEX IF NOT EXISTS idx_enrollments_course_id ON enrollments(course_id);
+CREATE INDEX IF NOT EXISTS idx_enrollments_organization_id ON enrollments(organization_id);
+CREATE INDEX IF NOT EXISTS idx_enrollments_status ON enrollments(status);
+CREATE INDEX IF NOT EXISTS idx_enrollments_last_accessed_at ON enrollments(last_accessed_at DESC);
 
 -- ============================================================================
 -- LESSON PROGRESS
@@ -80,10 +80,10 @@ CREATE TABLE IF NOT EXISTS lesson_progress (
     UNIQUE(user_id, lesson_id)
 );
 
-CREATE INDEX idx_lesson_progress_user_id ON lesson_progress(user_id);
-CREATE INDEX idx_lesson_progress_lesson_id ON lesson_progress(lesson_id);
-CREATE INDEX idx_lesson_progress_enrollment_id ON lesson_progress(enrollment_id);
-CREATE INDEX idx_lesson_progress_status ON lesson_progress(status);
+CREATE INDEX IF NOT EXISTS idx_lesson_progress_user_id ON lesson_progress(user_id);
+CREATE INDEX IF NOT EXISTS idx_lesson_progress_lesson_id ON lesson_progress(lesson_id);
+CREATE INDEX IF NOT EXISTS idx_lesson_progress_enrollment_id ON lesson_progress(enrollment_id);
+CREATE INDEX IF NOT EXISTS idx_lesson_progress_status ON lesson_progress(status);
 
 -- ============================================================================
 -- QUIZ ATTEMPTS
@@ -119,10 +119,10 @@ CREATE TABLE IF NOT EXISTS quiz_attempts (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_quiz_attempts_user_id ON quiz_attempts(user_id);
-CREATE INDEX idx_quiz_attempts_quiz_id ON quiz_attempts(quiz_id);
-CREATE INDEX idx_quiz_attempts_enrollment_id ON quiz_attempts(enrollment_id);
-CREATE INDEX idx_quiz_attempts_status ON quiz_attempts(status);
+CREATE INDEX IF NOT EXISTS idx_quiz_attempts_user_id ON quiz_attempts(user_id);
+CREATE INDEX IF NOT EXISTS idx_quiz_attempts_quiz_id ON quiz_attempts(quiz_id);
+CREATE INDEX IF NOT EXISTS idx_quiz_attempts_enrollment_id ON quiz_attempts(enrollment_id);
+CREATE INDEX IF NOT EXISTS idx_quiz_attempts_status ON quiz_attempts(status);
 
 -- ============================================================================
 -- ACHIEVEMENTS / BADGES
@@ -161,9 +161,9 @@ CREATE TABLE IF NOT EXISTS achievements (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_achievements_slug ON achievements(slug);
-CREATE INDEX idx_achievements_type ON achievements(type);
-CREATE INDEX idx_achievements_category ON achievements(category);
+CREATE INDEX IF NOT EXISTS idx_achievements_slug ON achievements(slug);
+CREATE INDEX IF NOT EXISTS idx_achievements_type ON achievements(type);
+CREATE INDEX IF NOT EXISTS idx_achievements_category ON achievements(category);
 
 -- ============================================================================
 -- USER ACHIEVEMENTS
@@ -190,10 +190,10 @@ CREATE TABLE IF NOT EXISTS user_achievements (
     UNIQUE(user_id, achievement_id)
 );
 
-CREATE INDEX idx_user_achievements_user_id ON user_achievements(user_id);
-CREATE INDEX idx_user_achievements_achievement_id ON user_achievements(achievement_id);
-CREATE INDEX idx_user_achievements_organization_id ON user_achievements(organization_id);
-CREATE INDEX idx_user_achievements_earned_at ON user_achievements(earned_at DESC);
+CREATE INDEX IF NOT EXISTS idx_user_achievements_user_id ON user_achievements(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_achievements_achievement_id ON user_achievements(achievement_id);
+CREATE INDEX IF NOT EXISTS idx_user_achievements_organization_id ON user_achievements(organization_id);
+CREATE INDEX IF NOT EXISTS idx_user_achievements_earned_at ON user_achievements(earned_at DESC);
 
 -- ============================================================================
 -- USER POINTS
@@ -221,10 +221,10 @@ CREATE TABLE IF NOT EXISTS user_points (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_user_points_user_id ON user_points(user_id);
-CREATE INDEX idx_user_points_organization_id ON user_points(organization_id);
-CREATE INDEX idx_user_points_action_type ON user_points(action_type);
-CREATE INDEX idx_user_points_earned_at ON user_points(earned_at DESC);
+CREATE INDEX IF NOT EXISTS idx_user_points_user_id ON user_points(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_points_organization_id ON user_points(organization_id);
+CREATE INDEX IF NOT EXISTS idx_user_points_action_type ON user_points(action_type);
+CREATE INDEX IF NOT EXISTS idx_user_points_earned_at ON user_points(earned_at DESC);
 
 -- ============================================================================
 -- LEARNING STREAKS
@@ -275,9 +275,9 @@ CREATE TABLE IF NOT EXISTS bookmarks (
     UNIQUE(user_id, resource_type, resource_id)
 );
 
-CREATE INDEX idx_bookmarks_user_id ON bookmarks(user_id);
-CREATE INDEX idx_bookmarks_resource_type ON bookmarks(resource_type);
-CREATE INDEX idx_bookmarks_resource_id ON bookmarks(resource_id);
+CREATE INDEX IF NOT EXISTS idx_bookmarks_user_id ON bookmarks(user_id);
+CREATE INDEX IF NOT EXISTS idx_bookmarks_resource_type ON bookmarks(resource_type);
+CREATE INDEX IF NOT EXISTS idx_bookmarks_resource_id ON bookmarks(resource_id);
 
 -- ============================================================================
 -- COURSE REVIEWS
@@ -310,33 +310,40 @@ CREATE TABLE IF NOT EXISTS course_reviews (
     UNIQUE(user_id, course_id)
 );
 
-CREATE INDEX idx_course_reviews_user_id ON course_reviews(user_id);
-CREATE INDEX idx_course_reviews_course_id ON course_reviews(course_id);
-CREATE INDEX idx_course_reviews_rating ON course_reviews(rating);
-CREATE INDEX idx_course_reviews_is_published ON course_reviews(is_published);
+CREATE INDEX IF NOT EXISTS idx_course_reviews_user_id ON course_reviews(user_id);
+CREATE INDEX IF NOT EXISTS idx_course_reviews_course_id ON course_reviews(course_id);
+CREATE INDEX IF NOT EXISTS idx_course_reviews_rating ON course_reviews(rating);
+CREATE INDEX IF NOT EXISTS idx_course_reviews_is_published ON course_reviews(is_published);
 
 -- ============================================================================
 -- TRIGGERS
 -- ============================================================================
 
+DROP TRIGGER IF EXISTS update_enrollments_updated_at ON enrollments;
 CREATE TRIGGER update_enrollments_updated_at BEFORE UPDATE ON enrollments
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_lesson_progress_updated_at ON lesson_progress;
 CREATE TRIGGER update_lesson_progress_updated_at BEFORE UPDATE ON lesson_progress
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_quiz_attempts_updated_at ON quiz_attempts;
 CREATE TRIGGER update_quiz_attempts_updated_at BEFORE UPDATE ON quiz_attempts
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_achievements_updated_at ON achievements;
 CREATE TRIGGER update_achievements_updated_at BEFORE UPDATE ON achievements
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_learning_streaks_updated_at ON learning_streaks;
 CREATE TRIGGER update_learning_streaks_updated_at BEFORE UPDATE ON learning_streaks
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_bookmarks_updated_at ON bookmarks;
 CREATE TRIGGER update_bookmarks_updated_at BEFORE UPDATE ON bookmarks
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_course_reviews_updated_at ON course_reviews;
 CREATE TRIGGER update_course_reviews_updated_at BEFORE UPDATE ON course_reviews
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
@@ -353,3 +360,6 @@ COMMENT ON TABLE user_points IS 'Points earned by users for various actions';
 COMMENT ON TABLE learning_streaks IS 'User learning streaks (consecutive active days)';
 COMMENT ON TABLE bookmarks IS 'User bookmarks for courses, lessons, cases';
 COMMENT ON TABLE course_reviews IS 'User ratings and reviews for courses';
+
+
+

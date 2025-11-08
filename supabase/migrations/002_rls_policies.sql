@@ -4,16 +4,46 @@
 -- Requires: 001_initial_schema.sql
 
 -- ============================================================================
+-- DROP EXISTING POLICIES (idempotent)
+-- ============================================================================
+
+DROP POLICY IF EXISTS "Users can read own organization" ON organizations;
+DROP POLICY IF EXISTS "Admins can update own organization" ON organizations;
+DROP POLICY IF EXISTS "Service role has full access" ON organizations;
+DROP POLICY IF EXISTS "Users can read profiles in own org" ON profiles;
+DROP POLICY IF EXISTS "Users can update own profile" ON profiles;
+DROP POLICY IF EXISTS "Admins can update profiles in own org" ON profiles;
+DROP POLICY IF EXISTS "Admins can insert profiles in own org" ON profiles;
+DROP POLICY IF EXISTS "Admins can delete profiles in own org" ON profiles;
+DROP POLICY IF EXISTS "Service role has full access to profiles" ON profiles;
+DROP POLICY IF EXISTS "Authenticated users can read roles" ON roles;
+DROP POLICY IF EXISTS "Super admins can manage roles" ON roles;
+DROP POLICY IF EXISTS "Service role has full access to roles" ON roles;
+DROP POLICY IF EXISTS "Authenticated users can read permissions" ON permissions;
+DROP POLICY IF EXISTS "Super admins can manage permissions" ON permissions;
+DROP POLICY IF EXISTS "Service role has full access to permissions" ON permissions;
+DROP POLICY IF EXISTS "Authenticated users can read role permissions" ON role_permissions;
+DROP POLICY IF EXISTS "Super admins can manage role permissions" ON role_permissions;
+DROP POLICY IF EXISTS "Service role has full access to role permissions" ON role_permissions;
+DROP POLICY IF EXISTS "Users can read own roles" ON user_roles;
+DROP POLICY IF EXISTS "Admins can read roles in own org" ON user_roles;
+DROP POLICY IF EXISTS "Admins can manage roles in own org" ON user_roles;
+DROP POLICY IF EXISTS "Service role has full access to user roles" ON user_roles;
+DROP POLICY IF EXISTS "Users with permission can read audit logs" ON audit_logs;
+DROP POLICY IF EXISTS "Service role can insert audit logs" ON audit_logs;
+DROP POLICY IF EXISTS "Service role can read all audit logs" ON audit_logs;
+
+-- ============================================================================
 -- ENABLE RLS ON ALL TABLES
 -- ============================================================================
 
-ALTER TABLE organizations ENABLE ROW LEVEL SECURITY;
-ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE roles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE permissions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE role_permissions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE user_roles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS organizations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS roles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS permissions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS role_permissions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS user_roles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS audit_logs ENABLE ROW LEVEL SECURITY;
 
 -- ============================================================================
 -- HELPER FUNCTIONS
@@ -236,3 +266,6 @@ COMMENT ON POLICY "Users can read profiles in own org" ON profiles IS 'Multi-ten
 COMMENT ON POLICY "Users can update own profile" ON profiles IS 'Users maintain their own profile information';
 COMMENT ON POLICY "Authenticated users can read roles" ON roles IS 'Roles are visible to all authenticated users';
 COMMENT ON POLICY "Users with permission can read audit logs" ON audit_logs IS 'Audit logs require explicit permission';
+
+
+

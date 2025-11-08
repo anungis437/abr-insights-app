@@ -42,9 +42,9 @@ CREATE TABLE IF NOT EXISTS organizations (
     deleted_at TIMESTAMPTZ
 );
 
-CREATE INDEX idx_organizations_slug ON organizations(slug);
-CREATE INDEX idx_organizations_stripe_customer_id ON organizations(stripe_customer_id);
-CREATE INDEX idx_organizations_subscription_tier ON organizations(subscription_tier);
+CREATE INDEX IF NOT EXISTS idx_organizations_slug ON organizations(slug);
+CREATE INDEX IF NOT EXISTS idx_organizations_stripe_customer_id ON organizations(stripe_customer_id);
+CREATE INDEX IF NOT EXISTS idx_organizations_subscription_tier ON organizations(subscription_tier);
 
 -- Profiles (extends Supabase auth.users)
 CREATE TABLE IF NOT EXISTS profiles (
@@ -89,10 +89,10 @@ CREATE TABLE IF NOT EXISTS profiles (
     deleted_at TIMESTAMPTZ
 );
 
-CREATE INDEX idx_profiles_organization_id ON profiles(organization_id);
-CREATE INDEX idx_profiles_email ON profiles(email);
-CREATE INDEX idx_profiles_status ON profiles(status);
-CREATE INDEX idx_profiles_last_activity_at ON profiles(last_activity_at);
+CREATE INDEX IF NOT EXISTS idx_profiles_organization_id ON profiles(organization_id);
+CREATE INDEX IF NOT EXISTS idx_profiles_email ON profiles(email);
+CREATE INDEX IF NOT EXISTS idx_profiles_status ON profiles(status);
+CREATE INDEX IF NOT EXISTS idx_profiles_last_activity_at ON profiles(last_activity_at);
 
 -- Roles (RBAC)
 CREATE TABLE IF NOT EXISTS roles (
@@ -108,8 +108,8 @@ CREATE TABLE IF NOT EXISTS roles (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_roles_slug ON roles(slug);
-CREATE INDEX idx_roles_level ON roles(level);
+CREATE INDEX IF NOT EXISTS idx_roles_slug ON roles(slug);
+CREATE INDEX IF NOT EXISTS idx_roles_level ON roles(level);
 
 -- Permissions
 CREATE TABLE IF NOT EXISTS permissions (
@@ -126,8 +126,8 @@ CREATE TABLE IF NOT EXISTS permissions (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_permissions_resource ON permissions(resource);
-CREATE INDEX idx_permissions_slug ON permissions(slug);
+CREATE INDEX IF NOT EXISTS idx_permissions_resource ON permissions(resource);
+CREATE INDEX IF NOT EXISTS idx_permissions_slug ON permissions(slug);
 
 -- Role Permissions (many-to-many)
 CREATE TABLE IF NOT EXISTS role_permissions (
@@ -140,8 +140,8 @@ CREATE TABLE IF NOT EXISTS role_permissions (
     UNIQUE(role_id, permission_id)
 );
 
-CREATE INDEX idx_role_permissions_role_id ON role_permissions(role_id);
-CREATE INDEX idx_role_permissions_permission_id ON role_permissions(permission_id);
+CREATE INDEX IF NOT EXISTS idx_role_permissions_role_id ON role_permissions(role_id);
+CREATE INDEX IF NOT EXISTS idx_role_permissions_permission_id ON role_permissions(permission_id);
 
 -- User Roles (users can have multiple roles)
 CREATE TABLE IF NOT EXISTS user_roles (
@@ -165,9 +165,9 @@ CREATE TABLE IF NOT EXISTS user_roles (
     UNIQUE(user_id, role_id, organization_id, scope_type, scope_id)
 );
 
-CREATE INDEX idx_user_roles_user_id ON user_roles(user_id);
-CREATE INDEX idx_user_roles_role_id ON user_roles(role_id);
-CREATE INDEX idx_user_roles_organization_id ON user_roles(organization_id);
+CREATE INDEX IF NOT EXISTS idx_user_roles_user_id ON user_roles(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_roles_role_id ON user_roles(role_id);
+CREATE INDEX IF NOT EXISTS idx_user_roles_organization_id ON user_roles(organization_id);
 
 -- ============================================================================
 -- AUDIT LOGGING
@@ -199,12 +199,12 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_audit_logs_user_id ON audit_logs(user_id);
-CREATE INDEX idx_audit_logs_organization_id ON audit_logs(organization_id);
-CREATE INDEX idx_audit_logs_resource_type ON audit_logs(resource_type);
-CREATE INDEX idx_audit_logs_resource_id ON audit_logs(resource_id);
-CREATE INDEX idx_audit_logs_created_at ON audit_logs(created_at DESC);
-CREATE INDEX idx_audit_logs_action ON audit_logs(action);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id ON audit_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_organization_id ON audit_logs(organization_id);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_resource_type ON audit_logs(resource_type);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_resource_id ON audit_logs(resource_id);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON audit_logs(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_action ON audit_logs(action);
 
 -- ============================================================================
 -- TRIGGERS
@@ -219,18 +219,23 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_organizations_updated_at ON organizations;
 CREATE TRIGGER update_organizations_updated_at BEFORE UPDATE ON organizations
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_profiles_updated_at ON profiles;
 CREATE TRIGGER update_profiles_updated_at BEFORE UPDATE ON profiles
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_roles_updated_at ON roles;
 CREATE TRIGGER update_roles_updated_at BEFORE UPDATE ON roles
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_permissions_updated_at ON permissions;
 CREATE TRIGGER update_permissions_updated_at BEFORE UPDATE ON permissions
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_user_roles_updated_at ON user_roles;
 CREATE TRIGGER update_user_roles_updated_at BEFORE UPDATE ON user_roles
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
@@ -245,3 +250,6 @@ COMMENT ON TABLE permissions IS 'Granular permissions for resources';
 COMMENT ON TABLE role_permissions IS 'Many-to-many relationship between roles and permissions';
 COMMENT ON TABLE user_roles IS 'User role assignments with optional scoping';
 COMMENT ON TABLE audit_logs IS 'Immutable audit trail for compliance (PIPEDA, SOC 2)';
+
+
+

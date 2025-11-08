@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useState, useEffect, Suspense } from 'react'
 import { Eye, EyeOff, Lock, CheckCircle, AlertCircle } from 'lucide-react'
 import { useSearchParams, useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 
 function ResetPasswordForm() {
   const searchParams = useSearchParams()
@@ -18,16 +19,20 @@ function ResetPasswordForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [error, setError] = useState('')
-  const [token, setToken] = useState<string | null>(null)
 
   useEffect(() => {
-    // Get token from URL params
-    const tokenParam = searchParams.get('token')
-    if (!tokenParam) {
-      setError('Invalid or missing reset token')
+    // Check if we have a valid session from the reset link
+    const checkSession = async () => {
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (!session) {
+        setError('Invalid or expired reset link. Please request a new password reset.')
+      }
     }
-    setToken(tokenParam)
-  }, [searchParams])
+    
+    checkSession()
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -45,28 +50,30 @@ function ResetPasswordForm() {
       return
     }
 
-    if (!token) {
-      setError('Invalid reset token')
-      return
-    }
-
     setIsLoading(true)
 
-    // TODO: Implement Supabase password update
-    // await supabase.auth.updateUser({
-    //   password: formState.password,
-    // })
-    
-    // Placeholder for password reset logic
-    setTimeout(() => {
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.updateUser({
+        password: formState.password,
+      })
+
+      if (error) {
+        setError(error.message)
+        setIsLoading(false)
+      } else {
+        setIsLoading(false)
+        setIsSuccess(true)
+        
+        // Redirect to login after 3 seconds
+        setTimeout(() => {
+          router.push('/auth/login')
+        }, 3000)
+      }
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again.')
       setIsLoading(false)
-      setIsSuccess(true)
-      
-      // Redirect to login after 3 seconds
-      setTimeout(() => {
-        router.push('/auth/login')
-      }, 3000)
-    }, 1500)
+    }
   }
 
   const getPasswordStrength = (password: string) => {
@@ -113,28 +120,8 @@ function ResetPasswordForm() {
                   </div>
                 )}
 
-                {/* Invalid Token State */}
-                {!token && !error && (
-                  <div className="space-y-6 text-center">
-                    <div className="flex justify-center">
-                      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
-                        <AlertCircle className="h-10 w-10 text-red-600" />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <h3 className="text-xl font-semibold text-gray-900">Invalid Reset Link</h3>
-                      <p className="text-gray-600">
-                        This password reset link is invalid or has expired. Please request a new one.
-                      </p>
-                    </div>
-                    <Link href="/auth/forgot-password" className="btn-primary w-full">
-                      Request New Link
-                    </Link>
-                  </div>
-                )}
-
                 {/* Reset Form */}
-                {token && (
+                {!error && (
                   <form onSubmit={handleSubmit} className="space-y-6">
                     {/* New Password */}
                     <div>
@@ -304,7 +291,7 @@ function ResetPasswordForm() {
           </div>
 
           {/* Back to Login */}
-          {!isSuccess && token && (
+          {!isSuccess && (
             <div className="mt-8 text-center">
               <Link
                 href="/auth/login"

@@ -7,3 +7,6 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp" SCHEMA extensions;
 CREATE EXTENSION IF NOT EXISTS "pgcrypto" SCHEMA extensions;
 CREATE EXTENSION IF NOT EXISTS "pg_trgm" SCHEMA extensions;
+
+
+

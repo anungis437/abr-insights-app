@@ -2,8 +2,6 @@
 
 import { Mail, MapPin, Phone, Send } from 'lucide-react'
 import { useState } from 'react'
-import Navigation from '@/components/shared/Navigation'
-import Footer from '@/components/shared/Footer'
 
 export default function ContactPage() {
   const [formState, setFormState] = useState({
@@ -14,18 +12,42 @@ export default function ContactPage() {
     message: '',
   })
   const [submitted, setSubmitted] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Implement actual form submission to API
-    // Form submission will be implemented with /app/api/contact/route.ts
-    setSubmitted(true)
-    
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setFormState({ name: '', email: '', organization: '', subject: '', message: '' })
-      setSubmitted(false)
-    }, 3000)
+    setSubmitting(true)
+    setError(null)
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formState),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to send message')
+      }
+
+      setSubmitted(true)
+      
+      // Reset form after 5 seconds
+      setTimeout(() => {
+        setFormState({ name: '', email: '', organization: '', subject: '', message: '' })
+        setSubmitted(false)
+      }, 5000)
+    } catch (err: any) {
+      console.error('Form submission error:', err)
+      setError(err.message || 'Failed to send message. Please try again.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -36,9 +58,7 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <Navigation />
-      
+    <div className="min-h-screen bg-white">      
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary-600 to-secondary-600 py-20 text-white">
         <div className="container-custom">
@@ -80,7 +100,15 @@ export default function ContactPage() {
                   </p>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <>
+                  {error && (
+                    <div className="mb-6 rounded-lg bg-red-50 p-4 text-red-800">
+                      <p className="font-medium">Error sending message:</p>
+                      <p>{error}</p>
+                    </div>
+                  )}
+                  
+                  <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
                     <label htmlFor="name" className="mb-2 block text-sm font-medium text-gray-700">
                       Full Name *
@@ -166,11 +194,12 @@ export default function ContactPage() {
                     />
                   </div>
 
-                  <button type="submit" className="btn-primary w-full">
+                  <button type="submit" disabled={submitting} className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed">
                     <Send className="mr-2 h-5 w-5" />
-                    Send Message
+                    {submitting ? 'Sending...' : 'Send Message'}
                   </button>
                 </form>
+                </>
               )}
             </div>
 
@@ -254,10 +283,7 @@ export default function ContactPage() {
             </a>
           </div>
         </div>
-      </section>
-
-      <Footer />
-    </div>
+      </section>    </div>
   )
 }
 
