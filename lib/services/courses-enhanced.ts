@@ -203,6 +203,15 @@ export async function updateEnrollmentProgress(
     last_accessed_at: new Date().toISOString(),
   };
   
+  // Check if this is a new completion
+  const { data: currentEnrollment } = await supabase
+    .from('enrollments')
+    .select('status, user_id, course_id')
+    .eq('id', enrollmentId)
+    .single();
+  
+  const wasNotCompleted = currentEnrollment?.status !== 'completed';
+  
   // If completed, mark as such
   if (progressPercentage >= 100) {
     updates.status = 'completed';
@@ -215,6 +224,32 @@ export async function updateEnrollmentProgress(
     .eq('id', enrollmentId);
   
   if (error) throw error;
+  
+  // Award points for course completion (Phase 5) - only on first completion
+  if (progressPercentage >= 100 && wasNotCompleted && currentEnrollment) {
+    try {
+      const { gamificationService } = await import('./gamification');
+      
+      await gamificationService.awardPoints(
+        currentEnrollment.user_id,
+        200, // 200 points for completing a course
+        'course_completion',
+        currentEnrollment.course_id,
+        'Completed a course!',
+        { enrollment_id: enrollmentId }
+      );
+      
+      // Update streak
+      await gamificationService.updateUserStreak(
+        currentEnrollment.user_id,
+        'course_engagement',
+        new Date().toISOString()
+      );
+    } catch (error) {
+      console.error('Error awarding points for course completion:', error);
+      // Don't fail enrollment update if points fail
+    }
+  }
 }
 
 /**
@@ -350,6 +385,29 @@ export async function completeLessonProgress(
   if (lesson) {
     const courseProgress = await calculateCourseCompletion(userId, lesson.course_id);
     await updateEnrollmentProgress(enrollmentId, courseProgress);
+    
+    // Award points for lesson completion (Phase 5)
+    try {
+      const { gamificationService } = await import('./gamification');
+      await gamificationService.awardPoints(
+        userId,
+        25, // 25 points per lesson
+        'lesson_completion',
+        lessonId,
+        'Completed a lesson',
+        { course_id: lesson.course_id, enrollment_id: enrollmentId }
+      );
+      
+      // Update streak (Phase 5)
+      await gamificationService.updateUserStreak(
+        userId,
+        'lesson_completion',
+        new Date().toISOString()
+      );
+    } catch (error) {
+      console.error('Error awarding points for lesson completion:', error);
+      // Don't fail lesson completion if points fail
+    }
   }
 }
 
@@ -408,6 +466,44 @@ export async function submitQuizAttempt(
   
   // Update enrollment quiz stats
   await updateEnrollmentQuizStats(enrollmentId, passed);
+  
+  // Award points for quiz completion (Phase 5)
+  if (passed) {
+    try {
+      const { gamificationService } = await import('./gamification');
+      
+      // Base points for passing + bonus for perfect score
+      let pointsToAward = 50; // Base points for passing quiz
+      if (score >= 100) {
+        pointsToAward += 25; // Bonus for perfect score
+      }
+      
+      await gamificationService.awardPoints(
+        userId,
+        pointsToAward,
+        'quiz_completion',
+        quizId,
+        score >= 100 ? 'Passed quiz with perfect score!' : 'Passed quiz',
+        { 
+          lesson_id: lessonId, 
+          enrollment_id: enrollmentId, 
+          score, 
+          attempt_number: attemptNumber,
+          perfect_score: score >= 100
+        }
+      );
+      
+      // Update course engagement streak
+      await gamificationService.updateUserStreak(
+        userId,
+        'course_engagement',
+        new Date().toISOString()
+      );
+    } catch (error) {
+      console.error('Error awarding points for quiz completion:', error);
+      // Don't fail quiz submission if points fail
+    }
+  }
   
   return data;
 }

@@ -62,6 +62,32 @@ export default function DashboardPage() {
     }
 
     setUserId(user.id)
+    
+    // Track daily login (Phase 5)
+    try {
+      const { gamificationService } = await import('@/lib/services/gamification')
+      
+      // Award daily login points (cooldown handled by service)
+      await gamificationService.awardPoints(
+        user.id,
+        10, // 10 points for daily login
+        'daily_login',
+        undefined,
+        'Daily login bonus',
+        { login_date: new Date().toISOString() }
+      )
+      
+      // Update daily login streak
+      await gamificationService.updateUserStreak(
+        user.id,
+        'daily_login',
+        new Date().toISOString()
+      )
+    } catch (error) {
+      console.error('Error tracking daily login:', error)
+      // Don't block dashboard load if gamification fails
+    }
+    
     await loadData(user.id)
   }, [router])
 
