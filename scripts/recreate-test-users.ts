@@ -72,13 +72,22 @@ async function recreateTestUsers() {
         
         // Step 3: Update profile with role
         if (data.user) {
+          // Split full name into first and last name
+          const nameParts = account.fullName.split(' ')
+          const firstName = nameParts[0] || ''
+          const lastName = nameParts.slice(1).join(' ') || ''
+          
           const { error: profileError } = await supabase
             .from('profiles')
             .upsert({
               id: data.user.id,
               email: account.email,
-              full_name: account.fullName,
+              first_name: firstName,
+              last_name: lastName,
+              display_name: account.fullName,
               role: account.role,
+              status: 'active',
+              email_verified: true,
               updated_at: new Date().toISOString()
             }, {
               onConflict: 'id'
