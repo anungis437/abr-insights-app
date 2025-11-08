@@ -143,7 +143,7 @@ CREATE TABLE IF NOT EXISTS prediction_models (
   
   -- Performance metrics
   accuracy FLOAT,
-  precision FLOAT,
+  precision_score FLOAT,  -- Renamed from 'precision' to avoid SQL keyword conflict
   recall FLOAT,
   f1_score FLOAT,
   auc_roc FLOAT,
@@ -260,7 +260,7 @@ RETURNS TABLE (
   model_version TEXT,
   model_type TEXT,
   accuracy FLOAT,
-  precision FLOAT,
+  precision_score FLOAT,  -- Renamed to avoid SQL keyword conflict
   recall FLOAT,
   f1_score FLOAT,
   training_data_size INTEGER,
@@ -272,7 +272,7 @@ BEGIN
     pm.model_version::TEXT,
     pm.model_type::TEXT,
     pm.accuracy,
-    pm.precision,
+    pm.precision_score,
     pm.recall,
     pm.f1_score,
     pm.training_data_size,

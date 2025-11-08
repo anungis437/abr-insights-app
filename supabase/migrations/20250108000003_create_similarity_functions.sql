@@ -284,10 +284,11 @@ $$ LANGUAGE plpgsql STABLE;
 -- Indexes for query performance
 -- =====================================================
 
--- Composite indexes for filtered similarity searches
+-- Composite indexes for filtered similarity searches  
 CREATE INDEX IF NOT EXISTS tribunal_cases_tribunal_name_idx ON tribunal_cases(tribunal_name);
 CREATE INDEX IF NOT EXISTS tribunal_cases_decision_date_idx ON tribunal_cases(decision_date DESC);
-CREATE INDEX IF NOT EXISTS courses_difficulty_category_idx ON courses(difficulty, category);
+-- Note: courses table doesn't have difficulty/category columns, those are in learning_paths
+-- CREATE INDEX IF NOT EXISTS courses_difficulty_category_idx ON courses(difficulty, category);
 
 -- =====================================================
 -- Comments for documentation
