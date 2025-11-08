@@ -723,6 +723,87 @@ export interface ReviewFilters {
 }
 
 // ============================================================================
+// LESSON NOTES (Phase 2)
+// ============================================================================
+
+export interface LessonNote {
+  id: string
+  user_id: string
+  lesson_id: string
+  enrollment_id?: string
+  note_text: string
+  timestamp_seconds: number
+  created_at: string
+  updated_at: string
+}
+
+export interface CreateLessonNoteData {
+  lesson_id: string
+  enrollment_id?: string
+  note_text: string
+  timestamp_seconds: number
+}
+
+export interface UpdateLessonNoteData {
+  note_text?: string
+  timestamp_seconds?: number
+}
+
+// ============================================================================
+// WATCH HISTORY (Phase 2)
+// ============================================================================
+
+export interface WatchHistory {
+  id: string
+  user_id: string
+  lesson_id: string
+  enrollment_id?: string
+  course_id?: string
+  watch_date: string
+  started_at: string
+  ended_at?: string
+  start_position_seconds: number
+  end_position_seconds: number
+  duration_seconds: number
+  total_video_seconds?: number
+  completed_session: boolean
+  progress_percentage: number
+  device_type?: string
+  browser?: string
+  created_at: string
+}
+
+export interface CreateWatchHistoryData {
+  lesson_id: string
+  enrollment_id?: string
+  course_id?: string
+  start_position_seconds: number
+  total_video_seconds?: number
+  device_type?: string
+  browser?: string
+}
+
+export interface UpdateWatchHistoryData {
+  ended_at?: string
+  end_position_seconds?: number
+  duration_seconds?: number
+  completed_session?: boolean
+  progress_percentage?: number
+}
+
+export interface WatchStatistics {
+  user_id: string
+  lesson_id: string
+  course_id?: string
+  total_sessions: number
+  total_watch_seconds: number
+  avg_progress: number
+  max_progress: number
+  last_watched_at: string
+  completed_sessions: number
+}
+
+// ============================================================================
 // HELPER TYPES FOR SERVICE LAYER
 // ============================================================================
 

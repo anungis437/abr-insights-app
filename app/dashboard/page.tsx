@@ -26,6 +26,9 @@ import { createClient } from '@/lib/supabase/client'
 import { getCurrentProfile, type Profile } from '@/lib/supabase/services/profiles'
 import { AchievementsService } from '@/lib/supabase/services/achievements'
 import { ProgressService } from '@/lib/supabase/services/progress'
+import LearningDashboard from '@/components/dashboard/LearningDashboard'
+import { LanguageTogglePill } from '@/components/shared/LanguageToggle'
+import { useLanguage } from '@/lib/contexts/LanguageContext'
 
 type DashboardStats = {
   coursesEnrolled: number
@@ -37,8 +40,10 @@ type DashboardStats = {
 
 export default function DashboardPage() {
   const router = useRouter()
+  const { t } = useLanguage()
   const [loading, setLoading] = useState(true)
   const [profile, setProfile] = useState<Profile | null>(null)
+  const [userId, setUserId] = useState<string | null>(null)
   const [stats, setStats] = useState<DashboardStats>({
     coursesEnrolled: 0,
     coursesCompleted: 0,
@@ -56,6 +61,7 @@ export default function DashboardPage() {
       return
     }
 
+    setUserId(user.id)
     await loadData(user.id)
   }, [router])
 
@@ -117,13 +123,16 @@ export default function DashboardPage() {
       <div className="container-custom py-12">
         <div className="mx-auto max-w-7xl">
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">
-              Welcome back, {profile?.display_name || profile?.first_name || 'there'}!
-            </h1>
-            <p className="mt-2 text-gray-600">
-              Here&apos;s your learning progress overview
-            </p>
+          <div className="mb-8 flex items-start justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">
+                {t('dashboard.welcome', { name: profile?.display_name || profile?.first_name || '' })}
+              </h1>
+              <p className="mt-2 text-gray-600">
+                {t('dashboard.overview')}
+              </p>
+            </div>
+            <LanguageTogglePill />
           </div>
 
           {/* Quick Stats */}
@@ -139,7 +148,7 @@ export default function DashboardPage() {
                 <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-primary-600 transition-colors" />
               </div>
               <p className="text-2xl font-bold text-gray-900">{stats.coursesEnrolled}</p>
-              <p className="text-sm text-gray-600">Courses Enrolled</p>
+              <p className="text-sm text-gray-600">{t('dashboard.stats.courses_enrolled')}</p>
             </Link>
 
             <Link
@@ -153,7 +162,7 @@ export default function DashboardPage() {
                 <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-green-600 transition-colors" />
               </div>
               <p className="text-2xl font-bold text-gray-900">{stats.coursesCompleted}</p>
-              <p className="text-sm text-gray-600">Courses Completed</p>
+              <p className="text-sm text-gray-600">{t('dashboard.stats.courses_completed')}</p>
             </Link>
 
             <Link
@@ -167,7 +176,7 @@ export default function DashboardPage() {
                 <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-yellow-600 transition-colors" />
               </div>
               <p className="text-2xl font-bold text-gray-900">{stats.totalPoints}</p>
-              <p className="text-sm text-gray-600">Total Points</p>
+              <p className="text-sm text-gray-600">{t('dashboard.stats.total_points')}</p>
             </Link>
 
             <Link
@@ -181,7 +190,7 @@ export default function DashboardPage() {
                 <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-purple-600 transition-colors" />
               </div>
               <p className="text-2xl font-bold text-gray-900">{stats.achievementsEarned}</p>
-              <p className="text-sm text-gray-600">Achievements</p>
+              <p className="text-sm text-gray-600">{t('dashboard.stats.achievements')}</p>
             </Link>
           </div>
 
@@ -269,6 +278,13 @@ export default function DashboardPage() {
                 </div>
               </div>
             </div>
+
+            {/* Learning Analytics Dashboard */}
+            {userId && (
+              <div className="lg:col-span-2">
+                <LearningDashboard userId={userId} />
+              </div>
+            )}
 
             {/* Right Column - Profile Summary */}
             <div className="space-y-6">

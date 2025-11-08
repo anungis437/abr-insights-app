@@ -2,6 +2,7 @@ import { Poppins } from 'next/font/google'
 import './globals.css'
 import type { Metadata } from 'next'
 import { AuthProvider } from '@/lib/auth/AuthContext'
+import { LanguageProvider } from '@/lib/contexts/LanguageContext'
 import NavigationWrapper from '@/components/shared/navigation/NavigationWrapper'
 import FooterWrapper from '@/components/shared/footer/FooterWrapper'
 
@@ -76,9 +77,11 @@ export default function RootLayout({
     <html lang="en" className={poppins.variable}>
       <body className="font-sans">
         <AuthProvider>
-          <NavigationWrapper />
-          <main>{children}</main>
-          <FooterWrapper />
+          <LanguageProvider>
+            <NavigationWrapper />
+            <main>{children}</main>
+            <FooterWrapper />
+          </LanguageProvider>
         </AuthProvider>
       </body>
     </html>
