@@ -5,6 +5,7 @@ import { AuthProvider } from '@/lib/auth/AuthContext'
 import { LanguageProvider } from '@/lib/contexts/LanguageContext'
 import NavigationWrapper from '@/components/shared/navigation/NavigationWrapper'
 import FooterWrapper from '@/components/shared/footer/FooterWrapper'
+import { PWAProvider } from '@/components/shared/PWAComponents'
 
 const poppins = Poppins({
   weight: ['300', '400', '500', '600', '700'],
@@ -32,6 +33,23 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: 'ABR Insights Team' }],
   metadataBase: new URL('https://abrinsights.ca'),
+  manifest: '/manifest.json',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#0070f3' },
+    { media: '(prefers-color-scheme: dark)', color: '#1e40af' },
+  ],
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'ABR Insights',
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/icons/icon-192x192.png',
+  },
   openGraph: {
     type: 'website',
     locale: 'en_CA',
@@ -78,9 +96,11 @@ export default function RootLayout({
       <body className="font-sans">
         <AuthProvider>
           <LanguageProvider>
-            <NavigationWrapper />
-            <main>{children}</main>
-            <FooterWrapper />
+            <PWAProvider>
+              <NavigationWrapper />
+              <main>{children}</main>
+              <FooterWrapper />
+            </PWAProvider>
           </LanguageProvider>
         </AuthProvider>
       </body>

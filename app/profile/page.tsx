@@ -9,7 +9,10 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { User, Mail, Briefcase, Building2, Globe, Bell, Save, Camera } from 'lucide-react'
+import { 
+  User, Mail, Briefcase, Building2, Globe, Bell, Save, Camera,
+  Trophy, Star, TrendingUp, Users as UsersIcon, Flame, Award
+} from 'lucide-react'
 import { 
   getCurrentProfile, 
   updateProfile, 
@@ -19,6 +22,16 @@ import {
   type UpdateProfileData 
 } from '@/lib/supabase/services/profiles'
 import { createClient } from '@/lib/supabase/client'
+import { gamificationService } from '@/lib/services/gamification'
+import { socialService } from '@/lib/services/social'
+import { AchievementList, UserStreaks } from '@/components/achievements'
+import type { 
+  UserAchievement, 
+  UserStreak, 
+  UserLevel, 
+  PointsSummary 
+} from '@/lib/services/gamification'
+import type { SocialSummary } from '@/lib/services/social'
 
 export default function ProfilePage() {
   const router = useRouter()
@@ -28,8 +41,16 @@ export default function ProfilePage() {
   const [formData, setFormData] = useState<UpdateProfileData>({})
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+  
+  // Gamification state
+  const [achievements, setAchievements] = useState<UserAchievement[]>([])
+  const [streaks, setStreaks] = useState<UserStreak[]>([])
+  const [userLevel, setUserLevel] = useState<UserLevel | null>(null)
+  const [pointsSummary, setPointsSummary] = useState<PointsSummary | null>(null)
+  const [socialSummary, setSocialSummary] = useState<SocialSummary | null>(null)
+  const [loadingGamification, setLoadingGamification] = useState(true)
 
-  const checkAuth = useCallback(async () => {
+  async function checkAuthAndLoadData() {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
@@ -39,7 +60,7 @@ export default function ProfilePage() {
     }
 
     await loadProfile()
-  }, [router])
+  }
 
   async function loadProfile() {
     try {
@@ -56,6 +77,9 @@ export default function ProfilePage() {
           language: profileData.language,
           timezone: profileData.timezone,
         })
+        
+        // Load gamification data
+        await loadGamificationData(profileData.id)
       }
     } catch (error) {
       console.error('Error loading profile:', error)
@@ -65,9 +89,40 @@ export default function ProfilePage() {
     }
   }
 
+  async function loadGamificationData(userId: string) {
+    setLoadingGamification(true)
+    try {
+      // Load achievements, streaks, level, points, and social data in parallel
+      const [
+        achievementsData,
+        streaksData,
+        levelData,
+        pointsData,
+        socialData
+      ] = await Promise.all([
+        gamificationService.getUserAchievements(userId),
+        gamificationService.getUserStreaks(userId),
+        gamificationService.getUserLevel(userId),
+        gamificationService.getUserPointsSummary(userId),
+        socialService.getUserSocialSummary(userId)
+      ])
+      
+      setAchievements(achievementsData)
+      setStreaks(streaksData)
+      setUserLevel(levelData)
+      setPointsSummary(pointsData)
+      setSocialSummary(socialData)
+    } catch (error) {
+      console.error('Error loading gamification data:', error)
+    } finally {
+      setLoadingGamification(false)
+    }
+  }
+
   useEffect(() => {
-    checkAuth()
-  }, [checkAuth])
+    checkAuthAndLoadData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -175,6 +230,93 @@ export default function ProfilePage() {
                 : 'bg-red-50 text-red-800'
             }`}>
               {message.text}
+            </div>
+          )}
+
+          {/* Gamification Stats */}
+          {!loadingGamification && (
+            <div className="mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Level Card */}
+              <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-6 text-white shadow-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <Trophy className="w-8 h-8" />
+                  <span className="text-sm font-medium opacity-90">Level</span>
+                </div>
+                <div className="text-4xl font-bold mb-1">
+                  {userLevel?.current_level || 1}
+                </div>
+                <div className="text-sm opacity-90">
+                  {userLevel ? `${userLevel.current_xp.toLocaleString()} / ${userLevel.xp_for_next_level.toLocaleString()} XP` : '0 XP'}
+                </div>
+              </div>
+
+              {/* Points Card */}
+              <div className="bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg p-6 text-white shadow-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <Star className="w-8 h-8" />
+                  <span className="text-sm font-medium opacity-90">Points</span>
+                </div>
+                <div className="text-4xl font-bold mb-1">
+                  {pointsSummary?.total_earned.toLocaleString() || 0}
+                </div>
+                <div className="text-sm opacity-90">
+                  {pointsSummary?.current_balance.toLocaleString() || 0} available
+                </div>
+              </div>
+
+              {/* Achievements Card */}
+              <div className="bg-gradient-to-br from-teal-500 to-teal-600 rounded-lg p-6 text-white shadow-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <Award className="w-8 h-8" />
+                  <span className="text-sm font-medium opacity-90">Achievements</span>
+                </div>
+                <div className="text-4xl font-bold mb-1">
+                  {achievements.length}
+                </div>
+                <div className="text-sm opacity-90">
+                  badges earned
+                </div>
+              </div>
+
+              {/* Social Card */}
+              <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-6 text-white shadow-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <UsersIcon className="w-8 h-8" />
+                  <span className="text-sm font-medium opacity-90">Connections</span>
+                </div>
+                <div className="text-4xl font-bold mb-1">
+                  {(socialSummary?.followers_count || 0) + (socialSummary?.following_count || 0)}
+                </div>
+                <div className="text-sm opacity-90">
+                  {socialSummary?.followers_count || 0} followers · {socialSummary?.following_count || 0} following
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Streaks Section */}
+          {!loadingGamification && streaks.length > 0 && (
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <Flame className="w-6 h-6 text-orange-500" />
+                Your Streaks
+              </h2>
+              <UserStreaks streaks={streaks} />
+            </div>
+          )}
+
+          {/* Achievements Section */}
+          {!loadingGamification && achievements.length > 0 && (
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <Trophy className="w-6 h-6 text-yellow-500" />
+                Your Achievements
+              </h2>
+              <AchievementList 
+                achievements={achievements} 
+                showFilters={true}
+                columns={4}
+              />
             </div>
           )}
 

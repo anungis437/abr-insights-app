@@ -1,10 +1,9 @@
 'use client'
 
 /**
- * Leaderboard Page
- * Replaces legacy Leaderboard.jsx (116 lines) + Leaderboard component (148 lines)
+ * Enhanced Leaderboard Page (Phase 5)
  * Route: /leaderboard
- * Features: Rankings by points/courses/streak, organization filtering, user rank display
+ * Features: Multiple leaderboard types, time periods, rank changes, user position
  */
 
 import { useState, useEffect } from 'react'
@@ -20,35 +19,16 @@ import {
   Users,
   Target,
   Zap,
-  Filter
+  Filter,
+  ChevronUp,
+  ChevronDown,
+  Minus,
+  Calendar
 } from 'lucide-react'
+import Image from 'next/image'
+import { gamificationService } from '@/lib/services/gamification'
 import type { User } from '@supabase/supabase-js'
-
-// Types
-interface Profile {
-  id: string
-  full_name: string | null
-  email: string
-  avatar_url: string | null
-  organization_id: string | null
-}
-
-interface Organization {
-  id: string
-  name: string
-}
-
-interface LeaderboardEntry {
-  user_id: string
-  full_name: string | null
-  email: string
-  avatar_url: string | null
-  total_points: number
-  courses_completed: number
-  current_streak: number
-  achievements_earned: number
-  level: number
-}
+import type { Leaderboard, LeaderboardEntry } from '@/lib/services/gamification'
 
 export default function LeaderboardPage() {
   const router = useRouter()
@@ -56,11 +36,10 @@ export default function LeaderboardPage() {
   
   // State
   const [user, setUser] = useState<User | null>(null)
-  const [profile, setProfile] = useState<Profile | null>(null)
-  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
-  const [organizations, setOrganizations] = useState<Organization[]>([])
-  const [selectedOrgId, setSelectedOrgId] = useState<string>('all')
-  const [activeTab, setActiveTab] = useState<'points' | 'courses' | 'streak'>('points')
+  const [leaderboards, setLeaderboards] = useState<Leaderboard[]>([])
+  const [selectedLeaderboard, setSelectedLeaderboard] = useState<Leaderboard | null>(null)
+  const [entries, setEntries] = useState<LeaderboardEntry[]>([])
+  const [userEntry, setUserEntry] = useState<LeaderboardEntry | null>(null)
   const [loading, setLoading] = useState(true)
 
   // Load user
@@ -68,147 +47,67 @@ export default function LeaderboardPage() {
     const loadUser = async () => {
       const { data: { user: currentUser } } = await supabase.auth.getUser()
       setUser(currentUser)
-      
-      if (currentUser) {
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', currentUser.id)
-          .single()
-        
-        if (profileData) setProfile(profileData)
-      }
     }
     loadUser()
   }, [supabase.auth])
 
-  // Load organizations
+  // Load leaderboards
   useEffect(() => {
-    const loadOrganizations = async () => {
-      const { data } = await supabase
-        .from('organizations')
-        .select('id, name')
-        .order('name')
-      
-      if (data) setOrganizations(data)
-    }
-    loadOrganizations()
-  }, [supabase])
-
-  // Load leaderboard data
-  useEffect(() => {
-    const loadLeaderboard = async () => {
+    const loadLeaderboards = async () => {
       setLoading(true)
-      
       try {
-        // Get all profiles with their stats
-        let query = supabase
-          .from('profiles')
-          .select(`
-            id,
-            full_name,
-            email,
-            avatar_url,
-            organization_id
-          `)
+        const boards = await gamificationService.getLeaderboards()
+        setLeaderboards(boards)
         
-        if (selectedOrgId !== 'all') {
-          query = query.eq('organization_id', selectedOrgId)
+        // Default to first global leaderboard
+        const defaultBoard = boards.find(b => b.leaderboard_type === 'global' && b.time_period === 'all_time')
+        if (defaultBoard) {
+          setSelectedLeaderboard(defaultBoard)
+        } else if (boards.length > 0) {
+          setSelectedLeaderboard(boards[0])
         }
-        
-        const { data: profiles } = await query
-        
-        if (!profiles) {
-          setLeaderboard([])
-          setLoading(false)
-          return
-        }
-
-        // Calculate stats for each user
-        const leaderboardData = await Promise.all(
-          profiles.map(async (profile) => {
-            // Get total points
-            const { data: pointsData } = await supabase
-              .from('user_points')
-              .select('points')
-              .eq('user_id', profile.id)
-            
-            const total_points = pointsData?.reduce((sum, p) => sum + (p.points || 0), 0) || 0
-
-            // Get courses completed
-            const { count: coursesCompleted } = await supabase
-              .from('enrollments')
-              .select('*', { count: 'exact', head: true })
-              .eq('user_id', profile.id)
-              .eq('status', 'completed')
-            
-            // Get current streak
-            const { data: streakData } = await supabase
-              .from('learning_streaks')
-              .select('current_streak_days')
-              .eq('user_id', profile.id)
-              .single()
-            
-            // Get achievements count
-            const { count: achievementsCount } = await supabase
-              .from('user_achievements')
-              .select('*', { count: 'exact', head: true })
-              .eq('user_id', profile.id)
-            
-            // Calculate level based on points
-            const level = Math.floor(total_points / 100) + 1
-
-            return {
-              user_id: profile.id,
-              full_name: profile.full_name,
-              email: profile.email,
-              avatar_url: profile.avatar_url,
-              total_points,
-              courses_completed: coursesCompleted || 0,
-              current_streak: streakData?.current_streak_days || 0,
-              achievements_earned: achievementsCount || 0,
-              level
-            }
-          })
-        )
-
-        setLeaderboard(leaderboardData)
       } catch (error) {
-        console.error('Error loading leaderboard:', error)
+        console.error('Error loading leaderboards:', error)
       } finally {
         setLoading(false)
       }
     }
+    loadLeaderboards()
+  }, [])
 
-    loadLeaderboard()
-  }, [supabase, selectedOrgId])
+  // Load leaderboard entries
+  useEffect(() => {
+    const loadEntries = async () => {
+      if (!selectedLeaderboard) return
+      
+      setLoading(true)
+      try {
+        // Get top 50 entries
+        const topEntries = await gamificationService.getLeaderboardEntries(
+          selectedLeaderboard.id,
+          50,
+          0
+        )
+        setEntries(topEntries)
+
+        // Get user's entry if logged in
+        if (user) {
+          const userLeaderboardEntry = await gamificationService.getUserLeaderboardEntry(
+            selectedLeaderboard.id,
+            user.id
+          )
+          setUserEntry(userLeaderboardEntry)
+        }
+      } catch (error) {
+        console.error('Error loading leaderboard entries:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadEntries()
+  }, [selectedLeaderboard, user])
 
   // Helper functions
-  const getSortedLeaderboard = () => {
-    const sorted = [...leaderboard]
-    switch (activeTab) {
-      case 'points':
-        return sorted.sort((a, b) => b.total_points - a.total_points)
-      case 'courses':
-        return sorted.sort((a, b) => b.courses_completed - a.courses_completed)
-      case 'streak':
-        return sorted.sort((a, b) => b.current_streak - a.current_streak)
-      default:
-        return sorted
-    }
-  }
-
-  const getUserRank = () => {
-    if (!user) return null
-    const sorted = getSortedLeaderboard()
-    return sorted.findIndex(entry => entry.user_id === user.id) + 1
-  }
-
-  const getUserEntry = () => {
-    if (!user) return null
-    return leaderboard.find(entry => entry.user_id === user.id)
-  }
-
   const getRankIcon = (rank: number) => {
     if (rank === 1) return <Crown className="w-5 h-5 text-yellow-500" />
     if (rank === 2) return <Medal className="w-5 h-5 text-gray-400" />
@@ -223,35 +122,69 @@ export default function LeaderboardPage() {
     return 'bg-gray-100 text-gray-700'
   }
 
-  const getMetricValue = (entry: LeaderboardEntry) => {
-    switch (activeTab) {
-      case 'points':
-        return entry.total_points
-      case 'courses':
-        return entry.courses_completed
-      case 'streak':
-        return entry.current_streak
+  const getRankChangeIndicator = (rankChange: number) => {
+    if (rankChange > 0) {
+      return (
+        <div className="flex items-center gap-1 text-green-600">
+          <ChevronUp className="w-4 h-4" />
+          <span className="text-xs font-medium">+{rankChange}</span>
+        </div>
+      )
+    } else if (rankChange < 0) {
+      return (
+        <div className="flex items-center gap-1 text-red-600">
+          <ChevronDown className="w-4 h-4" />
+          <span className="text-xs font-medium">{rankChange}</span>
+        </div>
+      )
+    }
+    return (
+      <div className="flex items-center gap-1 text-gray-400">
+        <Minus className="w-4 h-4" />
+      </div>
+    )
+  }
+
+  const getLeaderboardIcon = (type: string) => {
+    switch (type) {
+      case 'global':
+        return <Trophy className="w-4 h-4" />
+      case 'course':
+        return <Award className="w-4 h-4" />
+      case 'organization':
+        return <Users className="w-4 h-4" />
+      case 'skill':
+        return <Target className="w-4 h-4" />
       default:
-        return 0
+        return <Star className="w-4 h-4" />
     }
   }
 
-  const getMetricLabel = () => {
-    switch (activeTab) {
-      case 'points':
-        return 'points'
-      case 'courses':
-        return 'courses'
-      case 'streak':
-        return 'day streak'
+  const getTimePeriodLabel = (period: string) => {
+    switch (period) {
+      case 'all_time':
+        return 'All Time'
+      case 'yearly':
+        return 'This Year'
+      case 'monthly':
+        return 'This Month'
+      case 'weekly':
+        return 'This Week'
+      case 'daily':
+        return 'Today'
       default:
-        return ''
+        return period
     }
   }
 
-  const sortedLeaderboard = getSortedLeaderboard()
-  const userRank = getUserRank()
-  const userEntry = getUserEntry()
+  // Group leaderboards by type
+  const leaderboardsByType = leaderboards.reduce((acc, board) => {
+    if (!acc[board.leaderboard_type]) {
+      acc[board.leaderboard_type] = []
+    }
+    acc[board.leaderboard_type].push(board)
+    return acc
+  }, {} as Record<string, Leaderboard[]>)
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">      
@@ -270,87 +203,99 @@ export default function LeaderboardPage() {
             </div>
           </div>
 
-          {/* Filters */}
-          <div className="mb-8 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Filter className="w-5 h-5 text-gray-600" />
-              <select
-                value={selectedOrgId}
-                onChange={(e) => setSelectedOrgId(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-              >
-                <option value="all">All Organizations</option>
-                {organizations.map((org) => (
-                  <option key={org.id} value={org.id}>
-                    {org.name}
-                  </option>
+          {/* Leaderboard Selection */}
+          <div className="mb-8 grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Leaderboard Type */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Leaderboard Type
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                {Object.keys(leaderboardsByType).map((type) => (
+                  <button
+                    key={type}
+                    onClick={() => {
+                      const board = leaderboardsByType[type]?.[0]
+                      if (board) setSelectedLeaderboard(board)
+                    }}
+                    className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-all ${
+                      selectedLeaderboard?.leaderboard_type === type
+                        ? 'bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-md'
+                        : 'bg-white text-gray-700 border border-gray-200 hover:shadow-md'
+                    }`}
+                  >
+                    {getLeaderboardIcon(type)}
+                    <span className="font-medium capitalize">{type}</span>
+                  </button>
                 ))}
-              </select>
+              </div>
             </div>
 
-            {/* Tabs */}
-            <div className="flex gap-2 bg-white rounded-lg p-1 border border-gray-200 shadow-sm">
-              <button
-                onClick={() => setActiveTab('points')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${
-                  activeTab === 'points'
-                    ? 'bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-md'
-                    : 'text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                <Star className="w-4 h-4" />
-                Points
-              </button>
-              <button
-                onClick={() => setActiveTab('courses')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${
-                  activeTab === 'courses'
-                    ? 'bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-md'
-                    : 'text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                <Award className="w-4 h-4" />
-                Courses
-              </button>
-              <button
-                onClick={() => setActiveTab('streak')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${
-                  activeTab === 'streak'
-                    ? 'bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-md'
-                    : 'text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                <TrendingUp className="w-4 h-4" />
-                Streak
-              </button>
+            {/* Time Period */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Time Period
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                {selectedLeaderboard && 
+                  leaderboardsByType[selectedLeaderboard.leaderboard_type]?.map((board) => (
+                    <button
+                      key={board.id}
+                      onClick={() => setSelectedLeaderboard(board)}
+                      className={`flex items-center gap-2 px-4 py-3 rounded-lg transition-all ${
+                        selectedLeaderboard?.id === board.id
+                          ? 'bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-md'
+                          : 'bg-white text-gray-700 border border-gray-200 hover:shadow-md'
+                      }`}
+                    >
+                      <Calendar className="w-4 h-4" />
+                      <span className="font-medium">{getTimePeriodLabel(board.time_period)}</span>
+                    </button>
+                  ))}
+              </div>
             </div>
           </div>
 
           {/* User Rank Card */}
-          {user && userEntry && userRank && (
+          {user && userEntry && (
             <div className="mb-8 bg-gradient-to-r from-teal-50 to-blue-50 rounded-lg p-6 border-2 border-teal-200 shadow-lg">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-6">
-                  <div className="w-20 h-20 bg-gradient-to-br from-teal-500 to-teal-600 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg">
-                    {userEntry.avatar_url ? (
-                      <img src={userEntry.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
+                  <div className="w-20 h-20 bg-gradient-to-br from-teal-500 to-teal-600 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg overflow-hidden">
+                    {userEntry.user?.avatar_url ? (
+                      <Image
+                        src={userEntry.user.avatar_url}
+                        alt=""
+                        fill
+                        className="object-cover"
+                      />
                     ) : (
-                      (userEntry.full_name?.[0] || userEntry.email[0]).toUpperCase()
+                      <span>{(userEntry.user?.full_name?.[0] || 'U').toUpperCase()}</span>
                     )}
                   </div>
                   <div>
                     <p className="text-sm text-gray-600 mb-1">Your Current Rank</p>
                     <div className="flex items-center gap-4 mb-2">
                       <div className="text-5xl font-bold text-gray-900">
-                        #{userRank}
+                        #{userEntry.rank}
                       </div>
                       <div>
                         <p className="text-lg font-semibold text-gray-900">
-                          {getMetricValue(userEntry)} {getMetricLabel()}
+                          {userEntry.score.toLocaleString()} points
                         </p>
-                        <p className="text-sm text-gray-600">
-                          Level {userEntry.level} · {userEntry.achievements_earned} achievements
-                        </p>
+                        {userEntry.percentile !== null && userEntry.percentile !== undefined && (
+                          <p className="text-sm text-gray-600">
+                            Top {(100 - userEntry.percentile).toFixed(1)}%
+                          </p>
+                        )}
+                        <div className="flex items-center gap-2 mt-1">
+                          {getRankChangeIndicator(userEntry.rank_change)}
+                          {userEntry.previous_rank && (
+                            <span className="text-xs text-gray-600">
+                              from #{userEntry.previous_rank}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                     <p className="text-sm text-teal-700 font-medium">
@@ -358,14 +303,6 @@ export default function LeaderboardPage() {
                     </p>
                   </div>
                 </div>
-                {profile?.organization_id && (
-                  <div className="flex items-center gap-2 px-4 py-2 bg-white rounded-lg border border-teal-200 shadow-sm">
-                    <Users className="w-4 h-4 text-teal-600" />
-                    <span className="text-sm font-medium text-gray-700">
-                      {organizations.find(o => o.id === profile.organization_id)?.name}
-                    </span>
-                  </div>
-                )}
               </div>
             </div>
           )}
@@ -376,12 +313,15 @@ export default function LeaderboardPage() {
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
                   <Trophy className="w-6 h-6 text-yellow-500" />
-                  Top Performers
+                  {selectedLeaderboard?.name || 'Top Performers'}
                 </h2>
                 <div className="text-sm text-gray-600">
-                  Showing top {Math.min(sortedLeaderboard.length, 50)} learners
+                  Showing top {entries.length} learners
                 </div>
               </div>
+              {selectedLeaderboard?.description && (
+                <p className="text-gray-600 mt-2">{selectedLeaderboard.description}</p>
+              )}
             </div>
 
             <div className="p-6">
@@ -390,7 +330,7 @@ export default function LeaderboardPage() {
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500 mx-auto mb-4"></div>
                   <p className="text-gray-600">Loading leaderboard...</p>
                 </div>
-              ) : sortedLeaderboard.length === 0 ? (
+              ) : entries.length === 0 ? (
                 <div className="text-center py-12">
                   <Trophy className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                   <p className="text-gray-600 text-lg mb-2">No data yet</p>
@@ -398,13 +338,13 @@ export default function LeaderboardPage() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {sortedLeaderboard.slice(0, 50).map((entry, index) => {
-                    const rank = index + 1
+                  {entries.map((entry) => {
                     const isCurrentUser = user && entry.user_id === user.id
+                    const rank = entry.rank
                     
                     return (
                       <div
-                        key={entry.user_id}
+                        key={entry.id}
                         className={`flex items-center gap-4 p-4 rounded-lg transition-all ${
                           rank <= 3
                             ? 'bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-200'
@@ -418,13 +358,23 @@ export default function LeaderboardPage() {
                           {getRankIcon(rank) || <span className="text-xl font-bold">#{rank}</span>}
                         </div>
 
+                        {/* Rank Change */}
+                        <div className="flex-shrink-0">
+                          {getRankChangeIndicator(entry.rank_change)}
+                        </div>
+
                         {/* Avatar */}
-                        <div className="w-12 h-12 bg-gradient-to-br from-teal-400 to-teal-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
-                          {entry.avatar_url ? (
-                            <img src={entry.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
+                        <div className="w-12 h-12 bg-gradient-to-br from-teal-400 to-teal-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-md overflow-hidden relative">
+                          {entry.user?.avatar_url ? (
+                            <Image
+                              src={entry.user.avatar_url}
+                              alt=""
+                              fill
+                              className="object-cover"
+                            />
                           ) : (
                             <span className="text-white text-lg font-bold">
-                              {(entry.full_name?.[0] || entry.email[0]).toUpperCase()}
+                              {(entry.user?.full_name?.[0] || 'U').toUpperCase()}
                             </span>
                           )}
                         </div>
@@ -432,7 +382,7 @@ export default function LeaderboardPage() {
                         {/* User Info */}
                         <div className="flex-1 min-w-0">
                           <h4 className="font-bold text-gray-900 truncate flex items-center gap-2">
-                            {entry.full_name || entry.email.split('@')[0]}
+                            {entry.user?.full_name || 'Unknown User'}
                             {isCurrentUser && (
                               <span className="text-xs px-2 py-1 bg-teal-100 text-teal-700 rounded-full font-medium">
                                 You
@@ -440,30 +390,27 @@ export default function LeaderboardPage() {
                             )}
                           </h4>
                           <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
-                            <span className="flex items-center gap-1">
-                              <Target className="w-4 h-4" />
-                              Level {entry.level}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Award className="w-4 h-4" />
-                              {entry.achievements_earned} badges
-                            </span>
-                            {activeTab !== 'streak' && entry.current_streak > 0 && (
-                              <span className="flex items-center gap-1">
-                                <Zap className="w-4 h-4 text-orange-500" />
-                                {entry.current_streak} day streak
+                            {entry.percentile !== null && entry.percentile !== undefined && (
+                              <span>Top {(100 - entry.percentile).toFixed(1)}%</span>
+                            )}
+                            {entry.previous_score !== null && entry.previous_score !== undefined && (
+                              <span className={`flex items-center gap-1 ${
+                                entry.score > entry.previous_score ? 'text-green-600' : 'text-red-600'
+                              }`}>
+                                {entry.score > entry.previous_score ? '+' : ''}
+                                {(entry.score - entry.previous_score).toLocaleString()} pts
                               </span>
                             )}
                           </div>
                         </div>
 
-                        {/* Metric Value */}
+                        {/* Score */}
                         <div className="text-right flex-shrink-0">
                           <div className="text-3xl font-bold text-gray-900">
-                            {getMetricValue(entry)}
+                            {entry.score.toLocaleString()}
                           </div>
                           <div className="text-xs text-gray-600 uppercase tracking-wide">
-                            {getMetricLabel()}
+                            points
                           </div>
                         </div>
                       </div>
@@ -475,45 +422,48 @@ export default function LeaderboardPage() {
           </div>
 
           {/* Stats Summary */}
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <Users className="w-5 h-5 text-purple-600" />
+          {entries.length > 0 && (
+            <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <Users className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900">Participants</h3>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900">Total Learners</h3>
+                <p className="text-3xl font-bold text-gray-900">{entries.length}</p>
+                <p className="text-sm text-gray-600 mt-1">Active learners</p>
               </div>
-              <p className="text-3xl font-bold text-gray-900">{leaderboard.length}</p>
-              <p className="text-sm text-gray-600 mt-1">Active participants</p>
-            </div>
 
-            <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center">
-                  <Award className="w-5 h-5 text-teal-600" />
+              <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
+                    <Star className="w-5 h-5 text-amber-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900">Total Points</h3>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900">Total Courses</h3>
+                <p className="text-3xl font-bold text-gray-900">
+                  {entries.reduce((sum, entry) => sum + entry.score, 0).toLocaleString()}
+                </p>
+                <p className="text-sm text-gray-600 mt-1">Earned collectively</p>
               </div>
-              <p className="text-3xl font-bold text-gray-900">
-                {leaderboard.reduce((sum, entry) => sum + entry.courses_completed, 0)}
-              </p>
-              <p className="text-sm text-gray-600 mt-1">Completed by all users</p>
-            </div>
 
-            <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
-                  <Star className="w-5 h-5 text-amber-600" />
+              <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center">
+                    <TrendingUp className="w-5 h-5 text-teal-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900">Average Score</h3>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900">Total Points</h3>
+                <p className="text-3xl font-bold text-gray-900">
+                  {Math.round(entries.reduce((sum, entry) => sum + entry.score, 0) / entries.length).toLocaleString()}
+                </p>
+                <p className="text-sm text-gray-600 mt-1">Points per learner</p>
               </div>
-              <p className="text-3xl font-bold text-gray-900">
-                {leaderboard.reduce((sum, entry) => sum + entry.total_points, 0).toLocaleString()}
-              </p>
-              <p className="text-sm text-gray-600 mt-1">Earned collectively</p>
             </div>
-          </div>
+          )}
         </div>
-      </main>    </div>
+      </main>
+    </div>
   )
 }
