@@ -14,7 +14,7 @@
 import { useEffect, useState, Suspense, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
 
 // ============================================================================
 // TYPES
@@ -68,6 +68,7 @@ interface CasesResponse {
 function CasesBrowserContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const supabase = createClient();
   
   const [cases, setCases] = useState<Case[]>([]);
   const [pagination, setPagination] = useState<PaginationInfo | null>(null);
@@ -831,7 +832,7 @@ function CasesBrowserContent() {
 // Loading fallback component
 function CasesBrowserLoading() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pt-16">
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <div>

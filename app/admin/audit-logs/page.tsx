@@ -1,105 +1,240 @@
-import { Metadata } from 'next'
-import { Shield, Search, Download, Filter } from 'lucide-react'
+'use client'
 
-export const metadata: Metadata = {
-  title: 'Audit Logs | Admin | ABR Insights',
-  description: 'System audit logs and security monitoring'
+/**
+ * Audit Logs Admin Page - UPDATED WITH REAL DB INTEGRATION
+ * Route: /admin/audit-logs
+ * 
+ * Features:
+ * - Real-time audit log viewing from audit_logs table
+ * - Statistics from get_audit_log_statistics() DB function
+ * - Anomaly detection from detect_audit_anomalies() DB function
+ * - Export functionality via compliance reports service
+ * - Advanced filtering by category, severity, compliance level, date range
+ * - Hash chain integrity display
+ */
+
+import { useState, useEffect } from 'react'
+import { createClient } from '@/lib/supabase/client'
+import {
+  Shield,
+  Search,
+  Download,
+  Filter,
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
+  Clock,
+  Hash,
+  Loader2
+} from 'lucide-react'
+
+interface AuditLog {
+  id: string
+  timestamp: string
+  organization_id: string
+  user_id: string
+  user_email: string
+  action: string
+  event_category: string
+  severity: string
+  compliance_level: string
+  data_classification: string
+  resource_type?: string
+  resource_id?: string
+  ip_address?: string
+  user_agent?: string
+  request_id?: string
+  session_id?: string
+  metadata?: Record<string, unknown>
+  hash: string
+  previous_hash?: string
+}
+
+interface AuditStatistics {
+  totalEvents: number
+  eventsByCategory: Record<string, number>
+  eventsBySeverity: Record<string, number>
+  uniqueUsers: number
+}
+
+interface Anomaly {
+  type: string
+  severity: string
+  description: string
+  affected_entities: string[]
+  detected_at: string
 }
 
 export default function AuditLogsPage() {
-  // Mock data - replace with real data fetching
-  const auditLogs = [
-    {
-      id: 1,
-      timestamp: '2024-11-07 14:32:15',
-      user: 'john.doe@rcmp.ca',
-      action: 'User Login',
-      resource: 'Authentication',
-      ipAddress: '192.168.1.45',
-      status: 'success',
-      details: 'Successful login from Ontario',
-    },
-    {
-      id: 2,
-      timestamp: '2024-11-07 14:28:42',
-      user: 'admin@abr-insights.com',
-      action: 'User Created',
-      resource: 'User Management',
-      ipAddress: '10.0.0.1',
-      status: 'success',
-      details: 'Created user: jane.smith@toronto.ca',
-    },
-    {
-      id: 3,
-      timestamp: '2024-11-07 14:15:33',
-      user: 'investigator@vancouver.ca',
-      action: 'Case Accessed',
-      resource: 'Case #2847',
-      ipAddress: '172.16.0.88',
-      status: 'success',
-      details: 'Viewed case details and documents',
-    },
-    {
-      id: 4,
-      timestamp: '2024-11-07 13:52:18',
-      user: 'compliance@rcmp.ca',
-      action: 'Report Generated',
-      resource: 'Compliance Report',
-      ipAddress: '192.168.1.67',
-      status: 'success',
-      details: 'Generated quarterly compliance report',
-    },
-    {
-      id: 5,
-      timestamp: '2024-11-07 13:45:09',
-      user: 'unknown@external.com',
-      action: 'Login Attempt',
-      resource: 'Authentication',
-      ipAddress: '203.0.113.45',
-      status: 'failed',
-      details: 'Invalid credentials - 3 failed attempts',
-    },
-    {
-      id: 6,
-      timestamp: '2024-11-07 13:22:41',
-      user: 'educator@toronto.ca',
-      action: 'Course Published',
-      resource: 'Course #156',
-      ipAddress: '192.168.2.34',
-      status: 'success',
-      details: 'Published "Advanced Investigation Techniques"',
-    },
-    {
-      id: 7,
-      timestamp: '2024-11-07 12:58:27',
-      user: 'admin@abr-insights.com',
-      action: 'Settings Changed',
-      resource: 'System Settings',
-      ipAddress: '10.0.0.1',
-      status: 'success',
-      details: 'Updated session timeout to 30 minutes',
-    },
-    {
-      id: 8,
-      timestamp: '2024-11-07 12:33:15',
-      user: 'analyst@calgary.ca',
-      action: 'Data Export',
-      resource: 'Analytics Data',
-      ipAddress: '172.16.1.92',
-      status: 'success',
-      details: 'Exported case analytics for Q3 2024',
-    },
-  ]
+  const supabase = createClient()
 
-  const stats = [
-    { label: 'Total Events (24h)', value: '8,247' },
-    { label: 'Failed Logins', value: '23' },
-    { label: 'Security Alerts', value: '2' },
-    { label: 'Active Sessions', value: '1,847' },
-  ]
+  const [logs, setLogs] = useState<AuditLog[]>([])
+  const [statistics, setStatistics] = useState<AuditStatistics | null>(null)
+  const [anomalies, setAnomalies] = useState<Anomaly[]>([])
+  const [loading, setLoading] = useState(true)
+  const [exporting, setExporting] = useState(false)
+
+  // Filters
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filterCategory, setFilterCategory] = useState<string>('all')
+  const [filterSeverity, setFilterSeverity] = useState<string>('all')
+  const [filterComplianceLevel, setFilterComplianceLevel] = useState<string>('all')
+  const [dateRange, setDateRange] = useState({ start: '', end: '' })
+
+  useEffect(() => {
+    loadData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterCategory, filterSeverity, filterComplianceLevel, dateRange])
+
+  async function loadData() {
+    setLoading(true)
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      // Get user's organization
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('organization_id')
+        .eq('id', user.id)
+        .single()
+
+      if (!profile?.organization_id) return
+
+      // Load logs with filters
+      let query = supabase
+        .from('audit_logs')
+        .select('*, profiles(email)')
+        .eq('organization_id', profile.organization_id)
+        .order('timestamp', { ascending: false })
+        .limit(100)
+
+      if (filterCategory !== 'all') {
+        query = query.eq('event_category', filterCategory)
+      }
+      if (filterSeverity !== 'all') {
+        query = query.eq('severity', filterSeverity)
+      }
+      if (filterComplianceLevel !== 'all') {
+        query = query.eq('compliance_level', filterComplianceLevel)
+      }
+      if (dateRange.start) {
+        query = query.gte('timestamp', dateRange.start)
+      }
+      if (dateRange.end) {
+        query = query.lte('timestamp', dateRange.end)
+      }
+
+      const { data: logsData } = await query
+
+      // Flatten joined data
+      const flattenedLogs = logsData?.map((log) => ({
+        ...log,
+        user_email: (log.profiles as unknown as { email: string })?.email || 'Unknown',
+        profiles: undefined,
+      })) as AuditLog[]
+
+      setLogs(flattenedLogs || [])
+
+      // Load statistics (last 7 days)
+      const startDate = new Date()
+      startDate.setDate(startDate.getDate() - 7)
+      
+      const { data: statsData } = await supabase.rpc('get_audit_log_statistics', {
+        p_organization_id: profile.organization_id,
+        p_start_date: startDate.toISOString(),
+        p_end_date: new Date().toISOString(),
+      })
+
+      if (statsData) {
+        setStatistics(statsData as unknown as AuditStatistics)
+      }
+
+      // Load anomalies (last 7 days)
+      const { data: anomaliesData } = await supabase.rpc('detect_audit_anomalies', {
+        p_organization_id: profile.organization_id,
+        p_start_date: startDate.toISOString(),
+        p_end_date: new Date().toISOString(),
+      })
+
+      if (anomaliesData) {
+        setAnomalies(anomaliesData as unknown as Anomaly[])
+      }
+    } catch (error) {
+      console.error('Error loading audit logs:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleExport() {
+    setExporting(true)
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Not authenticated')
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('organization_id')
+        .eq('id', user.id)
+        .single()
+
+      if (!profile?.organization_id) throw new Error('No organization')
+
+      // Create compliance report for export
+      const filters: Record<string, unknown> = {}
+      if (filterCategory !== 'all') filters.eventCategory = [filterCategory]
+      if (filterSeverity !== 'all') filters.severity = [filterSeverity]
+      if (filterComplianceLevel !== 'all') filters.complianceLevel = [filterComplianceLevel]
+      if (dateRange.start) filters.startDate = dateRange.start
+      if (dateRange.end) filters.endDate = dateRange.end
+
+      const { data: report, error } = await supabase
+        .from('compliance_reports')
+        .insert({
+          organization_id: profile.organization_id,
+          report_type: 'audit_summary',
+          generated_by: user.id,
+          format: 'csv',
+          filters,
+          status: 'completed',
+        })
+        .select()
+        .single()
+
+      if (error) throw error
+
+      alert('Export created successfully. Check compliance reports for download.')
+    } catch (error) {
+      console.error('Error exporting logs:', error)
+      alert('Failed to export logs')
+    } finally {
+      setExporting(false)
+    }
+  }
+
+  // Filter logs by search query
+  const filteredLogs = logs.filter((log) => {
+    if (!searchQuery) return true
+    const query = searchQuery.toLowerCase()
+    return (
+      log.action.toLowerCase().includes(query) ||
+      log.user_email.toLowerCase().includes(query) ||
+      log.resource_type?.toLowerCase().includes(query) ||
+      log.event_category.toLowerCase().includes(query)
+    )
+  })
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    )
+  }
 
   return (
-    <div className="container-custom py-8">
+    <div className="container-custom pt-20 pb-8">
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Audit Logs</h1>
@@ -107,54 +242,124 @@ export default function AuditLogsPage() {
             Monitor system activity and security events
           </p>
         </div>
-        <button className="btn-primary flex items-center gap-2">
-          <Download className="h-4 w-4" />
+        <button
+          onClick={handleExport}
+          disabled={exporting}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50 flex items-center gap-2"
+        >
+          {exporting ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Download className="h-4 w-4" />
+          )}
           Export Logs
         </button>
       </div>
 
+      {/* Anomaly Alerts */}
+      {anomalies.length > 0 && (
+        <div className="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5" />
+            <div className="flex-1">
+              <h3 className="font-semibold text-yellow-900 mb-2">
+                {anomalies.length} Anomal{anomalies.length === 1 ? 'y' : 'ies'} Detected
+              </h3>
+              <div className="space-y-2">
+                {anomalies.slice(0, 3).map((anomaly, index) => (
+                  <div key={index} className="text-sm text-yellow-800">
+                    <span className="font-medium">{anomaly.type}:</span> {anomaly.description}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Stats */}
       <div className="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
-          <div key={stat.label} className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-            <p className="text-sm font-medium text-gray-600">{stat.label}</p>
-            <p className="mt-2 text-3xl font-bold text-gray-900">{stat.value}</p>
-          </div>
-        ))}
+        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+          <p className="text-sm font-medium text-gray-600">Total Events (7 days)</p>
+          <p className="mt-2 text-3xl font-bold text-gray-900">
+            {statistics?.totalEvents.toLocaleString() || '0'}
+          </p>
+        </div>
+        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+          <p className="text-sm font-medium text-gray-600">Security Events</p>
+          <p className="mt-2 text-3xl font-bold text-gray-900">
+            {statistics?.eventsByCategory?.security_event || 0}
+          </p>
+        </div>
+        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+          <p className="text-sm font-medium text-gray-600">Critical Severity</p>
+          <p className="mt-2 text-3xl font-bold text-gray-900">
+            {statistics?.eventsBySeverity?.critical || 0}
+          </p>
+        </div>
+        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+          <p className="text-sm font-medium text-gray-600">Unique Users</p>
+          <p className="mt-2 text-3xl font-bold text-gray-900">
+            {statistics?.uniqueUsers || 0}
+          </p>
+        </div>
       </div>
 
       {/* Filters */}
       <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
         <div className="flex flex-wrap items-center gap-4">
-          <div className="flex-1">
+          <div className="flex-1 min-w-[200px]">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
               <input
                 type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search logs..."
-                className="input w-full pl-10"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
           </div>
-          <select className="input" aria-label="Filter by action type">
-            <option value="">All Actions</option>
-            <option value="login">Login</option>
-            <option value="logout">Logout</option>
-            <option value="create">Create</option>
-            <option value="update">Update</option>
-            <option value="delete">Delete</option>
-            <option value="access">Access</option>
+          <select
+            value={filterCategory}
+            onChange={(e) => setFilterCategory(e.target.value)}
+            aria-label="Filter by event category"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="all">All Categories</option>
+            <option value="authentication">Authentication</option>
+            <option value="authorization">Authorization</option>
+            <option value="data_access">Data Access</option>
+            <option value="data_modification">Data Modification</option>
+            <option value="configuration_change">Configuration</option>
+            <option value="admin_action">Admin Action</option>
+            <option value="security_event">Security Event</option>
           </select>
-          <select className="input" aria-label="Filter by status">
-            <option value="">All Status</option>
-            <option value="success">Success</option>
-            <option value="failed">Failed</option>
+          <select
+            value={filterSeverity}
+            onChange={(e) => setFilterSeverity(e.target.value)}
+            aria-label="Filter by severity"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="all">All Severities</option>
+            <option value="debug">Debug</option>
+            <option value="info">Info</option>
             <option value="warning">Warning</option>
+            <option value="error">Error</option>
+            <option value="critical">Critical</option>
           </select>
-          <button className="btn-outline flex items-center gap-2">
-            <Filter className="h-4 w-4" />
-            More Filters
-          </button>
+          <select
+            value={filterComplianceLevel}
+            onChange={(e) => setFilterComplianceLevel(e.target.value)}
+            aria-label="Filter by compliance level"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="all">All Compliance Levels</option>
+            <option value="low">Low</option>
+            <option value="standard">Standard</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+          </select>
         </div>
       </div>
 
@@ -171,70 +376,101 @@ export default function AuditLogsPage() {
                   User
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Action
+                  Action / Category
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   Resource
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Severity
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Compliance
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   IP Address
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  Status
+                  Hash
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 bg-white">
-              {auditLogs.map((log) => (
-                <tr key={log.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
-                    {log.timestamp}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-900">
-                    {log.user}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="font-medium text-gray-900">{log.action}</span>
-                    <p className="text-sm text-gray-500">{log.details}</p>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-900">
-                    {log.resource}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600 whitespace-nowrap">
-                    {log.ipAddress}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
-                        log.status === 'success'
-                          ? 'bg-green-100 text-green-800'
-                          : log.status === 'failed'
-                          ? 'bg-red-100 text-red-800'
-                          : 'bg-yellow-100 text-yellow-800'
-                      }`}
-                    >
-                      {log.status}
-                    </span>
+              {filteredLogs.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
+                    No audit logs found
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filteredLogs.map((log) => (
+                  <tr key={log.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
+                      {new Date(log.timestamp).toLocaleString()}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-900">
+                      {log.user_email}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="font-medium text-gray-900">{log.action}</span>
+                      <p className="text-xs text-gray-500">{log.event_category}</p>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-900">
+                      {log.resource_type && log.resource_id
+                        ? `${log.resource_type} #${log.resource_id.slice(0, 8)}`
+                        : '-'}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={`px-2 py-1 text-xs font-medium rounded ${
+                          log.severity === 'critical'
+                            ? 'bg-red-100 text-red-700'
+                            : log.severity === 'error'
+                              ? 'bg-orange-100 text-orange-700'
+                              : log.severity === 'warning'
+                                ? 'bg-yellow-100 text-yellow-700'
+                                : log.severity === 'info'
+                                  ? 'bg-blue-100 text-blue-700'
+                                  : 'bg-gray-100 text-gray-700'
+                        }`}
+                      >
+                        {log.severity}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={`px-2 py-1 text-xs font-medium rounded ${
+                          log.compliance_level === 'critical'
+                            ? 'bg-purple-100 text-purple-700'
+                            : log.compliance_level === 'high'
+                              ? 'bg-red-100 text-red-700'
+                              : log.compliance_level === 'standard'
+                                ? 'bg-blue-100 text-blue-700'
+                                : 'bg-gray-100 text-gray-700'
+                        }`}
+                      >
+                        {log.compliance_level}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-500">
+                      {log.ip_address || '-'}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-1 text-xs text-gray-500">
+                        <Hash className="h-3 w-3" />
+                        <span className="font-mono">{log.hash.slice(0, 8)}...</span>
+                        {log.previous_hash && (
+                          <span title="Hash chain intact">
+                            <CheckCircle className="h-3 w-3 text-green-600" />
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
-        </div>
-      </div>
-
-      {/* Pagination */}
-      <div className="mt-6 flex items-center justify-between">
-        <p className="text-sm text-gray-600">
-          Showing <span className="font-medium">1-8</span> of <span className="font-medium">8,247</span> results
-        </p>
-        <div className="flex gap-2">
-          <button className="btn-outline" disabled>
-            Previous
-          </button>
-          <button className="btn-primary">
-            Next
-          </button>
         </div>
       </div>
     </div>

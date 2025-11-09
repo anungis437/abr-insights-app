@@ -106,7 +106,8 @@ export default function AchievementsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">        <div className="container-custom py-20">
+      <div className="min-h-screen bg-gray-50 pt-16">
+        <div className="container-custom py-20">
           <div className="mx-auto max-w-4xl text-center">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-600 border-t-transparent mx-auto" />
             <p className="mt-4 text-gray-600">Loading achievements...</p>
@@ -117,7 +118,7 @@ export default function AchievementsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">      
+    <div className="min-h-screen bg-gray-50 pt-16">      
       <div className="container-custom py-12">
         <div className="mx-auto max-w-6xl">
           {/* Header */}

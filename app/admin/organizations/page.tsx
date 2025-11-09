@@ -1,75 +1,82 @@
-import { Metadata } from 'next'
-import { Building2, Users, Settings, TrendingUp, Shield, Plus } from 'lucide-react'
+'use client'
 
-export const metadata: Metadata = {
-  title: 'Organizations | Admin | ABR Insights',
-  description: 'Manage organizations across the platform'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
+import { Building2, Users, Settings, TrendingUp, Shield, Plus, ExternalLink, Eye } from 'lucide-react'
+import Link from 'next/link'
+
+interface Organization {
+  id: string
+  name: string
+  slug: string
+  type: string
+  domain: string | null
+  settings: any
+  created_at: string
+  updated_at: string
+  user_count?: number
+  active_user_count?: number
 }
 
 export default function AdminOrganizationsPage() {
-  // Mock data - replace with real data fetching
-  const organizations = [
-    {
-      id: 1,
-      name: 'RCMP Ontario',
-      type: 'Federal',
-      users: 1247,
-      activeUsers: 892,
-      status: 'active',
-      subscription: 'Enterprise',
-      joinedDate: '2024-01-15',
-    },
-    {
-      id: 2,
-      name: 'Toronto Police Service',
-      type: 'Municipal',
-      users: 856,
-      activeUsers: 623,
-      status: 'active',
-      subscription: 'Professional',
-      joinedDate: '2024-02-20',
-    },
-    {
-      id: 3,
-      name: 'Vancouver Police Department',
-      type: 'Municipal',
-      users: 542,
-      activeUsers: 387,
-      status: 'active',
-      subscription: 'Professional',
-      joinedDate: '2024-03-10',
-    },
-    {
-      id: 4,
-      name: 'Calgary Police Service',
-      type: 'Municipal',
-      users: 398,
-      activeUsers: 276,
-      status: 'active',
-      subscription: 'Standard',
-      joinedDate: '2024-04-05',
-    },
-    {
-      id: 5,
-      name: 'Montreal SPVM',
-      type: 'Municipal',
-      users: 723,
-      activeUsers: 512,
-      status: 'trial',
-      subscription: 'Trial',
-      joinedDate: '2024-10-15',
-    },
-  ]
+  const router = useRouter()
+  const supabase = createClient()
+  const [organizations, setOrganizations] = useState<Organization[]>([])
+  const [loading, setLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [typeFilter, setTypeFilter] = useState('')
+
+  async function loadOrganizations() {
+    try {
+      const { data, error } = await supabase
+        .from('organizations')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+      setOrganizations(data || [])
+    } catch (error) {
+      console.error('Error loading organizations:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadOrganizations()
+  }, [])
+
+  const filteredOrganizations = organizations.filter(org => {
+    const matchesSearch = !searchQuery || 
+      org.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      org.slug.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesType = !typeFilter || org.type === typeFilter
+    return matchesSearch && matchesType
+  })
 
   const stats = [
-    { label: 'Total Organizations', value: '248', icon: Building2 },
-    { label: 'Active Subscriptions', value: '234', icon: Shield },
-    { label: 'Total Users', value: '12,847', icon: Users },
-    { label: 'Monthly Growth', value: '+12%', icon: TrendingUp },
+    { label: 'Total Organizations', value: organizations.length.toString(), icon: Building2 },
+    { label: 'Active Organizations', value: organizations.filter(o => o.settings?.status !== 'suspended').length.toString(), icon: Shield },
+    { label: 'Organization Types', value: new Set(organizations.map(o => o.type)).size.toString(), icon: TrendingUp },
+    { label: 'Total Capacity', value: 'N/A', icon: Users },
   ]
 
+  if (loading) {
+    return (
+      <div className="container-custom pt-20 pb-8">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"></div>
+            <p className="mt-4 text-gray-600">Loading organizations...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="container-custom py-8">
+    <div className="container-custom pt-20 pb-8">
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Organizations</h1>
@@ -77,7 +84,10 @@ export default function AdminOrganizationsPage() {
             Manage organizations and their subscriptions
           </p>
         </div>
-        <button className="btn-primary flex items-center gap-2">
+        <button 
+          onClick={() => router.push('/admin/organizations/create')}
+          className="btn-primary flex items-center gap-2"
+        >
           <Plus className="h-4 w-4" />
           Add Organization
         </button>
@@ -110,97 +120,123 @@ export default function AdminOrganizationsPage() {
           placeholder="Search organizations..."
           className="input max-w-xs"
           aria-label="Search organizations"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
         />
-        <select className="input max-w-xs" aria-label="Filter organizations by type">
+        <select 
+          className="input max-w-xs" 
+          aria-label="Filter organizations by type"
+          value={typeFilter}
+          onChange={(e) => setTypeFilter(e.target.value)}
+        >
           <option value="">All Types</option>
           <option value="federal">Federal</option>
           <option value="provincial">Provincial</option>
           <option value="municipal">Municipal</option>
-        </select>
-        <select className="input max-w-xs" aria-label="Filter organizations by status">
-          <option value="">All Status</option>
-          <option value="active">Active</option>
-          <option value="trial">Trial</option>
-          <option value="suspended">Suspended</option>
+          <option value="private">Private</option>
         </select>
       </div>
 
       {/* Organizations Table */}
       <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                Organization
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                Type
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                Users
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                Subscription
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                Status
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
-            {organizations.map((org) => (
-              <tr key={org.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary-600 to-secondary-600">
-                      <Building2 className="h-5 w-5 text-white" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-900">{org.name}</p>
-                      <p className="text-sm text-gray-500">Joined {org.joinedDate}</p>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-900">{org.type}</td>
-                <td className="px-6 py-4">
-                  <div className="text-sm">
-                    <p className="font-medium text-gray-900">{org.users} total</p>
-                    <p className="text-gray-500">{org.activeUsers} active</p>
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <span className="inline-flex rounded-full bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-800">
-                    {org.subscription}
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  <span
-                    className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
-                      org.status === 'active'
-                        ? 'bg-green-100 text-green-800'
-                        : org.status === 'trial'
-                        ? 'bg-yellow-100 text-yellow-800'
-                        : 'bg-red-100 text-red-800'
-                    }`}
-                  >
-                    {org.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  <button className="text-sm font-medium text-primary-600 hover:text-primary-700 mr-4">
-                    View
-                  </button>
-                  <button className="text-sm font-medium text-gray-600 hover:text-gray-700" aria-label="Organization settings">
-                    <Settings className="inline h-4 w-4" />
-                  </button>
-                </td>
+        {filteredOrganizations.length === 0 ? (
+          <div className="px-6 py-12 text-center">
+            <Building2 className="mx-auto h-12 w-12 text-gray-400" />
+            <h3 className="mt-2 text-sm font-medium text-gray-900">No organizations found</h3>
+            <p className="mt-1 text-sm text-gray-500">
+              {searchQuery || typeFilter ? 'Try adjusting your filters' : 'Get started by creating a new organization'}
+            </p>
+          </div>
+        ) : (
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Organization
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Type
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Domain
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Created
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Actions
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-200 bg-white">
+              {filteredOrganizations.map((org) => (
+                <tr key={org.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary-600 to-secondary-600">
+                        <Building2 className="h-5 w-5 text-white" />
+                      </div>
+                      <div>
+                        <Link
+                          href={`/admin/organizations/${org.id}`}
+                          className="font-medium text-gray-900 hover:text-primary-600"
+                        >
+                          {org.name}
+                        </Link>
+                        <p className="text-sm text-gray-500">/{org.slug}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="inline-flex items-center rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-800 capitalize">
+                      {org.type || 'N/A'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-900">
+                    {org.domain || <span className="text-gray-400">No domain</span>}
+                  </td>
+                  <td className="px-6 py-4">
+                    <span
+                      className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
+                        (org.settings?.status || 'active') === 'active'
+                          ? 'bg-green-100 text-green-800'
+                          : (org.settings?.status || 'active') === 'trial'
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : 'bg-red-100 text-red-800'
+                      }`}
+                    >
+                      {org.settings?.status || 'active'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-500">
+                    {new Date(org.created_at).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <Link
+                        href={`/admin/organizations/${org.id}`}
+                        className="text-sm font-medium text-primary-600 hover:text-primary-700 flex items-center gap-1"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                        View
+                      </Link>
+                      <button
+                        onClick={() => router.push(`/admin/organizations/${org.id}/settings`)}
+                        className="text-sm font-medium text-gray-600 hover:text-gray-700"
+                        aria-label="Organization settings"
+                      >
+                        <Settings className="inline h-4 w-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   )
