@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import { Building2, Users, GraduationCap, FileText, TrendingUp, Activity } from 'lucide-react'
+import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: 'Admin Dashboard | ABR Insights',
@@ -26,7 +27,7 @@ export default function AdminDashboardPage() {
   ]
 
   return (
-    <div className="container-custom py-8">
+    <div className="container-custom pt-20 pb-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Platform Administration</h1>
         <p className="mt-2 text-gray-600">
@@ -59,20 +60,20 @@ export default function AdminDashboardPage() {
       <div className="mb-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
         <h2 className="mb-4 text-xl font-semibold text-gray-900">Quick Actions</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <a
+          <Link
             href="/admin/organizations"
             className="rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50"
           >
             <Building2 className="mb-2 h-5 w-5 text-blue-600" />
             <p className="font-medium text-gray-900">Manage Organizations</p>
-          </a>
-          <a
+          </Link>
+          <Link
             href="/admin/users"
             className="rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50"
           >
             <Users className="mb-2 h-5 w-5 text-green-600" />
             <p className="font-medium text-gray-900">Manage Users</p>
-          </a>
+          </Link>
           <a
             href="/admin/courses"
             className="rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50"

@@ -113,7 +113,11 @@ export default function ProfilePage() {
       setPointsSummary(pointsData)
       setSocialSummary(socialData)
     } catch (error) {
-      console.error('Error loading gamification data:', error)
+      // Silently handle gamification data errors - features may not be fully set up
+      // Only log if there's actual error content
+      if (error && typeof error === 'object' && Object.keys(error).length > 0) {
+        console.error('Error loading gamification data:', error)
+      }
     } finally {
       setLoadingGamification(false)
     }
@@ -201,7 +205,8 @@ export default function ProfilePage() {
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-gray-50">        <div className="container-custom py-20">
+      <div className="min-h-screen bg-gray-50 pt-16">
+        <div className="container-custom py-20">
           <div className="mx-auto max-w-4xl text-center">
             <p className="text-red-600">Profile not found</p>
           </div>
@@ -211,7 +216,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">      
+    <div className="min-h-screen bg-gray-50 pt-16">      
       <div className="container-custom py-12">
         <div className="mx-auto max-w-4xl">
           {/* Header */}

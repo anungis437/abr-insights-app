@@ -280,7 +280,7 @@ CREATE OR REPLACE VIEW instructor_dashboard_summary AS
 SELECT 
     ip.id AS instructor_id,
     ip.user_id,
-    p.full_name,
+    COALESCE(p.first_name || ' ' || p.last_name, p.display_name, p.email) AS full_name,
     p.email,
     ip.status,
     ip.headline,
@@ -325,7 +325,7 @@ CREATE OR REPLACE VIEW active_instructors AS
 SELECT 
     ip.id AS instructor_id,
     p.id AS user_id,
-    p.full_name,
+    COALESCE(p.first_name || ' ' || p.last_name, p.display_name, p.email) AS full_name,
     p.email,
     ip.headline,
     ip.bio,

@@ -4,7 +4,7 @@
 -- =====================================================
 
 -- Achievement Categories
-CREATE TABLE achievement_categories (
+CREATE TABLE IF NOT EXISTS achievement_categories (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(100) NOT NULL UNIQUE,
     slug VARCHAR(100) NOT NULL UNIQUE,
@@ -18,7 +18,7 @@ CREATE TABLE achievement_categories (
 );
 
 -- Main Achievements Table
-CREATE TABLE achievements (
+CREATE TABLE IF NOT EXISTS achievements (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     category_id UUID REFERENCES achievement_categories(id) ON DELETE SET NULL,
     
@@ -72,7 +72,7 @@ CREATE TABLE achievements (
 );
 
 -- User Achievements (tracking who earned what)
-CREATE TABLE user_achievements (
+CREATE TABLE IF NOT EXISTS user_achievements (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
     achievement_id UUID REFERENCES achievements(id) ON DELETE CASCADE,
@@ -105,8 +105,18 @@ CREATE TABLE user_achievements (
     UNIQUE(user_id, achievement_id) -- Can only earn each achievement once
 );
 
+-- Add missing columns to existing user_achievements table
+ALTER TABLE user_achievements ADD COLUMN IF NOT EXISTS progress_snapshot JSONB;
+ALTER TABLE user_achievements ADD COLUMN IF NOT EXISTS evidence_url TEXT;
+ALTER TABLE user_achievements ADD COLUMN IF NOT EXISTS is_featured BOOLEAN DEFAULT FALSE;
+ALTER TABLE user_achievements ADD COLUMN IF NOT EXISTS featured_until TIMESTAMPTZ;
+ALTER TABLE user_achievements ADD COLUMN IF NOT EXISTS notification_sent BOOLEAN DEFAULT FALSE;
+ALTER TABLE user_achievements ADD COLUMN IF NOT EXISTS notification_sent_at TIMESTAMPTZ;
+ALTER TABLE user_achievements ADD COLUMN IF NOT EXISTS is_public BOOLEAN DEFAULT TRUE;
+ALTER TABLE user_achievements ADD COLUMN IF NOT EXISTS shared_to_social BOOLEAN DEFAULT FALSE;
+
 -- Achievement Progress (for achievements requiring multiple steps)
-CREATE TABLE achievement_progress (
+CREATE TABLE IF NOT EXISTS achievement_progress (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
     achievement_id UUID REFERENCES achievements(id) ON DELETE CASCADE,
@@ -137,7 +147,7 @@ CREATE TABLE achievement_progress (
 );
 
 -- User Streaks (for tracking consecutive activities)
-CREATE TABLE user_streaks (
+CREATE TABLE IF NOT EXISTS user_streaks (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
     
@@ -161,23 +171,46 @@ CREATE TABLE user_streaks (
     UNIQUE(user_id, streak_type)
 );
 
+-- Add missing columns to existing achievements table (if it was created earlier with incomplete schema)
+ALTER TABLE achievements ADD COLUMN IF NOT EXISTS category_id UUID REFERENCES achievement_categories(id) ON DELETE SET NULL;
+ALTER TABLE achievements ADD COLUMN IF NOT EXISTS tier VARCHAR(50) DEFAULT 'bronze';
+ALTER TABLE achievements ADD COLUMN IF NOT EXISTS tier_level INTEGER DEFAULT 1;
+ALTER TABLE achievements ADD COLUMN IF NOT EXISTS requirement_type VARCHAR(100);
+ALTER TABLE achievements ADD COLUMN IF NOT EXISTS requirement_config JSONB;
+ALTER TABLE achievements ADD COLUMN IF NOT EXISTS points_awarded INTEGER DEFAULT 0;
+ALTER TABLE achievements ADD COLUMN IF NOT EXISTS unlocks_content BOOLEAN DEFAULT FALSE;
+ALTER TABLE achievements ADD COLUMN IF NOT EXISTS unlocked_content_ids JSONB;
+ALTER TABLE achievements ADD COLUMN IF NOT EXISTS badge_image_url TEXT;
+ALTER TABLE achievements ADD COLUMN IF NOT EXISTS badge_svg TEXT;
+ALTER TABLE achievements ADD COLUMN IF NOT EXISTS badge_color VARCHAR(50);
+ALTER TABLE achievements ADD COLUMN IF NOT EXISTS open_badge_enabled BOOLEAN DEFAULT FALSE;
+ALTER TABLE achievements ADD COLUMN IF NOT EXISTS open_badge_issuer JSONB;
+ALTER TABLE achievements ADD COLUMN IF NOT EXISTS open_badge_criteria TEXT;
+ALTER TABLE achievements ADD COLUMN IF NOT EXISTS open_badge_tags TEXT[];
+ALTER TABLE achievements ADD COLUMN IF NOT EXISTS is_hidden BOOLEAN DEFAULT FALSE;
+ALTER TABLE achievements ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;
+ALTER TABLE achievements ADD COLUMN IF NOT EXISTS available_from TIMESTAMPTZ;
+ALTER TABLE achievements ADD COLUMN IF NOT EXISTS available_until TIMESTAMPTZ;
+ALTER TABLE achievements ADD COLUMN IF NOT EXISTS times_awarded INTEGER DEFAULT 0;
+ALTER TABLE achievements ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES profiles(id);
+
 -- Indexes for Performance
-CREATE INDEX idx_achievements_category ON achievements(category_id);
-CREATE INDEX idx_achievements_tier ON achievements(tier, tier_level);
-CREATE INDEX idx_achievements_type ON achievements(requirement_type);
-CREATE INDEX idx_achievements_active ON achievements(is_active) WHERE is_active = TRUE;
+CREATE INDEX IF NOT EXISTS idx_achievements_category ON achievements(category_id);
+CREATE INDEX IF NOT EXISTS idx_achievements_tier ON achievements(tier, tier_level);
+CREATE INDEX IF NOT EXISTS idx_achievements_type ON achievements(requirement_type);
+CREATE INDEX IF NOT EXISTS idx_achievements_active ON achievements(is_active) WHERE is_active = TRUE;
 
-CREATE INDEX idx_user_achievements_user ON user_achievements(user_id);
-CREATE INDEX idx_user_achievements_achievement ON user_achievements(achievement_id);
-CREATE INDEX idx_user_achievements_earned ON user_achievements(earned_at DESC);
-CREATE INDEX idx_user_achievements_featured ON user_achievements(user_id) WHERE is_featured = TRUE;
-CREATE INDEX idx_user_achievements_public ON user_achievements(is_public) WHERE is_public = TRUE;
+CREATE INDEX IF NOT EXISTS idx_user_achievements_user ON user_achievements(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_achievements_achievement ON user_achievements(achievement_id);
+CREATE INDEX IF NOT EXISTS idx_user_achievements_earned ON user_achievements(earned_at DESC);
+CREATE INDEX IF NOT EXISTS idx_user_achievements_featured ON user_achievements(user_id) WHERE is_featured = TRUE;
+CREATE INDEX IF NOT EXISTS idx_user_achievements_public ON user_achievements(is_public) WHERE is_public = TRUE;
 
-CREATE INDEX idx_achievement_progress_user ON achievement_progress(user_id);
-CREATE INDEX idx_achievement_progress_incomplete ON achievement_progress(user_id) WHERE is_completed = FALSE;
+CREATE INDEX IF NOT EXISTS idx_achievement_progress_user ON achievement_progress(user_id);
+CREATE INDEX IF NOT EXISTS idx_achievement_progress_incomplete ON achievement_progress(user_id) WHERE is_completed = FALSE;
 
-CREATE INDEX idx_user_streaks_user_type ON user_streaks(user_id, streak_type);
-CREATE INDEX idx_user_streaks_active ON user_streaks(user_id) WHERE streak_active = TRUE;
+CREATE INDEX IF NOT EXISTS idx_user_streaks_user_type ON user_streaks(user_id, streak_type);
+CREATE INDEX IF NOT EXISTS idx_user_streaks_active ON user_streaks(user_id) WHERE streak_active = TRUE;
 
 -- Enable RLS
 ALTER TABLE achievement_categories ENABLE ROW LEVEL SECURITY;
@@ -575,8 +608,10 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- =====================================================
 -- Seed Data: Achievement Categories
+-- SKIPPED: Achievements already seeded in migration 010_seed_data.sql
 -- =====================================================
 
+/*
 INSERT INTO achievement_categories (name, slug, description, icon, color, sort_order) VALUES
     ('Course Completion', 'course-completion', 'Achievements for completing courses', 'graduation-cap', '#3B82F6', 1),
     ('Skill Mastery', 'skill-mastery', 'Achievements for mastering skills', 'award', '#8B5CF6', 2),
@@ -656,6 +691,7 @@ INSERT INTO achievements (category_id, name, slug, description, tier, tier_level
     ((SELECT id FROM achievement_categories WHERE slug = 'collaboration'),
      'Helpful Peer', 'helpful-peer', 'Receive 10 helpful votes on your answers', 'silver', 1, 'peer_helping',
      '{"helpful_votes": 10}'::jsonb, 750, '#C0C0C0');
+*/
 
 -- Comments
 COMMENT ON TABLE achievement_categories IS 'Categories for organizing achievements (Course Completion, Skill Mastery, etc.)';

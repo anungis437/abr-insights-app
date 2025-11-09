@@ -267,7 +267,7 @@ CREATE OR REPLACE VIEW skills_expiring_soon AS
 SELECT 
   us.user_id,
   u.email,
-  up.full_name,
+  COALESCE(up.display_name, CONCAT(up.first_name, ' ', up.last_name)) as full_name,
   s.id AS skill_id,
   s.name AS skill_name,
   s.category,
@@ -279,7 +279,7 @@ SELECT
   us.last_validated_at
 FROM user_skills us
 JOIN auth.users u ON us.user_id = u.id
-LEFT JOIN user_profiles up ON us.user_id = up.id
+LEFT JOIN profiles up ON us.user_id = up.id
 JOIN skills s ON us.skill_id = s.id
 WHERE us.expires_at IS NOT NULL
   AND us.expires_at <= CURRENT_DATE + INTERVAL '90 days'

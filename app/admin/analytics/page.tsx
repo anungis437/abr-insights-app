@@ -61,58 +61,52 @@ export default function AdminAnalyticsPage() {
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
 
   useEffect(() => {
-    const checkAuthAndLoadAnalytics = async () => {
+    checkAuthAndLoadAnalytics()
+  }, [])
+
+  async function checkAuthAndLoadAnalytics() {
+    setIsLoading(true)
+    try {
       const supabase = createClient()
-      // Check auth
       const { data: { user: currentUser } } = await supabase.auth.getUser()
       
-      console.log('[Analytics Page] Current user:', currentUser?.id, currentUser?.email)
       if (!currentUser) {
-        console.log('[Analytics Page] No user found, redirecting to login')
         router.push('/auth/login')
         return
       }
 
       setUser(currentUser)
 
-      // Check admin role
-      const { data: profileData, error: profileError } = await supabase
+      const { data: profileData } = await supabase
         .from('profiles')
-        .select('*')
+        .select('role, organization_id')
         .eq('id', currentUser.id)
         .single()
 
-      console.log('[Analytics Page] Profile data:', profileData)
-      console.log('[Analytics Page] Profile error:', profileError)
-
       if (!profileData) {
-        console.log('[Analytics Page] No profile found, redirecting to dashboard')
         router.push('/dashboard')
         return
       }
 
-      // Only allow admins and analysts
-      const isAdmin = 
+      // Only allow super_admin, org_admin, and analyst roles
+      const hasAccess = 
         profileData.role === 'super_admin' ||
         profileData.role === 'org_admin' ||
         profileData.role === 'analyst'
 
-      console.log('[Analytics Page] User role:', profileData.role, 'isAdmin:', isAdmin)
-
-      if (!isAdmin) {
-        console.log('[Analytics Page] Unauthorized, redirecting to dashboard')
+      if (!hasAccess) {
         router.push('/dashboard')
         return
       }
 
-      console.log('[Analytics Page] Authorization successful, loading analytics')
-      // Load analytics data
       await loadAnalyticsData()
+    } catch (error) {
+      console.error('Error checking auth:', error)
+      router.push('/dashboard')
+    } finally {
       setIsLoading(false)
     }
-
-    checkAuthAndLoadAnalytics()
-  }, [router])
+  }
 
   const loadAnalyticsData = async () => {
     const supabase = createClient()
@@ -260,8 +254,8 @@ export default function AdminAnalyticsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">      
-      <main className="flex-1 pt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <main className="flex-1 pt-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center gap-3">

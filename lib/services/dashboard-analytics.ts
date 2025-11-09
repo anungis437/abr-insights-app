@@ -206,7 +206,7 @@ export async function getSkillProgress(userId: string): Promise<SkillProgress[]>
 
     // Get all enrolled courses with lessons and progress
     const { data: enrollments } = await supabase
-      .from('enrollments')
+      .from('course_enrollments')
       .select(`
         course:courses (
           id,
