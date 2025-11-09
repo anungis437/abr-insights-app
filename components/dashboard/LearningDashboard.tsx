@@ -108,30 +108,57 @@ export default function LearningDashboard({ userId }: LearningDashboardProps) {
   return (
     <div className="space-y-6">
       {/* Hero Metric - Learning Streak */}
-      {streak && streak.current_streak > 0 && (
+      {streak && streak.current_streak > 0 ? (
         <div className="rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 p-8 text-white shadow-lg">
           <div className="flex items-center justify-between">
             <div>
               <div className="mb-2 flex items-center gap-3">
                 <Flame className="w-8 h-8" />
                 <h2 className="text-3xl font-bold">
-                  {streak.current_streak} {t('learning.day_streak')}
+                  {streak.current_streak} Day Streak
                 </h2>
               </div>
               <p className="text-orange-100 text-lg mb-4">
-                {t('learning.streak_active')}
+                Keep it going! You&apos;re on fire 🔥
               </p>
               <Link
                 href="/courses"
                 className="inline-flex items-center gap-2 rounded-lg bg-white/20 px-6 py-3 font-semibold transition-colors hover:bg-white/30"
               >
-                <span>{t('learning.continue_learning')}</span>
+                <span>Continue Learning</span>
                 <ChevronRight className="h-5 w-5" />
               </Link>
             </div>
             <div className="text-right">
-              <p className="text-sm text-orange-100 mb-1">{t('learning.longest_streak')}</p>
-              <p className="text-2xl font-bold">{streak.longest_streak} {t('learning.days')}</p>
+              <p className="text-sm text-orange-100 mb-1">Longest Streak</p>
+              <p className="text-2xl font-bold">{streak.longest_streak} Days</p>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 p-8 text-white shadow-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="mb-2 flex items-center gap-3">
+                <Target className="w-8 h-8" />
+                <h2 className="text-3xl font-bold">
+                  Start Your Learning Journey
+                </h2>
+              </div>
+              <p className="text-blue-100 text-lg mb-4">
+                Begin building your streak by completing your first lesson
+              </p>
+              <Link
+                href="/courses"
+                className="inline-flex items-center gap-2 rounded-lg bg-white/20 px-6 py-3 font-semibold transition-colors hover:bg-white/30"
+              >
+                <span>Browse Courses</span>
+                <ChevronRight className="h-5 w-5" />
+              </Link>
+            </div>
+            <div className="text-right">
+              <p className="text-sm text-blue-100 mb-1">Your Goal</p>
+              <p className="text-2xl font-bold">7 Day Streak</p>
             </div>
           </div>
         </div>
@@ -140,54 +167,63 @@ export default function LearningDashboard({ userId }: LearningDashboardProps) {
       {/* Key Stats - 3 Cards */}
       {stats && (
         <div className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-lg bg-white p-6 shadow-sm">
+          <div className="rounded-lg bg-white p-6 shadow-sm border border-gray-200">
             <div className="flex items-center gap-3 mb-2">
               <div className="rounded-lg bg-blue-100 p-2 text-blue-600">
                 <Clock className="h-5 w-5" />
               </div>
-              <span className="text-sm font-medium text-gray-600">{t('learning.watch_time')}</span>
+              <span className="text-sm font-medium text-gray-600">Total Watch Time</span>
             </div>
             <p className="text-2xl font-bold text-gray-900">
-              {formatDuration(stats.total_watch_time_seconds)}
+              {formatDuration(stats.total_watch_time)}
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              {stats.total_watch_time === 0 ? 'Start watching lessons to track your progress' : 'Keep learning!'}
             </p>
           </div>
 
-          <div className="rounded-lg bg-white p-6 shadow-sm">
+          <div className="rounded-lg bg-white p-6 shadow-sm border border-gray-200">
             <div className="flex items-center gap-3 mb-2">
               <div className="rounded-lg bg-green-100 p-2 text-green-600">
                 <BookOpen className="h-5 w-5" />
               </div>
-              <span className="text-sm font-medium text-gray-600">{t('learning.lessons_completed')}</span>
+              <span className="text-sm font-medium text-gray-600">Lessons Completed</span>
             </div>
             <p className="text-2xl font-bold text-gray-900">
               {stats.lessons_completed}
             </p>
+            <p className="text-xs text-gray-500 mt-1">
+              {stats.lessons_completed === 0 ? 'Complete your first lesson today' : `${stats.lessons_started} started`}
+            </p>
           </div>
 
-          <div className="rounded-lg bg-white p-6 shadow-sm">
+          <div className="rounded-lg bg-white p-6 shadow-sm border border-gray-200">
             <div className="flex items-center gap-3 mb-2">
               <div className="rounded-lg bg-purple-100 p-2 text-purple-600">
                 <FileText className="h-5 w-5" />
               </div>
-              <span className="text-sm font-medium text-gray-600">{t('learning.notes_created')}</span>
+              <span className="text-sm font-medium text-gray-600">Study Notes</span>
             </div>
             <p className="text-2xl font-bold text-gray-900">
               {stats.notes_created}
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              {stats.notes_created === 0 ? 'Create notes while learning to retain knowledge' : 'Great note-taking!'}
             </p>
           </div>
         </div>
       )}
 
       {/* Skills Progress - Top 2 Only */}
-      {skills.length > 0 && (
-        <div className="rounded-lg bg-white p-6 shadow-sm">
+      {skills.length > 0 ? (
+        <div className="rounded-lg bg-white p-6 shadow-sm border border-gray-200">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Target className="w-5 h-5 text-blue-600" />
-              <h3 className="text-lg font-semibold text-gray-900">{t('learning.top_skills')}</h3>
+              <h3 className="text-lg font-semibold text-gray-900">Top Skills</h3>
             </div>
-            <Link href="/profile" className="text-sm text-primary-600 hover:text-primary-700 font-medium">
-              {t('common.view_all')}
+            <Link href="/profile" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+              View All
             </Link>
           </div>
 
@@ -208,32 +244,53 @@ export default function LearningDashboard({ userId }: LearningDashboardProps) {
                 
                 <div className="relative h-2 w-full overflow-hidden rounded-full bg-gray-200">
                   <div
-                    className="h-full rounded-full bg-blue-600 transition-all duration-500"
-                    style={{ width: `${skill.completion_percentage}%` }}
+                    className={`h-full rounded-full bg-blue-600 transition-all duration-500 ${
+                      skill.completion_percentage === 0 ? 'w-0' :
+                      skill.completion_percentage < 25 ? 'w-1/4' :
+                      skill.completion_percentage < 50 ? 'w-1/2' :
+                      skill.completion_percentage < 75 ? 'w-3/4' : 'w-full'
+                    }`}
                   />
                 </div>
                 
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-gray-500">
-                    {skill.completion_percentage}% {t('learning.complete')}
+                    {skill.completion_percentage}% Complete
                   </span>
                 </div>
               </div>
             ))}
           </div>
         </div>
+      ) : (
+        <div className="rounded-lg bg-white p-8 shadow-sm border border-gray-200 text-center">
+          <div className="inline-flex items-center justify-center rounded-full bg-blue-100 p-4 mb-4">
+            <Target className="w-8 h-8 text-blue-600" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Build Your Skills</h3>
+          <p className="text-sm text-gray-600 mb-4 max-w-md mx-auto">
+            As you complete lessons, we&apos;ll track your progress across different skills and competencies
+          </p>
+          <Link
+            href="/courses"
+            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+          >
+            <span>Start Learning</span>
+            <ChevronRight className="h-4 w-4" />
+          </Link>
+        </div>
       )}
 
       {/* Recent Activity - Limit 3 */}
-      {activities.length > 0 && (
-        <div className="rounded-lg bg-white p-6 shadow-sm">
+      {activities.length > 0 ? (
+        <div className="rounded-lg bg-white p-6 shadow-sm border border-gray-200">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Activity className="w-5 h-5 text-green-600" />
-              <h3 className="text-lg font-semibold text-gray-900">{t('learning.recent_activity')}</h3>
+              <h3 className="text-lg font-semibold text-gray-900">Recent Activity</h3>
             </div>
-            <Link href="/profile" className="text-sm text-primary-600 hover:text-primary-700 font-medium">
-              {t('common.view_all')}
+            <Link href="/profile" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+              View All
             </Link>
           </div>
 
@@ -266,6 +323,23 @@ export default function LearningDashboard({ userId }: LearningDashboardProps) {
               </div>
             ))}
           </div>
+        </div>
+      ) : (
+        <div className="rounded-lg bg-white p-8 shadow-sm border border-gray-200 text-center">
+          <div className="inline-flex items-center justify-center rounded-full bg-green-100 p-4 mb-4">
+            <Activity className="w-8 h-8 text-green-600" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">No Activity Yet</h3>
+          <p className="text-sm text-gray-600 mb-4 max-w-md mx-auto">
+            Your recent learning activity will appear here. Start watching lessons, taking notes, and completing courses!
+          </p>
+          <Link
+            href="/training"
+            className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-6 py-2 text-sm font-semibold text-white hover:bg-green-700 transition-colors"
+          >
+            <span>Explore Training</span>
+            <ChevronRight className="h-4 w-4" />
+          </Link>
         </div>
       )}
     </div>

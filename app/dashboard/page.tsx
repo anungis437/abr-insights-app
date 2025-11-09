@@ -113,10 +113,16 @@ export default function DashboardPage() {
       <div className="container-custom py-8">
         <div className="mx-auto max-w-6xl">
           {/* Simplified Header */}
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-900">
-              {t('dashboard.welcome', { name: profile?.display_name || profile?.first_name || '' })}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900">
+              Welcome back, {profile?.display_name || profile?.first_name || 'Learner'}! 👋
             </h1>
+            <p className="mt-2 text-gray-600">
+              {stats.coursesEnrolled === 0 
+                ? 'Ready to start your legal education journey?'
+                : `You're enrolled in ${stats.coursesEnrolled} course${stats.coursesEnrolled === 1 ? '' : 's'}`
+              }
+            </p>
           </div>
 
           {/* Two-Column Layout */}
@@ -130,9 +136,9 @@ export default function DashboardPage() {
             {/* Right Column - Quick Stats & Actions (1/3 width) */}
             <div className="space-y-6">
               {/* Consolidated Stats Card */}
-              <div className="rounded-lg bg-white p-6 shadow-sm">
+              <div className="rounded-lg bg-white p-6 shadow-sm border border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  {t('dashboard.quick_stats')}
+                  Quick Stats
                 </h3>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
@@ -140,7 +146,7 @@ export default function DashboardPage() {
                       <div className="rounded-lg bg-blue-100 p-2 text-blue-600">
                         <BookOpen className="h-4 w-4" />
                       </div>
-                      <span className="text-sm text-gray-600">{t('dashboard.lessons')}</span>
+                      <span className="text-sm text-gray-600">Courses Progress</span>
                     </div>
                     <span className="text-lg font-bold text-gray-900">
                       {stats.coursesCompleted}/{stats.coursesEnrolled}
@@ -152,61 +158,68 @@ export default function DashboardPage() {
                       <div className="rounded-lg bg-yellow-100 p-2 text-yellow-600">
                         <Award className="h-4 w-4" />
                       </div>
-                      <span className="text-sm text-gray-600">{t('dashboard.points')}</span>
+                      <span className="text-sm text-gray-600">Total Points</span>
                     </div>
                     <span className="text-lg font-bold text-gray-900">
-                      {stats.totalPoints}
+                      {stats.totalPoints.toLocaleString()}
                     </span>
                   </div>
                 </div>
+                {stats.coursesEnrolled === 0 && (
+                  <div className="mt-4 pt-4 border-t border-gray-100">
+                    <p className="text-xs text-gray-500 text-center">
+                      Earn points by completing lessons and achieving milestones
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Quick Actions */}
-              <div className="rounded-lg bg-white p-6 shadow-sm">
+              <div className="rounded-lg bg-white p-6 shadow-sm border border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  {t('dashboard.quick_actions')}
+                  Quick Actions
                 </h3>
                 <div className="space-y-2">
                   <Link
                     href="/cases/browse"
-                    className="flex items-center justify-between rounded-lg p-3 text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="flex items-center justify-between rounded-lg p-3 text-gray-700 hover:bg-gray-50 transition-colors border border-gray-100"
                   >
                     <div className="flex items-center gap-3">
-                      <Search className="h-4 w-4 text-primary-600" />
-                      <span className="text-sm font-medium">{t('dashboard.actions.browse_cases')}</span>
+                      <Search className="h-4 w-4 text-blue-600" />
+                      <span className="text-sm font-medium">Browse Cases</span>
                     </div>
                     <ChevronRight className="h-4 w-4 text-gray-400" />
                   </Link>
 
                   <Link
                     href="/courses"
-                    className="flex items-center justify-between rounded-lg p-3 text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="flex items-center justify-between rounded-lg p-3 text-gray-700 hover:bg-gray-50 transition-colors border border-gray-100"
                   >
                     <div className="flex items-center gap-3">
-                      <BookOpen className="h-4 w-4 text-primary-600" />
-                      <span className="text-sm font-medium">{t('dashboard.actions.view_courses')}</span>
+                      <BookOpen className="h-4 w-4 text-blue-600" />
+                      <span className="text-sm font-medium">View All Courses</span>
                     </div>
                     <ChevronRight className="h-4 w-4 text-gray-400" />
                   </Link>
 
                   <Link
                     href="/achievements"
-                    className="flex items-center justify-between rounded-lg p-3 text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="flex items-center justify-between rounded-lg p-3 text-gray-700 hover:bg-gray-50 transition-colors border border-gray-100"
                   >
                     <div className="flex items-center gap-3">
-                      <Award className="h-4 w-4 text-primary-600" />
-                      <span className="text-sm font-medium">{t('dashboard.achievements')}</span>
+                      <Award className="h-4 w-4 text-blue-600" />
+                      <span className="text-sm font-medium">My Achievements</span>
                     </div>
                     <ChevronRight className="h-4 w-4 text-gray-400" />
                   </Link>
 
                   <Link
                     href="/resources"
-                    className="flex items-center justify-between rounded-lg p-3 text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="flex items-center justify-between rounded-lg p-3 text-gray-700 hover:bg-gray-50 transition-colors border border-gray-100"
                   >
                     <div className="flex items-center gap-3">
-                      <FileText className="h-4 w-4 text-primary-600" />
-                      <span className="text-sm font-medium">{t('dashboard.actions.resources')}</span>
+                      <FileText className="h-4 w-4 text-blue-600" />
+                      <span className="text-sm font-medium">Learning Resources</span>
                     </div>
                     <ChevronRight className="h-4 w-4 text-gray-400" />
                   </Link>
