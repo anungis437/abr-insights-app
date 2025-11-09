@@ -1,6 +1,6 @@
 import { Poppins } from 'next/font/google'
 import './globals.css'
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { AuthProvider } from '@/lib/auth/AuthContext'
 import { LanguageProvider } from '@/lib/contexts/LanguageContext'
 import NavigationWrapper from '@/components/shared/navigation/NavigationWrapper'
@@ -13,6 +13,13 @@ const poppins = Poppins({
   display: 'swap',
   variable: '--font-poppins',
 })
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#0070f3' },
+    { media: '(prefers-color-scheme: dark)', color: '#1e40af' },
+  ],
+}
 
 export const metadata: Metadata = {
   title: {
@@ -34,10 +41,6 @@ export const metadata: Metadata = {
   authors: [{ name: 'ABR Insights Team' }],
   metadataBase: new URL('https://abrinsights.ca'),
   manifest: '/manifest.json',
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#0070f3' },
-    { media: '(prefers-color-scheme: dark)', color: '#1e40af' },
-  ],
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
