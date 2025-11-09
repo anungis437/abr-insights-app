@@ -297,6 +297,7 @@ export function PinchZoomImage({
 
   return (
     <div className="relative overflow-hidden touch-none">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         ref={imageRef}
         src={src}

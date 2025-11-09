@@ -298,6 +298,7 @@ export default function CertificatePDF({
         {/* Badge/Seal (if certification type) */}
         {certificate.certificate_type === 'certification' && badgeImage && (
           <View style={styles.badgeSection}>
+            {/* eslint-disable-next-line jsx-a11y/alt-text */}
             <Image src={badgeImage} style={styles.badgeImage} />
           </View>
         )}
@@ -305,6 +306,7 @@ export default function CertificatePDF({
         {/* Header */}
         <View style={styles.header}>
           {organizationLogo && (
+            // eslint-disable-next-line jsx-a11y/alt-text
             <Image src={organizationLogo} style={styles.logo} />
           )}
           <Text style={styles.organizationName}>{organizationName}</Text>
@@ -400,6 +402,7 @@ export default function CertificatePDF({
             {certificate.signatures.map((signature: any, index: number) => (
               <View key={index} style={styles.signature}>
                 {signature.image_url && (
+                  // eslint-disable-next-line jsx-a11y/alt-text
                   <Image src={signature.image_url} style={styles.signatureImage} />
                 )}
                 <View style={styles.signatureLine} />
@@ -413,6 +416,7 @@ export default function CertificatePDF({
         {/* Footer with QR Code */}
         <View style={styles.footerSection}>
           {certificate.qr_code_data && (
+            // eslint-disable-next-line jsx-a11y/alt-text
             <Image src={certificate.qr_code_data} style={styles.qrCode} />
           )}
           <Text style={styles.verificationText}>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import Image from 'next/image'
 import {
   GraduationCap,
   Clock,
@@ -284,7 +285,7 @@ export default function TrainingHubPage() {
                     >
                       <div className="flex gap-4">
                         {course.thumbnail_url ? (
-                          <img src={course.thumbnail_url} alt={course.title} className="w-24 h-24 object-cover rounded-lg" />
+                          <Image src={course.thumbnail_url} alt={course.title} width={96} height={96} className="w-24 h-24 object-cover rounded-lg" />
                         ) : (
                           <div className="w-24 h-24 bg-gradient-to-r from-teal-500 to-teal-600 rounded-lg flex items-center justify-center">
                             <GraduationCap className="w-12 h-12 text-white" />
@@ -341,7 +342,7 @@ export default function TrainingHubPage() {
                     <div key={course.id} className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all overflow-hidden group cursor-pointer">
                       <div className="relative">
                         {course.thumbnail_url ? (
-                          <img src={course.thumbnail_url} alt={course.title} className="w-full h-48 object-cover" />
+                          <Image src={course.thumbnail_url} alt={course.title} width={384} height={192} className="w-full h-48 object-cover" />
                         ) : (
                           <div className="w-full h-48 bg-gradient-to-r from-teal-500 to-teal-600 flex items-center justify-center">
                             <GraduationCap className="w-20 h-20 text-white opacity-50" />
