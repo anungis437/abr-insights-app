@@ -311,6 +311,8 @@ export default function InstructorCourseEditPage() {
               <button
                 onClick={() => router.push('/instructor/dashboard')}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                aria-label="Back to dashboard"
+                title="Back to dashboard"
               >
                 <ArrowLeft className="h-5 w-5" />
               </button>
@@ -470,10 +472,11 @@ export default function InstructorCourseEditPage() {
 
               {/* Category */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="course-category" className="block text-sm font-medium text-gray-700 mb-2">
                   Category *
                 </label>
                 <select
+                  id="course-category"
                   value={formData.category_id}
                   onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
                   disabled={!canEdit}
@@ -489,10 +492,11 @@ export default function InstructorCourseEditPage() {
 
               {/* Level */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="course-level" className="block text-sm font-medium text-gray-700 mb-2">
                   Level
                 </label>
                 <select
+                  id="course-level"
                   value={formData.level}
                   onChange={(e) => setFormData({ ...formData, level: e.target.value as any })}
                   disabled={!canEdit}
@@ -506,10 +510,11 @@ export default function InstructorCourseEditPage() {
 
               {/* Duration */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="course-duration" className="block text-sm font-medium text-gray-700 mb-2">
                   Estimated Duration (minutes)
                 </label>
                 <input
+                  id="course-duration"
                   type="number"
                   value={formData.estimated_duration_minutes}
                   onChange={(e) => setFormData({ ...formData, estimated_duration_minutes: parseInt(e.target.value) || 0 })}

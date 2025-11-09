@@ -385,6 +385,8 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
                 <button
                   onClick={() => setSidebarOpen(false)}
                   className="lg:hidden text-gray-400 hover:text-gray-600 ml-2 flex-shrink-0"
+                  aria-label="Close sidebar"
+                  title="Close sidebar"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -490,6 +492,8 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
                   <button
                     onClick={() => setSidebarOpen(true)}
                     className="text-gray-600 hover:text-gray-900"
+                    aria-label="Open sidebar"
+                    title="Open sidebar"
                   >
                     <Menu className="w-6 h-6" />
                   </button>
@@ -631,6 +635,7 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
                           className="w-full h-full"
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                           allowFullScreen
+                          title={`${currentLesson.title} - Video lesson`}
                         />
                       ) : currentLesson.content_url.includes('vimeo.com') ? (
                         <iframe
@@ -638,6 +643,7 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
                           className="w-full h-full"
                           allow="autoplay; fullscreen; picture-in-picture"
                           allowFullScreen
+                          title={`${currentLesson.title} - Video lesson`}
                         />
                       ) : (
                         <video src={currentLesson.content_url} controls className="w-full h-full">

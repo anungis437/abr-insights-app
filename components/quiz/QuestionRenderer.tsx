@@ -559,6 +559,7 @@ function MatchingQuestion({
               onChange={(e) => handleMatch(leftItem.id, e.target.value)}
               disabled={disabled}
               className="w-full p-4 border rounded-lg"
+              aria-label={`Match for ${leftItem.option_text}`}
             >
               <option value="">Select match...</option>
               {rightItems.map((rightItem) => (

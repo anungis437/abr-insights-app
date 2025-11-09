@@ -448,10 +448,11 @@ export default function SSOConfigPage() {
               {/* Provider Type */}
               {!selectedProvider && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="provider-type" className="block text-sm font-medium text-gray-700 mb-2">
                     Provider Type
                   </label>
                   <select
+                    id="provider-type"
                     value={formData.provider_type}
                     onChange={(e) =>
                       setFormData({ ...formData, provider_type: e.target.value as 'azure_ad' | 'saml' })
@@ -467,10 +468,11 @@ export default function SSOConfigPage() {
               {/* Organization */}
               {!selectedProvider && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="organization" className="block text-sm font-medium text-gray-700 mb-2">
                     Organization
                   </label>
                   <select
+                    id="organization"
                     value={formData.organization_id}
                     onChange={(e) => setFormData({ ...formData, organization_id: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -648,6 +650,8 @@ export default function SSOConfigPage() {
                         type="button"
                         onClick={() => handleRemoveDomain(domain)}
                         className="hover:text-blue-900"
+                        aria-label={`Remove domain ${domain}`}
+                        title={`Remove domain ${domain}`}
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -688,8 +692,9 @@ export default function SSOConfigPage() {
 
               {/* Status */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                <label htmlFor="sso-status" className="block text-sm font-medium text-gray-700 mb-2">Status</label>
                 <select
+                  id="sso-status"
                   value={formData.status}
                   onChange={(e) =>
                     setFormData({ ...formData, status: e.target.value as 'active' | 'inactive' | 'testing' })

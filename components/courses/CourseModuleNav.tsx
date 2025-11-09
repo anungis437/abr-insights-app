@@ -295,7 +295,7 @@ export function CourseModuleNav({
                             onKeyDown={(e) => handleKeyDown(e, () => handleLessonClick(lesson))}
                             disabled={isLocked}
                             aria-current={isCurrent ? 'page' : undefined}
-                            aria-disabled={isLocked ? 'true' : 'false'}
+                            aria-disabled={isLocked}
                           >
                             {/* Lesson Icon */}
                             <span className="flex-shrink-0 mt-0.5">

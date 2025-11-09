@@ -156,6 +156,8 @@ export default function ResponsiveCoursePlayer({
             <button
               onClick={() => setShowModuleSheet(false)}
               className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+              aria-label="Close module list"
+              title="Close module list"
             >
               <X className="w-5 h-5" />
             </button>
@@ -329,6 +331,8 @@ export default function ResponsiveCoursePlayer({
             <button
               onClick={() => responsive.isMobile ? setShowModuleSheet(true) : setSidebarOpen(!sidebarOpen)}
               className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+              aria-label={responsive.isMobile ? "Open module list" : (sidebarOpen ? "Close sidebar" : "Open sidebar")}
+              title={responsive.isMobile ? "Open module list" : (sidebarOpen ? "Close sidebar" : "Open sidebar")}
             >
               <Menu className="w-5 h-5" />
             </button>
