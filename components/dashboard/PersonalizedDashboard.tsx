@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import {
   TrendingUp,
@@ -45,11 +45,7 @@ export default function PersonalizedDashboard({
   const [notifications, setNotifications] = useState<SmartNotification[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
-  useEffect(() => {
-    loadPersonalizationData()
-  }, [userId, currentCourseId])
-
-  const loadPersonalizationData = async () => {
+  const loadPersonalizationData = useCallback(async () => {
     setIsLoading(true)
     try {
       // Load all personalization data in parallel
@@ -81,7 +77,11 @@ export default function PersonalizedDashboard({
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [userId, currentCourseId, currentModuleId])
+
+  useEffect(() => {
+    loadPersonalizationData()
+  }, [loadPersonalizationData])
 
   if (isLoading) {
     return (

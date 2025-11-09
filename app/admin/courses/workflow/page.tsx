@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { courseWorkflowService, type CourseWorkflowSummary } from '@/lib/services/course-workflow'
@@ -42,15 +42,7 @@ export default function CourseWorkflowPage() {
     archived: 0
   })
 
-  useEffect(() => {
-    checkAuthAndLoadCourses()
-  }, [])
-
-  useEffect(() => {
-    filterCourses()
-  }, [courses, searchQuery, filterStatus])
-
-  const checkAuthAndLoadCourses = async () => {
+  const checkAuthAndLoadCourses = useCallback(async () => {
     const supabase = createClient()
     const { data: { user: currentUser } } = await supabase.auth.getUser()
     
@@ -80,7 +72,7 @@ export default function CourseWorkflowPage() {
 
     await loadCourses()
     setIsLoading(false)
-  }
+  }, [router])
 
   const loadCourses = async () => {
     try {
@@ -107,7 +99,7 @@ export default function CourseWorkflowPage() {
     }
   }
 
-  const filterCourses = () => {
+  const filterCourses = useCallback(() => {
     let filtered = courses
 
     // Filter by status
@@ -126,7 +118,15 @@ export default function CourseWorkflowPage() {
     }
 
     setFilteredCourses(filtered)
-  }
+  }, [courses, searchQuery, filterStatus])
+
+  useEffect(() => {
+    checkAuthAndLoadCourses()
+  }, [checkAuthAndLoadCourses])
+
+  useEffect(() => {
+    filterCourses()
+  }, [filterCourses])
 
   const toggleCourseSelection = (courseId: string) => {
     const newSelected = new Set(selectedCourses)

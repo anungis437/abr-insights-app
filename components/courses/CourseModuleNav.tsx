@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { ChevronDown, ChevronRight, CheckCircle, Circle, Lock, PlayCircle } from 'lucide-react'
 import { getCourseModules, getLessonProgress } from '@/lib/services/courses-enhanced'
 import type { CourseModule, Lesson, LessonProgress } from '@/lib/types/courses'
@@ -33,11 +33,7 @@ export function CourseModuleNav({
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    loadModulesAndProgress()
-  }, [courseId, userId])
-
-  const loadModulesAndProgress = async () => {
+  const loadModulesAndProgress = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -83,7 +79,11 @@ export function CourseModuleNav({
     } finally {
       setLoading(false)
     }
-  }
+  }, [courseId, userId, currentLessonId])
+
+  useEffect(() => {
+    loadModulesAndProgress()
+  }, [loadModulesAndProgress])
 
   const toggleModule = (moduleId: string) => {
     setExpandedModules(prev => {

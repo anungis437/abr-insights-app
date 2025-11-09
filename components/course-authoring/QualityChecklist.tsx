@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { CheckCircle2, Circle, AlertCircle, Info } from 'lucide-react';
 import { courseWorkflowService, type QualityChecklist } from '@/lib/services/course-workflow';
 
@@ -180,11 +180,7 @@ export default function QualityChecklist({
     new Set(CHECKLIST_CATEGORIES.map(cat => cat.name))
   );
 
-  useEffect(() => {
-    loadChecklist();
-  }, [courseId]);
-
-  const loadChecklist = async () => {
+  const loadChecklist = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -196,7 +192,11 @@ export default function QualityChecklist({
     } finally {
       setLoading(false);
     }
-  };
+  }, [courseId]);
+
+  useEffect(() => {
+    loadChecklist();
+  }, [loadChecklist]);
 
   const handleToggleItem = async (itemId: string) => {
     if (readOnly || !checklist) return;
