@@ -232,6 +232,7 @@ const roleSpecificNavigation: Record<UserRole, NavLink[]> = {
         { label: 'Users', href: '/admin/users', icon: Users },
         { label: 'Cases', href: '/admin/cases', icon: FileText },
         { label: 'Courses', href: '/admin/courses', icon: GraduationCap },
+        { label: 'ML Features', href: '/admin/ml', icon: Cpu },
         { label: 'AI Models', href: '/admin/ai-models', icon: Cpu },
         { label: 'Ingestion', href: '/admin/ingestion', icon: Database },
         { label: 'Analytics', href: '/admin/analytics', icon: BarChart3 },

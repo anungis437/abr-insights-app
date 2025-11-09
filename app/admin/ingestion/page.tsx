@@ -13,13 +13,12 @@ interface RawCase {
   case_number: string;
   decision_date: string;
   full_text: string;
-  rule_based_confidence: number;
-  ai_confidence: number;
-  final_confidence: number;
-  ai_category: string;
+  rule_based_classification: any;
+  ai_classification: any;
+  combined_confidence: number;
+  discrimination_grounds: string[];
   needs_review: boolean;
-  ingestion_status: string;
-  grounds_detected: string[];
+  promotion_status: string;
   created_at: string;
 }
 
@@ -41,11 +40,11 @@ export default function IngestionReviewPage() {
         .limit(50);
 
       if (filter === 'pending') {
-        query = query.eq('ingestion_status', 'pending_review');
+        query = query.eq('promotion_status', 'pending');
       } else if (filter === 'approved') {
-        query = query.eq('ingestion_status', 'approved');
+        query = query.eq('promotion_status', 'approved');
       } else if (filter === 'rejected') {
-        query = query.eq('ingestion_status', 'rejected');
+        query = query.eq('promotion_status', 'rejected');
       }
 
       const { data, error } = await query;
@@ -114,7 +113,7 @@ export default function IngestionReviewPage() {
       // Mark as approved in raw table
       const { error: updateError } = await supabase
         .from('tribunal_cases_raw')
-        .update({ ingestion_status: 'approved', reviewed_at: new Date().toISOString() })
+        .update({ promotion_status: 'approved', reviewed_at: new Date().toISOString() })
         .eq('id', caseId);
 
       if (updateError) {
@@ -132,7 +131,7 @@ export default function IngestionReviewPage() {
   async function rejectCase(caseId: string) {
     const { error } = await supabase
       .from('tribunal_cases_raw')
-      .update({ ingestion_status: 'rejected', reviewed_at: new Date().toISOString() })
+      .update({ promotion_status: 'rejected', reviewed_at: new Date().toISOString() })
       .eq('id', caseId);
 
     if (error) {
@@ -214,12 +213,12 @@ export default function IngestionReviewPage() {
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-2 mb-2">
-                  {getCategoryBadge(caseItem.ai_category)}
-                  {getConfidenceBadge(caseItem.final_confidence)}
+                  {getCategoryBadge(caseItem.ai_classification?.category || 'unknown')}
+                  {getConfidenceBadge(caseItem.combined_confidence || 0)}
                   {caseItem.needs_review && <Badge variant="destructive">Needs Review</Badge>}
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  {caseItem.grounds_detected?.join(', ') || 'No grounds detected'}
+                  {caseItem.discrimination_grounds?.join(', ') || 'No grounds detected'}
                 </div>
               </div>
             ))}
@@ -249,26 +248,26 @@ export default function IngestionReviewPage() {
                   </div>
 
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {getCategoryBadge(selectedCase.ai_category)}
-                    {getConfidenceBadge(selectedCase.final_confidence)}
+                    {getCategoryBadge(selectedCase.ai_classification?.category || 'unknown')}
+                    {getConfidenceBadge(selectedCase.combined_confidence || 0)}
                     {selectedCase.needs_review && <Badge variant="destructive">Needs Review</Badge>}
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
                     <div>
                       <div className="font-semibold">Rule-Based</div>
-                      <div>{(selectedCase.rule_based_confidence * 100).toFixed(0)}%</div>
+                      <div>{((selectedCase.rule_based_classification?.confidence || 0) * 100).toFixed(0)}%</div>
                     </div>
                     <div>
                       <div className="font-semibold">AI Confidence</div>
-                      <div>{(selectedCase.ai_confidence * 100).toFixed(0)}%</div>
+                      <div>{((selectedCase.ai_classification?.confidence || 0) * 100).toFixed(0)}%</div>
                     </div>
                   </div>
 
                   <div className="mb-4">
                     <div className="font-semibold mb-1">Detected Grounds</div>
                     <div className="flex flex-wrap gap-2">
-                      {selectedCase.grounds_detected?.map((ground) => (
+                      {selectedCase.discrimination_grounds?.map((ground: string) => (
                         <Badge key={ground} variant="outline">
                           {ground.replace(/_/g, ' ')}
                         </Badge>
@@ -285,7 +284,7 @@ export default function IngestionReviewPage() {
                   </div>
                 </div>
 
-                {selectedCase.ingestion_status === 'pending_review' && (
+                {selectedCase.promotion_status === 'pending' && (
                   <div className="flex gap-2 pt-4 border-t">
                     <button
                       onClick={() => approveCase(selectedCase.id)}

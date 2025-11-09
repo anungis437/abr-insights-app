@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import {
@@ -317,9 +318,94 @@ export default function AdminUsersPage() {
                 </div>
               </div>
             </div>
-            {/* ...existing code... */}
+
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-lg bg-blue-100 p-3">
+                    <Users className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Total Users</p>
+                    <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-lg bg-green-100 p-3">
+                    <UserCheck className="h-6 w-6 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Active Users</p>
+                    <p className="text-2xl font-bold text-gray-900">{stats.active}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-lg bg-purple-100 p-3">
+                    <CheckCircle className="h-6 w-6 text-purple-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Onboarded</p>
+                    <p className="text-2xl font-bold text-gray-900">{stats.onboarded}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-lg bg-yellow-100 p-3">
+                    <Activity className="h-6 w-6 text-yellow-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Active (30d)</p>
+                    <p className="text-2xl font-bold text-gray-900">{recentUsers}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Search and Filters */}
+            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm mb-6">
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-1">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <input
+                      type="search"
+                      placeholder="Search by name, email, or job title..."
+                      className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <select
+                    className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                    title="Filter by status"
+                  >
+                    <option value="all">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="invited">Invited</option>
+                    <option value="suspended">Suspended</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                  <button className="px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 flex items-center gap-2">
+                    <Filter className="h-4 w-4" />
+                    More Filters
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
-          {/* ...existing code... */}
           {/* Users List with Role Edit */}
           <div className="space-y-4">
             {filteredUsers.length === 0 ? (
@@ -356,9 +442,12 @@ export default function AdminUsersPage() {
                         <div className="flex items-start justify-between mb-2">
                           <div className="flex-1">
                             <div className="flex items-center gap-3 mb-2">
-                              <h3 className="text-xl font-semibold text-gray-900">
+                              <Link 
+                                href={`/admin/users/${profile.id}`}
+                                className="text-xl font-semibold text-gray-900 hover:text-purple-600 transition-colors"
+                              >
                                 {profile.display_name || `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'No name'}
-                              </h3>
+                              </Link>
                               <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                                 profile.status === 'active' ? 'bg-green-100 text-green-800' :
                                 profile.status === 'invited' ? 'bg-yellow-100 text-yellow-800' :

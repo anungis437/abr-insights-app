@@ -54,8 +54,8 @@ async function validateGamification() {
         console.log(`✅ ${table}: ${count || 0} rows`);
         successCount++;
       }
-    } catch (err) {
-      console.log(`❌ ${table}: ${err.message}`);
+    } catch (err: any) {
+      console.log(`❌ ${table}: ${err?.message || String(err)}`);
       failCount++;
     }
   }

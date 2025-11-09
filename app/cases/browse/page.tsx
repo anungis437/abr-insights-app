@@ -14,7 +14,7 @@
 import { useEffect, useState, Suspense, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
 
 // ============================================================================
 // TYPES
@@ -68,6 +68,7 @@ interface CasesResponse {
 function CasesBrowserContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const supabase = createClient();
   
   const [cases, setCases] = useState<Case[]>([]);
   const [pagination, setPagination] = useState<PaginationInfo | null>(null);

@@ -72,10 +72,13 @@ CREATE TABLE certificate_templates (
   -- Metadata
   created_by UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  
-  CONSTRAINT unique_default_per_type UNIQUE (template_type, is_default) WHERE is_default = true
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- Unique index to ensure only one default template per type
+CREATE UNIQUE INDEX unique_default_per_type 
+  ON certificate_templates(template_type) 
+  WHERE is_default = true;
 
 -- Indexes
 CREATE INDEX idx_certificate_templates_type ON certificate_templates(template_type);

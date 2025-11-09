@@ -4,7 +4,7 @@
 -- =====================================================
 
 -- Points Sources (defines how points can be earned)
-CREATE TABLE points_sources (
+CREATE TABLE IF NOT EXISTS points_sources (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     
     -- Source Definition
@@ -34,7 +34,7 @@ CREATE TABLE points_sources (
 );
 
 -- User Points (aggregate points balance)
-CREATE TABLE user_points (
+CREATE TABLE IF NOT EXISTS user_points (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE UNIQUE,
     
@@ -64,7 +64,7 @@ CREATE TABLE user_points (
 );
 
 -- Points Transactions (detailed transaction history)
-CREATE TABLE points_transactions (
+CREATE TABLE IF NOT EXISTS points_transactions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
     
@@ -98,7 +98,7 @@ CREATE TABLE points_transactions (
 );
 
 -- Rewards Catalog (items users can redeem with points)
-CREATE TABLE rewards_catalog (
+CREATE TABLE IF NOT EXISTS rewards_catalog (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     
     -- Reward Details
@@ -143,7 +143,7 @@ CREATE TABLE rewards_catalog (
 );
 
 -- User Rewards (track redeemed rewards)
-CREATE TABLE user_rewards (
+CREATE TABLE IF NOT EXISTS user_rewards (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
     reward_id UUID REFERENCES rewards_catalog(id),
@@ -174,7 +174,7 @@ CREATE TABLE user_rewards (
 );
 
 -- Leaderboards (different leaderboard types)
-CREATE TABLE leaderboards (
+CREATE TABLE IF NOT EXISTS leaderboards (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     
     -- Leaderboard Details
@@ -207,7 +207,7 @@ CREATE TABLE leaderboards (
 );
 
 -- Leaderboard Entries (positions on leaderboards)
-CREATE TABLE leaderboard_entries (
+CREATE TABLE IF NOT EXISTS leaderboard_entries (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     leaderboard_id UUID REFERENCES leaderboards(id) ON DELETE CASCADE,
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
@@ -240,7 +240,7 @@ CREATE TABLE leaderboard_entries (
 );
 
 -- User Levels (gamified level system)
-CREATE TABLE user_levels (
+CREATE TABLE IF NOT EXISTS user_levels (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE UNIQUE,
     
@@ -264,38 +264,38 @@ CREATE TABLE user_levels (
 );
 
 -- Indexes for Performance
-CREATE INDEX idx_points_sources_category ON points_sources(category);
-CREATE INDEX idx_points_sources_active ON points_sources(is_active) WHERE is_active = TRUE;
+CREATE INDEX IF NOT EXISTS idx_points_sources_category ON points_sources(category);
+CREATE INDEX IF NOT EXISTS idx_points_sources_active ON points_sources(is_active) WHERE is_active = TRUE;
 
-CREATE INDEX idx_user_points_user ON user_points(user_id);
-CREATE INDEX idx_user_points_balance ON user_points(current_balance DESC);
-CREATE INDEX idx_user_points_week ON user_points(points_this_week DESC);
-CREATE INDEX idx_user_points_month ON user_points(points_this_month DESC);
+CREATE INDEX IF NOT EXISTS idx_user_points_user ON user_points(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_points_balance ON user_points(current_balance DESC);
+CREATE INDEX IF NOT EXISTS idx_user_points_week ON user_points(points_this_week DESC);
+CREATE INDEX IF NOT EXISTS idx_user_points_month ON user_points(points_this_month DESC);
 
-CREATE INDEX idx_points_transactions_user ON points_transactions(user_id);
-CREATE INDEX idx_points_transactions_created ON points_transactions(created_at DESC);
-CREATE INDEX idx_points_transactions_type ON points_transactions(transaction_type);
-CREATE INDEX idx_points_transactions_source ON points_transactions(source_type, source_id);
+CREATE INDEX IF NOT EXISTS idx_points_transactions_user ON points_transactions(user_id);
+CREATE INDEX IF NOT EXISTS idx_points_transactions_created ON points_transactions(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_points_transactions_type ON points_transactions(transaction_type);
+CREATE INDEX IF NOT EXISTS idx_points_transactions_source ON points_transactions(source_type, source_id);
 
-CREATE INDEX idx_rewards_catalog_available ON rewards_catalog(is_available) WHERE is_available = TRUE;
-CREATE INDEX idx_rewards_catalog_type ON rewards_catalog(reward_type);
-CREATE INDEX idx_rewards_catalog_cost ON rewards_catalog(points_cost);
+CREATE INDEX IF NOT EXISTS idx_rewards_catalog_available ON rewards_catalog(is_available) WHERE is_available = TRUE;
+CREATE INDEX IF NOT EXISTS idx_rewards_catalog_type ON rewards_catalog(reward_type);
+CREATE INDEX IF NOT EXISTS idx_rewards_catalog_cost ON rewards_catalog(points_cost);
 
-CREATE INDEX idx_user_rewards_user ON user_rewards(user_id);
-CREATE INDEX idx_user_rewards_status ON user_rewards(status);
-CREATE INDEX idx_user_rewards_redeemed ON user_rewards(redeemed_at DESC);
+CREATE INDEX IF NOT EXISTS idx_user_rewards_user ON user_rewards(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_rewards_status ON user_rewards(status);
+CREATE INDEX IF NOT EXISTS idx_user_rewards_redeemed ON user_rewards(redeemed_at DESC);
 
-CREATE INDEX idx_leaderboards_type ON leaderboards(leaderboard_type);
-CREATE INDEX idx_leaderboards_period ON leaderboards(time_period);
-CREATE INDEX idx_leaderboards_active ON leaderboards(is_active) WHERE is_active = TRUE;
+CREATE INDEX IF NOT EXISTS idx_leaderboards_type ON leaderboards(leaderboard_type);
+CREATE INDEX IF NOT EXISTS idx_leaderboards_period ON leaderboards(time_period);
+CREATE INDEX IF NOT EXISTS idx_leaderboards_active ON leaderboards(is_active) WHERE is_active = TRUE;
 
-CREATE INDEX idx_leaderboard_entries_board ON leaderboard_entries(leaderboard_id);
-CREATE INDEX idx_leaderboard_entries_user ON leaderboard_entries(user_id);
-CREATE INDEX idx_leaderboard_entries_rank ON leaderboard_entries(leaderboard_id, rank);
-CREATE INDEX idx_leaderboard_entries_score ON leaderboard_entries(leaderboard_id, score DESC);
+CREATE INDEX IF NOT EXISTS idx_leaderboard_entries_board ON leaderboard_entries(leaderboard_id);
+CREATE INDEX IF NOT EXISTS idx_leaderboard_entries_user ON leaderboard_entries(user_id);
+CREATE INDEX IF NOT EXISTS idx_leaderboard_entries_rank ON leaderboard_entries(leaderboard_id, rank);
+CREATE INDEX IF NOT EXISTS idx_leaderboard_entries_score ON leaderboard_entries(leaderboard_id, score DESC);
 
-CREATE INDEX idx_user_levels_user ON user_levels(user_id);
-CREATE INDEX idx_user_levels_level ON user_levels(current_level DESC);
+CREATE INDEX IF NOT EXISTS idx_user_levels_user ON user_levels(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_levels_level ON user_levels(current_level DESC);
 
 -- Enable RLS
 ALTER TABLE points_sources ENABLE ROW LEVEL SECURITY;

@@ -4,7 +4,7 @@
 -- =====================================================
 
 -- Extended User Profiles (social/public profile information)
-CREATE TABLE user_profiles_extended (
+CREATE TABLE IF NOT EXISTS user_profiles_extended (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE UNIQUE,
     
@@ -68,7 +68,7 @@ CREATE TABLE user_profiles_extended (
 );
 
 -- User Follows (social following system)
-CREATE TABLE user_follows (
+CREATE TABLE IF NOT EXISTS user_follows (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     follower_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
     following_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
@@ -92,7 +92,7 @@ CREATE TABLE user_follows (
 );
 
 -- Study Buddies (matched learning partners)
-CREATE TABLE study_buddies (
+CREATE TABLE IF NOT EXISTS study_buddies (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
     buddy_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
@@ -128,7 +128,7 @@ CREATE TABLE study_buddies (
 );
 
 -- User Activity Feed (social activity stream)
-CREATE TABLE user_activity_feed (
+CREATE TABLE IF NOT EXISTS user_activity_feed (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
     
@@ -161,7 +161,7 @@ CREATE TABLE user_activity_feed (
 );
 
 -- Activity Reactions (likes, etc.)
-CREATE TABLE activity_reactions (
+CREATE TABLE IF NOT EXISTS activity_reactions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     activity_id UUID REFERENCES user_activity_feed(id) ON DELETE CASCADE,
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
@@ -176,7 +176,7 @@ CREATE TABLE activity_reactions (
 );
 
 -- Activity Comments
-CREATE TABLE activity_comments (
+CREATE TABLE IF NOT EXISTS activity_comments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     activity_id UUID REFERENCES user_activity_feed(id) ON DELETE CASCADE,
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
@@ -200,7 +200,7 @@ CREATE TABLE activity_comments (
 );
 
 -- Social Shares (tracking external shares)
-CREATE TABLE social_shares (
+CREATE TABLE IF NOT EXISTS social_shares (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
     
@@ -225,7 +225,7 @@ CREATE TABLE social_shares (
 );
 
 -- Group Challenges (collaborative competitions)
-CREATE TABLE group_challenges (
+CREATE TABLE IF NOT EXISTS group_challenges (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     
     -- Challenge Details
@@ -266,7 +266,7 @@ CREATE TABLE group_challenges (
 );
 
 -- Challenge Participants
-CREATE TABLE challenge_participants (
+CREATE TABLE IF NOT EXISTS challenge_participants (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     challenge_id UUID REFERENCES group_challenges(id) ON DELETE CASCADE,
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
@@ -292,7 +292,7 @@ CREATE TABLE challenge_participants (
 );
 
 -- Challenge Updates (activity feed for challenges)
-CREATE TABLE challenge_updates (
+CREATE TABLE IF NOT EXISTS challenge_updates (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     challenge_id UUID REFERENCES group_challenges(id) ON DELETE CASCADE,
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
@@ -310,7 +310,7 @@ CREATE TABLE challenge_updates (
 );
 
 -- Study Sessions (tracked study time with buddies or alone)
-CREATE TABLE study_sessions (
+CREATE TABLE IF NOT EXISTS study_sessions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
     
@@ -344,50 +344,50 @@ CREATE TABLE study_sessions (
 );
 
 -- Indexes for Performance
-CREATE INDEX idx_user_profiles_extended_user ON user_profiles_extended(user_id);
-CREATE INDEX idx_user_profiles_extended_visibility ON user_profiles_extended(profile_visibility);
-CREATE INDEX idx_user_profiles_extended_interests ON user_profiles_extended USING GIN(interests);
-CREATE INDEX idx_user_profiles_extended_skills ON user_profiles_extended USING GIN(skill_tags);
+CREATE INDEX IF NOT EXISTS idx_user_profiles_extended_user ON user_profiles_extended(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_profiles_extended_visibility ON user_profiles_extended(profile_visibility);
+CREATE INDEX IF NOT EXISTS idx_user_profiles_extended_interests ON user_profiles_extended USING GIN(interests);
+CREATE INDEX IF NOT EXISTS idx_user_profiles_extended_skills ON user_profiles_extended USING GIN(skill_tags);
 
-CREATE INDEX idx_user_follows_follower ON user_follows(follower_id);
-CREATE INDEX idx_user_follows_following ON user_follows(following_id);
-CREATE INDEX idx_user_follows_active ON user_follows(is_active) WHERE is_active = TRUE;
+CREATE INDEX IF NOT EXISTS idx_user_follows_follower ON user_follows(follower_id);
+CREATE INDEX IF NOT EXISTS idx_user_follows_following ON user_follows(following_id);
+CREATE INDEX IF NOT EXISTS idx_user_follows_active ON user_follows(is_active) WHERE is_active = TRUE;
 
-CREATE INDEX idx_study_buddies_user ON study_buddies(user_id);
-CREATE INDEX idx_study_buddies_buddy ON study_buddies(buddy_id);
-CREATE INDEX idx_study_buddies_status ON study_buddies(status);
-CREATE INDEX idx_study_buddies_courses ON study_buddies USING GIN(target_courses);
+CREATE INDEX IF NOT EXISTS idx_study_buddies_user ON study_buddies(user_id);
+CREATE INDEX IF NOT EXISTS idx_study_buddies_buddy ON study_buddies(buddy_id);
+CREATE INDEX IF NOT EXISTS idx_study_buddies_status ON study_buddies(status);
+CREATE INDEX IF NOT EXISTS idx_study_buddies_courses ON study_buddies USING GIN(target_courses);
 
-CREATE INDEX idx_activity_feed_user ON user_activity_feed(user_id);
-CREATE INDEX idx_activity_feed_type ON user_activity_feed(activity_type);
-CREATE INDEX idx_activity_feed_created ON user_activity_feed(created_at DESC);
-CREATE INDEX idx_activity_feed_visibility ON user_activity_feed(visibility);
+CREATE INDEX IF NOT EXISTS idx_activity_feed_user ON user_activity_feed(user_id);
+CREATE INDEX IF NOT EXISTS idx_activity_feed_type ON user_activity_feed(activity_type);
+CREATE INDEX IF NOT EXISTS idx_activity_feed_created ON user_activity_feed(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_activity_feed_visibility ON user_activity_feed(visibility);
 
-CREATE INDEX idx_activity_reactions_activity ON activity_reactions(activity_id);
-CREATE INDEX idx_activity_reactions_user ON activity_reactions(user_id);
+CREATE INDEX IF NOT EXISTS idx_activity_reactions_activity ON activity_reactions(activity_id);
+CREATE INDEX IF NOT EXISTS idx_activity_reactions_user ON activity_reactions(user_id);
 
-CREATE INDEX idx_activity_comments_activity ON activity_comments(activity_id);
-CREATE INDEX idx_activity_comments_user ON activity_comments(user_id);
-CREATE INDEX idx_activity_comments_parent ON activity_comments(parent_comment_id);
+CREATE INDEX IF NOT EXISTS idx_activity_comments_activity ON activity_comments(activity_id);
+CREATE INDEX IF NOT EXISTS idx_activity_comments_user ON activity_comments(user_id);
+CREATE INDEX IF NOT EXISTS idx_activity_comments_parent ON activity_comments(parent_comment_id);
 
-CREATE INDEX idx_social_shares_user ON social_shares(user_id);
-CREATE INDEX idx_social_shares_content ON social_shares(content_type, content_id);
-CREATE INDEX idx_social_shares_platform ON social_shares(platform);
+CREATE INDEX IF NOT EXISTS idx_social_shares_user ON social_shares(user_id);
+CREATE INDEX IF NOT EXISTS idx_social_shares_content ON social_shares(content_type, content_id);
+CREATE INDEX IF NOT EXISTS idx_social_shares_platform ON social_shares(platform);
 
-CREATE INDEX idx_group_challenges_status ON group_challenges(status);
-CREATE INDEX idx_group_challenges_dates ON group_challenges(starts_at, ends_at);
-CREATE INDEX idx_group_challenges_public ON group_challenges(is_public) WHERE is_public = TRUE;
+CREATE INDEX IF NOT EXISTS idx_group_challenges_status ON group_challenges(status);
+CREATE INDEX IF NOT EXISTS idx_group_challenges_dates ON group_challenges(starts_at, ends_at);
+CREATE INDEX IF NOT EXISTS idx_group_challenges_public ON group_challenges(is_public) WHERE is_public = TRUE;
 
-CREATE INDEX idx_challenge_participants_challenge ON challenge_participants(challenge_id);
-CREATE INDEX idx_challenge_participants_user ON challenge_participants(user_id);
-CREATE INDEX idx_challenge_participants_rank ON challenge_participants(challenge_id, rank);
+CREATE INDEX IF NOT EXISTS idx_challenge_participants_challenge ON challenge_participants(challenge_id);
+CREATE INDEX IF NOT EXISTS idx_challenge_participants_user ON challenge_participants(user_id);
+CREATE INDEX IF NOT EXISTS idx_challenge_participants_rank ON challenge_participants(challenge_id, rank);
 
-CREATE INDEX idx_challenge_updates_challenge ON challenge_updates(challenge_id);
-CREATE INDEX idx_challenge_updates_created ON challenge_updates(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_challenge_updates_challenge ON challenge_updates(challenge_id);
+CREATE INDEX IF NOT EXISTS idx_challenge_updates_created ON challenge_updates(created_at DESC);
 
-CREATE INDEX idx_study_sessions_user ON study_sessions(user_id);
-CREATE INDEX idx_study_sessions_dates ON study_sessions(started_at, ended_at);
-CREATE INDEX idx_study_sessions_type ON study_sessions(session_type);
+CREATE INDEX IF NOT EXISTS idx_study_sessions_user ON study_sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_study_sessions_dates ON study_sessions(started_at, ended_at);
+CREATE INDEX IF NOT EXISTS idx_study_sessions_type ON study_sessions(session_type);
 
 -- Enable RLS
 ALTER TABLE user_profiles_extended ENABLE ROW LEVEL SECURITY;
