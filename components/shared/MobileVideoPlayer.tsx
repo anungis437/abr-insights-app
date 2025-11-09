@@ -13,6 +13,7 @@ import {
   Settings,
   Download,
 } from 'lucide-react'
+import { logger } from '@/lib/utils/logger'
 import { useOnlineStatus } from '@/lib/hooks/usePWA'
 
 interface MobileVideoPlayerProps {
@@ -193,7 +194,7 @@ export default function MobileVideoPlayer({
           try {
             await (screen.orientation as any).lock('landscape')
           } catch (e) {
-            console.log('Orientation lock not supported')
+            logger.debug('Orientation lock not supported', { error: e })
           }
         }
       } else {

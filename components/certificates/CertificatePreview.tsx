@@ -7,6 +7,8 @@
 'use client'
 
 import React, { useState } from 'react'
+import Image from 'next/image'
+import { logger } from '@/lib/utils/logger'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -155,7 +157,7 @@ export default function CertificatePreview({
         })
       } catch (error) {
         // User cancelled or error occurred
-        console.log('Share cancelled or failed:', error)
+        logger.debug('Share cancelled or failed', { error })
       }
     } else {
       // Fallback: Copy to clipboard
@@ -318,9 +320,11 @@ export default function CertificatePreview({
             <div className="flex flex-col md:flex-row items-center gap-6">
               {/* QR Code */}
               <div className="flex-shrink-0">
-                <img 
+                <Image 
                   src={certificate.qr_code_data} 
                   alt="Certificate QR Code"
+                  width={128}
+                  height={128}
                   className="w-32 h-32 border rounded"
                 />
               </div>

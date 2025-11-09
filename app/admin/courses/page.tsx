@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { logger } from '@/lib/utils/logger'
 import { 
@@ -368,9 +369,11 @@ export default function AdminCoursesPage() {
                     {/* Thumbnail */}
                     <div className="flex-shrink-0">
                       {course.thumbnail_url ? (
-                        <img
+                        <Image
                           src={course.thumbnail_url}
                           alt={course.title}
+                          width={128}
+                          height={96}
                           className="w-32 h-24 object-cover rounded-lg"
                         />
                       ) : (

@@ -4,6 +4,7 @@
  * Part of Phase 4: Public Site Enhancement
  */
 
+import Image from 'next/image'
 import { Star, Quote } from 'lucide-react'
 
 interface Testimonial {
@@ -79,9 +80,11 @@ function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
       <div className="flex items-center gap-4">
         {testimonial.photo_url ? (
           <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-full bg-gray-200">
-            <img
+            <Image
               src={testimonial.photo_url}
               alt={testimonial.name}
+              width={48}
+              height={48}
               className="h-full w-full object-cover"
             />
           </div>
