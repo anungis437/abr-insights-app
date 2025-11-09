@@ -20,6 +20,7 @@ export type Profile = {
   timezone: string
   status: 'active' | 'inactive' | 'suspended' | 'invited'
   onboarding_completed: boolean
+  subscription_tier: 'free' | 'professional' | 'enterprise' | null
   last_login_at: string | null
   created_at: string
   updated_at: string
