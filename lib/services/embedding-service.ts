@@ -17,6 +17,7 @@
 
 import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
+import { logger } from '@/lib/utils/logger'
 
 // =====================================================
 // Configuration
@@ -214,7 +215,7 @@ export async function generateCaseEmbedding(
     .single()
 
   if (existingEmbedding && existingEmbedding.content_hash === contentHash) {
-    console.log(`Embedding for case ${caseId} (${embeddingType}) already up-to-date`)
+    logger.info(`Embedding for case ${caseId} (${embeddingType}) already up-to-date`)
     return
   }
 
@@ -252,7 +253,7 @@ export async function generateCaseEmbedding(
     }
   }
 
-  console.log(`Generated embedding for case ${caseId} (${embeddingType}): ${result.tokenCount} tokens`)
+  logger.info(`Generated embedding for case ${caseId} (${embeddingType}): ${result.tokenCount} tokens`)
 }
 
 /**
@@ -339,7 +340,7 @@ export async function generateAllCaseEmbeddings(
         })
         .eq('id', jobId)
 
-      console.log(`Processed ${processedItems}/${totalItems} cases`)
+      logger.info(`Processed ${processedItems}/${totalItems} cases`)
     }
 
     // Calculate metrics
@@ -458,7 +459,7 @@ export async function generateCourseEmbedding(
     .single()
 
   if (existingEmbedding && existingEmbedding.content_hash === contentHash) {
-    console.log(`Embedding for course ${courseId} (${embeddingType}) already up-to-date`)
+    logger.info(`Embedding for course ${courseId} (${embeddingType}) already up-to-date`)
     return
   }
 
@@ -494,7 +495,7 @@ export async function generateCourseEmbedding(
     }
   }
 
-  console.log(`Generated embedding for course ${courseId} (${embeddingType}): ${result.tokenCount} tokens`)
+  logger.info(`Generated embedding for course ${courseId} (${embeddingType}): ${result.tokenCount} tokens`)
 }
 
 /**
@@ -574,7 +575,7 @@ export async function generateAllCourseEmbeddings(
         })
         .eq('id', jobId)
 
-      console.log(`Processed ${processedItems}/${totalItems} courses`)
+      logger.info(`Processed ${processedItems}/${totalItems} courses`)
     }
 
     const durationSeconds = (Date.now() - startTime) / 1000

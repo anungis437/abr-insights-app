@@ -6,6 +6,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import { logger } from '@/lib/utils/logger';
 
 // =====================================================
 // Types
@@ -50,7 +51,7 @@ export function useServiceWorker() {
       navigator.serviceWorker
         .register('/sw.js')
         .then((reg) => {
-          console.log('[PWA] Service Worker registered:', reg);
+          logger.info('[PWA] Service Worker registered', { scope: reg.scope });
           setRegistration(reg);
 
           // Check for updates
@@ -104,7 +105,7 @@ export function useOnlineStatus() {
 
     const handleOnline = () => {
       setIsOnline(true);
-      console.log('[PWA] Back online');
+      logger.info('[PWA] Back online');
       
       // Trigger sync
       if ('serviceWorker' in navigator && 'sync' in ServiceWorkerRegistration.prototype) {
@@ -122,7 +123,7 @@ export function useOnlineStatus() {
 
     const handleOffline = () => {
       setIsOnline(false);
-      console.log('[PWA] Gone offline');
+      logger.info('[PWA] Gone offline');
     };
 
     window.addEventListener('online', handleOnline);
@@ -154,13 +155,13 @@ export function useInstallPrompt() {
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setInstallPrompt(e as BeforeInstallPromptEvent);
-      console.log('[PWA] Install prompt available');
+      logger.info('[PWA] Install prompt available');
     };
 
     const handleAppInstalled = () => {
       setIsInstalled(true);
       setInstallPrompt(null);
-      console.log('[PWA] App installed');
+      logger.info('[PWA] App installed');
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -181,7 +182,7 @@ export function useInstallPrompt() {
     await installPrompt.prompt();
     const { outcome } = await installPrompt.userChoice;
     
-    console.log('[PWA] Install prompt outcome:', outcome);
+    logger.info('[PWA] Install prompt outcome', { outcome });
     
     if (outcome === 'accepted') {
       setInstallPrompt(null);
@@ -539,9 +540,9 @@ export class OfflineQueue {
     for (const item of toProcess) {
       try {
         await fetch(item.url, item.options);
-        console.log('[PWA] Processed offline request:', item.url);
+        logger.info('[PWA] Processed offline request', { url: item.url });
       } catch (error) {
-        console.error('[PWA] Failed to process offline request:', error);
+        logger.error('[PWA] Failed to process offline request', error, { url: item.url });
         this.queue.push(item); // Re-add on failure
       }
     }

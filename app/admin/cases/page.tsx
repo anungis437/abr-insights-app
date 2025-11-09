@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { logger } from '@/lib/utils/logger'
 import { 
   Scale, 
   Plus, 
@@ -49,9 +50,9 @@ export default function AdminCasesPage() {
       // Check auth
       const { data: { user: currentUser } } = await supabase.auth.getUser()
       
-      console.log('[Cases Page] Current user:', currentUser?.id, currentUser?.email)
+      logger.auth('Current user check', { userId: currentUser?.id, email: currentUser?.email })
       if (!currentUser) {
-        console.log('[Cases Page] No user found, redirecting to login')
+        logger.auth('No user found, redirecting to login')
         router.push('/auth/login')
         return
       }
@@ -65,8 +66,10 @@ export default function AdminCasesPage() {
         .eq('id', currentUser.id)
         .single()
 
-      console.log('[Cases Page] Profile data:', profileData)
-      console.log('[Cases Page] Profile error:', profileError)
+      logger.db('Profile lookup', 'profiles', { userId: currentUser.id, hasData: !!profileData })
+      if (profileError) {
+        logger.error('Profile fetch error', profileError)
+      }
 
       const isAdmin = 
         profileData?.role === 'super_admin' ||
@@ -74,16 +77,16 @@ export default function AdminCasesPage() {
         profileData?.role === 'compliance_officer' ||
         profileData?.role === 'educator'
 
-      console.log('[Cases Page] User role:', profileData?.role, 'isAdmin:', isAdmin)
+      logger.auth('User role check', { role: profileData?.role, isAdmin })
 
       if (!isAdmin) {
-        console.log('[Cases Page] Unauthorized, redirecting to dashboard')
+        logger.warn('Unauthorized, redirecting to home', { role: profileData?.role })
         router.push('/')
         setIsLoading(false)
         return
       }
 
-      console.log('[Cases Page] Authorization successful, loading cases')
+      logger.auth('Authorization successful, loading cases')
       // Load cases
       const { data: casesData, error } = await supabase
         .from('tribunal_cases')
