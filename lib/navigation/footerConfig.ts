@@ -56,8 +56,7 @@ const authenticatedFooterSections: FooterSection[] = [
     links: [
       { label: 'Dashboard', href: '/dashboard' },
       { label: 'My Learning', href: '/training' },
-      { label: 'Team', href: '/team' },
-      { label: 'Analytics', href: '/analytics' },
+      { label: 'Browse Cases', href: '/cases/browse' },
       { label: 'Profile', href: '/profile' },
       { label: 'Settings', href: '/profile/settings' },
     ]

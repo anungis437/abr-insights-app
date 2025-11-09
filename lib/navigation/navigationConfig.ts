@@ -101,7 +101,7 @@ const authenticatedBaseNavigation: NavLink[] = [
     children: [
       { label: 'My Courses', href: '/training', icon: BookOpen },
       { label: 'Browse Catalog', href: '/courses', icon: Search },
-      { label: 'My Progress', href: '/profile/progress', icon: TrendingUp },
+      { label: 'My Progress', href: '/dashboard', icon: TrendingUp },
     ]
   },
   {
@@ -230,12 +230,19 @@ const roleSpecificNavigation: Record<UserRole, NavLink[]> = {
         { label: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
         { label: 'Organizations', href: '/admin/organizations', icon: Building2 },
         { label: 'Users', href: '/admin/users', icon: Users },
+        { label: 'Team', href: '/admin/team', icon: Users },
         { label: 'Cases', href: '/admin/cases', icon: FileText },
         { label: 'Courses', href: '/admin/courses', icon: GraduationCap },
         { label: 'ML Features', href: '/admin/ml', icon: Cpu },
         { label: 'AI Models', href: '/admin/ai-models', icon: Cpu },
         { label: 'Ingestion', href: '/admin/ingestion', icon: Database },
         { label: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
+        { label: 'Compliance', href: '/admin/compliance', icon: Shield },
+        { label: 'Audit Logs', href: '/admin/audit-logs', icon: FileText },
+        { label: 'Team Activity', href: '/admin/team-activity', icon: BarChart3 },
+        { label: 'Org Settings', href: '/admin/org-settings', icon: Settings },
+        { label: 'Permissions', href: '/admin/permissions', icon: Shield },
+        { label: 'SSO Config', href: '/admin/sso-config', icon: Settings },
       ]
     }
   ]

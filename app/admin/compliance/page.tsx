@@ -1,6 +1,7 @@
 ﻿'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Shield, FileText, CheckCircle, AlertTriangle, Download, Clock, Loader2, XCircle } from 'lucide-react'
 
@@ -40,6 +41,7 @@ interface Anomaly {
 }
 
 export default function CompliancePage() {
+  const router = useRouter()
   const supabase = createClient()
   const [reports, setReports] = useState<ComplianceReport[]>([])
   const [exports, setExports] = useState<AuditLogExport[]>([])
@@ -56,8 +58,47 @@ export default function CompliancePage() {
   })
 
   useEffect(() => {
-    loadData()
+    checkAuthAndLoadData()
   }, [])
+
+  async function checkAuthAndLoadData() {
+    setLoading(true)
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user) {
+        router.push('/auth/login')
+        return
+      }
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role, organization_id')
+        .eq('id', user.id)
+        .single()
+
+      if (!profile) {
+        router.push('/dashboard')
+        return
+      }
+
+      // Only allow super_admin and compliance_officer roles
+      const hasAccess = 
+        profile.role === 'super_admin' ||
+        profile.role === 'compliance_officer' ||
+        profile.role === 'org_admin'
+
+      if (!hasAccess) {
+        router.push('/dashboard')
+        return
+      }
+
+      await loadData()
+    } catch (error) {
+      console.error('Error checking auth:', error)
+      router.push('/dashboard')
+    }
+  }
 
   async function loadData() {
     setLoading(true)
