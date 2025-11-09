@@ -451,7 +451,11 @@ export default function CompliancePage() {
                       {new Date(report.created_at).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <button className="text-blue-600 hover:text-blue-800">
+                      <button 
+                        className="text-blue-600 hover:text-blue-800"
+                        aria-label="Download report"
+                        title="Download report"
+                      >
                         <Download className="h-4 w-4" />
                       </button>
                     </td>

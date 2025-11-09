@@ -167,15 +167,22 @@ export default function FlaggedCasesPage() {
           type="text"
           placeholder="Search flagged cases..."
           className="flex-1 min-w-[250px] rounded-md border border-gray-300 px-4 py-2 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+          aria-label="Search flagged cases"
         />
-        <select className="rounded-md border border-gray-300 px-4 py-2 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
+        <select 
+          className="rounded-md border border-gray-300 px-4 py-2 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+          aria-label="Filter by severity"
+        >
           <option value="">All Severities</option>
           <option value="critical">Critical</option>
           <option value="high">High</option>
           <option value="medium">Medium</option>
           <option value="low">Low</option>
         </select>
-        <select className="rounded-md border border-gray-300 px-4 py-2 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
+        <select 
+          className="rounded-md border border-gray-300 px-4 py-2 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+          aria-label="Filter by status"
+        >
           <option value="">All Statuses</option>
           <option value="under_review">Under Review</option>
           <option value="investigating">Investigating</option>

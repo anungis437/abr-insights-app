@@ -370,6 +370,7 @@ export default function PermissionsPage() {
               value={filterScope}
               onChange={(e) => setFilterScope(e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              aria-label="Filter by permission scope"
             >
               <option value="all">All Scopes</option>
               <option value="user">User</option>
@@ -447,6 +448,8 @@ export default function PermissionsPage() {
                         <button
                           onClick={() => handleDeletePermission(rp.id)}
                           className="text-red-600 hover:text-red-800"
+                          aria-label="Delete permission"
+                          title="Delete permission"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -469,6 +472,7 @@ export default function PermissionsPage() {
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              aria-label="Filter overrides by status"
             >
               <option value="all">All Statuses</option>
               <option value="pending">Pending</option>

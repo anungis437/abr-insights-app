@@ -389,10 +389,11 @@ export default function DataExplorer() {
               <div className="space-y-4">
                 {/* Tribunal */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="tribunal-filter" className="block text-sm font-medium text-gray-700 mb-2">
                     Tribunal
                   </label>
                   <select
+                    id="tribunal-filter"
                     value={filters.selectedTribunal}
                     onChange={(e) => handleFilterChange({ selectedTribunal: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
@@ -406,10 +407,11 @@ export default function DataExplorer() {
 
                 {/* Outcome */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="outcome-filter" className="block text-sm font-medium text-gray-700 mb-2">
                     Outcome
                   </label>
                   <select
+                    id="outcome-filter"
                     value={filters.selectedOutcome}
                     onChange={(e) => handleFilterChange({ selectedOutcome: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
@@ -435,6 +437,7 @@ export default function DataExplorer() {
                         yearMin: e.target.value ? parseInt(e.target.value) : null 
                       })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      aria-label="Year from"
                     >
                       <option value="">From</option>
                       {years.map(year => (
@@ -447,6 +450,7 @@ export default function DataExplorer() {
                         yearMax: e.target.value ? parseInt(e.target.value) : null 
                       })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      aria-label="Year to"
                     >
                       <option value="">To</option>
                       {years.map(year => (

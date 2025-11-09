@@ -359,6 +359,7 @@ export default function CourseWorkflowPage() {
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value as WorkflowStatus | 'all')}
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              aria-label="Filter courses by status"
             >
               <option value="all">All Statuses</option>
               <option value="draft">Draft</option>
@@ -409,6 +410,7 @@ export default function CourseWorkflowPage() {
                     checked={selectedCourses.size === filteredCourses.length && filteredCourses.length > 0}
                     onChange={toggleSelectAll}
                     className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    aria-label="Select all courses"
                   />
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -450,6 +452,7 @@ export default function CourseWorkflowPage() {
                         checked={selectedCourses.has(course.course_id)}
                         onChange={() => toggleCourseSelection(course.course_id)}
                         className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        aria-label={`Select ${course.title}`}
                       />
                     </td>
                     <td className="px-4 py-4">
