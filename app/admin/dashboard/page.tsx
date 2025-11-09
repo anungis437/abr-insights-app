@@ -67,13 +67,13 @@ export default function AdminDashboardPage() {
             <Building2 className="mb-2 h-5 w-5 text-blue-600" />
             <p className="font-medium text-gray-900">Manage Organizations</p>
           </Link>
-          <a
+          <Link
             href="/admin/users"
             className="rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50"
           >
             <Users className="mb-2 h-5 w-5 text-green-600" />
             <p className="font-medium text-gray-900">Manage Users</p>
-          </a>
+          </Link>
           <a
             href="/admin/courses"
             className="rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50"
