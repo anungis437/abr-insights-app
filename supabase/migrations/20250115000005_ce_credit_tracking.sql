@@ -74,12 +74,12 @@ SELECT
   END as expiring_soon,
   -- User info
   u.email as user_email,
-  up.full_name as user_name,
+  COALESCE(up.display_name, CONCAT(up.first_name, ' ', up.last_name)) as user_name,
   -- Course info
   co.title as course_title
 FROM certificates c
 LEFT JOIN auth.users u ON c.user_id = u.id
-LEFT JOIN user_profiles up ON c.user_id = up.user_id
+LEFT JOIN profiles up ON c.user_id = up.id
 LEFT JOIN courses co ON c.course_id = co.id
 WHERE c.status = 'active'
   AND c.ce_credits > 0
@@ -98,7 +98,7 @@ SELECT
   c.user_id,
   c.regulatory_body,
   u.email as user_email,
-  up.full_name as user_name,
+  COALESCE(up.display_name, CONCAT(up.first_name, ' ', up.last_name)) as user_name,
   COUNT(*) as certificates_expiring,
   SUM(c.ce_credits) as credits_at_risk,
   MIN(c.expiry_date) as earliest_expiry,
@@ -114,13 +114,13 @@ SELECT
   ) as expiring_certificates
 FROM certificates c
 LEFT JOIN auth.users u ON c.user_id = u.id
-LEFT JOIN user_profiles up ON c.user_id = up.user_id
+LEFT JOIN profiles up ON c.user_id = up.id
 WHERE c.status = 'active'
   AND c.ce_credits > 0
   AND c.regulatory_body IS NOT NULL
   AND c.expiry_date IS NOT NULL
   AND c.expiry_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '90 days'
-GROUP BY c.user_id, c.regulatory_body, u.email, up.full_name;
+GROUP BY c.user_id, c.regulatory_body, u.email, up.display_name, up.first_name, up.last_name;
 
 COMMENT ON VIEW ce_credit_renewal_alerts IS 'Identifies certificates expiring within 90 days that need renewal';
 

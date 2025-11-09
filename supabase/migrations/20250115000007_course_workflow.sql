@@ -58,7 +58,7 @@ CREATE INDEX IF NOT EXISTS idx_courses_published_by ON courses(published_by);
 -- COURSE VERSIONS TABLE
 -- ============================================================================
 
-CREATE TABLE course_versions (
+CREATE TABLE IF NOT EXISTS course_versions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
     
@@ -86,25 +86,29 @@ CREATE TABLE course_versions (
     UNIQUE(course_id, version_number)
 );
 
-CREATE INDEX idx_course_versions_course_id ON course_versions(course_id);
-CREATE INDEX idx_course_versions_created_by ON course_versions(created_by);
-CREATE INDEX idx_course_versions_created_at ON course_versions(created_at DESC);
-CREATE INDEX idx_course_versions_published_at ON course_versions(published_at DESC);
+CREATE INDEX IF NOT EXISTS idx_course_versions_course_id ON course_versions(course_id);
+CREATE INDEX IF NOT EXISTS idx_course_versions_created_by ON course_versions(created_by);
+CREATE INDEX IF NOT EXISTS idx_course_versions_created_at ON course_versions(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_course_versions_published_at ON course_versions(published_at DESC);
 
 COMMENT ON TABLE course_versions IS 'Version history for courses with content snapshots';
 
 -- ============================================================================
--- COURSE REVIEWS TABLE
+-- COURSE WORKFLOW REVIEWS TABLE (Internal QA/Compliance Reviews)
+-- Note: Different from course_reviews which are student reviews
 -- ============================================================================
 
-CREATE TABLE course_reviews (
+CREATE TABLE IF NOT EXISTS course_workflow_reviews (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
     version_id UUID REFERENCES course_versions(id) ON DELETE SET NULL,
     
+    -- Reviewer info
+    reviewer_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+    assigned_by UUID REFERENCES profiles(id) ON DELETE SET NULL,
+    
     -- Review info
     review_type review_type NOT NULL,
-    reviewer_id UUID NOT NULL REFERENCES profiles(id),
     decision review_decision,
     
     -- Feedback
@@ -129,21 +133,21 @@ CREATE TABLE course_reviews (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_course_reviews_course_id ON course_reviews(course_id);
-CREATE INDEX idx_course_reviews_reviewer_id ON course_reviews(reviewer_id);
-CREATE INDEX idx_course_reviews_review_type ON course_reviews(review_type);
-CREATE INDEX idx_course_reviews_decision ON course_reviews(decision);
-CREATE INDEX idx_course_reviews_is_completed ON course_reviews(is_completed);
-CREATE INDEX idx_course_reviews_assigned_at ON course_reviews(assigned_at DESC);
-CREATE INDEX idx_course_reviews_due_date ON course_reviews(due_date);
+CREATE INDEX IF NOT EXISTS idx_course_workflow_reviews_course_id ON course_workflow_reviews(course_id);
+CREATE INDEX IF NOT EXISTS idx_course_workflow_reviews_reviewer_id ON course_workflow_reviews(reviewer_id);
+CREATE INDEX IF NOT EXISTS idx_course_workflow_reviews_review_type ON course_workflow_reviews(review_type);
+CREATE INDEX IF NOT EXISTS idx_course_workflow_reviews_decision ON course_workflow_reviews(decision);
+CREATE INDEX IF NOT EXISTS idx_course_workflow_reviews_is_completed ON course_workflow_reviews(is_completed);
+CREATE INDEX IF NOT EXISTS idx_course_workflow_reviews_assigned_at ON course_workflow_reviews(assigned_at DESC);
+CREATE INDEX IF NOT EXISTS idx_course_workflow_reviews_due_date ON course_workflow_reviews(due_date);
 
-COMMENT ON TABLE course_reviews IS 'Peer, compliance, and QA reviews for course content';
+COMMENT ON TABLE course_workflow_reviews IS 'Peer, compliance, and QA reviews for course content (workflow reviews, not student reviews)';
 
 -- ============================================================================
 -- COURSE WORKFLOW HISTORY TABLE
 -- ============================================================================
 
-CREATE TABLE course_workflow_history (
+CREATE TABLE IF NOT EXISTS course_workflow_history (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
     
@@ -163,10 +167,10 @@ CREATE TABLE course_workflow_history (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_workflow_history_course_id ON course_workflow_history(course_id);
-CREATE INDEX idx_workflow_history_changed_by ON course_workflow_history(changed_by);
-CREATE INDEX idx_workflow_history_created_at ON course_workflow_history(created_at DESC);
-CREATE INDEX idx_workflow_history_to_status ON course_workflow_history(to_status);
+CREATE INDEX IF NOT EXISTS idx_workflow_history_course_id ON course_workflow_history(course_id);
+CREATE INDEX IF NOT EXISTS idx_workflow_history_changed_by ON course_workflow_history(changed_by);
+CREATE INDEX IF NOT EXISTS idx_workflow_history_created_at ON course_workflow_history(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_workflow_history_to_status ON course_workflow_history(to_status);
 
 COMMENT ON TABLE course_workflow_history IS 'Audit log for course workflow state changes';
 
@@ -174,7 +178,7 @@ COMMENT ON TABLE course_workflow_history IS 'Audit log for course workflow state
 -- CONTENT QUALITY CHECKLIST TABLE
 -- ============================================================================
 
-CREATE TABLE content_quality_checklists (
+CREATE TABLE IF NOT EXISTS content_quality_checklists (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
     version_id UUID REFERENCES course_versions(id) ON DELETE SET NULL,
@@ -225,9 +229,9 @@ CREATE TABLE content_quality_checklists (
     UNIQUE(course_id, version_id)
 );
 
-CREATE INDEX idx_quality_checklists_course_id ON content_quality_checklists(course_id);
-CREATE INDEX idx_quality_checklists_completion ON content_quality_checklists(completion_percentage);
-CREATE INDEX idx_quality_checklists_checked_by ON content_quality_checklists(checked_by);
+CREATE INDEX IF NOT EXISTS idx_quality_checklists_course_id ON content_quality_checklists(course_id);
+CREATE INDEX IF NOT EXISTS idx_quality_checklists_completion ON content_quality_checklists(completion_percentage);
+CREATE INDEX IF NOT EXISTS idx_quality_checklists_checked_by ON content_quality_checklists(checked_by);
 
 COMMENT ON TABLE content_quality_checklists IS 'Quality assurance checklists for course content';
 
@@ -245,13 +249,13 @@ SELECT
     c.version_number,
     c.submission_notes,
     c.updated_at AS submitted_at,
-    p.full_name AS author_name,
+    COALESCE(p.first_name || ' ' || p.last_name, p.display_name, p.email) AS author_name,
     p.email AS author_email,
     -- Count of pending reviews
-    (SELECT COUNT(*) FROM course_reviews cr 
+    (SELECT COUNT(*) FROM course_workflow_reviews cr 
      WHERE cr.course_id = c.id AND NOT cr.is_completed) AS pending_reviews_count,
     -- Count of blocking issues
-    (SELECT COUNT(*) FROM course_reviews cr 
+    (SELECT COUNT(*) FROM course_workflow_reviews cr 
      WHERE cr.course_id = c.id AND cr.is_blocking AND NOT cr.is_completed) AS blocking_issues_count
 FROM courses c
 LEFT JOIN profiles p ON c.last_modified_by = p.id
@@ -273,14 +277,14 @@ SELECT
     c.published_at,
     
     -- Author info
-    instructor.full_name AS instructor_name,
+    COALESCE(instructor.first_name || ' ' || instructor.last_name, instructor.display_name, instructor.email) AS instructor_name,
     instructor.email AS instructor_email,
     
     -- Review status
-    (SELECT COUNT(*) FROM course_reviews cr WHERE cr.course_id = c.id) AS total_reviews,
-    (SELECT COUNT(*) FROM course_reviews cr WHERE cr.course_id = c.id AND cr.is_completed) AS completed_reviews,
-    (SELECT COUNT(*) FROM course_reviews cr WHERE cr.course_id = c.id AND cr.decision = 'approve') AS approved_reviews,
-    (SELECT COUNT(*) FROM course_reviews cr WHERE cr.course_id = c.id AND cr.decision = 'reject') AS rejected_reviews,
+    (SELECT COUNT(*) FROM course_workflow_reviews cr WHERE cr.course_id = c.id) AS total_reviews,
+    (SELECT COUNT(*) FROM course_workflow_reviews cr WHERE cr.course_id = c.id AND cr.is_completed) AS completed_reviews,
+    (SELECT COUNT(*) FROM course_workflow_reviews cr WHERE cr.course_id = c.id AND cr.decision = 'approve') AS approved_reviews,
+    (SELECT COUNT(*) FROM course_workflow_reviews cr WHERE cr.course_id = c.id AND cr.decision = 'reject') AS rejected_reviews,
     
     -- Quality checklist
     qc.completion_percentage AS quality_checklist_completion,
@@ -290,8 +294,7 @@ SELECT
     
     -- Timestamps
     c.created_at,
-    c.updated_at,
-    c.published_at
+    c.updated_at
     
 FROM courses c
 LEFT JOIN profiles instructor ON c.instructor_id = instructor.id
@@ -349,7 +352,7 @@ BEGIN
     VALUES (p_course_id, v_current_status, 'in_review', p_submitted_by, 'Submitted for review');
     
     -- Create compliance review requirement (auto-assign)
-    INSERT INTO course_reviews (course_id, review_type, reviewer_id, is_blocking)
+    INSERT INTO course_workflow_reviews (course_id, review_type, reviewer_id, is_blocking)
     VALUES (p_course_id, 'compliance_review', p_submitted_by, TRUE) -- Will be reassigned to compliance officer
     RETURNING id INTO v_new_review_id;
     
@@ -382,7 +385,7 @@ BEGIN
     
     -- Check for unresolved blocking reviews
     SELECT COUNT(*) INTO v_blocking_reviews
-    FROM course_reviews
+    FROM course_workflow_reviews
     WHERE course_id = p_course_id 
         AND is_blocking = TRUE 
         AND is_completed = FALSE;
@@ -534,7 +537,7 @@ BEGIN
         cwh.id,
         cwh.from_status,
         cwh.to_status,
-        p.full_name AS changed_by_name,
+        COALESCE(p.first_name || ' ' || p.last_name, p.display_name, p.email) AS changed_by_name,
         p.email AS changed_by_email,
         cwh.reason,
         cwh.notes,
@@ -552,8 +555,8 @@ $$ LANGUAGE plpgsql;
 -- ============================================================================
 
 -- Update updated_at timestamp
-CREATE TRIGGER update_course_reviews_updated_at 
-    BEFORE UPDATE ON course_reviews
+CREATE TRIGGER update_course_workflow_reviews_updated_at 
+    BEFORE UPDATE ON course_workflow_reviews
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 CREATE TRIGGER update_quality_checklists_updated_at 
@@ -603,10 +606,10 @@ SELECT
     id,
     NULL,
     'published'::workflow_status,
-    instructor_id,
+    COALESCE(instructor_id, (SELECT id FROM profiles LIMIT 1)), -- Fallback to any profile if instructor is null
     'Initial migration'
 FROM courses
-WHERE is_published = TRUE
+WHERE is_published = TRUE AND instructor_id IS NOT NULL -- Only insert for courses with instructors
 ON CONFLICT DO NOTHING;
 
 -- Update existing published courses to have workflow_status = 'published'

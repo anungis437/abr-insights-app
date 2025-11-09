@@ -176,38 +176,66 @@ CREATE TABLE IF NOT EXISTS quiz_responses (
 -- INDEXES FOR PERFORMANCE
 -- ============================================================================
 
--- Questions indexes
-CREATE INDEX idx_questions_course ON questions(course_id);
-CREATE INDEX idx_questions_lesson ON questions(lesson_id);
-CREATE INDEX idx_questions_type ON questions(question_type);
-CREATE INDEX idx_questions_difficulty ON questions(difficulty_level);
-CREATE INDEX idx_questions_active ON questions(is_active);
-CREATE INDEX idx_questions_tags ON questions USING GIN(tags);
+-- Question indexes
+CREATE INDEX IF NOT EXISTS idx_questions_course ON questions(course_id);
+CREATE INDEX IF NOT EXISTS idx_questions_lesson ON questions(lesson_id);
+CREATE INDEX IF NOT EXISTS idx_questions_type ON questions(question_type);
+CREATE INDEX IF NOT EXISTS idx_questions_difficulty ON questions(difficulty_level);
+CREATE INDEX IF NOT EXISTS idx_questions_active ON questions(is_active);
+CREATE INDEX IF NOT EXISTS idx_questions_tags ON questions USING GIN(tags);
 
 -- Question options indexes
-CREATE INDEX idx_question_options_question ON question_options(question_id);
-CREATE INDEX idx_question_options_order ON question_options(question_id, order_index);
+CREATE INDEX IF NOT EXISTS idx_question_options_question ON question_options(question_id);
+CREATE INDEX IF NOT EXISTS idx_question_options_order ON question_options(question_id, order_index);
+
+-- Add missing columns to existing quizzes table if they don't exist
+DO $$ 
+BEGIN
+  -- Add is_published column
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                 WHERE table_name = 'quizzes' AND column_name = 'is_published') THEN
+    ALTER TABLE quizzes ADD COLUMN is_published BOOLEAN DEFAULT false;
+  END IF;
+  
+  -- Add available_from column
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                 WHERE table_name = 'quizzes' AND column_name = 'available_from') THEN
+    ALTER TABLE quizzes ADD COLUMN available_from TIMESTAMPTZ;
+  END IF;
+  
+  -- Add available_until column
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                 WHERE table_name = 'quizzes' AND column_name = 'available_until') THEN
+    ALTER TABLE quizzes ADD COLUMN available_until TIMESTAMPTZ;
+  END IF;
+  
+  -- Add lesson_id column
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                 WHERE table_name = 'quizzes' AND column_name = 'lesson_id') THEN
+    ALTER TABLE quizzes ADD COLUMN lesson_id UUID REFERENCES lessons(id) ON DELETE SET NULL;
+  END IF;
+END $$;
 
 -- Quiz indexes
-CREATE INDEX idx_quizzes_course ON quizzes(course_id);
-CREATE INDEX idx_quizzes_lesson ON quizzes(lesson_id);
-CREATE INDEX idx_quizzes_published ON quizzes(is_published);
-CREATE INDEX idx_quizzes_available ON quizzes(available_from, available_until);
+CREATE INDEX IF NOT EXISTS idx_quizzes_course ON quizzes(course_id);
+CREATE INDEX IF NOT EXISTS idx_quizzes_lesson ON quizzes(lesson_id);
+CREATE INDEX IF NOT EXISTS idx_quizzes_published ON quizzes(is_published);
+CREATE INDEX IF NOT EXISTS idx_quizzes_available ON quizzes(available_from, available_until);
 
 -- Quiz questions indexes
-CREATE INDEX idx_quiz_questions_quiz ON quiz_questions(quiz_id);
-CREATE INDEX idx_quiz_questions_question ON quiz_questions(question_id);
-CREATE INDEX idx_quiz_questions_pool ON quiz_questions(question_pool_id);
+CREATE INDEX IF NOT EXISTS idx_quiz_questions_quiz ON quiz_questions(quiz_id);
+CREATE INDEX IF NOT EXISTS idx_quiz_questions_question ON quiz_questions(question_id);
+CREATE INDEX IF NOT EXISTS idx_quiz_questions_pool ON quiz_questions(question_pool_id);
 
 -- Attempts indexes
-CREATE INDEX idx_quiz_attempts_quiz ON quiz_attempts(quiz_id);
-CREATE INDEX idx_quiz_attempts_user ON quiz_attempts(user_id);
-CREATE INDEX idx_quiz_attempts_status ON quiz_attempts(status);
-CREATE INDEX idx_quiz_attempts_composite ON quiz_attempts(quiz_id, user_id, attempt_number);
+CREATE INDEX IF NOT EXISTS idx_quiz_attempts_quiz ON quiz_attempts(quiz_id);
+CREATE INDEX IF NOT EXISTS idx_quiz_attempts_user ON quiz_attempts(user_id);
+CREATE INDEX IF NOT EXISTS idx_quiz_attempts_status ON quiz_attempts(status);
+CREATE INDEX IF NOT EXISTS idx_quiz_attempts_composite ON quiz_attempts(quiz_id, user_id, attempt_number);
 
 -- Responses indexes
-CREATE INDEX idx_quiz_responses_attempt ON quiz_responses(attempt_id);
-CREATE INDEX idx_quiz_responses_question ON quiz_responses(question_id);
+CREATE INDEX IF NOT EXISTS idx_quiz_responses_attempt ON quiz_responses(attempt_id);
+CREATE INDEX IF NOT EXISTS idx_quiz_responses_question ON quiz_responses(question_id);
 
 -- ============================================================================
 -- ROW LEVEL SECURITY (RLS)
@@ -224,6 +252,7 @@ ALTER TABLE quiz_attempts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE quiz_responses ENABLE ROW LEVEL SECURITY;
 
 -- Questions: Admins can manage, students can view published questions
+DROP POLICY IF EXISTS "Admins can manage all questions" ON questions;
 CREATE POLICY "Admins can manage all questions"
   ON questions FOR ALL
   USING (
@@ -234,6 +263,7 @@ CREATE POLICY "Admins can manage all questions"
     )
   );
 
+DROP POLICY IF EXISTS "Students can view active questions in enrolled courses" ON questions;
 CREATE POLICY "Students can view active questions in enrolled courses"
   ON questions FOR SELECT
   USING (
@@ -247,6 +277,7 @@ CREATE POLICY "Students can view active questions in enrolled courses"
   );
 
 -- Question options: Same as questions
+DROP POLICY IF EXISTS "Admins can manage all question options" ON question_options;
 CREATE POLICY "Admins can manage all question options"
   ON question_options FOR ALL
   USING (
@@ -257,6 +288,7 @@ CREATE POLICY "Admins can manage all question options"
     )
   );
 
+DROP POLICY IF EXISTS "Students can view options for accessible questions" ON question_options;
 CREATE POLICY "Students can view options for accessible questions"
   ON question_options FOR SELECT
   USING (
@@ -271,6 +303,7 @@ CREATE POLICY "Students can view options for accessible questions"
   );
 
 -- Quizzes: Admins manage, students view published quizzes in enrolled courses
+DROP POLICY IF EXISTS "Admins can manage all quizzes" ON quizzes;
 CREATE POLICY "Admins can manage all quizzes"
   ON quizzes FOR ALL
   USING (
@@ -281,6 +314,7 @@ CREATE POLICY "Admins can manage all quizzes"
     )
   );
 
+DROP POLICY IF EXISTS "Students can view published quizzes in enrolled courses" ON quizzes;
 CREATE POLICY "Students can view published quizzes in enrolled courses"
   ON quizzes FOR SELECT
   USING (
@@ -294,10 +328,12 @@ CREATE POLICY "Students can view published quizzes in enrolled courses"
   );
 
 -- Quiz attempts: Users can manage their own attempts
+DROP POLICY IF EXISTS "Users can manage their own quiz attempts" ON quiz_attempts;
 CREATE POLICY "Users can manage their own quiz attempts"
   ON quiz_attempts FOR ALL
   USING (user_id = auth.uid());
 
+DROP POLICY IF EXISTS "Admins can view all quiz attempts" ON quiz_attempts;
 CREATE POLICY "Admins can view all quiz attempts"
   ON quiz_attempts FOR SELECT
   USING (
@@ -309,6 +345,7 @@ CREATE POLICY "Admins can view all quiz attempts"
   );
 
 -- Quiz responses: Users can manage their own responses
+DROP POLICY IF EXISTS "Users can manage their own quiz responses" ON quiz_responses;
 CREATE POLICY "Users can manage their own quiz responses"
   ON quiz_responses FOR ALL
   USING (
@@ -319,6 +356,7 @@ CREATE POLICY "Users can manage their own quiz responses"
     )
   );
 
+DROP POLICY IF EXISTS "Admins can manage all quiz responses" ON quiz_responses;
 CREATE POLICY "Admins can manage all quiz responses"
   ON quiz_responses FOR ALL
   USING (
