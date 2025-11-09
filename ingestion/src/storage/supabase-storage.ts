@@ -353,7 +353,7 @@ export class SupabaseStorageService {
       .single();
 
     if (existingCase) {
-      console.log(`Case already exists: ${sourceUrl}`);
+      // Case already exists, returning existing ID
       return existingCase.id;
     }
 

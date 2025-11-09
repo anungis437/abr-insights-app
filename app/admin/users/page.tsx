@@ -6,6 +6,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { logger } from '@/lib/utils/logger'
 import {
   Users,
   Search,
@@ -134,9 +135,9 @@ export default function AdminUsersPage() {
       const supabase = createClient()
       // Check auth
       const { data: { user: currentUser } } = await supabase.auth.getUser()
-      console.log('[Users Page] Current user:', currentUser?.id, currentUser?.email)
+      logger.auth('Current user check', { userId: currentUser?.id, email: currentUser?.email })
       if (!currentUser) {
-        console.log('[Users Page] No user found, redirecting to login')
+        logger.auth('No user found, redirecting to login')
         router.push('/auth/login')
         return
       }
@@ -147,24 +148,26 @@ export default function AdminUsersPage() {
         .select('*')
         .eq('id', currentUser.id)
         .single()
-      console.log('[Users Page] Profile data:', profileData)
-      console.log('[Users Page] Profile error:', profileError)
+      logger.db('Profile lookup', 'profiles', { userId: currentUser.id, hasData: !!profileData })
+      if (profileError) {
+        logger.error('Profile fetch error', profileError)
+      }
       if (!profileData) {
-        console.log('[Users Page] No profile found, redirecting to dashboard')
+        logger.auth('No profile found, redirecting to dashboard')
         router.push('/dashboard')
         return
       }
       
       // Only allow admins/super admins/compliance officers
       const role = profileData.role
-      console.log('[Users Page] User role:', role)
+      logger.auth('User role check', { role })
       if (role !== 'super_admin' && role !== 'org_admin' && role !== 'compliance_officer') {
-        console.log('[Users Page] Unauthorized role, redirecting to dashboard')
+        logger.warn('Unauthorized role, redirecting to dashboard', { role })
         router.push('/dashboard')
         return
       }
       
-      console.log('[Users Page] Authorization successful, loading users')
+      logger.auth('Authorization successful, loading users')
       setProfile(profileData)
       
       // Load users

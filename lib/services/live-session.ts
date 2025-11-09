@@ -17,6 +17,7 @@
 
 import { supabase } from '@/lib/supabase'
 import type { RealtimeChannel } from '@supabase/supabase-js'
+import { logger } from '@/lib/utils/logger'
 
 // =====================================================
 // Types & Interfaces
@@ -249,13 +250,13 @@ export class LiveSessionService {
     this.channel
       .on('presence', { event: 'sync' }, () => {
         const state = this.channel?.presenceState()
-        console.log('[Live Session] Presence sync:', state)
+        logger.debug('[Live Session] Presence sync', { state })
       })
       .on('presence', { event: 'join' }, ({ newPresences }) => {
-        console.log('[Live Session] User joined:', newPresences)
+        logger.info('[Live Session] User joined', { newPresences })
       })
       .on('presence', { event: 'leave' }, ({ leftPresences }) => {
-        console.log('[Live Session] User left:', leftPresences)
+        logger.info('[Live Session] User left', { leftPresences })
       })
 
     // Subscribe to broadcast events (signaling, etc.)
@@ -414,7 +415,7 @@ export class LiveSessionService {
 
     // Handle remote stream
     pc.ontrack = (event) => {
-      console.log('[Live Session] Received remote track:', event.track.kind)
+      logger.debug('[Live Session] Received remote track', { kind: event.track.kind })
       // Remote stream handled in component
     }
 

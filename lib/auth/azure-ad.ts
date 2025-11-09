@@ -16,6 +16,7 @@
 import { ConfidentialClientApplication, type Configuration, type AuthorizationCodeRequest, type AuthorizationUrlRequest, type AuthenticationResult } from '@azure/msal-node'
 import * as jwt from 'jsonwebtoken'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
 
 // Types for Azure AD user info
 interface AzureADUserInfo {
@@ -99,7 +100,7 @@ export class AzureADService {
         loggerOptions: {
           loggerCallback: (level, message, containsPii) => {
             if (containsPii) return
-            console.log(`[MSAL] ${level}: ${message}`)
+            logger.debug(`[MSAL] ${level}: ${message}`)
           },
           piiLoggingEnabled: false,
           logLevel: process.env.NODE_ENV === 'production' ? 3 : 2, // Error in prod, Verbose in dev

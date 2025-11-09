@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { logger } from '@/lib/utils/logger'
 import { 
   BookOpen, 
   Plus, 
@@ -53,9 +54,9 @@ export default function AdminCoursesPage() {
       // Check auth
       const { data: { user: currentUser } } = await supabase.auth.getUser()
       
-      console.log('[Courses Page] Current user:', currentUser?.id, currentUser?.email)
+      logger.auth('Current user check', { userId: currentUser?.id, email: currentUser?.email })
       if (!currentUser) {
-        console.log('[Courses Page] No user found, redirecting to login')
+        logger.auth('No user found, redirecting to login')
         router.push('/auth/login')
         return
       }
@@ -69,23 +70,25 @@ export default function AdminCoursesPage() {
         .eq('id', currentUser.id)
         .single()
 
-      console.log('[Courses Page] Profile data:', profileData)
-      console.log('[Courses Page] Profile error:', profileError)
+      logger.db('Profile lookup', 'profiles', { userId: currentUser.id, hasData: !!profileData })
+      if (profileError) {
+        logger.error('Profile fetch error', profileError)
+      }
 
       const isAdmin = 
         profileData?.role === 'super_admin' ||
         profileData?.role === 'org_admin' ||
         profileData?.role === 'educator'
 
-      console.log('[Courses Page] User role:', profileData?.role, 'isAdmin:', isAdmin)
+      logger.auth('User role check', { role: profileData?.role, isAdmin })
 
       if (!isAdmin) {
-        console.log('[Courses Page] Unauthorized, redirecting to dashboard')
+        logger.warn('Unauthorized, redirecting to dashboard', { role: profileData?.role })
         router.push('/dashboard')
         return
       }
 
-      console.log('[Courses Page] Authorization successful, loading courses')
+      logger.auth('Authorization successful, loading courses')
       // Load courses
       const { data: coursesData, error } = await supabase
         .from('courses')

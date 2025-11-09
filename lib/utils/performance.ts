@@ -10,6 +10,8 @@
  * - Bundle size analysis integration
  */
 
+import { logger } from './logger'
+
 // =====================================================
 // Lazy Loading Utilities
 // =====================================================
@@ -426,10 +428,7 @@ export function measureRenderTime(componentName: string, callback: () => void): 
   performance.measure(measureName, startMark, endMark)
 
   const measure = performance.getEntriesByName(measureName)[0]
-  if (process.env.NODE_ENV === 'development') {
-    // eslint-disable-next-line no-console
-    console.log(`[Performance] ${componentName} render time: ${measure.duration.toFixed(2)}ms`)
-  }
+  logger.performance(`${componentName} render time`, measure.duration)
 
   // Clean up marks and measures
   performance.clearMarks(startMark)
@@ -457,14 +456,12 @@ export function logBundleSize(): void {
   const totalStyleSize = styles.reduce((acc, r) => acc + (r.transferSize || 0), 0)
   const totalImageSize = images.reduce((acc, r) => acc + (r.transferSize || 0), 0)
 
-  /* eslint-disable no-console */
-  console.group('[Bundle Size Analysis]')
-  console.log(`Scripts: ${(totalScriptSize / 1024).toFixed(2)} KB (${scripts.length} files)`)
-  console.log(`Styles: ${(totalStyleSize / 1024).toFixed(2)} KB (${styles.length} files)`)
-  console.log(`Images: ${(totalImageSize / 1024).toFixed(2)} KB (${images.length} files)`)
-  console.log(`Total: ${((totalScriptSize + totalStyleSize + totalImageSize) / 1024).toFixed(2)} KB`)
-  console.groupEnd()
-  /* eslint-enable no-console */
+  logger.info('[Bundle Size Analysis]', {
+    scripts: `${(totalScriptSize / 1024).toFixed(2)} KB (${scripts.length} files)`,
+    styles: `${(totalStyleSize / 1024).toFixed(2)} KB (${styles.length} files)`,
+    images: `${(totalImageSize / 1024).toFixed(2)} KB (${images.length} files)`,
+    total: `${((totalScriptSize + totalStyleSize + totalImageSize) / 1024).toFixed(2)} KB`
+  })
 }
 
 /**
