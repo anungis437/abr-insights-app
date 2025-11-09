@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Building2, Users, Settings, TrendingUp, Shield, Plus, ExternalLink, Eye } from 'lucide-react'
@@ -27,7 +27,7 @@ export default function AdminOrganizationsPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [typeFilter, setTypeFilter] = useState('')
 
-  async function loadOrganizations() {
+  const loadOrganizations = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('organizations')
@@ -41,11 +41,11 @@ export default function AdminOrganizationsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
     loadOrganizations()
-  }, [])
+  }, [loadOrganizations])
 
   const filteredOrganizations = organizations.filter(org => {
     const matchesSearch = !searchQuery || 

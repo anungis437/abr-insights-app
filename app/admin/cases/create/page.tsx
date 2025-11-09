@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { ArrowLeft, Save, Scale, Plus, X, Calendar } from 'lucide-react'
@@ -39,11 +39,7 @@ export default function CreateCasePage() {
 
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  useEffect(() => {
-    checkAuth()
-  }, [])
-
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     const { data: { user: currentUser } } = await supabase.auth.getUser()
     if (!currentUser) {
       router.push('/auth/login')
@@ -69,7 +65,11 @@ export default function CreateCasePage() {
 
     setUser(currentUser)
     setIsLoading(false)
-  }
+  }, [router])
+
+  useEffect(() => {
+    checkAuth()
+  }, [checkAuth])
 
   const addArrayItem = (field: 'subcategories' | 'key_issues' | 'remedies' | 'outcomes' | 'tags') => {
     setFormData(prev => ({

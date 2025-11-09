@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { ArrowLeft, Save, Eye, Plus, X, BookOpen, Loader2 } from 'lucide-react'
@@ -41,14 +41,7 @@ export default function EditCoursePage() {
 
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  useEffect(() => {
-    checkAuth()
-    loadCategories()
-    loadInstructors()
-    loadCourse()
-  }, [courseId])
-
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     const { data: { user: currentUser } } = await supabase.auth.getUser()
     if (!currentUser) {
       router.push('/auth/login')
@@ -72,9 +65,9 @@ export default function EditCoursePage() {
     }
 
     setUser(currentUser)
-  }
+  }, [router])
 
-  const loadCourse = async () => {
+  const loadCourse = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('courses')
@@ -117,18 +110,18 @@ export default function EditCoursePage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [courseId, router])
 
-  const loadCategories = async () => {
+  const loadCategories = useCallback(async () => {
     const { data } = await supabase
       .from('content_categories')
       .select('id, name, slug')
       .order('name', { ascending: true })
 
     if (data) setCategories(data)
-  }
+  }, [])
 
-  const loadInstructors = async () => {
+  const loadInstructors = useCallback(async () => {
     const { data } = await supabase
       .from('profiles')
       .select('id, display_name, email')
@@ -136,7 +129,14 @@ export default function EditCoursePage() {
       .order('display_name', { ascending: true })
 
     if (data) setInstructors(data)
-  }
+  }, [])
+
+  useEffect(() => {
+    checkAuth()
+    loadCategories()
+    loadInstructors()
+    loadCourse()
+  }, [checkAuth, loadCategories, loadInstructors, loadCourse])
 
   const generateSlug = (title: string) => {
     return title

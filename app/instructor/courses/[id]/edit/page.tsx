@@ -99,7 +99,11 @@ export default function InstructorCourseEditPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [courseId]);
+  }, [courseId, router]);
+
+  useEffect(() => {
+    checkAuthAndLoadData();
+  }, [checkAuthAndLoadData]);
 
   const loadCourse = async () => {
     try {

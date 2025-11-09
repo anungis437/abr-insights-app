@@ -176,18 +176,8 @@ export function QuizPlayer({ quiz, userId, onComplete }: QuizPlayerProps) {
     }))
   }, [currentQuestion.id])
 
-  // Auto-submit when time expires
-  const handleAutoSubmit = useCallback(async () => {
-    toast({
-      title: 'Time Expired',
-      description: 'Your quiz has been automatically submitted.',
-      variant: 'destructive',
-    })
-    await handleSubmit()
-  }, [toast])
-
   // Submit quiz
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     if (!attemptId) return
 
     setIsSubmitting(true)
@@ -232,7 +222,17 @@ export function QuizPlayer({ quiz, userId, onComplete }: QuizPlayerProps) {
     } finally {
       setIsSubmitting(false)
     }
-  }
+  }, [attemptId, answers, onComplete, toast])
+
+  // Auto-submit when time expires
+  const handleAutoSubmit = useCallback(async () => {
+    toast({
+      title: 'Time Expired',
+      description: 'Your quiz has been automatically submitted.',
+      variant: 'destructive',
+    })
+    await handleSubmit()
+  }, [toast, handleSubmit])
 
   // Handle certificate generation
   const handleGenerateCertificate = async () => {

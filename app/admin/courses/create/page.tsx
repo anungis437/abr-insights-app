@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { ArrowLeft, Save, Eye, Upload, Plus, X, BookOpen } from 'lucide-react'
@@ -37,13 +37,7 @@ export default function CreateCoursePage() {
 
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  useEffect(() => {
-    checkAuth()
-    loadCategories()
-    loadInstructors()
-  }, [])
-
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     const { data: { user: currentUser } } = await supabase.auth.getUser()
     if (!currentUser) {
       router.push('/auth/login')
@@ -69,18 +63,18 @@ export default function CreateCoursePage() {
     setUser(currentUser)
     setFormData(prev => ({ ...prev, instructor_id: currentUser.id }))
     setIsLoading(false)
-  }
+  }, [router])
 
-  const loadCategories = async () => {
+  const loadCategories = useCallback(async () => {
     const { data } = await supabase
       .from('content_categories')
       .select('id, name, slug')
       .order('name', { ascending: true })
 
     if (data) setCategories(data)
-  }
+  }, [])
 
-  const loadInstructors = async () => {
+  const loadInstructors = useCallback(async () => {
     const { data } = await supabase
       .from('profiles')
       .select('id, display_name, email')
@@ -88,7 +82,13 @@ export default function CreateCoursePage() {
       .order('display_name', { ascending: true })
 
     if (data) setInstructors(data)
-  }
+  }, [])
+
+  useEffect(() => {
+    checkAuth()
+    loadCategories()
+    loadInstructors()
+  }, [checkAuth, loadCategories, loadInstructors])
 
   const generateSlug = (title: string) => {
     return title

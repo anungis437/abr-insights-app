@@ -13,7 +13,7 @@
  * Uses new advanced_rbac migration tables
  */
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import {
   Shield,
@@ -106,11 +106,7 @@ export default function PermissionsPage() {
   const [showOverrideDetailModal, setShowOverrideDetailModal] = useState(false)
   const [selectedOverride, setSelectedOverride] = useState<PermissionOverride | null>(null)
 
-  useEffect(() => {
-    loadData()
-  }, [activeTab])
-
-  async function loadData() {
+  const loadData = useCallback(async () => {
     setLoading(true)
     try {
       if (activeTab === 'permissions') {
@@ -125,7 +121,11 @@ export default function PermissionsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [activeTab])
+
+  useEffect(() => {
+    loadData()
+  }, [loadData])
 
   async function loadPermissions() {
     // Get all permissions

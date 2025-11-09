@@ -1,6 +1,6 @@
 ﻿'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Shield, FileText, CheckCircle, AlertTriangle, Download, Clock, Loader2, XCircle } from 'lucide-react'
@@ -57,11 +57,7 @@ export default function CompliancePage() {
     end: new Date().toISOString().split('T')[0],
   })
 
-  useEffect(() => {
-    checkAuthAndLoadData()
-  }, [])
-
-  async function checkAuthAndLoadData() {
+  const checkAuthAndLoadData = useCallback(async () => {
     setLoading(true)
     try {
       const { data: { user } } = await supabase.auth.getUser()
@@ -98,9 +94,9 @@ export default function CompliancePage() {
       console.error('Error checking auth:', error)
       router.push('/dashboard')
     }
-  }
+  }, [router])
 
-  async function loadData() {
+  const loadData = useCallback(async () => {
     setLoading(true)
     try {
       const { data: { user } } = await supabase.auth.getUser()
@@ -160,7 +156,11 @@ export default function CompliancePage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    checkAuthAndLoadData()
+  }, [checkAuthAndLoadData])
 
   async function handleGenerateReport() {
     setGenerating(true)

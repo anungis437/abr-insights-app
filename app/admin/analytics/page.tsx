@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { 
@@ -60,11 +60,7 @@ export default function AdminAnalyticsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
 
-  useEffect(() => {
-    checkAuthAndLoadAnalytics()
-  }, [])
-
-  async function checkAuthAndLoadAnalytics() {
+  const checkAuthAndLoadAnalytics = useCallback(async () => {
     setIsLoading(true)
     try {
       const supabase = createClient()
@@ -106,7 +102,11 @@ export default function AdminAnalyticsPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [router])
+
+  useEffect(() => {
+    checkAuthAndLoadAnalytics()
+  }, [checkAuthAndLoadAnalytics])
 
   const loadAnalyticsData = async () => {
     const supabase = createClient()

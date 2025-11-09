@@ -14,7 +14,7 @@
  * Uses new enterprise_sso_auth migration tables
  */
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import {
   Shield,
@@ -91,11 +91,7 @@ export default function SSOConfigPage() {
   })
   const [domainInput, setDomainInput] = useState('')
 
-  useEffect(() => {
-    loadData()
-  }, [])
-
-  async function loadData() {
+  const loadData = useCallback(async () => {
     setLoading(true)
     try {
       // Get current user's organization
@@ -139,7 +135,11 @@ export default function SSOConfigPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    loadData()
+  }, [loadData])
 
   async function handleSave() {
     try {
