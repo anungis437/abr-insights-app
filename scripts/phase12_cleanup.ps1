@@ -40,19 +40,21 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
 # Color output functions
-function Write-InfoMsg { param([string]$Message) Write-Host "ℹ️  $Message" -ForegroundColor Cyan }
-function Write-SuccessMsg { param([string]$Message) Write-Host "✅ $Message" -ForegroundColor Green }
-function Write-WarningMsg { param([string]$Message) Write-Host "⚠️  $Message" -ForegroundColor Yellow }
-function Write-ErrorMsg { param([string]$Message) Write-Host "❌ $Message" -ForegroundColor Red }
-function Write-ActionMsg { param([string]$Message) Write-Host "🔧 $Message" -ForegroundColor Magenta }
+function Write-InfoMsg { param([string]$Message) Write-Host "[INFO] $Message" -ForegroundColor Cyan }
+function Write-SuccessMsg { param([string]$Message) Write-Host "[OK] $Message" -ForegroundColor Green }
+function Write-WarningMsg { param([string]$Message) Write-Host "[WARN] $Message" -ForegroundColor Yellow }
+function Write-ErrorMsg { param([string]$Message) Write-Host "[ERROR] $Message" -ForegroundColor Red }
+function Write-ActionMsg { param([string]$Message) Write-Host "[ACTION] $Message" -ForegroundColor Magenta }
 
 # Repository root (assuming script is in scripts/ folder)
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 Set-Location $RepoRoot
 
-Write-Host "`n╔════════════════════════════════════════════════════════════╗" -ForegroundColor Blue
-Write-Host "║       Phase 12 Repository Cleanup Script v1.0             ║" -ForegroundColor Blue
-Write-Host "╚════════════════════════════════════════════════════════════╝`n" -ForegroundColor Blue
+Write-Host ""
+Write-Host "================================================================" -ForegroundColor Blue
+Write-Host "       Phase 12 Repository Cleanup Script v1.0                 " -ForegroundColor Blue
+Write-Host "================================================================" -ForegroundColor Blue
+Write-Host ""
 
 if (-not $Run) {
     Write-WarningMsg "Running in DRY-RUN mode (safe). Use -Run to actually archive files."
@@ -186,7 +188,7 @@ foreach ($pattern in $CandidatePatterns) {
             SizeStr = $sizeStr
         }
         
-        Write-Host "  📄 $pattern" -NoNewline
+        Write-Host "  * $pattern" -NoNewline
         Write-Host " ($sizeStr)" -ForegroundColor DarkGray
     }
 }
@@ -205,20 +207,22 @@ $totalSizeStr = if ($TotalSize -gt 1MB) { "{0:N2} MB" -f ($TotalSize / 1MB) }
                 elseif ($TotalSize -gt 1KB) { "{0:N2} KB" -f ($TotalSize / 1KB) }
                 else { "$TotalSize bytes" }
 
-Write-Host "╔════════════════════════════════════════════════════════════╗" -ForegroundColor Yellow
-Write-Host "║                    ARCHIVAL SUMMARY                        ║" -ForegroundColor Yellow
-Write-Host "╚════════════════════════════════════════════════════════════╝" -ForegroundColor Yellow
+Write-Host "================================================================" -ForegroundColor Yellow
+Write-Host "                    ARCHIVAL SUMMARY                            " -ForegroundColor Yellow
+Write-Host "================================================================" -ForegroundColor Yellow
 Write-Host ""
 Write-InfoMsg "Total items to archive: $($FilesToArchive.Count)"
 Write-InfoMsg "Total size: $totalSizeStr"
 Write-Host ""
 
 # Display breakdown
-$fileCount = ($FilesToArchive | Where-Object { $_.Type -eq "File" }).Count
-$dirCount = ($FilesToArchive | Where-Object { $_.Type -eq "Directory" }).Count
+$files = @($FilesToArchive | Where-Object { $_.Type -eq "File" })
+$dirs = @($FilesToArchive | Where-Object { $_.Type -eq "Directory" })
+$fileCount = $files.Count
+$dirCount = $dirs.Count
 
-if ($fileCount -gt 0) { Write-Host "  📄 Files: $fileCount" -ForegroundColor Cyan }
-if ($dirCount -gt 0) { Write-Host "  📁 Directories: $dirCount" -ForegroundColor Cyan }
+if ($fileCount -gt 0) { Write-Host "  Files: $fileCount" -ForegroundColor Cyan }
+if ($dirCount -gt 0) { Write-Host "  Directories: $dirCount" -ForegroundColor Cyan }
 Write-Host ""
 
 # ============================================================================
@@ -247,17 +251,14 @@ if ($Run) {
     
     # Create manifest file
     $manifestPath = Join-Path $ArchivePath "MANIFEST.txt"
-    $manifestContent = @"
-Phase 12 Cleanup Archive
-========================
-Date: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
-Total Items: $($FilesToArchive.Count)
-Total Size: $totalSizeStr
-
-Archived Files:
----------------
-
-"@
+    $dateStr = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $manifestContent = "Phase 12 Cleanup Archive`n"
+    $manifestContent += "========================`n"
+    $manifestContent += "Date: $dateStr`n"
+    $manifestContent += "Total Items: $($FilesToArchive.Count)`n"
+    $manifestContent += "Total Size: $totalSizeStr`n`n"
+    $manifestContent += "Archived Files:`n"
+    $manifestContent += "---------------`n`n"
     
     foreach ($file in $FilesToArchive) {
         $manifestContent += "$($file.Path) ($($file.SizeStr))`n"
@@ -285,7 +286,7 @@ Archived Files:
             
             # Move the item
             Move-Item -Path $file.FullPath -Destination $destPath -Force
-            Write-Host "  ✓ Archived: $relativePath" -ForegroundColor Green
+            Write-Host "  [OK] Archived: $relativePath" -ForegroundColor Green
             $successCount++
         }
         catch {
@@ -296,9 +297,9 @@ Archived Files:
     }
     
     Write-Host ""
-    Write-Host "╔════════════════════════════════════════════════════════════╗" -ForegroundColor Green
-    Write-Host "║                  ARCHIVAL COMPLETE                         ║" -ForegroundColor Green
-    Write-Host "╚════════════════════════════════════════════════════════════╝" -ForegroundColor Green
+    Write-Host "================================================================" -ForegroundColor Green
+    Write-Host "                  ARCHIVAL COMPLETE                             " -ForegroundColor Green
+    Write-Host "================================================================" -ForegroundColor Green
     Write-Host ""
     Write-SuccessMsg "Successfully archived: $successCount items"
     
@@ -309,14 +310,14 @@ Archived Files:
     Write-InfoMsg "Archive location: $ArchivePath"
     Write-InfoMsg "Manifest: $manifestPath"
     Write-Host ""
-    Write-Host "🎉 Repository cleanup complete! You can now commit the cleaned repo." -ForegroundColor Green
+    Write-Host "Repository cleanup complete! You can now commit the cleaned repo." -ForegroundColor Green
     Write-Host ""
     
 } else {
     # Dry-run mode
-    Write-Host "╔════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-    Write-Host "║                    DRY-RUN MODE                            ║" -ForegroundColor Cyan
-    Write-Host "╚════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+    Write-Host "================================================================" -ForegroundColor Cyan
+    Write-Host "                    DRY-RUN MODE                                " -ForegroundColor Cyan
+    Write-Host "================================================================" -ForegroundColor Cyan
     Write-Host ""
     Write-InfoMsg "The files listed above WOULD be archived to:"
     Write-Host "  $ArchivePath" -ForegroundColor White

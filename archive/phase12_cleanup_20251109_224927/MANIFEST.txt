@@ -1,0 +1,18 @@
+﻿Phase 12 Cleanup Archive
+========================
+Date: 2025-11-09 22:49:33
+Total Items: 8
+Total Size: 1,011.68 KB
+
+Archived Files:
+---------------
+
+scripts\migrate-quizzes-fixed.js (9.88 KB)
+scripts\migrate-quizzes-to-new-architecture.js (10.64 KB)
+scripts\populate-black-history.js (24.41 KB)
+scripts\populate-course-2.js (20.91 KB)
+scripts\populate-course-3-4.js (27.74 KB)
+scripts\populate-course-5-6.js (58.11 KB)
+scripts\populate-course-content.js (23.74 KB)
+schema-check.sql (836.26 KB)
+
