@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { logger } from '@/lib/utils/logger'
+import { PermissionGate } from '@/components/shared/PermissionGate'
 import { 
   BookOpen, 
   Plus, 
@@ -224,13 +225,15 @@ export default function AdminCoursesPage() {
                   <p className="text-gray-600 mt-1">Manage training courses and learning content</p>
                 </div>
               </div>
-              <button
-                onClick={() => router.push('/admin/courses/create')}
-                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:shadow-lg transition-all flex items-center gap-2"
-              >
-                <Plus className="w-5 h-5" />
-                Create Course
-              </button>
+              <PermissionGate permissions={['courses.create', 'courses.manage']}>
+                <button
+                  onClick={() => router.push('/admin/courses/create')}
+                  className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:shadow-lg transition-all flex items-center gap-2"
+                >
+                  <Plus className="w-5 h-5" />
+                  Create Course
+                </button>
+              </PermissionGate>
             </div>
 
             {/* Stats Cards */}
@@ -424,42 +427,50 @@ export default function AdminCoursesPage() {
 
                       {/* Actions */}
                       <div className="flex items-center gap-3">
-                        <button
-                          onClick={() => router.push(`/admin/courses/${course.id}/edit`)}
-                          className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2"
-                        >
-                          <Edit3 className="w-4 h-4" />
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleTogglePublish(course.id, course.is_published)}
-                          className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
-                            course.is_published
-                              ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
-                              : 'bg-green-100 text-green-700 hover:bg-green-200'
-                          }`}
-                        >
-                          {course.is_published ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                          {course.is_published ? 'Unpublish' : 'Publish'}
-                        </button>
-                        <button
-                          onClick={() => handleToggleFeatured(course.id, course.is_featured)}
-                          className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
-                            course.is_featured
-                              ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                          }`}
-                        >
-                          <Award className="w-4 h-4" />
-                          {course.is_featured ? 'Unfeature' : 'Feature'}
-                        </button>
-                        <button
-                          onClick={() => handleDelete(course.id)}
-                          className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors flex items-center gap-2 ml-auto"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                          Delete
-                        </button>
+                        <PermissionGate permissions={['courses.update', 'courses.manage']}>
+                          <button
+                            onClick={() => router.push(`/admin/courses/${course.id}/edit`)}
+                            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                            Edit
+                          </button>
+                        </PermissionGate>
+                        <PermissionGate permissions={['courses.publish', 'courses.manage']}>
+                          <button
+                            onClick={() => handleTogglePublish(course.id, course.is_published)}
+                            className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
+                              course.is_published
+                                ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
+                                : 'bg-green-100 text-green-700 hover:bg-green-200'
+                            }`}
+                          >
+                            {course.is_published ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            {course.is_published ? 'Unpublish' : 'Publish'}
+                          </button>
+                        </PermissionGate>
+                        <PermissionGate permissions={['courses.manage']}>
+                          <button
+                            onClick={() => handleToggleFeatured(course.id, course.is_featured)}
+                            className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
+                              course.is_featured
+                                ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            }`}
+                          >
+                            <Award className="w-4 h-4" />
+                            {course.is_featured ? 'Unfeature' : 'Feature'}
+                          </button>
+                        </PermissionGate>
+                        <PermissionGate permissions={['courses.delete', 'courses.manage']}>
+                          <button
+                            onClick={() => handleDelete(course.id)}
+                            className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors flex items-center gap-2 ml-auto"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            Delete
+                          </button>
+                        </PermissionGate>
                       </div>
                     </div>
                   </div>

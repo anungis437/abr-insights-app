@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { logger } from '@/lib/utils/logger'
+import { PermissionGate } from '@/components/shared/PermissionGate'
 import {
   Users,
   Search,
@@ -22,60 +23,6 @@ import {
   CheckCircle,
   AlertCircle
 } from 'lucide-react'
-
-// Permissions config (ported from legacy)
-const DEFAULT_PERMISSIONS: Record<string, Record<string, Record<string, boolean>>> = {
-  'Super Admin': {
-    organization: { manage_users: true, manage_settings: true, view_team: true, invite_members: true },
-    // ...other categories omitted for brevity
-  },
-  'Admin': {
-    organization: { manage_users: false, manage_settings: true, view_team: true, invite_members: true },
-    // ...other categories omitted for brevity
-  },
-  'Analyst': {
-    organization: { manage_users: false, manage_settings: false, view_team: true, invite_members: false },
-    // ...other categories omitted for brevity
-  },
-  'Viewer': {
-    organization: { manage_users: false, manage_settings: false, view_team: true, invite_members: false },
-    // ...other categories omitted for brevity
-  }
-}
-
-function hasPermission(
-  user: { role?: string | null; role_name?: string | null } | null,
-  category: string,
-  action: string
-): boolean {
-  if (!user || !user.role) return false
-  // Map database roles to permission keys
-  if (user.role === 'super_admin') {
-    return DEFAULT_PERMISSIONS['Super Admin']?.[category]?.[action] || false
-  }
-  if (user.role === 'org_admin') {
-    return DEFAULT_PERMISSIONS['Admin']?.[category]?.[action] || false
-  }
-  if (user.role === 'analyst') {
-    return DEFAULT_PERMISSIONS['Analyst']?.[category]?.[action] || false
-  }
-  // Default to Viewer for other roles
-  return DEFAULT_PERMISSIONS['Viewer']?.[category]?.[action] || false
-}
-
-type PermissionGateProps = {
-  user: { role?: string | null; role_name?: string | null } | null
-  category: string
-  action: string
-  children: React.ReactNode
-  fallback?: React.ReactNode
-}
-function PermissionGate({ user, category, action, children, fallback = null }: PermissionGateProps) {
-  if (hasPermission(user, category, action)) {
-    return <>{children}</>
-  }
-  return fallback
-}
 
 function AccessDenied({ message = "You don't have permission to access this feature" }) {
   return (
@@ -471,15 +418,17 @@ export default function AdminUsersPage() {
                             </p>
                           </div>
                           {/* Edit Role Button (hide for self) */}
-                          {profile.id !== user?.id && (
-                            <button
-                              onClick={() => handleEditRole(profile)}
-                              className="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg hover:bg-purple-100 transition-colors flex items-center gap-2 text-xs"
-                            >
-                              <Edit className="w-4 h-4" />
-                              Edit Role
-                            </button>
-                          )}
+                          <PermissionGate permissions={['roles.update', 'users.manage']}>
+                            {profile.id !== user?.id && (
+                              <button
+                                onClick={() => handleEditRole(profile)}
+                                className="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg hover:bg-purple-100 transition-colors flex items-center gap-2 text-xs"
+                              >
+                                <Edit className="w-4 h-4" />
+                                Edit Role
+                              </button>
+                            )}
+                          </PermissionGate>
                         </div>
                         {/* Meta Info */}
                         <div className="flex items-center gap-6 text-sm text-gray-600 mb-4">
@@ -540,24 +489,26 @@ export default function AdminUsersPage() {
                             <Users className="w-4 h-4" />
                             View Details
                           </button>
-                          {profile.status === 'active' && (
-                            <button
-                              onClick={() => handleStatusChange(profile.id, 'suspended')}
-                              className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors flex items-center gap-2"
-                            >
-                              <UserX className="w-4 h-4" />
-                              Suspend
-                            </button>
-                          )}
-                          {profile.status === 'suspended' && (
-                            <button
-                              onClick={() => handleStatusChange(profile.id, 'active')}
-                              className="px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors flex items-center gap-2"
-                            >
-                              <UserCheck className="w-4 h-4" />
-                              Activate
-                            </button>
-                          )}
+                          <PermissionGate permissions={['users.manage', 'roles.update']}>
+                            {profile.status === 'active' && (
+                              <button
+                                onClick={() => handleStatusChange(profile.id, 'suspended')}
+                                className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors flex items-center gap-2"
+                              >
+                                <UserX className="w-4 h-4" />
+                                Suspend
+                              </button>
+                            )}
+                            {profile.status === 'suspended' && (
+                              <button
+                                onClick={() => handleStatusChange(profile.id, 'active')}
+                                className="px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors flex items-center gap-2"
+                              >
+                                <UserCheck className="w-4 h-4" />
+                                Activate
+                              </button>
+                            )}
+                          </PermissionGate>
                         </div>
                       </div>
                     </div>

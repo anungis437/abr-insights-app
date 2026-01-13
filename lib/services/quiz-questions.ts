@@ -1,6 +1,9 @@
 /**
  * Quiz Questions Service
  * Manages question bank operations: CRUD, pools, random selection
+ * 
+ * Security: All mutations protected by permission checks via RLS policies.
+ * Policies defined in migrations 020-023.
  */
 
 import { createClient } from '@/lib/supabase/client'
@@ -103,6 +106,9 @@ export interface UpdateQuestionInput {
 
 /**
  * Create a new question with optional answer options
+ * 
+ * Required permissions: questions.create, courses.manage, or instructor.access
+ * RLS Policy: questions_insert_with_permission
  */
 export async function createQuestion(input: CreateQuestionInput): Promise<QuestionWithOptions | null> {
   const supabase = createClient()
@@ -128,7 +134,13 @@ export async function createQuestion(input: CreateQuestionInput): Promise<Questi
       .select()
       .single()
 
-    if (questionError) throw questionError
+    if (questionError) {
+      // Check for permission error
+      if (questionError.code === '42501') {
+        throw new Error('Insufficient permissions to create question')
+      }
+      throw questionError
+    }
 
     // Insert options if provided
     let options: QuestionOption[] = []
@@ -249,6 +261,9 @@ export async function getQuestions(filters: {
 
 /**
  * Update a question
+ * 
+ * Required permissions: Question creator OR questions.update OR courses.manage
+ * RLS Policy: questions_update_creator_or_permission
  */
 export async function updateQuestion(
   questionId: string,
@@ -264,7 +279,13 @@ export async function updateQuestion(
       .select()
       .single()
 
-    if (error) throw error
+    if (error) {
+      // Check for permission error
+      if (error.code === '42501') {
+        throw new Error('Insufficient permissions to update question')
+      }
+      throw error
+    }
     return data
   } catch (error) {
     console.error('Error updating question:', error)
@@ -274,6 +295,9 @@ export async function updateQuestion(
 
 /**
  * Delete a question (soft delete by setting is_active = false)
+ * 
+ * Required permissions: Question creator OR questions.delete OR courses.manage
+ * RLS Policy: questions_delete_creator_or_permission (hard delete), questions_update_creator_or_permission (soft delete)
  */
 export async function deleteQuestion(questionId: string, hardDelete = false): Promise<boolean> {
   const supabase = createClient()
@@ -281,13 +305,25 @@ export async function deleteQuestion(questionId: string, hardDelete = false): Pr
   try {
     if (hardDelete) {
       const { error } = await supabase.from('questions').delete().eq('id', questionId)
-      if (error) throw error
+      if (error) {
+        // Check for permission error
+        if (error.code === '42501') {
+          throw new Error('Insufficient permissions to delete question')
+        }
+        throw error
+      }
     } else {
       const { error } = await supabase
         .from('questions')
         .update({ is_active: false })
         .eq('id', questionId)
-      if (error) throw error
+      if (error) {
+        // Check for permission error
+        if (error.code === '42501') {
+          throw new Error('Insufficient permissions to update question')
+        }
+        throw error
+      }
     }
     return true
   } catch (error) {

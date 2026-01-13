@@ -1,6 +1,9 @@
 /**
  * Quiz Service
  * Manages quiz configuration, attempts, and scoring
+ * 
+ * Security: All mutations protected by permission checks via RLS policies.
+ * Policies defined in migrations 020-023.
  */
 
 import { createClient } from '@/lib/supabase/client'
@@ -93,6 +96,9 @@ export interface QuizWithQuestions extends Quiz {
 
 /**
  * Create a new quiz
+ * 
+ * Required permissions: quizzes.create, courses.manage, or instructor.access
+ * RLS Policy: quizzes_insert_with_permission
  */
 export async function createQuiz(input: Partial<Quiz>): Promise<Quiz | null> {
   const supabase = createClient()
@@ -125,7 +131,13 @@ export async function createQuiz(input: Partial<Quiz>): Promise<Quiz | null> {
       .select()
       .single()
 
-    if (error) throw error
+    if (error) {
+      // Check for permission error
+      if (error.code === '42501') {
+        throw new Error('Insufficient permissions to create quiz')
+      }
+      throw error
+    }
     return data
   } catch (error) {
     console.error('Error creating quiz:', error)
@@ -252,6 +264,9 @@ export async function getQuizzes(filters: {
 
 /**
  * Update quiz
+ * 
+ * Required permissions: Quiz creator OR quizzes.update OR courses.manage
+ * RLS Policy: quizzes_update_creator_or_permission
  */
 export async function updateQuiz(quizId: string, updates: Partial<Quiz>): Promise<Quiz | null> {
   const supabase = createClient()
@@ -264,7 +279,13 @@ export async function updateQuiz(quizId: string, updates: Partial<Quiz>): Promis
       .select()
       .single()
 
-    if (error) throw error
+    if (error) {
+      // Check for permission error
+      if (error.code === '42501') {
+        throw new Error('Insufficient permissions to update quiz')
+      }
+      throw error
+    }
     return data
   } catch (error) {
     console.error('Error updating quiz:', error)
@@ -274,13 +295,22 @@ export async function updateQuiz(quizId: string, updates: Partial<Quiz>): Promis
 
 /**
  * Delete quiz
+ * 
+ * Required permissions: Quiz creator OR quizzes.delete OR courses.manage
+ * RLS Policy: quizzes_delete_creator_or_permission
  */
 export async function deleteQuiz(quizId: string): Promise<boolean> {
   const supabase = createClient()
 
   try {
     const { error } = await supabase.from('quizzes').delete().eq('id', quizId)
-    if (error) throw error
+    if (error) {
+      // Check for permission error
+      if (error.code === '42501') {
+        throw new Error('Insufficient permissions to delete quiz')
+      }
+      throw error
+    }
     return true
   } catch (error) {
     console.error('Error deleting quiz:', error)

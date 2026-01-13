@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { PermissionGate } from '@/components/shared/PermissionGate';
 import { Users, UserPlus, Mail, Trash2, CheckCircle, Clock, AlertCircle, ArrowLeft, Download } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -370,17 +371,19 @@ export default function TeamManagementPage() {
                     <Badge variant="outline" className="text-gray-600">Active</Badge>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
-                    {member.email !== organization?.admin_email && (
-                      <button
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50 rounded p-2"
-                        onClick={() => handleRemoveMember(member.email)}
-                        title="Remove member"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
-                    )}
+                    <PermissionGate permissions={['users.manage', 'organizations.manage']}>
+                      {member.email !== organization?.admin_email && (
+                        <button
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50 rounded p-2"
+                          onClick={() => handleRemoveMember(member.email)}
+                          title="Remove member"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      )}
+                    </PermissionGate>
                   </td>
                 </tr>
               ))}
