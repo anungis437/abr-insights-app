@@ -9,8 +9,9 @@
 -- These will be recreated with new signatures. Migrations 022-023 will recreate policies.
 -- ============================================================================
 
--- Drop old 2-parameter version of has_permission (from migration 018)
+-- Drop both potential overloads of has_permission
 DROP FUNCTION IF EXISTS public.has_permission(UUID, TEXT) CASCADE;
+DROP FUNCTION IF EXISTS public.has_permission(UUID, UUID, TEXT) CASCADE;
 
 -- ============================================================================
 -- PERMISSION CHECK FUNCTIONS (Enhanced) - PUBLIC SCHEMA
@@ -39,7 +40,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
 
-COMMENT ON FUNCTION public.has_permission IS 'Check if user has specific permission in org context';
+COMMENT ON FUNCTION public.has_permission(UUID, UUID, TEXT) IS 'Check if user has specific permission in org context';
 
 -- Check if user has ANY of the provided permissions
 CREATE OR REPLACE FUNCTION public.has_any_permission(
@@ -62,7 +63,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
 
-COMMENT ON FUNCTION public.has_any_permission IS 'Check if user has ANY of the specified permissions';
+COMMENT ON FUNCTION public.has_any_permission(UUID, UUID, TEXT[]) IS 'Check if user has ANY of the specified permissions';
 
 -- Check if user has ALL of the provided permissions
 CREATE OR REPLACE FUNCTION public.has_all_permissions(
@@ -90,7 +91,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
 
-COMMENT ON FUNCTION public.has_all_permissions IS 'Check if user has ALL of the specified permissions';
+COMMENT ON FUNCTION public.has_all_permissions(UUID, UUID, TEXT[]) IS 'Check if user has ALL of the specified permissions';
 
 -- Check if user has permission on specific resource
 CREATE OR REPLACE FUNCTION public.has_resource_permission(
@@ -145,7 +146,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
 
-COMMENT ON FUNCTION public.has_resource_permission IS 'Check permission on specific resource instance';
+COMMENT ON FUNCTION public.has_resource_permission(UUID, TEXT, UUID, TEXT) IS 'Check permission on specific resource instance';
 
 -- ============================================================================
 -- ROLE-BASED CONVENIENCE FUNCTIONS (For backwards compatibility)
@@ -168,7 +169,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
 
-COMMENT ON FUNCTION public.has_role IS 'Check if user has specific role (backwards compatibility)';
+COMMENT ON FUNCTION public.has_role(UUID, TEXT) IS 'Check if user has specific role (backwards compatibility)';
 
 -- Check if user has ANY of the provided roles
 CREATE OR REPLACE FUNCTION public.has_any_role(
@@ -187,7 +188,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
 
-COMMENT ON FUNCTION public.has_any_role IS 'Check if user has ANY of the specified roles';
+COMMENT ON FUNCTION public.has_any_role(UUID, TEXT[]) IS 'Check if user has ANY of the specified roles';
 
 -- Check if user is admin or higher
 CREATE OR REPLACE FUNCTION public.is_admin(p_user_id UUID)
@@ -203,7 +204,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
 
-COMMENT ON FUNCTION public.is_admin IS 'Check if user has admin, org_admin, or super_admin role';
+COMMENT ON FUNCTION public.is_admin(UUID) IS 'Check if user has admin, org_admin, or super_admin role';
 
 -- Check if user is super admin
 CREATE OR REPLACE FUNCTION public.is_super_admin(p_user_id UUID)
@@ -219,7 +220,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
 
-COMMENT ON FUNCTION public.is_super_admin IS 'Check if user has super_admin role';
+COMMENT ON FUNCTION public.is_super_admin(UUID) IS 'Check if user has super_admin role';
 
 -- ============================================================================
 -- TENANT ISOLATION HELPER FUNCTIONS
@@ -237,7 +238,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
 
-COMMENT ON FUNCTION public.user_organization_id IS 'Get the organization ID for the current user';
+COMMENT ON FUNCTION public.user_organization_id() IS 'Get the organization ID for the current user';
 
 -- Check if user belongs to organization
 CREATE OR REPLACE FUNCTION public.belongs_to_organization(
@@ -255,7 +256,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
 
-COMMENT ON FUNCTION public.belongs_to_organization IS 'Check if user belongs to specific organization';
+COMMENT ON FUNCTION public.belongs_to_organization(UUID, UUID) IS 'Check if user belongs to specific organization';
 
 -- Check if resource belongs to user's organization
 CREATE OR REPLACE FUNCTION public.resource_in_user_org(
@@ -290,7 +291,7 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
-COMMENT ON FUNCTION public.resource_in_user_org IS 'Check if resource belongs to user organization (dynamic)';
+COMMENT ON FUNCTION public.resource_in_user_org(TEXT, UUID) IS 'Check if resource belongs to user organization (dynamic)';
 
 -- ============================================================================
 -- PERFORMANCE: CREATE INDEXES ON USER_ROLES FOR PERMISSION CHECKS
