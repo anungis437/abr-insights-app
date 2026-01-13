@@ -3,7 +3,7 @@
  * Handles follows, study buddies, activity feeds, and social features
  */
 
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createBrowserClient } from '@supabase/ssr';
 
 // =====================================================
 // Type Definitions
@@ -242,7 +242,10 @@ export interface SocialSummary {
 // =====================================================
 
 export class SocialService {
-  private supabase = createClientComponentClient();
+  private supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
 
   // =====================================================
   // User Profiles

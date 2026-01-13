@@ -4,7 +4,7 @@
  * Handles achievements, points, rewards, leaderboards, social learning
  */
 
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createBrowserClient } from '@supabase/ssr';
 
 // =====================================================
 // Type Definitions
@@ -223,7 +223,10 @@ export interface CoursePeerReview {
 // =====================================================
 
 export class CourseGamificationService {
-  private supabase = createClientComponentClient();
+  private supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
 
   // =====================================================
   // Achievement Methods
