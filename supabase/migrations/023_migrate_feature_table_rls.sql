@@ -36,8 +36,8 @@ CREATE POLICY "enrollments_select_with_permission"
     ON enrollments
     FOR SELECT
     USING (
-        organization_id = auth.user_organization_id()
-        AND auth.has_any_permission(
+        organization_id = public.user_organization_id()
+        AND public.has_any_permission(
             auth.uid(),
             organization_id,
             ARRAY['enrollments.view_all', 'courses.manage', 'analytics.view_team', 'analytics.view_org']
@@ -50,8 +50,8 @@ CREATE POLICY "enrollments_insert_with_permission"
     WITH CHECK (
         user_id = auth.uid()  -- Users can enroll themselves
         OR (
-            organization_id = auth.user_organization_id()
-            AND auth.has_any_permission(
+            organization_id = public.user_organization_id()
+            AND public.has_any_permission(
                 auth.uid(),
                 organization_id,
                 ARRAY['enrollments.create', 'courses.manage', 'users.manage']
@@ -68,8 +68,8 @@ CREATE POLICY "enrollments_update_with_permission"
     ON enrollments
     FOR UPDATE
     USING (
-        organization_id = auth.user_organization_id()
-        AND auth.has_any_permission(
+        organization_id = public.user_organization_id()
+        AND public.has_any_permission(
             auth.uid(),
             organization_id,
             ARRAY['enrollments.update_any', 'courses.manage']
@@ -80,10 +80,10 @@ CREATE POLICY "enrollments_delete_with_permission"
     ON enrollments
     FOR DELETE
     USING (
-        organization_id = auth.user_organization_id()
+        organization_id = public.user_organization_id()
         AND (
-            auth.has_permission(auth.uid(), organization_id, 'enrollments.delete')
-            OR auth.is_admin(auth.uid())
+            public.has_permission(auth.uid(), organization_id, 'enrollments.delete')
+            OR public.is_admin(auth.uid())
         )
     );
 
@@ -109,7 +109,7 @@ CREATE POLICY "modules_select_with_permission"
     ON course_modules
     FOR SELECT
     USING (
-        auth.has_any_permission(
+        public.has_any_permission(
             auth.uid(),
             (SELECT organization_id FROM courses WHERE id = course_modules.course_id),
             ARRAY['courses.view', 'courses.manage', 'instructor.access']
@@ -120,7 +120,7 @@ CREATE POLICY "modules_insert_with_permission"
     ON course_modules
     FOR INSERT
     WITH CHECK (
-        auth.has_any_permission(
+        public.has_any_permission(
             auth.uid(),
             (SELECT organization_id FROM courses WHERE id = course_modules.course_id),
             ARRAY['courses.create', 'courses.manage', 'instructor.access']
@@ -142,7 +142,7 @@ CREATE POLICY "modules_update_with_permission"
     ON course_modules
     FOR UPDATE
     USING (
-        auth.has_any_permission(
+        public.has_any_permission(
             auth.uid(),
             (SELECT organization_id FROM courses WHERE id = course_modules.course_id),
             ARRAY['courses.update', 'courses.manage']
@@ -153,12 +153,12 @@ CREATE POLICY "modules_delete_with_permission"
     ON course_modules
     FOR DELETE
     USING (
-        auth.has_any_permission(
+        public.has_any_permission(
             auth.uid(),
             (SELECT organization_id FROM courses WHERE id = course_modules.course_id),
             ARRAY['courses.delete', 'courses.manage']
         )
-        OR auth.is_admin(auth.uid())
+        OR public.is_admin(auth.uid())
     );
 
 CREATE POLICY "modules_.*_bypass"
@@ -184,8 +184,8 @@ CREATE POLICY "progress_select_with_permission"
     ON lesson_progress
     FOR SELECT
     USING (
-        organization_id = auth.user_organization_id()
-        AND auth.has_any_permission(
+        organization_id = public.user_organization_id()
+        AND public.has_any_permission(
             auth.uid(),
             organization_id,
             ARRAY['progress.view_all', 'analytics.view_team', 'analytics.view_org', 'instructor.access']
@@ -206,8 +206,8 @@ CREATE POLICY "progress_update_with_permission"
     ON lesson_progress
     FOR UPDATE
     USING (
-        organization_id = auth.user_organization_id()
-        AND auth.has_permission(auth.uid(), organization_id, 'progress.update_any')
+        organization_id = public.user_organization_id()
+        AND public.has_permission(auth.uid(), organization_id, 'progress.update_any')
     );
 
 CREATE POLICY "progress_.*_bypass"
@@ -233,8 +233,8 @@ CREATE POLICY "attempts_select_with_permission"
     ON quiz_attempts
     FOR SELECT
     USING (
-        organization_id = auth.user_organization_id()
-        AND auth.has_any_permission(
+        organization_id = public.user_organization_id()
+        AND public.has_any_permission(
             auth.uid(),
             organization_id,
             ARRAY['quizzes.review', 'quizzes.manage', 'analytics.view_team', 'instructor.access']
@@ -246,7 +246,7 @@ CREATE POLICY "attempts_insert_own"
     FOR INSERT
     WITH CHECK (
         user_id = auth.uid()
-        AND auth.has_permission(
+        AND public.has_permission(
             auth.uid(),
             organization_id,
             'quizzes.take'
@@ -265,8 +265,8 @@ CREATE POLICY "attempts_update_with_permission"
     ON quiz_attempts
     FOR UPDATE
     USING (
-        organization_id = auth.user_organization_id()
-        AND auth.has_any_permission(
+        organization_id = public.user_organization_id()
+        AND public.has_any_permission(
             auth.uid(),
             organization_id,
             ARRAY['quizzes.review', 'quizzes.grade', 'quizzes.manage']
@@ -300,7 +300,7 @@ CREATE POLICY "questions_select_with_permission"
     ON questions
     FOR SELECT
     USING (
-        auth.has_any_permission(
+        public.has_any_permission(
             auth.uid(),
             (SELECT organization_id FROM quizzes WHERE id = questions.quiz_id),
             ARRAY['quizzes.create', 'quizzes.update', 'quizzes.manage', 'instructor.access']
@@ -311,7 +311,7 @@ CREATE POLICY "questions_insert_with_permission"
     ON questions
     FOR INSERT
     WITH CHECK (
-        auth.has_any_permission(
+        public.has_any_permission(
             auth.uid(),
             (SELECT organization_id FROM quizzes WHERE id = questions.quiz_id),
             ARRAY['quizzes.create', 'quizzes.manage', 'instructor.access']
@@ -333,7 +333,7 @@ CREATE POLICY "questions_update_with_permission"
     ON questions
     FOR UPDATE
     USING (
-        auth.has_any_permission(
+        public.has_any_permission(
             auth.uid(),
             (SELECT organization_id FROM quizzes WHERE id = questions.quiz_id),
             ARRAY['quizzes.update', 'quizzes.manage']
@@ -344,12 +344,12 @@ CREATE POLICY "questions_delete_with_permission"
     ON questions
     FOR DELETE
     USING (
-        auth.has_any_permission(
+        public.has_any_permission(
             auth.uid(),
             (SELECT organization_id FROM quizzes WHERE id = questions.quiz_id),
             ARRAY['quizzes.delete', 'quizzes.manage']
         )
-        OR auth.is_admin(auth.uid())
+        OR public.is_admin(auth.uid())
     );
 
 CREATE POLICY "questions_.*_bypass"
@@ -379,9 +379,9 @@ CREATE POLICY "responses_select_with_permission"
     ON quiz_responses
     FOR SELECT
     USING (
-        auth.has_any_permission(
+        public.has_any_permission(
             auth.uid(),
-            auth.user_organization_id(),
+            public.user_organization_id(),
             ARRAY['quizzes.review', 'quizzes.grade', 'quizzes.manage']
         )
     );
@@ -402,9 +402,9 @@ CREATE POLICY "responses_update_with_permission"
     ON quiz_responses
     FOR UPDATE
     USING (
-        auth.has_any_permission(
+        public.has_any_permission(
             auth.uid(),
-            auth.user_organization_id(),
+            public.user_organization_id(),
             ARRAY['quizzes.grade', 'quizzes.manage']
         )
     );
@@ -429,9 +429,9 @@ CREATE POLICY "achievements_select_with_permission"
     ON course_achievements
     FOR SELECT
     USING (
-        auth.has_any_permission(
+        public.has_any_permission(
             auth.uid(),
-            auth.user_organization_id(),
+            public.user_organization_id(),
             ARRAY['achievements.view', 'achievements.manage', 'gamification.manage']
         )
     );
@@ -440,9 +440,9 @@ CREATE POLICY "achievements_insert_with_permission"
     ON course_achievements
     FOR INSERT
     WITH CHECK (
-        auth.has_any_permission(
+        public.has_any_permission(
             auth.uid(),
-            auth.user_organization_id(),
+            public.user_organization_id(),
             ARRAY['achievements.create', 'achievements.manage', 'gamification.manage']
         )
     );
@@ -451,9 +451,9 @@ CREATE POLICY "achievements_update_with_permission"
     ON course_achievements
     FOR UPDATE
     USING (
-        auth.has_any_permission(
+        public.has_any_permission(
             auth.uid(),
-            auth.user_organization_id(),
+            public.user_organization_id(),
             ARRAY['achievements.update', 'achievements.manage', 'gamification.manage']
         )
     );
@@ -462,8 +462,8 @@ CREATE POLICY "achievements_delete_with_permission"
     ON course_achievements
     FOR DELETE
     USING (
-        auth.has_permission(auth.uid(), auth.user_organization_id(), 'achievements.manage')
-        OR auth.is_admin(auth.uid())
+        public.has_permission(auth.uid(), public.user_organization_id(), 'achievements.manage')
+        OR public.is_admin(auth.uid())
     );
 
 CREATE POLICY "achievements_.*_bypass"
@@ -492,9 +492,9 @@ CREATE POLICY "user_achievements_select_with_permission"
     ON user_course_achievements
     FOR SELECT
     USING (
-        auth.has_any_permission(
+        public.has_any_permission(
             auth.uid(),
-            auth.user_organization_id(),
+            public.user_organization_id(),
             ARRAY['achievements.view_all', 'gamification.view', 'analytics.view_org']
         )
     );
@@ -503,9 +503,9 @@ CREATE POLICY "user_achievements_insert_with_permission"
     ON user_course_achievements
     FOR INSERT
     WITH CHECK (
-        auth.has_any_permission(
+        public.has_any_permission(
             auth.uid(),
-            auth.user_organization_id(),
+            public.user_organization_id(),
             ARRAY['achievements.grant', 'gamification.manage']
         )
     );
@@ -536,9 +536,9 @@ CREATE POLICY "achievement_progress_select_with_permission"
     ON course_achievement_progress
     FOR SELECT
     USING (
-        auth.has_any_permission(
+        public.has_any_permission(
             auth.uid(),
-            auth.user_organization_id(),
+            public.user_organization_id(),
             ARRAY['achievements.view_all', 'gamification.view', 'analytics.view_org']
         )
     );
@@ -573,9 +573,9 @@ CREATE POLICY "streaks_select_with_permission"
     ON course_user_streaks
     FOR SELECT
     USING (
-        auth.has_any_permission(
+        public.has_any_permission(
             auth.uid(),
-            auth.user_organization_id(),
+            public.user_organization_id(),
             ARRAY['gamification.view', 'analytics.view_team', 'analytics.view_org']
         )
     );
@@ -611,9 +611,9 @@ CREATE POLICY "points_select_with_permission"
     ON user_course_points
     FOR SELECT
     USING (
-        auth.has_any_permission(
+        public.has_any_permission(
             auth.uid(),
-            auth.user_organization_id(),
+            public.user_organization_id(),
             ARRAY['gamification.view', 'gamification.manage', 'analytics.view_org']
         )
     );
@@ -622,14 +622,14 @@ CREATE POLICY "points_insert_with_permission"
     ON user_course_points
     FOR INSERT
     WITH CHECK (
-        auth.has_permission(auth.uid(), auth.user_organization_id(), 'gamification.manage')
+        public.has_permission(auth.uid(), public.user_organization_id(), 'gamification.manage')
     );
 
 CREATE POLICY "points_update_with_permission"
     ON user_course_points
     FOR UPDATE
     USING (
-        auth.has_permission(auth.uid(), auth.user_organization_id(), 'gamification.manage')
+        public.has_permission(auth.uid(), public.user_organization_id(), 'gamification.manage')
     );
 
 CREATE POLICY "points_.*_bypass"
@@ -652,9 +652,9 @@ CREATE POLICY "transactions_select_with_permission"
     ON course_points_transactions
     FOR SELECT
     USING (
-        auth.has_any_permission(
+        public.has_any_permission(
             auth.uid(),
-            auth.user_organization_id(),
+            public.user_organization_id(),
             ARRAY['gamification.view_all', 'analytics.view_org', 'audit_logs.view_all']
         )
     );
@@ -663,7 +663,7 @@ CREATE POLICY "transactions_insert_with_permission"
     ON course_points_transactions
     FOR INSERT
     WITH CHECK (
-        auth.has_permission(auth.uid(), auth.user_organization_id(), 'gamification.manage')
+        public.has_permission(auth.uid(), public.user_organization_id(), 'gamification.manage')
     );
 
 CREATE POLICY "transactions_.*_bypass"
@@ -686,7 +686,7 @@ CREATE POLICY "leaderboards_insert_with_permission"
     ON course_leaderboards
     FOR INSERT
     WITH CHECK (
-        auth.has_any_permission(
+        public.has_any_permission(
             auth.uid(),
             organization_id,
             ARRAY['gamification.create', 'gamification.manage']
@@ -697,7 +697,7 @@ CREATE POLICY "leaderboards_update_with_permission"
     ON course_leaderboards
     FOR UPDATE
     USING (
-        auth.has_any_permission(
+        public.has_any_permission(
             auth.uid(),
             organization_id,
             ARRAY['gamification.update', 'gamification.manage']
@@ -708,8 +708,8 @@ CREATE POLICY "leaderboards_delete_with_permission"
     ON course_leaderboards
     FOR DELETE
     USING (
-        auth.has_permission(auth.uid(), organization_id, 'gamification.manage')
-        OR auth.is_admin(auth.uid())
+        public.has_permission(auth.uid(), organization_id, 'gamification.manage')
+        OR public.is_admin(auth.uid())
     );
 
 CREATE POLICY "leaderboards_.*_bypass"
@@ -766,9 +766,9 @@ CREATE POLICY "groups_select_with_permission"
     ON course_study_groups
     FOR SELECT
     USING (
-        auth.has_any_permission(
+        public.has_any_permission(
             auth.uid(),
-            auth.user_organization_id(),
+            public.user_organization_id(),
             ARRAY['social.view_groups', 'social.moderate_groups', 'gamification.view']
         )
     );
@@ -778,7 +778,7 @@ CREATE POLICY "groups_insert_with_permission"
     FOR INSERT
     WITH CHECK (
         created_by = auth.uid()
-        AND auth.has_permission(auth.uid(), auth.user_organization_id(), 'social.create_groups')
+        AND public.has_permission(auth.uid(), public.user_organization_id(), 'social.create_groups')
     );
 
 CREATE POLICY "groups_update_owner"
@@ -790,9 +790,9 @@ CREATE POLICY "groups_update_with_permission"
     ON course_study_groups
     FOR UPDATE
     USING (
-        auth.has_any_permission(
+        public.has_any_permission(
             auth.uid(),
-            auth.user_organization_id(),
+            public.user_organization_id(),
             ARRAY['social.moderate_groups', 'gamification.manage']
         )
     );
@@ -806,8 +806,8 @@ CREATE POLICY "groups_delete_with_permission"
     ON course_study_groups
     FOR DELETE
     USING (
-        auth.has_permission(auth.uid(), auth.user_organization_id(), 'social.moderate_groups')
-        OR auth.is_admin(auth.uid())
+        public.has_permission(auth.uid(), public.user_organization_id(), 'social.moderate_groups')
+        OR public.is_admin(auth.uid())
     );
 
 CREATE POLICY "groups_.*_bypass"
@@ -845,7 +845,7 @@ CREATE POLICY "group_members_insert_self"
     FOR INSERT
     WITH CHECK (
         user_id = auth.uid()
-        AND auth.has_permission(auth.uid(), auth.user_organization_id(), 'social.join_groups')
+        AND public.has_permission(auth.uid(), public.user_organization_id(), 'social.join_groups')
     );
 
 CREATE POLICY "group_members_update_moderator"
@@ -875,7 +875,7 @@ CREATE POLICY "group_members_delete_moderator"
             AND m.user_id = auth.uid()
             AND m.role IN ('owner', 'moderator')
         )
-        OR auth.has_permission(auth.uid(), auth.user_organization_id(), 'social.moderate_groups')
+        OR public.has_permission(auth.uid(), public.user_organization_id(), 'social.moderate_groups')
     );
 
 CREATE POLICY "group_members_.*_bypass"
@@ -896,7 +896,7 @@ CREATE POLICY "follows_select_all"
     USING (
         follower_id = auth.uid()
         OR following_id = auth.uid()
-        OR auth.has_permission(auth.uid(), auth.user_organization_id(), 'social.view_all')
+        OR public.has_permission(auth.uid(), public.user_organization_id(), 'social.view_all')
     );
 
 CREATE POLICY "follows_insert_self"
@@ -904,7 +904,7 @@ CREATE POLICY "follows_insert_self"
     FOR INSERT
     WITH CHECK (
         follower_id = auth.uid()
-        AND auth.has_permission(auth.uid(), auth.user_organization_id(), 'social.follow')
+        AND public.has_permission(auth.uid(), public.user_organization_id(), 'social.follow')
     );
 
 CREATE POLICY "follows_update_self"
@@ -939,7 +939,7 @@ CREATE POLICY "reviews_insert_with_permission"
     FOR INSERT
     WITH CHECK (
         reviewer_id = auth.uid()
-        AND auth.has_permission(auth.uid(), auth.user_organization_id(), 'social.review')
+        AND public.has_permission(auth.uid(), public.user_organization_id(), 'social.review')
     );
 
 CREATE POLICY "reviews_update_own"
@@ -956,8 +956,8 @@ CREATE POLICY "reviews_delete_with_permission"
     ON course_peer_reviews
     FOR DELETE
     USING (
-        auth.has_permission(auth.uid(), auth.user_organization_id(), 'social.moderate')
-        OR auth.is_admin(auth.uid())
+        public.has_permission(auth.uid(), public.user_organization_id(), 'social.moderate')
+        OR public.is_admin(auth.uid())
     );
 
 CREATE POLICY "reviews_.*_bypass"
@@ -981,7 +981,7 @@ CREATE POLICY "paths_select_with_permission"
     ON learning_paths
     FOR SELECT
     USING (
-        auth.has_any_permission(
+        public.has_any_permission(
             auth.uid(),
             organization_id,
             ARRAY['courses.view', 'courses.manage', 'instructor.access']
@@ -993,7 +993,7 @@ CREATE POLICY "paths_insert_with_permission"
     FOR INSERT
     WITH CHECK (
         created_by = auth.uid()
-        AND auth.has_any_permission(
+        AND public.has_any_permission(
             auth.uid(),
             organization_id,
             ARRAY['courses.create', 'courses.manage', 'instructor.access']
@@ -1009,7 +1009,7 @@ CREATE POLICY "paths_update_with_permission"
     ON learning_paths
     FOR UPDATE
     USING (
-        auth.has_any_permission(
+        public.has_any_permission(
             auth.uid(),
             organization_id,
             ARRAY['courses.update', 'courses.manage']
@@ -1020,12 +1020,12 @@ CREATE POLICY "paths_delete_with_permission"
     ON learning_paths
     FOR DELETE
     USING (
-        auth.has_any_permission(
+        public.has_any_permission(
             auth.uid(),
             organization_id,
             ARRAY['courses.delete', 'courses.manage']
         )
-        OR auth.is_admin(auth.uid())
+        OR public.is_admin(auth.uid())
     );
 
 CREATE POLICY "paths_.*_bypass"
@@ -1049,9 +1049,9 @@ CREATE POLICY "path_enrollments_select_with_permission"
     ON learning_path_enrollments
     FOR SELECT
     USING (
-        auth.has_any_permission(
+        public.has_any_permission(
             auth.uid(),
-            auth.user_organization_id(),
+            public.user_organization_id(),
             ARRAY['enrollments.view_all', 'analytics.view_team', 'analytics.view_org']
         )
     );
@@ -1111,9 +1111,9 @@ SELECT
     tablename,
     policyname,
     CASE
-        WHEN pg_get_expr(qual, tablename::regclass) LIKE '%auth.has_permission%' THEN 'Permission-based'
-        WHEN pg_get_expr(qual, tablename::regclass) LIKE '%auth.has_any_permission%' THEN 'Permission-based (any)'
-        WHEN pg_get_expr(qual, tablename::regclass) LIKE '%auth.is_admin%' THEN 'Admin check'
+        WHEN pg_get_expr(qual, tablename::regclass) LIKE '%public.has_permission%' THEN 'Permission-based'
+        WHEN pg_get_expr(qual, tablename::regclass) LIKE '%public.has_any_permission%' THEN 'Permission-based (any)'
+        WHEN pg_get_expr(qual, tablename::regclass) LIKE '%public.is_admin%' THEN 'Admin check'
         WHEN pg_get_expr(qual, tablename::regclass) LIKE '%.*%' THEN 'Service role'
         ELSE 'Other'
     END as policy_type
