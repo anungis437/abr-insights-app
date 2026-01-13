@@ -5,6 +5,7 @@ import { AuthProvider } from '@/lib/auth/AuthContext'
 import { LanguageProvider } from '@/lib/contexts/LanguageContext'
 import NavigationWrapper from '@/components/shared/navigation/NavigationWrapper'
 import FooterWrapper from '@/components/shared/footer/FooterWrapper'
+import SidebarWrapper from '@/components/shared/sidebar/SidebarWrapper'
 import { PWAProvider } from '@/components/shared/PWAComponents'
 
 const poppins = Poppins({
@@ -101,7 +102,8 @@ export default function RootLayout({
           <LanguageProvider>
             <PWAProvider>
               <NavigationWrapper />
-              <main>{children}</main>
+              <SidebarWrapper />
+              <main className="min-h-screen pt-16 lg:pl-64">{children}</main>
               <FooterWrapper />
             </PWAProvider>
           </LanguageProvider>
