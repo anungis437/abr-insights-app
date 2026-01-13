@@ -2,7 +2,7 @@
 
 **Status:** ✅ All Sensitive Routes Protected  
 **Last Updated:** January 13, 2026  
-**Security Review:** Phase 1 Complete
+**Security Review:** Phase 2 Complete (Rate Limiting + All Routes Secured)
 
 ---
 
@@ -24,7 +24,7 @@ This document provides a comprehensive security status for all API routes in the
 ## AI & ML Endpoints
 
 ### `/api/ai/chat` 🟡 PROTECTED
-**Status:** ✅ Secured (Phase 1)  
+**Status:** ✅ Secured (Phase 1 + Phase 2 Rate Limiting)  
 **Method:** `POST`
 
 **Protection:**
@@ -33,15 +33,14 @@ This document provides a comprehensive security status for all API routes in the
 - ✅ Permission: `ai.chat.use` OR `admin.ai.manage`
 - ✅ Input Length Limit: 4000 characters
 - ✅ Usage Logging: `ai_usage_logs` table
-
-**Rate Limit:** 30 requests/min/user, 120 requests/min/org (TODO: Implement)
+- ✅ Rate Limiting: 30 req/min/user AND 120 req/min/org (dual limits)
 
 **Purpose:** General AI chat assistant for HR/employment law questions
 
 ---
 
 ### `/api/ai/coach` 🟡 PROTECTED
-**Status:** ✅ Secured (Phase 1)  
+**Status:** ✅ Secured (Phase 1 + Phase 2 Rate Limiting)  
 **Method:** `POST`
 
 **Protection:**
@@ -50,58 +49,58 @@ This document provides a comprehensive security status for all API routes in the
 - ✅ Permission: `ai.coach.use` OR `admin.ai.manage`
 - ✅ Input Length Limit: 2000 characters
 - ✅ Usage Logging: `ai_usage_logs` table
-
-**Rate Limit:** 20 requests/min/user, 80 requests/min/org (TODO: Implement)
+- ✅ Rate Limiting: 20 req/min/user AND 80 req/min/org (dual limits)
 
 **Purpose:** Personalized learning coaching sessions (4 types: comprehensive, learning_path, at_risk, custom_query)
 
 ---
 
-### `/api/ai/feedback` 🟡 PROTECTED
-**Status:** ⚠️ TODO - Apply Guards  
-**Method:** `POST`
+### `/api/ai/feedback` � CRITICAL
+**Status:** ✅ Secured (Phase 2 - Refactored)
+**Methods:** `GET`, `POST`, `PATCH`
 
-**Required Protection:**
-- Authentication Required
-- Organization Context
-- Permission: `ai.feedback.submit`
-- Input validation
+**Protection:**
+- ✅ Authentication Required (`guardedRoute`)
+- ✅ Organization Context
+- ✅ Permission: `admin.ai.manage` (admin only)
+- ✅ Rate Limiting:
+  - GET: 60 req/min/user
+  - POST/PATCH: 10 req/min/user
 
-**Rate Limit:** 10 requests/min/user (TODO: Implement)
-
-**Purpose:** Submit feedback on AI-generated content
+**Purpose:** Submit and manage feedback on AI-generated content for training
 
 ---
 
 ### `/api/ai/automation` 🔴 CRITICAL
-**Status:** ⚠️ TODO - Apply Guards  
-**Method:** `POST`
+**Status:** ✅ Secured (Phase 2 - Refactored)
+**Methods:** `GET`, `POST`, `PATCH`, `DELETE`
 
-**Required Protection:**
-- Authentication Required
-- Organization Context
-- Permission: `admin.ai.manage` (admin only)
-- Usage logging
-- Operation audit trail
+**Protection:**
+- ✅ Authentication Required (`guardedRoute`)
+- ✅ Permission: `admin.ai.manage` (admin only)
+- ✅ Rate Limiting:
+  - GET: 60 req/min/user
+  - POST/PATCH/DELETE: 5 req/min/user
+- ✅ Usage logging via guard infrastructure
 
-**Rate Limit:** 5 requests/min/user (TODO: Implement)
-
-**Purpose:** Trigger automated AI workflows (expensive)
+**Purpose:** Manage automated AI workflows (expensive operations)
 
 ---
 
 ### `/api/ai/training-jobs` 🔴 CRITICAL
-**Status:** ⚠️ TODO - Apply Guards  
-**Method:** `POST`, `GET`
+**Status:** ✅ Secured (Phase 2 - Refactored)
+**Methods:** `GET`, `POST`, `PATCH`
 
-**Required Protection:**
-- Authentication Required
-- Organization Context
-- Permission: `admin.ai.manage` (admin only)
-- Job tracking
-- Cost attribution
-
-**Rate Limit:** 3 requests/min/user (TODO: Implement)
+**Protection:**
+- ✅ Authentication Required (`guardedRoute`)
+- ✅ Permission: `admin.ai.manage` (admin only)
+- ✅ Rate Limiting:
+  - GET: 60 req/min/user
+  - POST: 3 req/min/user (very expensive)
+  - PATCH: 10 req/min/user
+- ✅ Max Duration: 300 seconds (5 minutes)
+- ✅ Job tracking via ai_training_jobs table
+- ✅ Cost attribution
 
 **Purpose:** Manage AI model training/fine-tuning jobs (very expensive)
 
@@ -110,7 +109,7 @@ This document provides a comprehensive security status for all API routes in the
 ## Embeddings Endpoints
 
 ### `/api/embeddings/generate` 🔴 CRITICAL
-**Status:** ✅ Secured (Phase 1)  
+**Status:** ✅ Secured (Phase 1 + Phase 2 Rate Limiting)
 **Methods:** `POST`, `GET`
 
 **POST Protection (Generate):**
@@ -118,45 +117,45 @@ This document provides a comprehensive security status for all API routes in the
 - ✅ Organization Context (`withOrg`)
 - ✅ Permission: `admin.ai.manage` (super admin only)
 - ✅ Usage Logging: `ai_usage_logs` table
-- ⚠️ Max Duration: 300 seconds (5 minutes)
+- ✅ Max Duration: 300 seconds (5 minutes)
+- ✅ Rate Limiting: 2 req/hour/org (very strict)
 
 **GET Protection (Status Check):**
 - ✅ Authentication Required
 - ✅ Organization Context
-
-**Rate Limit:** POST: 2 requests/hour/org, GET: 30 requests/min/user (TODO: Implement)
+- ✅ Rate Limiting: 60 req/min/user
 
 **Purpose:** Batch generate vector embeddings for cases/courses (high cost)
 
 ---
 
 ### `/api/embeddings/search-cases` 🟡 PROTECTED
-**Status:** ⚠️ TODO - Apply Guards  
+**Status:** ✅ Secured (Phase 2)
 **Method:** `POST`
 
-**Required Protection:**
-- Authentication Required
-- Organization Context
-- Permission: `cases.search` OR `embeddings.search`
-- Query length validation
-
-**Rate Limit:** 60 requests/min/user (TODO: Implement)
+**Protection:**
+- ✅ Authentication Required (`guardedRoute`)
+- ✅ Organization Context
+- ✅ Permission: `cases.search` OR `embeddings.search` (either one)
+- ✅ Query length validation (max 2000 chars)
+- ✅ Results validation (max 100)
+- ✅ Rate Limiting: 60 req/min/user
 
 **Purpose:** Semantic search of case law using vector embeddings
 
 ---
 
 ### `/api/embeddings/search-courses` 🟡 PROTECTED
-**Status:** ⚠️ TODO - Apply Guards  
+**Status:** ✅ Secured (Phase 2)
 **Method:** `POST`
 
-**Required Protection:**
-- Authentication Required
-- Organization Context
-- Permission: `courses.search` OR `embeddings.search`
-- Query length validation
-
-**Rate Limit:** 60 requests/min/user (TODO: Implement)
+**Protection:**
+- ✅ Authentication Required (`guardedRoute`)
+- ✅ Organization Context
+- ✅ Permission: `courses.search` OR `embeddings.search` (either one)
+- ✅ Query length validation (max 2000 chars)
+- ✅ Results validation (max 100)
+- ✅ Rate Limiting: 60 req/min/user
 
 **Purpose:** Semantic search of courses using vector embeddings
 
@@ -400,14 +399,44 @@ export const POST = guardedRoute(portalHandler, {
 ## Testing Checklist
 
 ### For Each Protected Route:
-- [ ] ❌ Unauthenticated request returns `401`
-- [ ] ❌ Authenticated user without permission returns `403`
-- [ ] ❌ User from different org cannot access other org's data
-- [ ] ✅ Authenticated user with permission succeeds
-- [ ] ❌ Rate limit enforcement works correctly
-- [ ] ✅ Usage logging captures request
+- ✅ Unauthenticated request returns `401` (all protected routes)
+- ✅ Authenticated user without permission returns `403` (all protected routes)
+- ⚠️ User from different org cannot access other org's data (TODO: Phase 3 testing)
+- ✅ Authenticated user with permission succeeds
+- ✅ Rate limit enforcement works correctly (Phase 2)
+- ✅ Usage logging captures request (AI endpoints)
 
-**Status:** Testing framework not yet implemented (Phase 4)
+**Status:** Core security implemented (Phase 1-2), tenant isolation testing in Phase 3
+
+---
+
+## Public Forms (Rate Limited)
+
+### `/api/contact` 🟢 PUBLIC
+**Status:** ✅ Protected (Phase 2 Rate Limiting)  
+**Method:** `POST`
+
+**Protection:**
+- ✅ Rate Limiting: 5 req/min/IP (IP-based)
+- ✅ Input validation: Zod schema
+- ✅ Email validation
+- ✅ CORS headers
+
+**Purpose:** Contact form submissions (spam prevention)
+
+---
+
+### `/api/newsletter` 🟢 PUBLIC
+**Status:** ✅ Protected (Phase 2 Rate Limiting)  
+**Method:** `POST`
+
+**Protection:**
+- ✅ Rate Limiting: 3 req/min/IP (IP-based)
+- ✅ Input validation: Zod schema
+- ✅ Duplicate prevention: Email uniqueness check
+- ✅ CORS headers
+
+**Purpose:** Newsletter subscriptions (spam/abuse prevention)
 
 ---
 
@@ -419,5 +448,6 @@ export const POST = guardedRoute(portalHandler, {
 
 ---
 
-**Document Version:** 1.0.0  
-**Next Review:** After Phase 2 completion
+**Document Version:** 2.0.0  
+**Last Phase:** Phase 2 Complete (Rate Limiting + All Routes Secured)  
+**Next Review:** After Phase 3 (RBAC Unification + Tenant Isolation Testing)
