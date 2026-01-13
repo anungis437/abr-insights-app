@@ -5,8 +5,16 @@
 -- Requires: 018_permission_check_functions.sql, 020_comprehensive_permissions_seed.sql
 
 -- ============================================================================
+-- DROP OLD FUNCTION SIGNATURES (with CASCADE to handle dependent policies)
+-- These will be recreated with new signatures. Migrations 022-023 will recreate policies.
+-- ============================================================================
+
+-- Drop old 2-parameter version of has_permission (from migration 018)
+DROP FUNCTION IF EXISTS public.has_permission(UUID, TEXT) CASCADE;
+
+-- ============================================================================
 -- PERMISSION CHECK FUNCTIONS (Enhanced) - PUBLIC SCHEMA
--- Note: Using CREATE OR REPLACE to update existing functions without breaking policies
+-- New 3-parameter version with organization context
 -- ============================================================================
 
 -- Check if user has a specific permission (with org context)
