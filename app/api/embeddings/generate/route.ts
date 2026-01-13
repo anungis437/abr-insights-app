@@ -15,6 +15,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { guardedRoute, GuardedContext } from '@/lib/api/guard'
 import { createClient } from '@/lib/supabase/server'
+import { withRateLimit, RateLimitPresets } from '@/lib/security/rateLimit'
 import {
   generateAllCaseEmbeddings,
   generateAllCourseEmbeddings,
@@ -138,15 +139,21 @@ async function getEmbeddingStatusHandler(request: NextRequest, context: GuardedC
   }
 }
 
-// Apply route guards - POST requires admin permission (expensive operation)
-export const POST = guardedRoute(generateEmbeddingsHandler, {
-  requireAuth: true,
-  requireOrg: true,
-  permissions: ['admin.ai.manage']
-})
+// Apply route guards with rate limiting - POST requires admin permission (expensive operation)
+export const POST = withRateLimit(
+  RateLimitPresets.embeddingsGenerate,
+  guardedRoute(generateEmbeddingsHandler, {
+    requireAuth: true,
+    requireOrg: true,
+    permissions: ['admin.ai.manage']
+  })
+)
 
-// GET only requires authentication to check job status
-export const GET = guardedRoute(getEmbeddingStatusHandler, {
-  requireAuth: true,
-  requireOrg: true
-})
+// GET only requires authentication to check job status (higher rate limit)
+export const GET = withRateLimit(
+  RateLimitPresets.embeddingsSearch,
+  guardedRoute(getEmbeddingStatusHandler, {
+    requireAuth: true,
+    requireOrg: true
+  })
+)

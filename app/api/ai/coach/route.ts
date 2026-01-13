@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { guardedRoute, GuardedContext } from '@/lib/api/guard'
 import { createClient } from '@/lib/supabase/server'
+import { withMultipleRateLimits, RateLimitPresets } from '@/lib/security/rateLimit'
 
 /**
  * AI Coach API Endpoint
@@ -211,12 +212,15 @@ function generateRecommendations(stats: any, sessionType: string) {
     })
  
 
-// Apply route guards
-export const POST = guardedRoute(coachHandler, {
-  requireAuth: true,
-  requireOrg: true,
-  anyPermissions: ['ai.coach.use', 'admin.ai.manage']
-}) }
+// Apply route guards with rate limiting
+export const POST = withMultipleRateLimits(
+  [RateLimitPresets.aiCoach, RateLimitPresets.aiCoachOrg],
+  guardedRoute(coachHandler, {
+    requireAuth: true,
+    requireOrg: true,
+    anyPermissions: ['ai.coach.use', 'admin.ai.manage']
+  })
+) }
 
   // Medium priority: Build streak
   if (stats.currentStreak < 7) {

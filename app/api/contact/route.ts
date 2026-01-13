@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
+import { withRateLimit, RateLimitPresets } from '@/lib/security/rateLimit'
 import {
   sendContactFormNotification,
   sendContactFormConfirmation,
@@ -15,63 +16,66 @@ const contactSchema = z.object({
   message: z.string().min(10, 'Message must be at least 10 characters').max(5000),
 })
 
-export async function POST(request: NextRequest) {
-  try {
-    // Parse request body
-    const body = await request.json()
+export const POST = withRateLimit(
+  RateLimitPresets.contactForm,
+  async (request: NextRequest) => {
+    try {
+      // Parse request body
+      const body = await request.json()
 
-    // Validate input
-    const validatedData = contactSchema.parse(body)
+      // Validate input
+      const validatedData = contactSchema.parse(body)
 
-    // Send emails
-    const [notificationResult, confirmationResult] = await Promise.all([
-      sendContactFormNotification(validatedData as ContactFormData),
-      sendContactFormConfirmation(validatedData as ContactFormData),
-    ])
+      // Send emails
+      const [notificationResult, confirmationResult] = await Promise.all([
+        sendContactFormNotification(validatedData as ContactFormData),
+        sendContactFormConfirmation(validatedData as ContactFormData),
+      ])
 
-    // Log results but don't fail the request if emails fail
-    if (!notificationResult.success) {
-      console.error('Failed to send notification email:', notificationResult.error)
-    }
-    if (!confirmationResult.success) {
-      console.error('Failed to send confirmation email:', confirmationResult.error)
-    }
+      // Log results but don't fail the request if emails fail
+      if (!notificationResult.success) {
+        console.error('Failed to send notification email:', notificationResult.error)
+      }
+      if (!confirmationResult.success) {
+        console.error('Failed to send confirmation email:', confirmationResult.error)
+      }
 
-    return NextResponse.json(
-      {
-        success: true,
-        message: 'Thank you for contacting us! We will get back to you soon.',
-      },
-      { status: 200 }
-    )
-  } catch (error) {
-    console.error('Contact form error:', error)
+      return NextResponse.json(
+        {
+          success: true,
+          message: 'Thank you for contacting us! We will get back to you soon.',
+        },
+        { status: 200 }
+      )
+    } catch (error) {
+      console.error('Contact form error:', error)
 
-    // Handle validation errors
-    if (error instanceof z.ZodError) {
+      // Handle validation errors
+      if (error instanceof z.ZodError) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: 'Invalid form data',
+            errors: error.errors.map((err) => ({
+              field: err.path.join('.'),
+              message: err.message,
+            })),
+          },
+          { status: 400 }
+        )
+      }
+
+      // Handle other errors
       return NextResponse.json(
         {
           success: false,
-          message: 'Invalid form data',
-          errors: error.errors.map((err) => ({
-            field: err.path.join('.'),
-            message: err.message,
-          })),
+          message: 'An error occurred while processing your request. Please try again.',
         },
-        { status: 400 }
+        { status: 500 }
       )
     }
-
-    // Handle other errors
-    return NextResponse.json(
-      {
-        success: false,
-        message: 'An error occurred while processing your request. Please try again.',
-      },
-      { status: 500 }
-    )
   }
-}
+)
 
 // Handle OPTIONS request for CORS
 export async function OPTIONS() {

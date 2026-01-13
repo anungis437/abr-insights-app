@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { guardedRoute, GuardedContext } from '@/lib/api/guard';
+import { withMultipleRateLimits, RateLimitPresets } from '@/lib/security/rateLimit';
 
 /**
  * AI Chat API Endpoint
@@ -138,12 +139,15 @@ Respond in a helpful, conversational tone with actionable insights.`;
   }
 }
 
-// Apply route guards
-export const POST = guardedRoute(chatHandler, {
-  requireAuth: true,
-  requireOrg: true,
-  anyPermissions: ['ai.chat.use', 'admin.ai.manage']
-});   return NextResponse.json(
+// Apply route guards with rate limiting
+export const POST = withMultipleRateLimits(
+  [RateLimitPresets.aiChat, RateLimitPresets.aiChatOrg],
+  guardedRoute(chatHandler, {
+    requireAuth: true,
+    requireOrg: true,
+    anyPermissions: ['ai.chat.use', 'admin.ai.manage']
+  })
+);   return NextResponse.json(
       { 
         error: error.message || 'Failed to process AI request',
         details: process.env.NODE_ENV === 'development' ? error.stack : undefined
