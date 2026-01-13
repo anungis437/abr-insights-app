@@ -15,7 +15,7 @@ const AuthenticatedFooter = dynamic(() => import('./AuthenticatedFooter'), {
 /**
  * Smart footer wrapper that renders the appropriate footer based on auth state
  * - Public users see PublicFooter (marketing focused with 4 columns)
- * - Authenticated users see AuthenticatedFooter (user focused with 3 columns + user info)
+ * - Authenticated users: No footer displayed
  */
 export default function FooterWrapper() {
   const { user, loading } = useAuth()
@@ -25,5 +25,6 @@ export default function FooterWrapper() {
     return <PublicFooter />
   }
 
-  return user ? <AuthenticatedFooter /> : <PublicFooter />
+  // Hide footer when user is logged in
+  return user ? null : <PublicFooter />
 }
