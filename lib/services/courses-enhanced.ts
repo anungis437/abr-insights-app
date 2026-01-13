@@ -11,6 +11,8 @@
  * - CE credit tracking
  * 
  * Canadian Standards: WCAG 2.1 AA, PIPEDA, AODA compliance
+ * 
+ * Security: All mutations protected by permission checks via RLS policies
  */
 
 import { createClient } from '@/lib/supabase/client';
@@ -52,25 +54,49 @@ export async function getCourseModules(courseId: string): Promise<CourseModuleWi
 
 /**
  * Create a new course module
+ * 
+ * Required permissions: courses.create, courses.manage, or instructor.access
+ * RLS policies enforce permission checks automatically
  */
 export async function createCourseModule(module: Partial<CourseModule>): Promise<CourseModule> {
   const supabase = createClient();
   
+  // RLS policy modules_insert_with_permission will enforce:
+  // - courses.create, courses.manage, or instructor.access permission
   const { data, error } = await supabase
     .from('course_modules')
     .insert(module)
     .select()
     .single();
   
-  if (error) throw error;
-  return data;
-}
-
-/**
- * Update a course module
+  if (error) {
+   
+ * Required permissions: Course instructor OR courses.update OR courses.manage
+ * RLS policies enforce permission checks automatically
  */
 export async function updateCourseModule(
   moduleId: string,
+  updates: Partial<CourseModule>
+): Promise<CourseModule> {
+  const supabase = createClient();
+  
+  // RLS policy modules_update_with_permission will enforce:
+  // - Course instructor (via courses table join)
+  // - OR courses.update, courses.manage permission
+  const { data, error } = await supabase
+    .from('course_modules')
+    .update(updates)
+    .eq('id', moduleId)
+    .select()
+    .single();
+  
+  if (error) {
+    if (error.code === '42501') {
+      throw new Error('Insufficient permissions to update course module');
+    }
+    throw error;
+  }
+  
   updates: Partial<CourseModule>
 ): Promise<CourseModule> {
   const supabase = createClient();
@@ -101,32 +127,56 @@ export async function reorderCourseModules(
       .from('course_modules')
       .update({ order_index })
       .eq('id', id)
-      .eq('course_id', courseId)
-  );
-  
-  await Promise.all(promises);
-}
-
-// ============================================================================
-// ENROLLMENTS
-// ============================================================================
-
-/**
- * Enroll a user in a course
+   
+ * Self-enrollment: User can enroll themselves
+ * Admin enrollment: Requires enrollments.create, courses.manage, or users.manage
+ * RLS policies enforce permission checks automatically
  */
 export async function enrollInCourse(
   userId: string,
   courseId: string,
+  organizationId: string,
   learningPathId?: string,
   enrollmentSource?: string
 ): Promise<Enrollment> {
   const supabase = createClient();
   
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  
   const enrollment = {
     user_id: userId,
     course_id: courseId,
+    organization_id: organizationId,
     learning_path_id: learningPathId,
     enrollment_source: enrollmentSource || 'direct',
+    enrollment_date: new Date().toISOString(),
+    status: 'active',
+    progress_percentage: 0,
+  };
+  
+  // RLS policies will enforce:
+  // - Self enrollment: enrollments_insert_self (user_id = auth.uid())
+  // - Admin enrollment: enrollments_insert_with_permission
+  const { data, error } = await supabase
+    .from('enrollments')
+    .insert(enrollment)
+    .select()
+    .single();
+  
+  if (error) {
+    if (error.code === '42501') {
+      const isSelfEnrollment = user?.id === userId;
+      throw new Error(
+        isSelfEnrollment
+          ? 'Unable to enroll in this course'
+          : 'Insufficient permissions to enroll other users'
+      );
+    }
+    throw error;
+  }
+  rollmentSource || 'direct',
     enrollment_date: new Date().toISOString(),
     status: 'active',
     progress_percentage: 0,

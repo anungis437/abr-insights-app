@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { PermissionGate } from '@/components/shared/PermissionGate'
 import { Building2, Users, Settings, TrendingUp, Shield, Plus, ExternalLink, Eye } from 'lucide-react'
 import Link from 'next/link'
 
@@ -84,13 +85,15 @@ export default function AdminOrganizationsPage() {
             Manage organizations and their subscriptions
           </p>
         </div>
-        <button 
-          onClick={() => router.push('/admin/organizations/create')}
-          className="btn-primary flex items-center gap-2"
-        >
-          <Plus className="h-4 w-4" />
-          Add Organization
-        </button>
+        <PermissionGate permissions={['organizations.create', 'organizations.manage']}>
+          <button 
+            onClick={() => router.push('/admin/organizations/create')}
+            className="btn-primary flex items-center gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            Add Organization
+          </button>
+        </PermissionGate>
       </div>
 
       {/* Stats */}
