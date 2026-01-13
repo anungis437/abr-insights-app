@@ -45,8 +45,8 @@ CREATE POLICY "profiles_update_own"
     WITH CHECK (
         id = auth.uid()
         AND (
-            -- Can only update own profile fields
-            organization_id = OLD.organization_id  -- Cannot change org
+            -- Users can update their own profile within their org
+            organization_id = public.user_organization_id()
             OR public.has_permission(auth.uid(), public.user_organization_id(), 'profiles.update_any')
         )
     );
@@ -223,64 +223,46 @@ DROP POLICY IF EXISTS "Public can view published courses" ON courses;
 DROP POLICY IF EXISTS "Users can view courses in own org" ON courses;
 DROP POLICY IF EXISTS "Instructors can manage own courses" ON courses;
 DROP POLICY IF EXISTS "Admins can manage all courses" ON courses;
+DROP POLICY IF EXISTS "courses_select_all" ON courses;
+DROP POLICY IF EXISTS "courses_select_authenticated" ON courses;
+DROP POLICY IF EXISTS "courses_select_own" ON courses;
+DROP POLICY IF EXISTS "courses_select_own_org" ON courses;
+DROP POLICY IF EXISTS "courses_insert_with_permission" ON courses;
+DROP POLICY IF EXISTS "courses_update_owner_or_permission" ON courses;
+DROP POLICY IF EXISTS "courses_delete_with_permission" ON courses;
+DROP POLICY IF EXISTS "courses_.*_full_access" ON courses;
 
 -- Permission-based policies
-CREATE POLICY "courses_select_published"
+CREATE POLICY "courses_select_all"
     ON courses FOR SELECT
-    USING (
-        status = 'published'
-        AND is_public = true
-    );
-
-CREATE POLICY "courses_select_own_org"
-    ON courses FOR SELECT
-    USING (
-        organization_id = public.user_organization_id()
-        AND (
-            public.has_any_permission(
-                auth.uid(),
-                organization_id,
-                ARRAY['courses.view', 'courses.read', 'instructor.access']
-            )
-            OR created_by = auth.uid()
-        )
-    );
+    USING (true);  -- All authenticated users can view all courses
 
 CREATE POLICY "courses_insert_with_permission"
     ON courses FOR INSERT
     WITH CHECK (
-        organization_id = public.user_organization_id()
-        AND (
-            public.has_any_permission(
-                auth.uid(),
-                organization_id,
-                ARRAY['courses.create', 'instructor.access']
-            )
+        public.has_any_permission(
+            auth.uid(),
+            public.user_organization_id(),
+            ARRAY['courses.create', 'instructor.access']
         )
     );
 
 CREATE POLICY "courses_update_owner_or_permission"
     ON courses FOR UPDATE
     USING (
-        organization_id = public.user_organization_id()
-        AND (
-            created_by = auth.uid()
-            OR public.has_any_permission(
-                auth.uid(),
-                organization_id,
-                ARRAY['courses.update', 'courses.publish', 'admin.ai.manage']
-            )
+        instructor_id = auth.uid()
+        OR public.has_any_permission(
+            auth.uid(),
+            public.user_organization_id(),
+            ARRAY['courses.update', 'courses.publish', 'admin.ai.manage']
         )
     );
 
 CREATE POLICY "courses_delete_with_permission"
     ON courses FOR DELETE
     USING (
-        organization_id = public.user_organization_id()
-        AND (
-            public.has_permission(auth.uid(), organization_id, 'courses.delete')
-            OR public.is_admin(auth.uid())
-        )
+        public.has_permission(auth.uid(), public.user_organization_id(), 'courses.delete')
+        OR public.is_admin(auth.uid())
     );
 
 CREATE POLICY "courses_.*_full_access"
@@ -297,30 +279,25 @@ DROP POLICY IF EXISTS "Public can view published lessons" ON lessons;
 DROP POLICY IF EXISTS "Enrolled users can view lessons" ON lessons;
 DROP POLICY IF EXISTS "Instructors can manage lessons" ON lessons;
 DROP POLICY IF EXISTS "Admins can manage all lessons" ON lessons;
+DROP POLICY IF EXISTS "lessons_select_all" ON lessons;
+DROP POLICY IF EXISTS "lessons_select_authenticated" ON lessons;
+DROP POLICY IF EXISTS "lessons_select_with_access" ON lessons;
+DROP POLICY IF EXISTS "lessons_insert_with_permission" ON lessons;
+DROP POLICY IF EXISTS "lessons_update_with_permission" ON lessons;
+DROP POLICY IF EXISTS "lessons_delete_with_permission" ON lessons;
+DROP POLICY IF EXISTS "lessons_.*_full_access" ON lessons;
 
-CREATE POLICY "lessons_select_published"
+CREATE POLICY "lessons_select_all"
     ON lessons FOR SELECT
     USING (
         EXISTS (
             SELECT 1 FROM courses c
             WHERE c.id = course_id
-            AND c.status = 'published'
-            AND c.is_public = true
         )
-    );
-
-CREATE POLICY "lessons_select_with_access"
-    ON lessons FOR SELECT
-    USING (
-        EXISTS (
-            SELECT 1 FROM courses c
-            WHERE c.id = course_id
-            AND c.organization_id = public.user_organization_id()
-            AND public.has_any_permission(
-                auth.uid(),
-                c.organization_id,
-                ARRAY['courses.view', 'lessons.create', 'instructor.access']
-            )
+        OR public.has_any_permission(
+            auth.uid(),
+            public.user_organization_id(),
+            ARRAY['courses.view', 'lessons.create', 'instructor.access']
         )
     );
 
@@ -330,10 +307,9 @@ CREATE POLICY "lessons_insert_with_permission"
         EXISTS (
             SELECT 1 FROM courses c
             WHERE c.id = course_id
-            AND c.organization_id = public.user_organization_id()
             AND public.has_any_permission(
                 auth.uid(),
-                c.organization_id,
+                public.user_organization_id(),
                 ARRAY['lessons.create', 'instructor.access']
             )
         )
@@ -345,12 +321,11 @@ CREATE POLICY "lessons_update_with_permission"
         EXISTS (
             SELECT 1 FROM courses c
             WHERE c.id = course_id
-            AND c.organization_id = public.user_organization_id()
             AND (
-                c.created_by = auth.uid()
+                c.instructor_id = auth.uid()
                 OR public.has_any_permission(
                     auth.uid(),
-                    c.organization_id,
+                    public.user_organization_id(),
                     ARRAY['lessons.update', 'lessons.publish']
                 )
             )
@@ -363,9 +338,8 @@ CREATE POLICY "lessons_delete_with_permission"
         EXISTS (
             SELECT 1 FROM courses c
             WHERE c.id = course_id
-            AND c.organization_id = public.user_organization_id()
             AND (
-                public.has_permission(auth.uid(), c.organization_id, 'lessons.delete')
+                public.has_permission(auth.uid(), public.user_organization_id(), 'lessons.delete')
                 OR public.is_admin(auth.uid())
             )
         )
@@ -384,6 +358,11 @@ ALTER TABLE tribunal_cases ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Public can view cases" ON tribunal_cases;
 DROP POLICY IF EXISTS "Users can view cases" ON tribunal_cases;
 DROP POLICY IF EXISTS "Admins can manage cases" ON tribunal_cases;
+DROP POLICY IF EXISTS "tribunal_cases_select_with_permission" ON tribunal_cases;
+DROP POLICY IF EXISTS "tribunal_cases_insert_with_permission" ON tribunal_cases;
+DROP POLICY IF EXISTS "tribunal_cases_update_with_permission" ON tribunal_cases;
+DROP POLICY IF EXISTS "tribunal_cases_delete_with_permission" ON tribunal_cases;
+DROP POLICY IF EXISTS "tribunal_cases_.*_full_access" ON tribunal_cases;
 
 CREATE POLICY "tribunal_cases_select_with_permission"
     ON tribunal_cases FOR SELECT
@@ -435,18 +414,21 @@ ALTER TABLE quizzes ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Public can view published quizzes" ON quizzes;
 DROP POLICY IF EXISTS "Instructors can manage quizzes" ON quizzes;
 DROP POLICY IF EXISTS "Admins can manage all quizzes" ON quizzes;
+DROP POLICY IF EXISTS "quizzes_select_with_access" ON quizzes;
+DROP POLICY IF EXISTS "quizzes_insert_with_permission" ON quizzes;
+DROP POLICY IF EXISTS "quizzes_update_with_permission" ON quizzes;
+DROP POLICY IF EXISTS "quizzes_delete_with_permission" ON quizzes;
+DROP POLICY IF EXISTS "quizzes_.*_full_access" ON quizzes;
 
 CREATE POLICY "quizzes_select_with_access"
     ON quizzes FOR SELECT
     USING (
         (
-            -- Public published quizzes
+            -- Published quizzes
             is_published = true
             AND EXISTS (
                 SELECT 1 FROM courses c
                 WHERE c.id = course_id
-                AND c.is_public = true
-                AND c.status = 'published'
             )
         )
         OR (
@@ -454,10 +436,9 @@ CREATE POLICY "quizzes_select_with_access"
             EXISTS (
                 SELECT 1 FROM courses c
                 WHERE c.id = course_id
-                AND c.organization_id = public.user_organization_id()
                 AND public.has_any_permission(
                     auth.uid(),
-                    c.organization_id,
+                    public.user_organization_id(),
                     ARRAY['quizzes.create', 'quizzes.take', 'instructor.access']
                 )
             )
@@ -470,10 +451,9 @@ CREATE POLICY "quizzes_insert_with_permission"
         EXISTS (
             SELECT 1 FROM courses c
             WHERE c.id = course_id
-            AND c.organization_id = public.user_organization_id()
             AND public.has_any_permission(
                 auth.uid(),
-                c.organization_id,
+                public.user_organization_id(),
                 ARRAY['quizzes.create', 'instructor.access']
             )
         )
@@ -485,10 +465,9 @@ CREATE POLICY "quizzes_update_with_permission"
         EXISTS (
             SELECT 1 FROM courses c
             WHERE c.id = course_id
-            AND c.organization_id = public.user_organization_id()
             AND (
-                c.created_by = auth.uid()
-                OR public.has_permission(auth.uid(), c.organization_id, 'quizzes.update')
+                c.instructor_id = auth.uid()
+                OR public.has_permission(auth.uid(), public.user_organization_id(), 'quizzes.update')
             )
         )
     );
@@ -499,9 +478,8 @@ CREATE POLICY "quizzes_delete_with_permission"
         EXISTS (
             SELECT 1 FROM courses c
             WHERE c.id = course_id
-            AND c.organization_id = public.user_organization_id()
             AND (
-                public.has_permission(auth.uid(), c.organization_id, 'quizzes.delete')
+                public.has_permission(auth.uid(), public.user_organization_id(), 'quizzes.delete')
                 OR public.is_admin(auth.uid())
             )
         )
@@ -520,6 +498,12 @@ ALTER TABLE certificates ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Users can view own certificates" ON certificates;
 DROP POLICY IF EXISTS "Instructors can issue certificates" ON certificates;
 DROP POLICY IF EXISTS "Admins can manage certificates" ON certificates;
+DROP POLICY IF EXISTS "certificates_select_own" ON certificates;
+DROP POLICY IF EXISTS "certificates_select_with_permission" ON certificates;
+DROP POLICY IF EXISTS "certificates_insert_with_permission" ON certificates;
+DROP POLICY IF EXISTS "certificates_update_with_permission" ON certificates;
+DROP POLICY IF EXISTS "certificates_delete_with_permission" ON certificates;
+DROP POLICY IF EXISTS "certificates_.*_full_access" ON certificates;
 
 CREATE POLICY "certificates_select_own"
     ON certificates FOR SELECT
@@ -574,6 +558,13 @@ ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Admins can view audit logs" ON audit_logs;
 DROP POLICY IF EXISTS "Users can view own audit logs" ON audit_logs;
+DROP POLICY IF EXISTS "audit_logs_select_own" ON audit_logs;
+DROP POLICY IF EXISTS "audit_logs_select_team" ON audit_logs;
+DROP POLICY IF EXISTS "audit_logs_select_all" ON audit_logs;
+DROP POLICY IF EXISTS "audit_logs_insert_service_only" ON audit_logs;
+DROP POLICY IF EXISTS "audit_logs_no_update" ON audit_logs;
+DROP POLICY IF EXISTS "audit_logs_delete_super_admin" ON audit_logs;
+DROP POLICY IF EXISTS "audit_logs_.*_full_access" ON audit_logs;
 
 CREATE POLICY "audit_logs_select_own"
     ON audit_logs FOR SELECT
@@ -625,6 +616,13 @@ ALTER TABLE ai_usage_logs ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Admins can view AI usage logs" ON ai_usage_logs;
 DROP POLICY IF EXISTS "Users can view own AI usage" ON ai_usage_logs;
+DROP POLICY IF EXISTS "ai_usage_logs_select_own" ON ai_usage_logs;
+DROP POLICY IF EXISTS "ai_usage_logs_select_with_permission" ON ai_usage_logs;
+DROP POLICY IF EXISTS "ai_usage_logs_select_org_admin" ON ai_usage_logs;
+DROP POLICY IF EXISTS "ai_usage_logs_insert_service_only" ON ai_usage_logs;
+DROP POLICY IF EXISTS "ai_usage_logs_no_update" ON ai_usage_logs;
+DROP POLICY IF EXISTS "ai_usage_logs_delete_admin" ON ai_usage_logs;
+DROP POLICY IF EXISTS "ai_usage_logs_.*_full_access" ON ai_usage_logs;
 
 CREATE POLICY "ai_usage_logs_select_own"
     ON ai_usage_logs FOR SELECT
