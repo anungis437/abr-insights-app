@@ -148,7 +148,7 @@ export default function PermissionsPage() {
       .limit(100)
 
     // Flatten joined data
-    const flattenedPerms = resPermsData?.map((rp) => ({
+    const flattenedPerms = resPermsData?.map((rp: any) => ({
       ...rp,
       permission_slug: (rp.permissions as unknown as { slug: string })?.slug,
       scope_name: (rp.profiles as unknown as { email: string })?.email || rp.scope_id,
@@ -171,7 +171,7 @@ export default function PermissionsPage() {
       .order('created_at', { ascending: false })
 
     // Flatten joined data
-    const flattenedOverrides = data?.map((o) => ({
+    const flattenedOverrides = data?.map((o: any) => ({
       ...o,
       user_email: (o.profiles as unknown as { email: string })?.email,
       requested_by_email: (o.requesters as unknown as { email: string })?.email,
@@ -195,7 +195,7 @@ export default function PermissionsPage() {
       .order('depth')
 
     // Flatten joined data
-    const flattenedHierarchy = data?.map((h) => ({
+    const flattenedHierarchy = data?.map((h: any) => ({
       child_role_id: (h.child_roles as unknown as { id: string; name: string })?.id,
       child_role_name: (h.child_roles as unknown as { id: string; name: string })?.name,
       parent_role_id: (h.parent_roles as unknown as { id: string; name: string })?.id,
@@ -268,7 +268,7 @@ export default function PermissionsPage() {
   }
 
   // Filter functions
-  const filteredResourcePermissions = resourcePermissions.filter((rp) => {
+  const filteredResourcePermissions = resourcePermissions.filter((rp: any) => {
     const matchesSearch =
       !searchQuery ||
       rp.permission_slug.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -279,7 +279,7 @@ export default function PermissionsPage() {
     return matchesSearch && matchesScope
   })
 
-  const filteredOverrides = overrides.filter((o) => {
+  const filteredOverrides = overrides.filter((o: any) => {
     return filterStatus === 'all' || o.approval_status === filterStatus
   })
 

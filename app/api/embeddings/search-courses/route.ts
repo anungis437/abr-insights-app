@@ -9,7 +9,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { guardedRoute } from '@/lib/api/guard'
 import { withRateLimit, RateLimitPresets } from '@/lib/security/rateLimit'
-import { searchSimilarCoursesByText } from '@/lib/services/embedding-service'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -18,6 +17,9 @@ export const POST = withRateLimit(
   RateLimitPresets.embeddingsSearch,
   guardedRoute(
     async (request, context) => {
+      // Lazy load to avoid build-time initialization
+      const { searchSimilarCoursesByText } = await import('@/lib/services/embedding-service')
+      
       const body = await request.json()
       const {
         query,
@@ -76,8 +78,7 @@ export const POST = withRateLimit(
     {
       requireAuth: true,
       requireOrg: true,
-      requiredPermission: ['courses.search', 'embeddings.search'],
-      permissionMode: 'any'
+      anyPermissions: ['courses.search', 'embeddings.search']
     }
   )
 )

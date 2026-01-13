@@ -225,7 +225,7 @@ export default function AdminCoursesPage() {
                   <p className="text-gray-600 mt-1">Manage training courses and learning content</p>
                 </div>
               </div>
-              <PermissionGate permissions={['courses.create', 'courses.manage']}>
+              <PermissionGate permission={['courses.create', 'courses.manage']} requireAny>
                 <button
                   onClick={() => router.push('/admin/courses/create')}
                   className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:shadow-lg transition-all flex items-center gap-2"
@@ -427,7 +427,7 @@ export default function AdminCoursesPage() {
 
                       {/* Actions */}
                       <div className="flex items-center gap-3">
-                        <PermissionGate permissions={['courses.update', 'courses.manage']}>
+                        <PermissionGate permission={['courses.update', 'courses.manage']} requireAny>
                           <button
                             onClick={() => router.push(`/admin/courses/${course.id}/edit`)}
                             className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2"
@@ -436,7 +436,7 @@ export default function AdminCoursesPage() {
                             Edit
                           </button>
                         </PermissionGate>
-                        <PermissionGate permissions={['courses.publish', 'courses.manage']}>
+                        <PermissionGate permission={['courses.publish', 'courses.manage']} requireAny>
                           <button
                             onClick={() => handleTogglePublish(course.id, course.is_published)}
                             className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
@@ -449,7 +449,7 @@ export default function AdminCoursesPage() {
                             {course.is_published ? 'Unpublish' : 'Publish'}
                           </button>
                         </PermissionGate>
-                        <PermissionGate permissions={['courses.manage']}>
+                        <PermissionGate permission="courses.manage">
                           <button
                             onClick={() => handleToggleFeatured(course.id, course.is_featured)}
                             className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
@@ -462,7 +462,7 @@ export default function AdminCoursesPage() {
                             {course.is_featured ? 'Unfeature' : 'Feature'}
                           </button>
                         </PermissionGate>
-                        <PermissionGate permissions={['courses.delete', 'courses.manage']}>
+                        <PermissionGate permission={['courses.delete', 'courses.manage']} requireAny>
                           <button
                             onClick={() => handleDelete(course.id)}
                             className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors flex items-center gap-2 ml-auto"

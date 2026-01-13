@@ -371,7 +371,7 @@ export default function TeamManagementPage() {
                     <Badge variant="outline" className="text-gray-600">Active</Badge>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
-                    <PermissionGate permissions={['users.manage', 'organizations.manage']}>
+                    <PermissionGate permission={['users.manage', 'organizations.manage']} requireAny>
                       {member.email !== organization?.admin_email && (
                         <button
                           className="text-red-600 hover:text-red-700 hover:bg-red-50 rounded p-2"

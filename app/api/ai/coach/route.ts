@@ -151,30 +151,32 @@ Provide specific, actionable advice tailored to their learning context.`
         })
       }
     )
-Log AI usage for audit trail and cost tracking
-    const supabase = await createClient()
-    await supabase.from('ai_usage_logs').insert({
-      user_id: context.user!.id,
-      organization_id: context.organizationId!,
-      endpoint: 'coach',
-      session_type: sessionType,
-      prompt_tokens: data.usage?.prompt_tokens || 0,
-      completion_tokens: data.usage?.completion_tokens || 0,
-      total_tokens: data.usage?.total_tokens || 0,
-      model: deployment,
-      created_at: new Date().toISOString()
-    }).catch(err => {
-      // Log error but don't fail the request
-      console.error('Failed to log AI usage:', err)
-    })
 
-    // 
     if (!response.ok) {
       throw new Error(`Azure OpenAI API error: ${response.statusText}`)
     }
 
     const data = await response.json()
     const insights = data.choices?.[0]?.message?.content || 'Unable to generate insights.'
+
+    // Log AI usage for audit trail and cost tracking
+    const supabase = await createClient()
+    try {
+      await supabase.from('ai_usage_logs').insert({
+        user_id: context.user!.id,
+        organization_id: context.organizationId!,
+        endpoint: 'coach',
+        session_type: sessionType,
+        prompt_tokens: data.usage?.prompt_tokens || 0,
+        completion_tokens: data.usage?.completion_tokens || 0,
+        total_tokens: data.usage?.total_tokens || 0,
+        model: deployment,
+        created_at: new Date().toISOString()
+      })
+    } catch (err) {
+      // Log error but don't fail the request
+      console.error('Failed to log AI usage:', err)
+    }
 
     // Generate recommendations based on stats
     const recommendations = generateRecommendations(stats, sessionType)
@@ -210,17 +212,7 @@ function generateRecommendations(stats: any, sessionType: string) {
       priority: 'high' as const,
       action_url: '/courses'
     })
- 
-
-// Apply route guards with rate limiting
-export const POST = withMultipleRateLimits(
-  [RateLimitPresets.aiCoach, RateLimitPresets.aiCoachOrg],
-  guardedRoute(coachHandler, {
-    requireAuth: true,
-    requireOrg: true,
-    anyPermissions: ['ai.coach.use', 'admin.ai.manage']
-  })
-) }
+  }
 
   // Medium priority: Build streak
   if (stats.currentStreak < 7) {
@@ -246,3 +238,13 @@ export const POST = withMultipleRateLimits(
 
   return recommendations
 }
+
+// Apply route guards with rate limiting
+export const POST = withMultipleRateLimits(
+  [RateLimitPresets.aiCoach, RateLimitPresets.aiCoachOrg],
+  guardedRoute(coachHandler, {
+    requireAuth: true,
+    requireOrg: true,
+    anyPermissions: ['ai.coach.use', 'admin.ai.manage']
+  })
+)

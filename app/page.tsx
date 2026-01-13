@@ -19,6 +19,8 @@ export default function HomePage() {
 
   useEffect(() => {
     async function fetchData() {
+      // TODO: Run database migrations first - see docs/SUPABASE_SETUP.md
+      // For now, using fallback data until migrations are applied
       try {
         // Fetch tribunal case stats
         const caseStats = await tribunalCasesService.getStats();
@@ -30,14 +32,20 @@ export default function HomePage() {
           loading: false,
         });
       } catch (err) {
-        console.error('Failed to fetch case stats:', err);
-        setStats(prev => ({ ...prev, loading: false }));
+        console.error('Failed to fetch case stats (database not initialized):', err);
+        // Use fallback stats until database is initialized
+        setStats({
+          totalCases: 0,
+          abrCases: 0,
+          totalCourses: 0,
+          loading: false,
+        });
       }
 
       // Fetch courses independently to prevent one failure from affecting others
       try {
         const { data: courses } = await coursesService.list(
-          { status: 'published' },
+          { is_published: true },
           { limit: 3 }
         );
         

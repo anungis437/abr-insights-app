@@ -125,13 +125,13 @@ export async function analyzeUserSkillProfile(userId: string): Promise<UserSkill
 
   // Calculate average quiz score
   const avgQuizScore = quizAttempts.length > 0
-    ? quizAttempts.reduce((acc, attempt) => acc + attempt.score, 0) / quizAttempts.length
+    ? quizAttempts.reduce((acc: number, attempt: any) => acc + attempt.score, 0) / quizAttempts.length
     : 0
 
   // Analyze skill areas (by course category)
   const skillAreas: Record<string, { scores: number[]; modules: number }> = {}
   
-  progressData.forEach((progress) => {
+  progressData.forEach((progress: any) => {
     const category = (progress.courses as any)?.category || 'general'
     if (!skillAreas[category]) {
       skillAreas[category] = { scores: [], modules: 0 }
@@ -139,11 +139,11 @@ export async function analyzeUserSkillProfile(userId: string): Promise<UserSkill
     
     // Find quiz attempts for this course
     const courseQuizzes = quizAttempts.filter(
-      (attempt) => attempt.quiz_id?.startsWith(progress.course_id)
+      (attempt: any) => attempt.quiz_id?.startsWith(progress.course_id)
     )
     
     if (courseQuizzes.length > 0) {
-      const avgScore = courseQuizzes.reduce((acc, q) => acc + q.score, 0) / courseQuizzes.length
+      const avgScore = courseQuizzes.reduce((acc: number, q: any) => acc + q.score, 0) / courseQuizzes.length
       skillAreas[category].scores.push(avgScore)
     }
     
@@ -177,9 +177,9 @@ export async function analyzeUserSkillProfile(userId: string): Promise<UserSkill
   })
 
   // Calculate learning pace
-  const completedCourses = progressData.filter((p) => p.progress_percentage === 100)
+  const completedCourses = progressData.filter((p: any) => p.progress_percentage === 100)
   const avgTimePerModule = completedCourses.length > 0
-    ? completedCourses.reduce((acc, p) => {
+    ? completedCourses.reduce((acc: number, p: any) => {
         const timeTaken = p.last_accessed_at
           ? new Date(p.last_accessed_at).getTime() - new Date(p.enrollment_date).getTime()
           : 0
@@ -192,7 +192,7 @@ export async function analyzeUserSkillProfile(userId: string): Promise<UserSkill
     avgTimePerModule < 60 ? 'moderate' : 'slow'
 
   // Calculate consistency score (based on regular engagement)
-  const recentProgress = progressData.filter((p) => {
+  const recentProgress = progressData.filter((p: any) => {
     const lastAccess = new Date(p.last_accessed_at || p.enrollment_date)
     const daysSinceAccess = (Date.now() - lastAccess.getTime()) / (1000 * 60 * 60 * 24)
     return daysSinceAccess <= 30
@@ -212,7 +212,7 @@ export async function analyzeUserSkillProfile(userId: string): Promise<UserSkill
     averageTimePerModule: avgTimePerModule,
     consistencyScore,
     lastActiveDate: progressData.length > 0
-      ? new Date(Math.max(...progressData.map((p) => new Date(p.last_accessed_at || p.enrollment_date).getTime())))
+      ? new Date(Math.max(...progressData.map((p: any) => new Date(p.last_accessed_at || p.enrollment_date).getTime())))
       : new Date(),
   }
 }
@@ -245,18 +245,18 @@ export async function generateLearningPathRecommendations(
     .select('course_id')
     .eq('user_id', userId)
 
-  const enrolledCourseIds = new Set(enrolledCourses?.map((e) => e.course_id) || [])
+  const enrolledCourseIds = new Set(enrolledCourses?.map((e: any) => e.course_id) || [])
 
   // Score each course based on relevance
   const recommendations: LearningPathRecommendation[] = courses
-    .filter((course) => !enrolledCourseIds.has(course.id))
-    .map((course) => {
+    .filter((course: any) => !enrolledCourseIds.has(course.id))
+    .map((course: any) => {
       let relevanceScore = 50 // Base score
       const matchReasons: string[] = []
       const potentialSkillGains: string[] = []
 
       // Match with weaknesses (high priority)
-      const weaknessMatch = skillProfile.weaknesses.find((w) => 
+      const weaknessMatch = skillProfile.weaknesses.find((w: any) => 
         course.category === w.skill || course.title.toLowerCase().includes(w.skill.toLowerCase())
       )
       if (weaknessMatch) {
@@ -304,7 +304,7 @@ export async function generateLearningPathRecommendations(
         potentialSkillGains,
       }
     })
-    .sort((a, b) => b.relevanceScore - a.relevanceScore)
+    .sort((a: any, b: any) => b.relevanceScore - a.relevanceScore)
     .slice(0, limit)
 
   return recommendations
@@ -341,7 +341,7 @@ export async function generateAdaptiveContentSuggestions(
     }]
   }
 
-  const avgRecentScore = quizAttempts.reduce((acc, q) => acc + q.score, 0) / quizAttempts.length
+  const avgRecentScore = quizAttempts.reduce((acc: number, q: any) => acc + q.score, 0) / quizAttempts.length
 
   const suggestions: AdaptiveContentSuggestion[] = []
 
@@ -504,7 +504,7 @@ export async function analyzeEngagementPatterns(userId: string): Promise<Engagem
   const dayCount: Record<number, number> = {}
   const hourCount: Record<number, number> = {}
 
-  progressData.forEach((p) => {
+  progressData.forEach((p: any) => {
     const date = new Date(p.last_accessed_at!)
     const day = date.getDay()
     const hour = date.getHours()
@@ -515,23 +515,23 @@ export async function analyzeEngagementPatterns(userId: string): Promise<Engagem
 
   // Find best days
   const preferredDays = Object.entries(dayCount)
-    .sort(([, a], [, b]) => b - a)
+    .sort(([, a]: [string, any], [, b]: [string, any]) => b - a)
     .slice(0, 2)
     .map(([day]) => parseInt(day))
 
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-  const bestDayOfWeek = preferredDays.map((day) => dayNames[day])
+  const bestDayOfWeek = preferredDays.map((day: number) => dayNames[day])
 
   // Find best time of day
   const bestHours = Object.entries(hourCount)
-    .sort(([, a], [, b]) => b - a)
+    .sort(([, a]: [string, any], [, b]: [string, any]) => b - a)
     .slice(0, 3)
     .map(([hour]) => parseInt(hour))
 
   const bestTimeOfDay: string[] = []
-  if (bestHours.some((h) => h >= 6 && h < 12)) bestTimeOfDay.push('morning')
-  if (bestHours.some((h) => h >= 12 && h < 17)) bestTimeOfDay.push('afternoon')
-  if (bestHours.some((h) => h >= 17 && h < 22)) bestTimeOfDay.push('evening')
+  if (bestHours.some((h: number) => h >= 6 && h < 12)) bestTimeOfDay.push('morning')
+  if (bestHours.some((h: number) => h >= 12 && h < 17)) bestTimeOfDay.push('afternoon')
+  if (bestHours.some((h: number) => h >= 17 && h < 22)) bestTimeOfDay.push('evening')
 
   // Optimal reminder time (1 hour before peak time)
   const peakHour = Math.max(...bestHours)
@@ -608,7 +608,7 @@ export async function generateSmartNotifications(userId: string): Promise<SmartN
 
   // Milestone notifications for courses close to completion
   if (inProgressCourses) {
-    inProgressCourses.forEach((progress) => {
+    inProgressCourses.forEach((progress: any) => {
       if (progress.progress_percentage >= 80 && progress.progress_percentage < 100) {
         notifications.push({
           type: 'milestone',
@@ -642,6 +642,6 @@ export async function generateSmartNotifications(userId: string): Promise<SmartN
     })
   }
 
-  return notifications.sort((a, b) => a.scheduledFor.getTime() - b.scheduledFor.getTime())
+  return notifications.sort((a: any, b: any) => a.scheduledFor.getTime() - b.scheduledFor.getTime())
 }
 

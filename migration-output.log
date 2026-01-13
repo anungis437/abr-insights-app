@@ -1,0 +1,161 @@
+[dotenv@17.2.3] injecting env (26) from .env.local -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+✅ Connected to database
+
+🚀 Applying Database Migrations...
+
+Found 48 migration files
+
+⏭️  000_enable_extensions.sql - Already applied
+⏭️  001_initial_schema.sql - Already applied
+⏭️  002_rls_policies.sql - Already applied
+⏭️  003_content_tables.sql - Already applied
+📄 Applying 004_user_engagement.sql...
+❌ 004_user_engagement.sql - Failed:
+   column "organization_id" does not exist
+
+📄 Applying 010_seed_data.sql...
+❌ 010_seed_data.sql - Failed:
+   null value in column "requirement_type" of relation "achievements" violates not-null constraint
+
+⏭️  011_newsletter_subscribers.sql - Already applied
+⏭️  012_tribunal_case_stats_rpc.sql - Already applied
+⏭️  013_testimonials.sql - Already applied
+⏭️  014_add_role_to_profiles.sql - Already applied
+⏭️  015_ai_training_system.sql - Already applied
+📄 Applying 016_rbac_test_accounts.sql...
+❌ 016_rbac_test_accounts.sql - Failed:
+   insert or update on table "profiles" violates foreign key constraint "profiles_id_fkey"
+
+⏭️  017_courses_enhancement_phase1.sql - Already applied
+📄 Applying 018_courses_enhancement_rls.sql...
+❌ 018_courses_enhancement_rls.sql - Failed:
+   policy "Public can view published modules" for table "course_modules" already exists
+
+📄 Applying 018_permission_check_functions.sql...
+❌ 018_permission_check_functions.sql - Failed:
+   function name "public.check_user_permission" is not unique
+
+📄 Applying 019_ai_usage_logging.sql...
+❌ 019_ai_usage_logging.sql - Failed:
+   relation "idx_ai_usage_logs_user_id" already exists
+
+📄 Applying 019_courses_gamification.sql...
+❌ 019_courses_gamification.sql - Failed:
+   relation "idx_course_points_transactions_user_course" already exists
+
+⏭️  020_comprehensive_permissions_seed.sql - Already applied
+📄 Applying 021_permission_based_rls_functions.sql...
+❌ 021_permission_based_rls_functions.sql - Failed:
+   permission denied for schema auth
+
+⏭️  021_permission_based_rls_functions_v2.sql - Already applied
+📄 Applying 022_migrate_critical_table_rls.sql...
+❌ 022_migrate_critical_table_rls.sql - Failed:
+   policy "profiles_select_own" for table "profiles" already exists
+
+📄 Applying 023_migrate_feature_table_rls.sql...
+❌ 023_migrate_feature_table_rls.sql - Failed:
+   policy "enrollments_select_own" for table "enrollments" already exists
+
+📄 Applying 023_migrate_feature_table_rls_FIXED.sql...
+❌ 023_migrate_feature_table_rls_FIXED.sql - Failed:
+   policy "enrollments_insert_self" for table "enrollments" already exists
+
+⏭️  20250108000001_enable_pgvector.sql - Already applied
+📄 Applying 20250108000002_create_embeddings_tables.sql...
+❌ 20250108000002_create_embeddings_tables.sql - Failed:
+   policy "case_embeddings_select_policy" for table "case_embeddings" already exists
+
+⏭️  20250108000003_create_similarity_functions.sql - Already applied
+📄 Applying 20250108000004_create_outcome_prediction.sql...
+❌ 20250108000004_create_outcome_prediction.sql - Failed:
+   policy "case_outcomes_select_policy" for table "case_outcomes" already exists
+
+📄 Applying 20250115000001_lesson_notes.sql...
+❌ 20250115000001_lesson_notes.sql - Failed:
+   relation "idx_lesson_notes_user_lesson" already exists
+
+📄 Applying 20250115000002_watch_history.sql...
+❌ 20250115000002_watch_history.sql - Failed:
+   relation "idx_watch_history_user_date" already exists
+
+📄 Applying 20250115000003_quiz_system.sql...
+❌ 20250115000003_quiz_system.sql - Failed:
+   type "question_type" already exists
+
+📄 Applying 20250115000004_certificates.sql...
+❌ 20250115000004_certificates.sql - Failed:
+   type "certificate_type" already exists
+
+⏭️  20250115000005_ce_credit_tracking.sql - Already applied
+📄 Applying 20250115000006_skills_validation.sql...
+❌ 20250115000006_skills_validation.sql - Failed:
+   type "proficiency_level" already exists
+
+📄 Applying 20250115000007_course_workflow.sql...
+❌ 20250115000007_course_workflow.sql - Failed:
+   type "workflow_status" already exists
+
+📄 Applying 20250115000008_instructor_portal.sql...
+❌ 20250115000008_instructor_portal.sql - Failed:
+   type "instructor_status" already exists
+
+📄 Applying 20250116000001_enterprise_sso_auth.sql...
+❌ 20250116000001_enterprise_sso_auth.sql - Failed:
+   policy "Organization admins can manage SSO providers" for table "sso_providers" already exists
+
+📄 Applying 20250116000002_advanced_rbac.sql...
+❌ 20250116000002_advanced_rbac.sql - Failed:
+   policy "Admins can manage resource permissions" for table "resource_permissions" already exists
+
+📄 Applying 20250116000003_audit_logs_enhancement.sql...
+❌ 20250116000003_audit_logs_enhancement.sql - Failed:
+   policy "Admins can manage compliance reports" for table "compliance_reports" already exists
+
+📄 Applying 20250116000004_ingestion_pipeline.sql...
+❌ 20250116000004_ingestion_pipeline.sql - Failed:
+   constraint "fk_tribunal_cases_raw_job" for relation "tribunal_cases_raw" already exists
+
+📄 Applying 20250116000005_migrate_gamification_schema.sql...
+❌ 20250116000005_migrate_gamification_schema.sql - Failed:
+   relation "user_points_transactions_legacy" already exists
+
+📄 Applying 20250116000006_gamification_social.sql...
+❌ 20250116000006_gamification_social.sql - Failed:
+   policy "user_profiles_extended_select" for table "user_profiles_extended" already exists
+
+📄 Applying 20250116000007_comprehensive_demo_seed.sql...
+❌ 20250116000007_comprehensive_demo_seed.sql - Failed:
+   duplicate key value violates unique constraint "courses_slug_key"
+
+📄 Applying 20250117000001_cleanup_test_users.sql...
+✅ 20250117000001_cleanup_test_users.sql - Applied successfully
+
+📄 Applying 20250117000002_fix_profiles_rls_recursion.sql...
+✅ 20250117000002_fix_profiles_rls_recursion.sql - Applied successfully
+
+📄 Applying 20250117000003_fix_profiles_rls_simple.sql...
+✅ 20250117000003_fix_profiles_rls_simple.sql - Applied successfully
+
+📄 Applying 20250117000004_fix_remaining_recursive_policies.sql...
+✅ 20250117000004_fix_remaining_recursive_policies.sql - Applied successfully
+
+📄 Applying cleanup_incomplete_tables.sql...
+✅ cleanup_incomplete_tables.sql - Applied successfully
+
+📄 Applying manual_missing_tables.sql...
+❌ manual_missing_tables.sql - Failed:
+   policy "Users can view their own chat sessions" for table "ai_chat_sessions" already exists
+
+
+============================================================
+📊 Migration Summary:
+============================================================
+✅ Applied: 5
+⏭️  Skipped: 15
+❌ Failed: 28
+📁 Total: 48
+============================================================
+
+⚠️  Some migrations failed. Check errors above.
+

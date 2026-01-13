@@ -1,5 +1,8 @@
 'use client'
 
+export const dynamic = 'force-dynamic'
+export const runtime = 'edge'
+
 /**
  * Profile Page
  * User profile management - view and edit personal information
@@ -51,6 +54,7 @@ export default function ProfilePage() {
   const [loadingGamification, setLoadingGamification] = useState(true)
 
   async function checkAuthAndLoadData() {
+    if (typeof window === 'undefined') return
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
 

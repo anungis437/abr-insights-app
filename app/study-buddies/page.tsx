@@ -1,5 +1,8 @@
 'use client'
 
+export const dynamic = 'force-dynamic'
+export const runtime = 'edge'
+
 /**
  * Study Buddies Page (Phase 5)
  * Route: /study-buddies

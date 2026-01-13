@@ -36,46 +36,6 @@ async function getFeedbackHandler(request: NextRequest, context: GuardedContext)
 }
 
 // POST /api/ai/feedback - Create new classification feedback
-export async function POST(request: NextRequest) {
-  try {
-    const supabase = await createClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-    
-    // Check if user is admin
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-    
-    if (!profile || profile.role !== 'admin') {
-      return NextResponse.json({ error: 'Forbidden - Admin only' }, { status: 403 })
-    }
-    
-    const searchParams = request.nextUrl.searchParams
-    const usedForTraining = searchParams.get('used')
-    const minQualityScore = searchParams.get('minQuality')
-    
-    const feedback = await getClassificationFeedback({
-      usedForTraining: usedForTraining === 'true' ? true : usedForTraining === 'false' ? false : undefined,
-      minQualityScore: minQualityScore ? parseInt(minQualityScore) : undefined
-    })
-    
-    return NextResponse.json(feedback)
-  } catch (error) {
-    console.error('Error fetching feedback:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch feedback' },
-      { status: 500 }
-    )
-  }
-}
-
-// POST /api/ai/feedback - Create new classification feedback
 async function createFeedbackHandler(request: NextRequest, context: GuardedContext) {
   try {
     const body = await request.json()

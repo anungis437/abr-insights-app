@@ -106,21 +106,26 @@ Respond in a helpful, conversational tone with actionable insights.`;
       throw new Error(`Azure OpenAI API returned ${response.status}`);
     }
 
+    const data = await response.json();
+    const aiResponse = data.choices?.[0]?.message?.content || 'Unable to generate response.';
+
     // Log AI usage for audit trail and cost tracking
     const supabase = await createClient();
-    await supabase.from('ai_usage_logs').insert({
-      user_id: context.user!.id,
-      organization_id: context.organizationId!,
-      endpoint: 'chat',
-      prompt_tokens: data.usage?.prompt_tokens || 0,
-      completion_tokens: data.usage?.completion_tokens || 0,
-      total_tokens: data.usage?.total_tokens || 0,
-      model: deployment,
-      created_at: new Date().toISOString()
-    }).catch(err => {
+    try {
+      await supabase.from('ai_usage_logs').insert({
+        user_id: context.user!.id,
+        organization_id: context.organizationId!,
+        endpoint: 'chat',
+        prompt_tokens: data.usage?.prompt_tokens || 0,
+        completion_tokens: data.usage?.completion_tokens || 0,
+        total_tokens: data.usage?.total_tokens || 0,
+        model: deployment,
+        created_at: new Date().toISOString()
+      });
+    } catch (err) {
       // Log error but don't fail the request
       console.error('Failed to log AI usage:', err);
-    });
+    }
 
     return NextResponse.json({
       response: aiResponse,
@@ -147,12 +152,4 @@ export const POST = withMultipleRateLimits(
     requireOrg: true,
     anyPermissions: ['ai.chat.use', 'admin.ai.manage']
   })
-);   return NextResponse.json(
-      { 
-        error: error.message || 'Failed to process AI request',
-        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
-      },
-      { status: 500 }
-    );
-  }
-}
+);

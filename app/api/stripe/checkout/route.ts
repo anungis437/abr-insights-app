@@ -4,11 +4,13 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { stripe, getOrCreateStripeCustomer } from '@/lib/stripe'
 import { createClient } from '@/lib/supabase/server'
 
 export async function POST(req: NextRequest) {
   try {
+    // Lazy load Stripe to avoid build-time initialization
+    const { stripe, getOrCreateStripeCustomer } = await import('@/lib/stripe')
+    
     const supabase = await createClient()
     
     // Get authenticated user

@@ -129,7 +129,7 @@ export default function OrgDashboardPage() {
       setMembers(orgMembers || [])
 
       // Get member IDs for queries
-      const memberIds = (orgMembers || []).map(m => m.id)
+      const memberIds = (orgMembers || []).map((m: any) => m.id)
 
       // Get all progress for organization members
       const { data: progress, error: progressError } = await supabase
@@ -157,7 +157,7 @@ export default function OrgDashboardPage() {
 
       if (certsError) throw certsError
       
-      const formattedCerts = (certs || []).map(cert => ({
+      const formattedCerts = (certs || []).map((cert: any) => ({
         id: cert.id,
         user_id: cert.user_id,
         course_id: cert.course_id,

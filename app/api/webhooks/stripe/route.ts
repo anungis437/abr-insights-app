@@ -6,10 +6,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 import Stripe from 'stripe'
-import { stripe } from '@/lib/stripe'
 import { createClient } from '@/lib/supabase/server'
 
 export async function POST(req: NextRequest) {
+  // Lazy load Stripe to avoid build-time initialization
+  const { stripe } = await import('@/lib/stripe')
+  
   const body = await req.text()
   const headersList = await headers()
   const signature = headersList.get('stripe-signature')
@@ -140,7 +142,7 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
     .update({
       subscription_status: subscription.status,
       subscription_tier: subscription.metadata?.tier || 'professional',
-      subscription_current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+      subscription_current_period_end: new Date(((subscription as any).current_period_end) * 1000).toISOString(),
       updated_at: new Date().toISOString(),
     })
     .eq('id', profile.id)

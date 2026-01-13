@@ -238,7 +238,7 @@ export async function getQuestions(filters: {
 
     // Fetch options for all questions
     const questionsWithOptions = await Promise.all(
-      (questions || []).map(async (question) => {
+      (questions || []).map(async (question: any) => {
         const { data: options } = await supabase
           .from('question_options')
           .select('*')
@@ -504,13 +504,13 @@ export async function getRandomQuestionsFromPool(
 
     // Weighted random selection
     const selectedIds = weightedRandomSelection(
-      poolQuestions.map((pq) => ({ id: pq.question_id, weight: pq.weight })),
+      poolQuestions.map((pq: any) => ({ id: pq.question_id, weight: pq.weight })),
       Math.min(count, poolQuestions.length)
     )
 
     // Fetch full questions with options
     const questions = await Promise.all(
-      selectedIds.map((id) => getQuestion(id))
+      selectedIds.map((id: any) => getQuestion(id))
     )
 
     return questions.filter((q): q is QuestionWithOptions => q !== null)
@@ -592,9 +592,9 @@ export async function getQuestionStats(questionId: string): Promise<{
     }
 
     const total_attempts = data.length
-    const correct_attempts = data.filter((r) => r.is_correct).length
+    const correct_attempts = data.filter((r: any) => r.is_correct).length
     const average_time =
-      data.reduce((sum, r) => sum + (r.time_spent_seconds || 0), 0) / total_attempts
+      data.reduce((sum: number, r: any) => sum + (r.time_spent_seconds || 0), 0) / total_attempts
     const difficulty_rating = 1 - correct_attempts / total_attempts
 
     return {

@@ -1,0 +1,34 @@
+
+> abr-insights-app@0.1.0 build
+> next build
+
+   ▲ Next.js 15.5.9
+   - Experiments (use with caution):
+     · serverActions
+     · optimizePackageImports
+
+   Creating an optimized production build ...
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (125kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+Failed to compile.
+
+./app/cases/[id]/page.tsx
+Error:   [31mx[0m Expression expected
+    ,-[[36;1;4m/workspaces/abr-insights-app/app/cases/[id]/page.tsx[0m:63:1]
+ [2m60[0m |   ]
+ [2m61[0m |   */
+ [2m62[0m | }
+ [2m63[0m | }
+    : [35;1m^[0m
+ [2m64[0m | 
+ [2m65[0m | // Fetch case from database
+ [2m66[0m | async function getCaseStudy(id: string) {
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/cases/[id]/page.tsx
+
+
+> Build failed because of webpack errors

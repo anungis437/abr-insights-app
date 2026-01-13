@@ -16,17 +16,17 @@ import { NextRequest, NextResponse } from 'next/server'
 import { guardedRoute, GuardedContext } from '@/lib/api/guard'
 import { createClient } from '@/lib/supabase/server'
 import { withRateLimit, RateLimitPresets } from '@/lib/security/rateLimit'
-import {
-  generateAllCaseEmbeddings,
-  generateAllCourseEmbeddings,
-  getEmbeddingJobStatus,
-} from '@/lib/services/embedding-service'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300 // 5 minutes for batch operations
 
 async function generateEmbeddingsHandler(request: NextRequest, context: GuardedContext) {
+  // Lazy load to avoid build-time initialization
+  const {
+    generateAllCaseEmbeddings,
+    generateAllCourseEmbeddings,
+  } = await import('@/lib/services/embedding-service')
   try {
     const body = await request.json()
     const { type, embeddingType, batchSize = 100 } = body
@@ -73,17 +73,19 @@ async function generateEmbeddingsHandler(request: NextRequest, context: GuardedC
 
     // Log expensive AI operation for cost tracking
     const supabase = await createClient()
-    await supabase.from('ai_usage_logs').insert({
-      user_id: context.user!.id,
-      organization_id: context.organizationId!,
-      endpoint: 'embeddings-generate',
-      operation_type: type,
-      embedding_type: embeddingType,
-      batch_size: batchSize,
-      created_at: new Date().toISOString()
-    }).catch(err => {
+    try {
+      await supabase.from('ai_usage_logs').insert({
+        user_id: context.user!.id,
+        organization_id: context.organizationId!,
+        endpoint: 'embeddings-generate',
+        operation_type: type,
+        embedding_type: embeddingType,
+        batch_size: batchSize,
+        created_at: new Date().toISOString()
+      })
+    } catch (err) {
       console.error('Failed to log embedding generation:', err)
-    })
+    }
 
     return NextResponse.json({
       success: true,
@@ -103,6 +105,9 @@ async function generateEmbeddingsHandler(request: NextRequest, context: GuardedC
 }
 
 async function getEmbeddingStatusHandler(request: NextRequest, context: GuardedContext) {
+  // Lazy load to avoid build-time initialization
+  const { getEmbeddingJobStatus } = await import('@/lib/services/embedding-service')
+  
   try {
     const { searchParams } = new URL(request.url)
     const jobId = searchParams.get('jobId')

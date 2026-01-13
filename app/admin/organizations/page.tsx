@@ -85,7 +85,7 @@ export default function AdminOrganizationsPage() {
             Manage organizations and their subscriptions
           </p>
         </div>
-        <PermissionGate permissions={['organizations.create', 'organizations.manage']}>
+        <PermissionGate permission={['organizations.create', 'organizations.manage']} requireAny>
           <button 
             onClick={() => router.push('/admin/organizations/create')}
             className="btn-primary flex items-center gap-2"

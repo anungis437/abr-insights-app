@@ -246,6 +246,10 @@ export class LiveSessionService {
   private async subscribeToSession(sessionId: string): Promise<void> {
     this.channel = this.supabaseClient.channel(`session:${sessionId}`)
 
+    if (!this.channel) {
+      throw new Error('Failed to create channel')
+    }
+
     // Subscribe to presence for participant tracking
     this.channel
       .on('presence', { event: 'sync' }, () => {

@@ -101,10 +101,10 @@ export default function AICoachPage() {
         .select('status, progress')
         .eq('user_id', user.id)
 
-      const completed = enrollments?.filter(e => e.status === 'completed').length || 0
-      const inProgress = enrollments?.filter(e => e.status === 'in_progress').length || 0
+      const completed = enrollments?.filter((e: any) => e.status === 'completed').length || 0
+      const inProgress = enrollments?.filter((e: any) => e.status === 'in_progress').length || 0
       const avgProgress = enrollments && enrollments.length > 0
-        ? enrollments.reduce((sum, e) => sum + (e.progress || 0), 0) / enrollments.length
+        ? enrollments.reduce((sum: number, e: any) => sum + (e.progress || 0), 0) / enrollments.length
         : 0
 
       // Get points (handle empty table gracefully)
@@ -113,7 +113,7 @@ export default function AICoachPage() {
         .select('points')
         .eq('user_id', user.id)
 
-      const totalPoints = pointsError ? 0 : (pointsData?.reduce((sum, p) => sum + (p.points || 0), 0) || 0)
+      const totalPoints = pointsError ? 0 : (pointsData?.reduce((sum: number, p: any) => sum + (p.points || 0), 0) || 0)
 
       // Get streak
       const { data: streakData } = await supabase

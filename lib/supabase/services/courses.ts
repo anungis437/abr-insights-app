@@ -8,7 +8,6 @@ import { createClient } from '@/lib/supabase/client'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 export type CourseLevel = 'beginner' | 'intermediate' | 'advanced'
-export type CourseStatus = 'draft' | 'published' | 'archived'
 
 export type Course = {
   id: string
@@ -17,9 +16,9 @@ export type Course = {
   description: string | null
   thumbnail_url: string | null
   level: CourseLevel
-  duration_minutes: number | null
-  status: CourseStatus
-  order_index: number
+  estimated_duration_minutes: number | null
+  is_published: boolean
+  is_featured: boolean
   
   // Content
   learning_objectives: string[] | null
@@ -79,18 +78,18 @@ export class CoursesService {
    * List all courses with optional filters
    * Replaces: base44.entities.Course.list()
    */
-  async list(filters?: { level?: CourseLevel; status?: CourseStatus; tags?: string[] }, options?: { limit?: number; offset?: number }) {
+  async list(filters?: { level?: CourseLevel; is_published?: boolean; tags?: string[] }, options?: { limit?: number; offset?: number }) {
     let query = this.supabase
       .from('courses')
       .select('*', { count: 'exact' })
       .is('deleted_at', null)
-      .order('order_index', { ascending: true })
+      .order('created_at', { ascending: false })
 
     if (filters?.level) {
       query = query.eq('level', filters.level)
     }
-    if (filters?.status) {
-      query = query.eq('status', filters.status)
+    if (filters?.is_published !== undefined) {
+      query = query.eq('is_published', filters.is_published)
     }
     if (filters?.tags && filters.tags.length > 0) {
       query = query.overlaps('tags', filters.tags)
@@ -204,7 +203,7 @@ export class CoursesService {
     const { data, error } = await this.supabase
       .from('courses')
       .update({ 
-        status: 'published',
+        is_published: true,
         published_at: new Date().toISOString(),
         updated_at: new Date().toISOString() 
       })
@@ -218,13 +217,13 @@ export class CoursesService {
   }
 
   /**
-   * Archive a course
+   * Archive a course (unpublish)
    */
   async archive(id: string) {
     const { data, error } = await this.supabase
       .from('courses')
       .update({ 
-        status: 'archived',
+        is_published: false,
         updated_at: new Date().toISOString() 
       })
       .eq('id', id)

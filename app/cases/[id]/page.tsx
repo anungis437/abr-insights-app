@@ -22,8 +22,16 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { createClient } from '@supabase/supabase-js'
 
+// Force dynamic rendering - don't prerender at build time
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 // Generate static paths for all cases in database
 export async function generateStaticParams() {
+  // Skip static generation during build to avoid requiring env vars at build time
+  return []
+  
+  /* Original implementation - uncomment when deploying with env vars
   try {
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -31,7 +39,7 @@ export async function generateStaticParams() {
     )
     
     const { data: cases } = await supabase
-      .from('cases')
+      .from('tribunal_cases')
       .select('id')
       .order('id', { ascending: true })
     
@@ -50,6 +58,7 @@ export async function generateStaticParams() {
     { id: '2' },
     { id: '3' },
   ]
+  */
 }
 
 // Fetch case from database
@@ -61,7 +70,7 @@ async function getCaseStudy(id: string) {
     )
     
     const { data: caseData, error } = await supabase
-      .from('cases')
+      .from('tribunal_cases')
       .select('*')
       .eq('id', id)
       .single()

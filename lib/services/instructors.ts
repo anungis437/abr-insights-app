@@ -669,7 +669,7 @@ class InstructorsService {
     }
     
     const summary = data.reduce(
-      (acc, row) => {
+      (acc: any, row: any) => {
         acc.total_gross += parseFloat(row.gross_amount);
         acc.total_net += parseFloat(row.net_amount);
         if (row.payout_status === 'paid') {
