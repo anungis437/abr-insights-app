@@ -5,11 +5,29 @@
 -- Requires: 018_permission_check_functions.sql, 020_comprehensive_permissions_seed.sql
 
 -- ============================================================================
+-- DROP OLD FUNCTIONS (to avoid "function name is not unique" errors)
+-- ============================================================================
+
+-- Drop old permission functions that may have different signatures
+DROP FUNCTION IF EXISTS public.has_permission(UUID, TEXT);
+DROP FUNCTION IF EXISTS public.has_permission(UUID, UUID, TEXT);
+DROP FUNCTION IF EXISTS public.has_any_permission(UUID, UUID, TEXT[]);
+DROP FUNCTION IF EXISTS public.has_all_permissions(UUID, UUID, TEXT[]);
+DROP FUNCTION IF EXISTS public.has_resource_permission(UUID, TEXT, UUID, TEXT);
+DROP FUNCTION IF EXISTS public.has_role(UUID, TEXT);
+DROP FUNCTION IF EXISTS public.has_any_role(UUID, TEXT[]);
+DROP FUNCTION IF EXISTS public.is_admin(UUID);
+DROP FUNCTION IF EXISTS public.is_super_admin(UUID);
+DROP FUNCTION IF EXISTS public.user_organization_id();
+DROP FUNCTION IF EXISTS public.belongs_to_organization(UUID, UUID);
+DROP FUNCTION IF EXISTS public.resource_in_user_org(TEXT, UUID);
+
+-- ============================================================================
 -- PERMISSION CHECK FUNCTIONS (Enhanced) - PUBLIC SCHEMA
 -- ============================================================================
 
 -- Check if user has a specific permission (with org context)
-CREATE OR REPLACE FUNCTION public.has_permission(
+CREATE FUNCTION public.has_permission(
     p_user_id UUID,
     p_organization_id UUID,
     p_permission_slug TEXT
@@ -33,7 +51,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
 COMMENT ON FUNCTION public.has_permission IS 'Check if user has specific permission in org context';
 
 -- Check if user has ANY of the provided permissions
-CREATE OR REPLACE FUNCTION public.has_any_permission(
+CREATE FUNCTION public.has_any_permission(
     p_user_id UUID,
     p_organization_id UUID,
     p_permission_slugs TEXT[]
@@ -56,7 +74,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
 COMMENT ON FUNCTION public.has_any_permission IS 'Check if user has ANY of the specified permissions';
 
 -- Check if user has ALL of the provided permissions
-CREATE OR REPLACE FUNCTION public.has_all_permissions(
+CREATE FUNCTION public.has_all_permissions(
     p_user_id UUID,
     p_organization_id UUID,
     p_permission_slugs TEXT[]
@@ -84,7 +102,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
 COMMENT ON FUNCTION public.has_all_permissions IS 'Check if user has ALL of the specified permissions';
 
 -- Check if user has permission on specific resource
-CREATE OR REPLACE FUNCTION public.has_resource_permission(
+CREATE FUNCTION public.has_resource_permission(
     p_user_id UUID,
     p_resource_type TEXT,
     p_resource_id UUID,
@@ -143,7 +161,7 @@ COMMENT ON FUNCTION public.has_resource_permission IS 'Check permission on speci
 -- ============================================================================
 
 -- Check if user has specific role
-CREATE OR REPLACE FUNCTION public.has_role(
+CREATE FUNCTION public.has_role(
     p_user_id UUID,
     p_role_slug TEXT
 )
@@ -162,7 +180,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
 COMMENT ON FUNCTION public.has_role IS 'Check if user has specific role (backwards compatibility)';
 
 -- Check if user has ANY of the provided roles
-CREATE OR REPLACE FUNCTION public.has_any_role(
+CREATE FUNCTION public.has_any_role(
     p_user_id UUID,
     p_role_slugs TEXT[]
 )
@@ -181,7 +199,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
 COMMENT ON FUNCTION public.has_any_role IS 'Check if user has ANY of the specified roles';
 
 -- Check if user is admin or higher
-CREATE OR REPLACE FUNCTION public.is_admin(p_user_id UUID)
+CREATE FUNCTION public.is_admin(p_user_id UUID)
 RETURNS BOOLEAN AS $$
 BEGIN
     RETURN EXISTS (
@@ -197,7 +215,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
 COMMENT ON FUNCTION public.is_admin IS 'Check if user has admin, org_admin, or super_admin role';
 
 -- Check if user is super admin
-CREATE OR REPLACE FUNCTION public.is_super_admin(p_user_id UUID)
+CREATE FUNCTION public.is_super_admin(p_user_id UUID)
 RETURNS BOOLEAN AS $$
 BEGIN
     RETURN EXISTS (
@@ -217,7 +235,7 @@ COMMENT ON FUNCTION public.is_super_admin IS 'Check if user has super_admin role
 -- ============================================================================
 
 -- Get user's organization ID
-CREATE OR REPLACE FUNCTION public.user_organization_id()
+CREATE FUNCTION public.user_organization_id()
 RETURNS UUID AS $$
 BEGIN
     RETURN (
@@ -231,7 +249,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
 COMMENT ON FUNCTION public.user_organization_id IS 'Get the organization ID for the current user';
 
 -- Check if user belongs to organization
-CREATE OR REPLACE FUNCTION public.belongs_to_organization(
+CREATE FUNCTION public.belongs_to_organization(
     p_user_id UUID,
     p_organization_id UUID
 )
@@ -249,7 +267,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
 COMMENT ON FUNCTION public.belongs_to_organization IS 'Check if user belongs to specific organization';
 
 -- Check if resource belongs to user's organization
-CREATE OR REPLACE FUNCTION public.resource_in_user_org(
+CREATE FUNCTION public.resource_in_user_org(
     p_table_name TEXT,
     p_resource_id UUID
 )
