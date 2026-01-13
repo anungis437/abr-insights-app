@@ -1,14 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { guardedRoute, GuardedContext } from '@/lib/api/guard'
+import { createClient } from '@/lib/supabase/server'
 
 /**
  * AI Coach API Endpoint
  * Route: /api/ai/coach
  * Handles coaching session generation using Azure OpenAI
+ * 
+ * Protected by:
+ * - Authentication: Required (withAuth)
+ * - Organization Context: Required (withOrg)
+ * - Permission: 'ai.coach.use' or 'admin.ai.manage'
  */
 
-export async function POST(request: NextRequest) {
+async function coachHandler(request: NextRequest, context: GuardedContext) {
   try {
-    const { sessionType, query, context } = await request.json()
+    const { sessionType, query, context: coachContext } = await request.json()
 
     // Validate required fields
     if (!sessionType) {
@@ -35,7 +42,15 @@ export async function POST(request: NextRequest) {
     let systemPrompt = ''
     let userPrompt = ''
 
-    const stats = context?.stats || {}
+    const stats = coachContext?.stats || {}
+
+    // Validate input length (rate limit abuse prevention)
+    if (query && query.length > 2000) {
+      return NextResponse.json(
+        { error: 'Query too long (max 2000 characters)' },
+        { status: 400 }
+      )
+    }
 
     switch (sessionType) {
       case 'comprehensive':
@@ -135,7 +150,24 @@ Provide specific, actionable advice tailored to their learning context.`
         })
       }
     )
+Log AI usage for audit trail and cost tracking
+    const supabase = await createClient()
+    await supabase.from('ai_usage_logs').insert({
+      user_id: context.user!.id,
+      organization_id: context.organizationId!,
+      endpoint: 'coach',
+      session_type: sessionType,
+      prompt_tokens: data.usage?.prompt_tokens || 0,
+      completion_tokens: data.usage?.completion_tokens || 0,
+      total_tokens: data.usage?.total_tokens || 0,
+      model: deployment,
+      created_at: new Date().toISOString()
+    }).catch(err => {
+      // Log error but don't fail the request
+      console.error('Failed to log AI usage:', err)
+    })
 
+    // 
     if (!response.ok) {
       throw new Error(`Azure OpenAI API error: ${response.statusText}`)
     }
@@ -177,7 +209,14 @@ function generateRecommendations(stats: any, sessionType: string) {
       priority: 'high' as const,
       action_url: '/courses'
     })
-  }
+ 
+
+// Apply route guards
+export const POST = guardedRoute(coachHandler, {
+  requireAuth: true,
+  requireOrg: true,
+  anyPermissions: ['ai.coach.use', 'admin.ai.manage']
+}) }
 
   // Medium priority: Build streak
   if (stats.currentStreak < 7) {

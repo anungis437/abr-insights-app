@@ -2,11 +2,19 @@
  * API Route: Generate Embeddings
  * 
  * POST /api/embeddings/generate
+ * GET /api/embeddings/generate?jobId=...
  * 
  * Triggers batch embedding generation for cases or courses
+ * 
+ * Protected by:
+ * - Authentication: Required (withAuth)
+ * - Organization Context: Required (withOrg)
+ * - Permission: 'admin.ai.manage' (super admin only - expensive operation)
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { guardedRoute, GuardedContext } from '@/lib/api/guard'
+import { createClient } from '@/lib/supabase/server'
 import {
   generateAllCaseEmbeddings,
   generateAllCourseEmbeddings,
@@ -17,7 +25,7 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300 // 5 minutes for batch operations
 
-export async function POST(request: NextRequest) {
+async function generateEmbeddingsHandler(request: NextRequest, context: GuardedContext) {
   try {
     const body = await request.json()
     const { type, embeddingType, batchSize = 100 } = body
@@ -62,6 +70,20 @@ export async function POST(request: NextRequest) {
       })
     }
 
+    // Log expensive AI operation for cost tracking
+    const supabase = await createClient()
+    await supabase.from('ai_usage_logs').insert({
+      user_id: context.user!.id,
+      organization_id: context.organizationId!,
+      endpoint: 'embeddings-generate',
+      operation_type: type,
+      embedding_type: embeddingType,
+      batch_size: batchSize,
+      created_at: new Date().toISOString()
+    }).catch(err => {
+      console.error('Failed to log embedding generation:', err)
+    })
+
     return NextResponse.json({
       success: true,
       message: `Successfully generated embeddings for ${type}`,
@@ -79,7 +101,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
+async function getEmbeddingStatusHandler(request: NextRequest, context: GuardedContext) {
   try {
     const { searchParams } = new URL(request.url)
     const jobId = searchParams.get('jobId')
@@ -115,3 +137,16 @@ export async function GET(request: NextRequest) {
     )
   }
 }
+
+// Apply route guards - POST requires admin permission (expensive operation)
+export const POST = guardedRoute(generateEmbeddingsHandler, {
+  requireAuth: true,
+  requireOrg: true,
+  permissions: ['admin.ai.manage']
+})
+
+// GET only requires authentication to check job status
+export const GET = guardedRoute(getEmbeddingStatusHandler, {
+  requireAuth: true,
+  requireOrg: true
+})
