@@ -77,21 +77,21 @@ export async function getDashboardStats(userId: string): Promise<DashboardStats 
       .eq('user_id', userId)
 
     // Calculate watch time statistics
-    const totalWatchTime = watchStats?.reduce((sum, session) => 
+    const totalWatchTime = watchStats?.reduce((sum: number, session: any) => 
       sum + (session.duration_seconds || 0), 0) || 0
     
-    const completedSessions = watchStats?.filter(s => s.completed_session).length || 0
+    const completedSessions = watchStats?.filter((s: any) => s.completed_session).length || 0
     const totalSessions = watchStats?.length || 0
     const averageCompletionRate = totalSessions > 0 
       ? Math.round((completedSessions / totalSessions) * 100) 
       : 0
 
-    const longestSession = watchStats?.reduce((max, session) => 
+    const longestSession = watchStats?.reduce((max: number, session: any) => 
       Math.max(max, session.duration_seconds || 0), 0) || 0
 
     // Get unique lessons started and completed
-    const uniqueLessons = new Set(progressStats?.map(p => p.lesson_id) || [])
-    const completedLessons = progressStats?.filter(p => p.status === 'completed').length || 0
+    const uniqueLessons = new Set(progressStats?.map((p: any) => p.lesson_id) || [])
+    const completedLessons = progressStats?.filter((p: any) => p.status === 'completed').length || 0
 
     // Get current streak
     const streak = await getLearningStreak(userId)
@@ -140,7 +140,7 @@ export async function getLearningStreak(userId: string): Promise<LearningStreak 
 
     // Extract unique dates (YYYY-MM-DD format)
     const activityDates = [...new Set(
-      sessions.map(s => s.started_at.split('T')[0])
+      sessions.map((s: any) => s.started_at.split('T')[0])
     )].sort().reverse()
 
     // Calculate current streak
@@ -151,7 +151,7 @@ export async function getLearningStreak(userId: string): Promise<LearningStreak 
     let checkDate = new Date(today)
     const streakDates: string[] = []
 
-    for (const dateStr of activityDates) {
+    for (const dateStr of activityDates as string[]) {
       const activityDate = new Date(dateStr)
       activityDate.setHours(0, 0, 0, 0)
 
@@ -171,8 +171,8 @@ export async function getLearningStreak(userId: string): Promise<LearningStreak 
     let tempStreak = 1
 
     for (let i = 1; i < activityDates.length; i++) {
-      const prevDate = new Date(activityDates[i - 1])
-      const currDate = new Date(activityDates[i])
+      const prevDate = new Date((activityDates as string[])[i - 1])
+      const currDate = new Date((activityDates as string[])[i])
       const daysDiff = Math.floor((prevDate.getTime() - currDate.getTime()) / (1000 * 60 * 60 * 24))
 
       if (daysDiff === 1) {
@@ -188,7 +188,7 @@ export async function getLearningStreak(userId: string): Promise<LearningStreak 
     return {
       current_streak: currentStreak,
       longest_streak: longestStreak,
-      last_activity_date: activityDates[0],
+      last_activity_date: (activityDates as string[])[0] || null,
       streak_dates: streakDates
     }
   } catch (error) {
@@ -235,11 +235,11 @@ export async function getSkillProgress(userId: string): Promise<SkillProgress[]>
       .select('lesson_id, duration_seconds')
       .eq('user_id', userId)
 
-    const progressMap = new Map(progressData?.map(p => [p.lesson_id, p.status === 'completed']) || [])
+    const progressMap = new Map(progressData?.map((p: any) => [p.lesson_id, p.status === 'completed']) || [])
     const timeMap = new Map<string, number>()
     
     // Aggregate time spent per lesson
-    watchHistory?.forEach(w => {
+    watchHistory?.forEach((w: any) => {
       const current = timeMap.get(w.lesson_id) || 0
       timeMap.set(w.lesson_id, current + (w.duration_seconds || 0))
     })
@@ -247,7 +247,7 @@ export async function getSkillProgress(userId: string): Promise<SkillProgress[]>
     // Aggregate by skill
     const skillMap = new Map<string, { completed: number; total: number; time: number }>()
 
-    enrollments.forEach(enrollment => {
+    enrollments.forEach((enrollment: any) => {
       const course = enrollment.course as any
       if (!course?.modules) return
 
@@ -333,7 +333,7 @@ export async function getRecentActivity(userId: string, limit: number = 10): Pro
     const activities: RecentActivity[] = []
 
     // Process watch sessions
-    sessions?.forEach(session => {
+    sessions?.forEach((session: any) => {
       const lesson = session.lesson as any
       if (lesson) {
         activities.push({
@@ -349,7 +349,7 @@ export async function getRecentActivity(userId: string, limit: number = 10): Pro
     })
 
     // Process notes
-    notes?.forEach(note => {
+    notes?.forEach((note: any) => {
       const lesson = note.lesson as any
       if (lesson) {
         activities.push({
@@ -365,7 +365,7 @@ export async function getRecentActivity(userId: string, limit: number = 10): Pro
 
     // Sort by date and limit
     return activities
-      .sort((a, b) => new Date(b.activity_date).getTime() - new Date(a.activity_date).getTime())
+      .sort((a: any, b: any) => new Date(b.activity_date).getTime() - new Date(a.activity_date).getTime())
       .slice(0, limit)
   } catch (error) {
     console.error('Error getting recent activity:', error)
@@ -404,7 +404,7 @@ export async function getCECreditsEarned(userId: string): Promise<CECredits | nu
     const categoryMap = new Map<string, number>()
     const currentYear = new Date().getFullYear()
 
-    completedLessons.forEach(item => {
+    completedLessons.forEach((item: any) => {
       const lesson = item.lesson as any
       if (lesson?.ce_credits) {
         const credits = lesson.ce_credits
@@ -422,7 +422,7 @@ export async function getCECreditsEarned(userId: string): Promise<CECredits | nu
 
     return {
       total_credits_earned: totalCredits,
-      credits_by_category: Array.from(categoryMap.entries()).map(([category, credits]) => ({
+      credits_by_category: Array.from(categoryMap.entries()).map(([category, credits]: [string, number]) => ({
         category,
         credits
       })),

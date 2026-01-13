@@ -1,5 +1,8 @@
 'use client'
 
+export const dynamic = 'force-dynamic'
+export const runtime = 'edge'
+
 /**
  * Enhanced Leaderboard Page (Phase 5)
  * Route: /leaderboard
@@ -7,7 +10,6 @@
  */
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import {
   Trophy,
@@ -32,7 +34,11 @@ import type { Leaderboard, LeaderboardEntry } from '@/lib/services/gamification'
 
 export default function LeaderboardPage() {
   const router = useRouter()
-  const supabase = createClient()
+  const [supabase] = useState(() => {
+    if (typeof window === 'undefined') return null as any
+    const { createClient } = require('@/lib/supabase/client')
+    return createClient()
+  })
   
   // State
   const [user, setUser] = useState<User | null>(null)

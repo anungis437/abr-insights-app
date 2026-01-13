@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
-import { evaluateModel } from '@/lib/services/outcome-prediction-service';
+// Import commented out to avoid build-time issues with Supabase client initialization
+// import { evaluateModel } from '@/lib/services/outcome-prediction-service';
 
 export async function GET() {
   try {
+    // Lazy import to avoid build-time initialization issues
+    const { evaluateModel } = await import('@/lib/services/outcome-prediction-service');
+    
     // Call the outcome prediction service to evaluate model performance
     const performance = await evaluateModel();
 

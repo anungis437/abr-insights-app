@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/server'
 import { withRateLimit, RateLimitPresets } from '@/lib/security/rateLimit'
 import { sendNewsletterWelcome, type NewsletterData } from '@/lib/email/service'
 
@@ -20,6 +20,9 @@ export const POST = withRateLimit(
 
       // Validate input
       const validatedData = newsletterSchema.parse(body)
+
+      // Get server-side Supabase client
+      const supabase = await createClient()
 
       // Check if email already exists
       const { data: existing } = await supabase

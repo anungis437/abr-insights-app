@@ -168,7 +168,7 @@ export default function AdminAnalyticsPage() {
         .not('average_rating', 'is', null)
 
       const avgRating = coursesWithRatings && coursesWithRatings.length > 0
-        ? coursesWithRatings.reduce((sum, c) => sum + (parseFloat(String(c.average_rating)) || 0), 0) / coursesWithRatings.length
+        ? coursesWithRatings.reduce((sum: number, c: any) => sum + (parseFloat(String(c.average_rating)) || 0), 0) / coursesWithRatings.length
         : 0
 
       // Case Metrics
@@ -180,8 +180,8 @@ export default function AdminAnalyticsPage() {
         .from('tribunal_cases')
         .select('views_count, bookmarks_count')
 
-      const totalViews = casesData?.reduce((sum, c) => sum + (c.views_count || 0), 0) || 0
-      const totalBookmarks = casesData?.reduce((sum, c) => sum + (c.bookmarks_count || 0), 0) || 0
+      const totalViews = casesData?.reduce((sum: number, c: any) => sum + (c.views_count || 0), 0) || 0
+      const totalBookmarks = casesData?.reduce((sum: number, c: any) => sum + (c.bookmarks_count || 0), 0) || 0
       const avgViewsPerCase = totalCases && totalCases > 0 ? totalViews / totalCases : 0
 
       // Top Courses
@@ -191,7 +191,7 @@ export default function AdminAnalyticsPage() {
         .order('enrollments_count', { ascending: false })
         .limit(5)
 
-      const topCourses = (topCoursesData || []).map(c => ({
+      const topCourses = (topCoursesData || []).map((c: any) => ({
         id: c.id,
         title: c.title,
         enrollments: c.enrollments_count || 0,
@@ -208,7 +208,7 @@ export default function AdminAnalyticsPage() {
         .order('views_count', { ascending: false })
         .limit(5)
 
-      const topCases = (topCasesData || []).map(c => ({
+      const topCases = (topCasesData || []).map((c: any) => ({
         id: c.id,
         case_number: c.case_number,
         case_title: c.case_title,

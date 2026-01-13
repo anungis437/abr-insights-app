@@ -24,25 +24,25 @@ BEGIN
   FROM tribunal_cases
   WHERE deleted_at IS NULL;
 
-  -- Count ABR-related cases (cases with 'abr' in title or description, case-insensitive)
+  -- Count ABR-related cases (cases with 'abr' in title or summary, case-insensitive)
   SELECT COUNT(*)
   INTO v_abr_cases
   FROM tribunal_cases
   WHERE deleted_at IS NULL
     AND (
       LOWER(case_title) LIKE '%abr%'
-      OR LOWER(description) LIKE '%abr%'
+      OR LOWER(summary) LIKE '%abr%'
       OR LOWER(case_title) LIKE '%anti-black%'
-      OR LOWER(description) LIKE '%anti-black%'
+      OR LOWER(summary) LIKE '%anti-black%'
       OR LOWER(case_title) LIKE '%anti black%'
-      OR LOWER(description) LIKE '%anti black%'
+      OR LOWER(summary) LIKE '%anti black%'
     );
 
-  -- Count total published courses
+  -- Count total published courses (using is_published boolean)
   SELECT COUNT(*)
   INTO v_total_courses
   FROM courses
-  WHERE status = 'published'
+  WHERE is_published = true
     AND deleted_at IS NULL;
 
   -- Build JSON result

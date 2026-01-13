@@ -1,6 +1,8 @@
 import { BookOpen, Target, Users, Award } from 'lucide-react'
 import type { Metadata } from 'next'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'About ABR Insights | Empowering Equity Through Data',
   description: 'Learn about ABR Insights mission to combat anti-Black racism in Canadian workplaces through data-driven insights, expert training, and comprehensive case studies.',

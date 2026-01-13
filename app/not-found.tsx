@@ -1,6 +1,9 @@
 import Link from 'next/link'
 import { Home, Search, FileQuestion, Mail } from 'lucide-react'
 
+// Force dynamic rendering to avoid build-time issues
+export const dynamic = 'force-dynamic'
+
 export default function NotFound() {
   const quickLinks = [
     { href: '/', label: 'Home', icon: Home, description: 'Return to homepage' },

@@ -128,7 +128,7 @@ export default function AuditLogsPage() {
       const { data: logsData } = await query
 
       // Flatten joined data
-      const flattenedLogs = logsData?.map((log) => ({
+      const flattenedLogs = logsData?.map((log: any) => ({
         ...log,
         user_email: (log.profiles as unknown as { email: string })?.email || 'Unknown',
         profiles: undefined,

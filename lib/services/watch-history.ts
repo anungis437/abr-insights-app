@@ -166,7 +166,7 @@ export async function getTotalWatchTime(userId: string): Promise<number> {
     return 0
   }
 
-  return data?.reduce((sum, record) => sum + (record.duration_seconds || 0), 0) || 0
+  return data?.reduce((sum: number, record: any) => sum + (record.duration_seconds || 0), 0) || 0
 }
 
 /**
@@ -189,7 +189,7 @@ export async function getWatchTimeByDateRange(
     return 0
   }
 
-  return data?.reduce((sum, record) => sum + (record.duration_seconds || 0), 0) || 0
+  return data?.reduce((sum: number, record: any) => sum + (record.duration_seconds || 0), 0) || 0
 }
 
 /**

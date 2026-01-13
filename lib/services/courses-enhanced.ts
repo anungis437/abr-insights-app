@@ -70,7 +70,14 @@ export async function createCourseModule(module: Partial<CourseModule>): Promise
     .single();
   
   if (error) {
-   
+    throw error;
+  }
+  
+  return data;
+}
+
+/**
+ * Update a course module
  * Required permissions: Course instructor OR courses.update OR courses.manage
  * RLS policies enforce permission checks automatically
  */
@@ -97,19 +104,23 @@ export async function updateCourseModule(
     throw error;
   }
   
-  updates: Partial<CourseModule>
-): Promise<CourseModule> {
+  return data;
+}
+
+/**
+ * Delete a course module
+ * Required permissions: Course instructor OR courses.delete OR courses.manage
+ * RLS policies enforce permission checks automatically
+ */
+export async function deleteCourseModule(moduleId: string): Promise<void> {
   const supabase = createClient();
   
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from('course_modules')
-    .update(updates)
-    .eq('id', moduleId)
-    .select()
-    .single();
+    .delete()
+    .eq('id', moduleId);
   
   if (error) throw error;
-  return data;
 }
 
 /**
@@ -127,7 +138,18 @@ export async function reorderCourseModules(
       .from('course_modules')
       .update({ order_index })
       .eq('id', id)
-   
+  );
+  
+  const results = await Promise.all(promises);
+  const errors = results.filter(r => r.error);
+  
+  if (errors.length > 0) {
+    throw errors[0].error;
+  }
+}
+
+/**
+ * Enroll a user in a course
  * Self-enrollment: User can enroll themselves
  * Admin enrollment: Requires enrollments.create, courses.manage, or users.manage
  * RLS policies enforce permission checks automatically
@@ -176,15 +198,25 @@ export async function enrollInCourse(
     }
     throw error;
   }
-  rollmentSource || 'direct',
-    enrollment_date: new Date().toISOString(),
-    status: 'active',
-    progress_percentage: 0,
-  };
+  
+  return data;
+}
+
+/**
+ * Update enrollment data
+ * Users can update their own progress
+ * Instructors and admins can update any enrollment
+ */
+export async function updateEnrollment(
+  enrollmentId: string,
+  updates: Partial<Enrollment>
+): Promise<Enrollment> {
+  const supabase = createClient();
   
   const { data, error } = await supabase
     .from('enrollments')
-    .insert(enrollment)
+    .update(updates)
+    .eq('id', enrollmentId)
     .select()
     .single();
   
@@ -325,7 +357,7 @@ export async function calculateCourseCompletion(
     .select('id')
     .eq('user_id', userId)
     .eq('status', 'completed')
-    .in('lesson_id', lessons.map(l => l.id));
+    .in('lesson_id', lessons.map((l: any) => l.id));
   
   const completedCount = progress?.length || 0;
   return Math.round((completedCount / lessons.length) * 100);

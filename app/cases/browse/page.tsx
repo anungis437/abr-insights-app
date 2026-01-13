@@ -103,7 +103,7 @@ function CasesBrowserContent() {
     try {
       // Build query
       let query = supabase
-        .from('cases')
+        .from('tribunal_cases')
         .select('*', { count: 'exact' });
 
       // Apply filters

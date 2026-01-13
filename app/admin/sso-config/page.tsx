@@ -123,7 +123,7 @@ export default function SSOConfigPage() {
       if (ssoError) throw ssoError
 
       // Flatten organization slug
-      const flattenedData = ssoData?.map((provider) => ({
+      const flattenedData = ssoData?.map((provider: any) => ({
         ...provider,
         organization_slug: (provider.organizations as unknown as { slug: string })?.slug,
         organizations: undefined,

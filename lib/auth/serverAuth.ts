@@ -77,7 +77,7 @@ export async function requireOrgContext(
   const supabase = await createClient();
   
   // Try header first
-  let orgId = request.headers.get('X-Organization-Id');
+  let orgId: string | null = request.headers.get('X-Organization-Id');
   
   // Try query param
   if (!orgId) {
@@ -98,6 +98,11 @@ export async function requireOrgContext(
     }
     
     orgId = profile.organization_id;
+  }
+  
+  // At this point, orgId must be non-null or an error was thrown
+  if (!orgId) {
+    throw new OrgContextError('Organization ID could not be resolved');
   }
   
   // Verify user has access to this organization

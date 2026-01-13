@@ -15,7 +15,7 @@ export const maxDuration = 300
 // GET /api/ai/training-jobs - List all training jobs
 // GET /api/ai/training-jobs?status=running - Filter by status
 export const GET = withRateLimit(
-  { limit: 60, windowMs: 60000, keyType: 'user' },
+  { requests: 60, window: 60, keyType: 'user' },
   guardedRoute(
     async (request, context) => {
       const searchParams = request.nextUrl.searchParams
@@ -36,14 +36,14 @@ export const GET = withRateLimit(
     {
       requireAuth: true,
       requireOrg: false,
-      requiredPermission: 'admin.ai.manage'
+      permissions: ['admin.ai.manage']
     }
   )
 )
 
 // POST /api/ai/training-jobs - Create a new training job
 export const POST = withRateLimit(
-  { limit: 3, windowMs: 60000, keyType: 'user' },
+  { requests: 3, window: 60, keyType: 'user' },
   guardedRoute(
     async (request, context) => {
       const { user } = context
@@ -97,7 +97,7 @@ export const POST = withRateLimit(
         is_deployed: false,
         deployed_at: null,
         deployed_by: null,
-        created_by: user.id,
+        created_by: context.user!.id,
         notes: notes || null,
         error_message: null
       })
@@ -107,14 +107,14 @@ export const POST = withRateLimit(
     {
       requireAuth: true,
       requireOrg: false,
-      requiredPermission: 'admin.ai.manage'
+      permissions: ['admin.ai.manage']
     }
   )
 )
 
 // PATCH /api/ai/training-jobs - Update a training job
 export const PATCH = withRateLimit(
-  { limit: 10, windowMs: 60000, keyType: 'user' },
+  { requests: 10, window: 60, keyType: 'user' },
   guardedRoute(
     async (request, context) => {
       const body = await request.json()
@@ -130,7 +130,7 @@ export const PATCH = withRateLimit(
     {
       requireAuth: true,
       requireOrg: false,
-      requiredPermission: 'admin.ai.manage'
+      permissions: ['admin.ai.manage']
     }
   )
 )

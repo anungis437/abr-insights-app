@@ -246,7 +246,7 @@ export function createRateLimitResponse(result: RateLimitResult): NextResponse {
  */
 export function withRateLimit(
   config: RateLimitConfig,
-  handler: (request: NextRequest, context?: any) => Promise<NextResponse>
+  handler: (request: NextRequest, context?: any) => Promise<NextResponse> | NextResponse
 ) {
   return async (request: NextRequest, context?: any): Promise<NextResponse> => {
     const result = await checkRateLimit(request, config, context);
@@ -256,7 +256,7 @@ export function withRateLimit(
     }
     
     // Add rate limit headers to successful response
-    const response = await handler(request, context);
+    const response = await Promise.resolve(handler(request, context));
     const headers = createRateLimitHeaders(result);
     
     Object.entries(headers).forEach(([key, value]) => {
@@ -273,7 +273,7 @@ export function withRateLimit(
  */
 export function withMultipleRateLimits(
   configs: RateLimitConfig[],
-  handler: (request: NextRequest, context?: any) => Promise<NextResponse>
+  handler: (request: NextRequest, context?: any) => Promise<NextResponse> | NextResponse
 ) {
   return async (request: NextRequest, context?: any): Promise<NextResponse> => {
     // Check all rate limits
@@ -286,7 +286,7 @@ export function withMultipleRateLimits(
     }
     
     // All limits passed, execute handler
-    const response = await handler(request, context);
+    const response = await Promise.resolve(handler(request, context));
     
     // Add most restrictive limit headers
     const results = await Promise.all(

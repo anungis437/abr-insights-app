@@ -1,5 +1,7 @@
 import { Eye, CheckCircle, Users, FileText } from 'lucide-react'
 
+export const dynamic = 'force-dynamic'
+
 export default function AccessibilityPage() {
   return (
     <div className="min-h-screen bg-white">      

@@ -193,7 +193,7 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
 
         // Set current lesson based on enrollment
         if (enrollmentData.current_lesson_id) {
-          const currentIndex = lessonsData.findIndex(l => l.id === enrollmentData.current_lesson_id)
+          const currentIndex = lessonsData.findIndex((l: any) => l.id === enrollmentData.current_lesson_id)
           if (currentIndex >= 0) {
             setCurrentLessonIndex(currentIndex)
           }

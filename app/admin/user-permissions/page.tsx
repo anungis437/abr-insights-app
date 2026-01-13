@@ -161,13 +161,14 @@ export default function ManageUserPermissionsPage() {
 
   return (
     <PermissionGate 
-      permissions={['permissions.manage', 'users.manage']}
-      deniedFallback={
+      permission={['permissions.manage', 'users.manage']}
+      requireAny
+      denied={
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
             <Shield className="w-16 h-16 text-red-600 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h2>
-            <p className="text-gray-600">You don't have permission to manage user permissions.</p>
+            <p className="text-gray-600">You don&apos;t have permission to manage user permissions.</p>
           </div>
         </div>
       }

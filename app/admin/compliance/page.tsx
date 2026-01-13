@@ -117,7 +117,7 @@ export default function CompliancePage() {
         .order('created_at', { ascending: false })
         .limit(20)
 
-      const flattenedReports = reportsData?.map((r) => ({
+      const flattenedReports = reportsData?.map((r: any) => ({
         ...r,
         generated_by_email: (r.profiles as unknown as { email: string })?.email || 'Unknown',
         profiles: undefined,
@@ -131,7 +131,7 @@ export default function CompliancePage() {
         .eq('approval_status', 'pending')
         .order('created_at', { ascending: false})
 
-      const flattenedExports = exportsData?.map((e) => ({
+      const flattenedExports = exportsData?.map((e: any) => ({
         ...e,
         requested_by_email: (e.profiles as unknown as { email: string })?.email || 'Unknown',
         profiles: undefined,

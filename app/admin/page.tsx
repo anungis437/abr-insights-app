@@ -119,7 +119,7 @@ export default function AdminDashboard() {
           .select('*', { count: 'exact', head: true })
 
         const { count: totalCases } = await supabase
-          .from('cases')
+          .from('tribunal_cases')
           .select('*', { count: 'exact', head: true })
 
         const { count: totalEnrollments } = await supabase
