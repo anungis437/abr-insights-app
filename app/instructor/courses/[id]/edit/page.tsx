@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createBrowserClient } from '@supabase/ssr';
 import {
   ArrowLeft,
   Save,
@@ -29,7 +29,10 @@ export default function InstructorCourseEditPage() {
   const router = useRouter();
   const params = useParams();
   const courseId = params.id as string;
-  const supabase = createClientComponentClient();
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
 
   const [user, setUser] = useState<any>(null);
   const [isInstructor, setIsInstructor] = useState(false);

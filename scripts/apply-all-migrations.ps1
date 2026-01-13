@@ -163,14 +163,14 @@ Write-Host "   ❌ Failed: $failedMigrations" -ForegroundColor Red
 Write-Host ""
 
 if ($failedMigrations -gt 0) {
-    Write-Host "⚠️  Some migrations failed. Please check the errors above." -ForegroundColor Yellow
+    Write-Host "   Some migrations failed. Please check the errors above." -ForegroundColor Yellow
     Write-Host "   You may need to apply them manually via Supabase Dashboard:" -ForegroundColor Yellow
-    Write-Host "   https://supabase.com/dashboard → SQL Editor" -ForegroundColor Cyan
+    Write-Host "   https://supabase.com/dashboard - SQL Editor" -ForegroundColor Cyan
     Write-Host ""
 } else {
-    Write-Host "✨ All migrations applied successfully!" -ForegroundColor Green
+    Write-Host "All migrations applied successfully!" -ForegroundColor Green
     Write-Host ""
-    Write-Host "🎉 Next Steps:" -ForegroundColor Cyan
+    Write-Host "Next Steps:" -ForegroundColor Cyan
     Write-Host "   1. Test login with: super_admin@abr-insights.com / TestPass123!" -ForegroundColor White
     Write-Host "   2. Navigate to: http://localhost:3000/admin/ml" -ForegroundColor White
     Write-Host "   3. Generate embeddings: npx tsx --env-file=.env.local scripts/generate-initial-embeddings.ts" -ForegroundColor White

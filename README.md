@@ -53,6 +53,8 @@ See [docs/deployment/ENVIRONMENT.md](docs/deployment/ENVIRONMENT.md) for complet
 
 ### 3. Database Setup
 
+See [docs/migration/MIGRATION_VALIDATION_SUMMARY.md](docs/migration/MIGRATION_VALIDATION_SUMMARY.md) for migration validation details.
+
 Apply Supabase migrations:
 
 ```bash

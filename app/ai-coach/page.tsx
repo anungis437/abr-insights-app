@@ -107,13 +107,13 @@ export default function AICoachPage() {
         ? enrollments.reduce((sum, e) => sum + (e.progress || 0), 0) / enrollments.length
         : 0
 
-      // Get points
-      const { data: pointsData } = await supabase
+      // Get points (handle empty table gracefully)
+      const { data: pointsData, error: pointsError } = await supabase
         .from('user_points')
         .select('points')
         .eq('user_id', user.id)
 
-      const totalPoints = pointsData?.reduce((sum, p) => sum + (p.points || 0), 0) || 0
+      const totalPoints = pointsError ? 0 : (pointsData?.reduce((sum, p) => sum + (p.points || 0), 0) || 0)
 
       // Get streak
       const { data: streakData } = await supabase

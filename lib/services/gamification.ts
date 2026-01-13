@@ -3,7 +3,7 @@
  * Handles achievements, points, rewards, leaderboards, and leveling
  */
 
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createBrowserClient } from '@supabase/ssr';
 
 // =====================================================
 // Type Definitions
@@ -229,7 +229,10 @@ export interface PointsSummary {
 // =====================================================
 
 export class GamificationService {
-  private supabase = createClientComponentClient();
+  private supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
 
   // =====================================================
   // Achievements

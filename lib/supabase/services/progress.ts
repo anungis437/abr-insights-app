@@ -1,7 +1,7 @@
 /**
  * Progress Tracking Service
  * Replaces: base44.entities.Progress
- * Tables: course_enrollments, lesson_progress
+ * Tables: enrollments, lesson_progress
  */
 
 import { createClient } from '@/lib/supabase/client'
@@ -62,7 +62,7 @@ export class ProgressService {
    */
   async enroll(userId: string, courseId: string) {
     const { data, error } = await this.supabase
-      .from('course_enrollments')
+      .from('enrollments')
       .insert({
         user_id: userId,
         course_id: courseId,
@@ -82,7 +82,7 @@ export class ProgressService {
    */
   async getEnrollment(userId: string, courseId: string) {
     const { data, error } = await this.supabase
-      .from('course_enrollments')
+      .from('enrollments')
       .select('*')
       .eq('user_id', userId)
       .eq('course_id', courseId)
@@ -98,7 +98,7 @@ export class ProgressService {
    */
   async getUserEnrollments(userId: string, options?: { limit?: number; offset?: number }) {
     let query = this.supabase
-      .from('course_enrollments')
+      .from('enrollments')
       .select('*', { count: 'exact' })
       .eq('user_id', userId)
       .order('last_accessed_at', { ascending: false, nullsFirst: false })
@@ -271,7 +271,7 @@ export class ProgressService {
    */
   async updateLastAccessed(userId: string, courseId: string) {
     const { error } = await this.supabase
-      .from('course_enrollments')
+      .from('enrollments')
       .update({
         last_accessed_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
@@ -287,7 +287,7 @@ export class ProgressService {
    */
   private async updateEnrollmentStarted(userId: string, courseId: string) {
     const { data } = await this.supabase
-      .from('course_enrollments')
+      .from('enrollments')
       .select('started_at')
       .eq('user_id', userId)
       .eq('course_id', courseId)
@@ -295,7 +295,7 @@ export class ProgressService {
 
     if (!data?.started_at) {
       await this.supabase
-        .from('course_enrollments')
+        .from('enrollments')
         .update({
           started_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
@@ -340,7 +340,7 @@ export class ProgressService {
     }
 
     await this.supabase
-      .from('course_enrollments')
+      .from('enrollments')
       .update(updateData)
       .eq('user_id', userId)
       .eq('course_id', courseId)
@@ -352,11 +352,11 @@ export class ProgressService {
   async getUserStats(userId: string) {
     const [enrollments, completedCourses] = await Promise.all([
       this.supabase
-        .from('course_enrollments')
+        .from('enrollments')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', userId),
       this.supabase
-        .from('course_enrollments')
+        .from('enrollments')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', userId)
         .not('completed_at', 'is', null)
@@ -373,7 +373,7 @@ export class ProgressService {
    */
   async issueCertificate(userId: string, courseId: string) {
     const { data, error } = await this.supabase
-      .from('course_enrollments')
+      .from('enrollments')
       .update({
         certificate_issued: true,
         updated_at: new Date().toISOString()
@@ -390,3 +390,4 @@ export class ProgressService {
 
 // Export singleton instance
 export const progressService = new ProgressService()
+

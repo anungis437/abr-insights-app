@@ -340,7 +340,7 @@ export class AchievementsService {
       case 'course_completion':
         if (activityType === 'course_completed' && criteria.course_count) {
           const { count } = await this.supabase
-            .from('course_enrollments')
+            .from('enrollments')
             .select('*', { count: 'exact', head: true })
             .eq('user_id', userId)
             .not('completed_at', 'is', null)
@@ -376,3 +376,4 @@ export class AchievementsService {
 
 // Export singleton instance
 export const achievementsService = new AchievementsService()
+
