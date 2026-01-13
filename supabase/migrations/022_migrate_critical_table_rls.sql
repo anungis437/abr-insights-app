@@ -32,7 +32,7 @@ CREATE POLICY "profiles_select_with_permission"
     ON profiles FOR SELECT
     USING (
         organization_id IS NOT NULL
-        AND auth.has_any_permission(
+        AND public.has_any_permission(
             auth.uid(),
             organization_id,
             ARRAY['profiles.view', 'users.read', 'admin.ai.manage']
@@ -47,15 +47,15 @@ CREATE POLICY "profiles_update_own"
         AND (
             -- Can only update own profile fields
             organization_id = OLD.organization_id  -- Cannot change org
-            OR auth.has_permission(auth.uid(), auth.user_organization_id(), 'profiles.update_any')
+            OR public.has_permission(auth.uid(), public.user_organization_id(), 'profiles.update_any')
         )
     );
 
 CREATE POLICY "profiles_update_with_permission"
     ON profiles FOR UPDATE
     USING (
-        organization_id = auth.user_organization_id()
-        AND auth.has_any_permission(
+        organization_id = public.user_organization_id()
+        AND public.has_any_permission(
             auth.uid(),
             organization_id,
             ARRAY['profiles.update_any', 'users.update', 'admin.ai.manage']
@@ -69,8 +69,8 @@ CREATE POLICY "profiles_insert_own"
 CREATE POLICY "profiles_insert_with_permission"
     ON profiles FOR INSERT
     WITH CHECK (
-        organization_id = auth.user_organization_id()
-        AND auth.has_any_permission(
+        organization_id = public.user_organization_id()
+        AND public.has_any_permission(
             auth.uid(),
             organization_id,
             ARRAY['users.create', 'users.invite', 'admin.ai.manage']
@@ -80,10 +80,10 @@ CREATE POLICY "profiles_insert_with_permission"
 CREATE POLICY "profiles_delete_with_permission"
     ON profiles FOR DELETE
     USING (
-        organization_id = auth.user_organization_id()
+        organization_id = public.user_organization_id()
         AND (
-            auth.has_permission(auth.uid(), organization_id, 'users.delete')
-            OR auth.is_admin(auth.uid())
+            public.has_permission(auth.uid(), organization_id, 'users.delete')
+            OR public.is_admin(auth.uid())
         )
     );
 
@@ -108,13 +108,13 @@ DROP POLICY IF EXISTS "Service role has full access to organizations" ON organiz
 CREATE POLICY "organizations_select_own"
     ON organizations FOR SELECT
     USING (
-        id = auth.user_organization_id()  -- Users see their own org
+        id = public.user_organization_id()  -- Users see their own org
     );
 
 CREATE POLICY "organizations_select_with_permission"
     ON organizations FOR SELECT
     USING (
-        auth.has_any_permission(
+        public.has_any_permission(
             auth.uid(),
             id,
             ARRAY['organization.view', 'admin.ai.manage']
@@ -124,23 +124,23 @@ CREATE POLICY "organizations_select_with_permission"
 CREATE POLICY "organizations_update_with_permission"
     ON organizations FOR UPDATE
     USING (
-        id = auth.user_organization_id()
+        id = public.user_organization_id()
         AND (
-            auth.has_permission(auth.uid(), id, 'organization.configure')
-            OR auth.is_admin(auth.uid())
+            public.has_permission(auth.uid(), id, 'organization.configure')
+            OR public.is_admin(auth.uid())
         )
     );
 
 CREATE POLICY "organizations_insert_super_admin"
     ON organizations FOR INSERT
     WITH CHECK (
-        auth.is_super_admin(auth.uid())
+        public.is_super_admin(auth.uid())
     );
 
 CREATE POLICY "organizations_delete_super_admin"
     ON organizations FOR DELETE
     USING (
-        auth.is_super_admin(auth.uid())
+        public.is_super_admin(auth.uid())
     );
 
 CREATE POLICY "organizations_service_role_full_access"
@@ -167,8 +167,8 @@ CREATE POLICY "user_roles_select_with_permission"
         EXISTS (
             SELECT 1 FROM profiles p
             WHERE p.id = user_id
-            AND p.organization_id = auth.user_organization_id()
-            AND auth.has_any_permission(
+            AND p.organization_id = public.user_organization_id()
+            AND public.has_any_permission(
                 auth.uid(),
                 p.organization_id,
                 ARRAY['roles.read', 'users.read', 'admin.ai.manage']
@@ -182,10 +182,10 @@ CREATE POLICY "user_roles_insert_with_permission"
         EXISTS (
             SELECT 1 FROM profiles p
             WHERE p.id = user_id
-            AND p.organization_id = auth.user_organization_id()
+            AND p.organization_id = public.user_organization_id()
             AND (
-                auth.has_permission(auth.uid(), p.organization_id, 'roles.assign')
-                OR auth.is_admin(auth.uid())
+                public.has_permission(auth.uid(), p.organization_id, 'roles.assign')
+                OR public.is_admin(auth.uid())
             )
         )
     );
@@ -196,10 +196,10 @@ CREATE POLICY "user_roles_delete_with_permission"
         EXISTS (
             SELECT 1 FROM profiles p
             WHERE p.id = user_id
-            AND p.organization_id = auth.user_organization_id()
+            AND p.organization_id = public.user_organization_id()
             AND (
-                auth.has_permission(auth.uid(), p.organization_id, 'roles.assign')
-                OR auth.is_admin(auth.uid())
+                public.has_permission(auth.uid(), p.organization_id, 'roles.assign')
+                OR public.is_admin(auth.uid())
             )
         )
     );
@@ -235,9 +235,9 @@ CREATE POLICY "courses_select_published"
 CREATE POLICY "courses_select_own_org"
     ON courses FOR SELECT
     USING (
-        organization_id = auth.user_organization_id()
+        organization_id = public.user_organization_id()
         AND (
-            auth.has_any_permission(
+            public.has_any_permission(
                 auth.uid(),
                 organization_id,
                 ARRAY['courses.view', 'courses.read', 'instructor.access']
@@ -249,9 +249,9 @@ CREATE POLICY "courses_select_own_org"
 CREATE POLICY "courses_insert_with_permission"
     ON courses FOR INSERT
     WITH CHECK (
-        organization_id = auth.user_organization_id()
+        organization_id = public.user_organization_id()
         AND (
-            auth.has_any_permission(
+            public.has_any_permission(
                 auth.uid(),
                 organization_id,
                 ARRAY['courses.create', 'instructor.access']
@@ -262,10 +262,10 @@ CREATE POLICY "courses_insert_with_permission"
 CREATE POLICY "courses_update_owner_or_permission"
     ON courses FOR UPDATE
     USING (
-        organization_id = auth.user_organization_id()
+        organization_id = public.user_organization_id()
         AND (
             created_by = auth.uid()
-            OR auth.has_any_permission(
+            OR public.has_any_permission(
                 auth.uid(),
                 organization_id,
                 ARRAY['courses.update', 'courses.publish', 'admin.ai.manage']
@@ -276,10 +276,10 @@ CREATE POLICY "courses_update_owner_or_permission"
 CREATE POLICY "courses_delete_with_permission"
     ON courses FOR DELETE
     USING (
-        organization_id = auth.user_organization_id()
+        organization_id = public.user_organization_id()
         AND (
-            auth.has_permission(auth.uid(), organization_id, 'courses.delete')
-            OR auth.is_admin(auth.uid())
+            public.has_permission(auth.uid(), organization_id, 'courses.delete')
+            OR public.is_admin(auth.uid())
         )
     );
 
@@ -315,8 +315,8 @@ CREATE POLICY "lessons_select_with_access"
         EXISTS (
             SELECT 1 FROM courses c
             WHERE c.id = course_id
-            AND c.organization_id = auth.user_organization_id()
-            AND auth.has_any_permission(
+            AND c.organization_id = public.user_organization_id()
+            AND public.has_any_permission(
                 auth.uid(),
                 c.organization_id,
                 ARRAY['courses.view', 'lessons.create', 'instructor.access']
@@ -330,8 +330,8 @@ CREATE POLICY "lessons_insert_with_permission"
         EXISTS (
             SELECT 1 FROM courses c
             WHERE c.id = course_id
-            AND c.organization_id = auth.user_organization_id()
-            AND auth.has_any_permission(
+            AND c.organization_id = public.user_organization_id()
+            AND public.has_any_permission(
                 auth.uid(),
                 c.organization_id,
                 ARRAY['lessons.create', 'instructor.access']
@@ -345,10 +345,10 @@ CREATE POLICY "lessons_update_with_permission"
         EXISTS (
             SELECT 1 FROM courses c
             WHERE c.id = course_id
-            AND c.organization_id = auth.user_organization_id()
+            AND c.organization_id = public.user_organization_id()
             AND (
                 c.created_by = auth.uid()
-                OR auth.has_any_permission(
+                OR public.has_any_permission(
                     auth.uid(),
                     c.organization_id,
                     ARRAY['lessons.update', 'lessons.publish']
@@ -363,10 +363,10 @@ CREATE POLICY "lessons_delete_with_permission"
         EXISTS (
             SELECT 1 FROM courses c
             WHERE c.id = course_id
-            AND c.organization_id = auth.user_organization_id()
+            AND c.organization_id = public.user_organization_id()
             AND (
-                auth.has_permission(auth.uid(), c.organization_id, 'lessons.delete')
-                OR auth.is_admin(auth.uid())
+                public.has_permission(auth.uid(), c.organization_id, 'lessons.delete')
+                OR public.is_admin(auth.uid())
             )
         )
     );
@@ -388,9 +388,9 @@ DROP POLICY IF EXISTS "Admins can manage cases" ON tribunal_cases;
 CREATE POLICY "tribunal_cases_select_with_permission"
     ON tribunal_cases FOR SELECT
     USING (
-        auth.has_any_permission(
+        public.has_any_permission(
             auth.uid(),
-            auth.user_organization_id(),
+            public.user_organization_id(),
             ARRAY['cases.view', 'cases.read', 'cases.search']
         )
     );
@@ -398,9 +398,9 @@ CREATE POLICY "tribunal_cases_select_with_permission"
 CREATE POLICY "tribunal_cases_insert_with_permission"
     ON tribunal_cases FOR INSERT
     WITH CHECK (
-        auth.has_any_permission(
+        public.has_any_permission(
             auth.uid(),
-            auth.user_organization_id(),
+            public.user_organization_id(),
             ARRAY['cases.create', 'cases.import', 'admin.ai.manage']
         )
     );
@@ -408,9 +408,9 @@ CREATE POLICY "tribunal_cases_insert_with_permission"
 CREATE POLICY "tribunal_cases_update_with_permission"
     ON tribunal_cases FOR UPDATE
     USING (
-        auth.has_any_permission(
+        public.has_any_permission(
             auth.uid(),
-            auth.user_organization_id(),
+            public.user_organization_id(),
             ARRAY['cases.update', 'cases.annotate', 'admin.ai.manage']
         )
     );
@@ -418,8 +418,8 @@ CREATE POLICY "tribunal_cases_update_with_permission"
 CREATE POLICY "tribunal_cases_delete_with_permission"
     ON tribunal_cases FOR DELETE
     USING (
-        auth.has_permission(auth.uid(), auth.user_organization_id(), 'cases.delete')
-        OR auth.is_admin(auth.uid())
+        public.has_permission(auth.uid(), public.user_organization_id(), 'cases.delete')
+        OR public.is_admin(auth.uid())
     );
 
 CREATE POLICY "tribunal_cases_service_role_full_access"
@@ -454,8 +454,8 @@ CREATE POLICY "quizzes_select_with_access"
             EXISTS (
                 SELECT 1 FROM courses c
                 WHERE c.id = course_id
-                AND c.organization_id = auth.user_organization_id()
-                AND auth.has_any_permission(
+                AND c.organization_id = public.user_organization_id()
+                AND public.has_any_permission(
                     auth.uid(),
                     c.organization_id,
                     ARRAY['quizzes.create', 'quizzes.take', 'instructor.access']
@@ -470,8 +470,8 @@ CREATE POLICY "quizzes_insert_with_permission"
         EXISTS (
             SELECT 1 FROM courses c
             WHERE c.id = course_id
-            AND c.organization_id = auth.user_organization_id()
-            AND auth.has_any_permission(
+            AND c.organization_id = public.user_organization_id()
+            AND public.has_any_permission(
                 auth.uid(),
                 c.organization_id,
                 ARRAY['quizzes.create', 'instructor.access']
@@ -485,10 +485,10 @@ CREATE POLICY "quizzes_update_with_permission"
         EXISTS (
             SELECT 1 FROM courses c
             WHERE c.id = course_id
-            AND c.organization_id = auth.user_organization_id()
+            AND c.organization_id = public.user_organization_id()
             AND (
                 c.created_by = auth.uid()
-                OR auth.has_permission(auth.uid(), c.organization_id, 'quizzes.update')
+                OR public.has_permission(auth.uid(), c.organization_id, 'quizzes.update')
             )
         )
     );
@@ -499,10 +499,10 @@ CREATE POLICY "quizzes_delete_with_permission"
         EXISTS (
             SELECT 1 FROM courses c
             WHERE c.id = course_id
-            AND c.organization_id = auth.user_organization_id()
+            AND c.organization_id = public.user_organization_id()
             AND (
-                auth.has_permission(auth.uid(), c.organization_id, 'quizzes.delete')
-                OR auth.is_admin(auth.uid())
+                public.has_permission(auth.uid(), c.organization_id, 'quizzes.delete')
+                OR public.is_admin(auth.uid())
             )
         )
     );
@@ -525,15 +525,15 @@ CREATE POLICY "certificates_select_own"
     ON certificates FOR SELECT
     USING (
         user_id = auth.uid()
-        OR auth.has_permission(auth.uid(), auth.user_organization_id(), 'certificates.view_own')
+        OR public.has_permission(auth.uid(), public.user_organization_id(), 'certificates.view_own')
     );
 
 CREATE POLICY "certificates_select_with_permission"
     ON certificates FOR SELECT
     USING (
-        auth.has_any_permission(
+        public.has_any_permission(
             auth.uid(),
-            auth.user_organization_id(),
+            public.user_organization_id(),
             ARRAY['certificates.view_all', 'instructor.access', 'admin.ai.manage']
         )
     );
@@ -541,9 +541,9 @@ CREATE POLICY "certificates_select_with_permission"
 CREATE POLICY "certificates_insert_with_permission"
     ON certificates FOR INSERT
     WITH CHECK (
-        auth.has_any_permission(
+        public.has_any_permission(
             auth.uid(),
-            auth.user_organization_id(),
+            public.user_organization_id(),
             ARRAY['certificates.issue', 'instructor.access']
         )
     );
@@ -551,15 +551,15 @@ CREATE POLICY "certificates_insert_with_permission"
 CREATE POLICY "certificates_update_with_permission"
     ON certificates FOR UPDATE
     USING (
-        auth.has_permission(auth.uid(), auth.user_organization_id(), 'certificates.issue')
-        OR auth.is_admin(auth.uid())
+        public.has_permission(auth.uid(), public.user_organization_id(), 'certificates.issue')
+        OR public.is_admin(auth.uid())
     );
 
 CREATE POLICY "certificates_delete_with_permission"
     ON certificates FOR DELETE
     USING (
-        auth.has_permission(auth.uid(), auth.user_organization_id(), 'certificates.revoke')
-        OR auth.is_admin(auth.uid())
+        public.has_permission(auth.uid(), public.user_organization_id(), 'certificates.revoke')
+        OR public.is_admin(auth.uid())
     );
 
 CREATE POLICY "certificates_service_role_full_access"
@@ -579,23 +579,23 @@ CREATE POLICY "audit_logs_select_own"
     ON audit_logs FOR SELECT
     USING (
         user_id = auth.uid()
-        OR auth.has_permission(auth.uid(), auth.user_organization_id(), 'audit_logs.view_own')
+        OR public.has_permission(auth.uid(), public.user_organization_id(), 'audit_logs.view_own')
     );
 
 CREATE POLICY "audit_logs_select_team"
     ON audit_logs FOR SELECT
     USING (
-        organization_id = auth.user_organization_id()
-        AND auth.has_permission(auth.uid(), organization_id, 'audit_logs.view_team')
+        organization_id = public.user_organization_id()
+        AND public.has_permission(auth.uid(), organization_id, 'audit_logs.view_team')
     );
 
 CREATE POLICY "audit_logs_select_all"
     ON audit_logs FOR SELECT
     USING (
-        organization_id = auth.user_organization_id()
+        organization_id = public.user_organization_id()
         AND (
-            auth.has_permission(auth.uid(), organization_id, 'audit_logs.view_all')
-            OR auth.is_admin(auth.uid())
+            public.has_permission(auth.uid(), organization_id, 'audit_logs.view_all')
+            OR public.is_admin(auth.uid())
         )
     );
 
@@ -610,7 +610,7 @@ CREATE POLICY "audit_logs_no_update"
 CREATE POLICY "audit_logs_delete_super_admin"
     ON audit_logs FOR DELETE
     USING (
-        auth.is_super_admin(auth.uid())
+        public.is_super_admin(auth.uid())
     );
 
 CREATE POLICY "audit_logs_service_role_full_access"
@@ -635,14 +635,14 @@ CREATE POLICY "ai_usage_logs_select_own"
 CREATE POLICY "ai_usage_logs_select_with_permission"
     ON ai_usage_logs FOR SELECT
     USING (
-        organization_id = auth.user_organization_id()
+        organization_id = public.user_organization_id()
         AND (
-            auth.has_any_permission(
+            public.has_any_permission(
                 auth.uid(),
                 organization_id,
                 ARRAY['ai.usage.view', 'ai.usage.export', 'admin.ai.manage']
             )
-            OR auth.is_admin(auth.uid())
+            OR public.is_admin(auth.uid())
         )
     );
 
@@ -657,8 +657,8 @@ CREATE POLICY "ai_usage_logs_no_update"
 CREATE POLICY "ai_usage_logs_delete_admin"
     ON ai_usage_logs FOR DELETE
     USING (
-        organization_id = auth.user_organization_id()
-        AND auth.is_admin(auth.uid())
+        organization_id = public.user_organization_id()
+        AND public.is_admin(auth.uid())
     );
 
 CREATE POLICY "ai_usage_logs_service_role_full_access"
