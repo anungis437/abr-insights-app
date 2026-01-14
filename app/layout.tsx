@@ -96,14 +96,15 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={poppins.variable}>
+    <html lang="en" className={poppins.variable} data-scroll-behavior="smooth">
       <body className="font-sans">
         <AuthProvider>
           <LanguageProvider>
             <PWAProvider>
               <NavigationWrapper />
               <SidebarWrapper />
-              <main className="min-h-screen pt-16 lg:pl-64">{children}</main>
+              {/* Main content: sidebar padding added via CSS when .has-sidebar class is present */}
+              <main className="min-h-screen pt-16">{children}</main>
               <FooterWrapper />
             </PWAProvider>
           </LanguageProvider>

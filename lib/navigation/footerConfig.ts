@@ -20,7 +20,7 @@ const publicFooterSections: FooterSection[] = [
     title: 'Product',
     links: [
       { label: 'Courses', href: '/courses' },
-      { label: 'Case Explorer', href: '/cases/browse' },
+      { label: 'Cases', href: '/cases' },
       { label: 'Analytics', href: '/analytics' },
       { label: 'Team Management', href: '/team' },
       { label: 'Pricing', href: '/pricing' },

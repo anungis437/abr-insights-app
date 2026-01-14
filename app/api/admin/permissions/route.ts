@@ -1,28 +1,18 @@
 // API route for permissions management
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { requireAnyPermission } from '@/lib/auth/permissions'
 
 // GET /api/admin/permissions - List all permissions
 export async function GET(request: NextRequest) {
   try {
+    // Check permissions - requires permissions.view or permissions.manage
+    const check = await requireAnyPermission(['permissions.view', 'permissions.manage'])
+    if (check instanceof NextResponse) {
+      return check // Return 403 response
+    }
+    
     const supabase = await createClient()
-    
-    // Check auth
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-    
-    // Check permissions - must be admin
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role, organization_id')
-      .eq('id', user.id)
-      .single()
-    
-    if (!profile || !['super_admin', 'org_admin'].includes(profile.role || '')) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
     
     // Get query params
     const { searchParams } = new URL(request.url)
@@ -71,25 +61,12 @@ export async function GET(request: NextRequest) {
 
 // POST /api/admin/permissions - Create new permission (super_admin only)
 export async function POST(request: NextRequest) {
+  // Check permissions
+  const permissionError = await requireAnyPermission(['permissions.create', 'permissions.manage']);
+  if (permissionError) return permissionError;
+
   try {
     const supabase = await createClient()
-    
-    // Check auth
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-    
-    // Check permissions - must be super_admin
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-    
-    if (!profile || profile.role !== 'super_admin') {
-      return NextResponse.json({ error: 'Forbidden - Super Admin only' }, { status: 403 })
-    }
     
     const body = await request.json()
     const { name, slug, resource, action, description, is_system } = body

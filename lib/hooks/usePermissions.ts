@@ -50,17 +50,8 @@ export function usePermissions(): PermissionHookResult {
 
       const supabase = createClient();
 
-      // Load user's direct permissions
-      const { data: userPerms, error: userPermsError } = await supabase
-        .from('user_permissions')
-        .select(`
-          permissions (
-            name
-          )
-        `)
-        .eq('user_id', user.id);
-
-      if (userPermsError) throw userPermsError;
+      // Combine all permissions into a Set for fast lookup
+      const allPermissions = new Set<string>();
 
       // Load permissions from user's roles
       const { data: rolePerms, error: rolePermsError } = await supabase
@@ -76,30 +67,56 @@ export function usePermissions(): PermissionHookResult {
         `)
         .eq('user_id', user.id);
 
-      if (rolePermsError) throw rolePermsError;
+      if (rolePermsError) {
+        // Log detailed error for debugging
+        console.error('Error loading role permissions:', {
+          message: rolePermsError.message,
+          details: rolePermsError.details,
+          hint: rolePermsError.hint,
+          code: rolePermsError.code,
+          userId: user.id
+        });
+        throw rolePermsError;
+      }
 
-      // Combine all permissions into a Set for fast lookup
-      const allPermissions = new Set<string>();
-
-      // Add direct permissions
-      userPerms?.forEach((up: any) => {
-        if (up.permissions?.name) {
-          allPermissions.add(up.permissions.name);
-        }
-      });
+      // Check if user has no roles assigned (this is normal for new users)
+      if (!rolePerms || rolePerms.length === 0) {
+        console.info('User has no roles assigned yet:', user.id);
+        setPermissions(allPermissions);
+        setLoading(false);
+        return;
+      }
 
       // Add role permissions
-      rolePerms?.forEach((ur: any) => {
-        ur.roles?.role_permissions?.forEach((rp: any) => {
-          if (rp.permissions?.name) {
-            allPermissions.add(rp.permissions.name);
+      if (rolePerms && Array.isArray(rolePerms)) {
+        rolePerms.forEach((ur: any) => {
+          if (ur.roles?.role_permissions && Array.isArray(ur.roles.role_permissions)) {
+            ur.roles.role_permissions.forEach((rp: any) => {
+              if (rp.permissions?.name) {
+                allPermissions.add(rp.permissions.name);
+              }
+            });
           }
         });
-      });
+      }
 
       setPermissions(allPermissions);
     } catch (err) {
-      console.error('Error loading permissions:', err);
+      // Enhanced error logging
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      const errorCode = (err as any)?.code;
+      const errorDetails = (err as any)?.details;
+      const errorHint = (err as any)?.hint;
+      
+      console.error('Error loading permissions:', {
+        message: errorMessage,
+        code: errorCode,
+        details: errorDetails,
+        hint: errorHint,
+        userId: user.id,
+        timestamp: new Date().toISOString()
+      });
+      
       setError(err instanceof Error ? err : new Error('Failed to load permissions'));
     } finally {
       setLoading(false);

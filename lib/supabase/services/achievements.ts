@@ -83,17 +83,29 @@ export class AchievementsService {
    * Replaces: base44.entities.UserAchievement.getUserAchievements()
    */
   async getUserAchievements(userId: string) {
-    const { data, error } = await this.supabase
-      .from('user_achievements')
-      .select(`
-        *,
-        achievement:achievements(*)
-      `)
-      .eq('user_id', userId)
-      .order('earned_at', { ascending: false })
+    try {
+      const { data, error } = await this.supabase
+        .from('user_achievements')
+        .select(`
+          *,
+          achievement:achievements(*)
+        `)
+        .eq('user_id', userId)
+        .order('earned_at', { ascending: false })
 
-    if (error) throw error
-    return data
+      if (error) {
+        // Handle table not found gracefully
+        if (error.code === 'PGRST301' || error.code === '42P01' || error.code === 'PGRST205') {
+          console.warn('[Achievements] user_achievements table not found, returning empty array')
+          return []
+        }
+        throw error
+      }
+      return data
+    } catch (error) {
+      console.error('[Achievements] Error fetching user achievements:', error)
+      return []
+    }
   }
 
   /**
@@ -147,21 +159,45 @@ export class AchievementsService {
    * Replaces: base44.entities.UserPoints.get()
    */
   async getUserPoints(userId: string) {
-    const { data, error } = await this.supabase
-      .from('user_points')
-      .select('*')
-      .eq('user_id', userId)
-      .single()
+    try {
+      const { data, error } = await this.supabase
+        .from('user_points')
+        .select('*')
+        .eq('user_id', userId)
+        .single()
 
-    if (error) {
-      // Create if doesn't exist
-      if (error.code === 'PGRST116') {
-        return await this.initializeUserPoints(userId)
+      if (error) {
+        // Handle table not found gracefully
+        if (error.code === 'PGRST301' || error.code === '42P01' || error.code === 'PGRST205' || error.code === 'PGRST204') {
+          console.warn('[Achievements] user_points table not found, returning default')
+          return {
+            user_id: userId,
+            total_points: 0,
+            course_points: 0,
+            engagement_points: 0,
+            achievement_points: 0,
+            bonus_points: 0
+          } as UserPoints
+        }
+        // Create if doesn't exist
+        if (error.code === 'PGRST116') {
+          return await this.initializeUserPoints(userId)
+        }
+        throw error
       }
-      throw error
-    }
 
-    return data as UserPoints
+      return data as UserPoints
+    } catch (error) {
+      console.error('[Achievements] Error fetching user points:', error)
+      return {
+        user_id: userId,
+        total_points: 0,
+        course_points: 0,
+        engagement_points: 0,
+        achievement_points: 0,
+        bonus_points: 0
+      } as UserPoints
+    }
   }
 
   /**

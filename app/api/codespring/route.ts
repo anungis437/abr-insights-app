@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCodespringClient } from '@/lib/services/codespring';
+import { requireAnyPermission } from '@/lib/auth/permissions';
 
 /**
  * POST /api/codespring/analyze
  * Analyze code using Codespring API
  */
 export async function POST(request: NextRequest) {
+  // Check permissions
+  const permissionError = await requireAnyPermission(['courses.view', 'courses.manage']);
+  if (permissionError) return permissionError;
+
   try {
     const body = await request.json();
     const { code, language } = body;
@@ -42,6 +47,10 @@ export async function POST(request: NextRequest) {
  * Check Codespring API health
  */
 export async function GET(request: NextRequest) {
+  // Check permissions
+  const permissionError = await requireAnyPermission(['courses.view', 'courses.manage', 'admin.view']);
+  if (permissionError) return permissionError;
+
   try {
     const client = getCodespringClient();
     const response = await client.healthCheck();

@@ -280,14 +280,26 @@ export class GamificationService {
    * Get user's earned achievements
    */
   async getUserAchievements(userId: string): Promise<UserAchievement[]> {
-    const { data, error } = await this.supabase
-      .from('user_achievements')
-      .select('*, achievement:achievements(*, category:achievement_categories(*))')
-      .eq('user_id', userId)
-      .order('earned_at', { ascending: false });
+    try {
+      const { data, error } = await this.supabase
+        .from('user_achievements')
+        .select('*, achievement:achievements(*, category:achievement_categories(*))')
+        .eq('user_id', userId)
+        .order('earned_at', { ascending: false });
 
-    if (error) throw error;
-    return data || [];
+      if (error) {
+        // Handle table not found gracefully
+        if (error.code === 'PGRST301' || error.code === '42P01') {
+          console.warn('[Gamification] user_achievements table not found, returning empty array')
+          return []
+        }
+        throw error
+      }
+      return data || [];
+    } catch (error) {
+      console.error('[Gamification] Error fetching user achievements:', error)
+      return []
+    }
   }
 
   /**
@@ -518,23 +530,57 @@ export class GamificationService {
    * Get user's points summary
    */
   async getUserPointsSummary(userId: string): Promise<PointsSummary> {
-    const { data, error } = await this.supabase.rpc('get_user_points_summary', {
-      p_user_id: userId
-    });
+    try {
+      const { data, error } = await this.supabase.rpc('get_user_points_summary', {
+        p_user_id: userId
+      });
 
-    if (error) throw error;
-    return data?.[0] || {
-      current_balance: 0,
-      total_earned: 0,
-      total_spent: 0,
-      points_this_week: 0,
-      points_this_month: 0,
-      current_level: 1,
-      current_xp: 0,
-      xp_for_next_level: 100,
-      points_multiplier: 1.0,
-      recent_transactions: []
-    };
+      if (error) {
+        // Handle function not found gracefully
+        if (error.code === 'PGRST301' || error.code === '42883') {
+          console.warn('[Gamification] get_user_points_summary function not found, returning default')
+          return {
+            current_balance: 0,
+            total_earned: 0,
+            total_spent: 0,
+            points_this_week: 0,
+            points_this_month: 0,
+            current_level: 1,
+            current_xp: 0,
+            xp_for_next_level: 100,
+            points_multiplier: 1.0,
+            recent_transactions: []
+          }
+        }
+        throw error
+      }
+      return data?.[0] || {
+        current_balance: 0,
+        total_earned: 0,
+        total_spent: 0,
+        points_this_week: 0,
+        points_this_month: 0,
+        current_level: 1,
+        current_xp: 0,
+        xp_for_next_level: 100,
+        points_multiplier: 1.0,
+        recent_transactions: []
+      };
+    } catch (error) {
+      console.error('[Gamification] Error fetching points summary:', error)
+      return {
+        current_balance: 0,
+        total_earned: 0,
+        total_spent: 0,
+        points_this_week: 0,
+        points_this_month: 0,
+        current_level: 1,
+        current_xp: 0,
+        xp_for_next_level: 100,
+        points_multiplier: 1.0,
+        recent_transactions: []
+      }
+    }
   }
 
   // =====================================================

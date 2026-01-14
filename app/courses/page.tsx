@@ -1,239 +1,272 @@
-'use client'
-
-import { useEffect, useState, useCallback } from 'react'
-import { BookOpen, Clock } from 'lucide-react'
+import { BookOpen, GraduationCap, Award, Users, CheckCircle, ArrowRight, Clock, Target } from 'lucide-react'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
-
-interface Course {
-  id: string
-  title: string
-  slug: string
-  description: string | null
-  category_id: string | null
-  level: 'beginner' | 'intermediate' | 'advanced'
-  estimated_duration_minutes: number
-  is_published: boolean
-  thumbnail_url: string | null
-  created_at: string
-  updated_at: string
-}
-
-interface Category {
-  id: string
-  name: string
-  slug: string
-}
 
 export default function CoursesPage() {
-  const supabase = createClient()
-  const [courses, setCourses] = useState<Course[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
-  const [loading, setLoading] = useState(true)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState('')
-  const [selectedLevel, setSelectedLevel] = useState('')
-
-  const fetchCoursesAndCategories = useCallback(async () => {
-    setLoading(true)
-    try {
-      // Fetch published courses
-      let query = supabase
-        .from('courses')
-        .select('*')
-        .eq('is_published', true)
-        .order('created_at', { ascending: false })
-
-      const { data: coursesData, error: coursesError } = await query
-      
-      if (coursesError) throw coursesError
-      setCourses(coursesData || [])
-
-      // Fetch categories
-      const { data: categoriesData, error: categoriesError } = await supabase
-        .from('content_categories')
-        .select('id, name, slug')
-        .order('name')
-
-      if (categoriesError) throw categoriesError
-      setCategories(categoriesData || [])
-    } catch (error) {
-      console.error('Error fetching courses:', error)
-    } finally {
-      setLoading(false)
-    }
-  }, [supabase])
-
-  useEffect(() => {
-    fetchCoursesAndCategories()
-  }, [fetchCoursesAndCategories])
-
-  const filteredCourses = courses.filter((course) => {
-    const matchesSearch = !searchQuery || 
-      course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (course.description && course.description.toLowerCase().includes(searchQuery.toLowerCase()))
-    
-    const matchesCategory = !selectedCategory || course.category_id === selectedCategory
-    const matchesLevel = !selectedLevel || course.level === selectedLevel
-
-    return matchesSearch && matchesCategory && matchesLevel
-  })
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 pt-20">
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"></div>
-              <p className="mt-4 text-gray-600">Loading courses...</p>
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+      {/* Hero Section */}
+      <section className="relative bg-gradient-to-r from-primary-600 to-secondary-600 px-4 pb-24 pt-32 text-white">
+        <div className="container-custom">
+          <div className="mx-auto max-w-4xl text-center">
+            <div className="mb-4 flex justify-center">
+              <GraduationCap className="h-16 w-16" />
+            </div>
+            <h1 className="mb-6 text-4xl font-bold md:text-5xl lg:text-6xl">
+              Expert-Led Anti-Black Racism Training
+            </h1>
+            <p className="mb-8 text-xl text-blue-100">
+              Comprehensive courses designed by leading experts to build workplace equity and combat systemic racism
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-4">
+              <Link href="/auth/login" className="btn-primary bg-white text-primary-600 hover:bg-gray-100">
+                <BookOpen className="mr-2 h-5 w-5" />
+                Browse Course Catalog
+              </Link>
+              <Link href="/auth/signup" className="btn-secondary border-white text-white hover:bg-white/10">
+                Start Free Trial
+              </Link>
             </div>
           </div>
         </div>
-      </div>
-    )
-  }
 
-  const getCategoryName = (categoryId: string | null) => {
-    if (!categoryId) return 'General'
-    const category = categories.find(cat => cat.id === categoryId)
-    return category?.name || 'General'
-  }
-
-  const formatDuration = (minutes: number) => {
-    const hours = Math.floor(minutes / 60)
-    const mins = minutes % 60
-    if (hours > 0 && mins > 0) return `${hours}h ${mins}m`
-    if (hours > 0) return `${hours}h`
-    return `${mins}m`
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-50 pt-20">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="mb-2 text-3xl font-bold text-gray-900">Course Catalog</h1>
-          <p className="text-gray-600">
-            Browse {courses.length} available {courses.length === 1 ? 'course' : 'courses'}
-          </p>
+        {/* Decorative Elements */}
+        <div className="absolute left-0 top-0 -z-10 h-full w-full opacity-10">
+          <div className="absolute right-1/4 top-1/4 h-80 w-80 rounded-full bg-white blur-3xl" />
+          <div className="absolute left-1/3 bottom-1/3 h-96 w-96 rounded-full bg-yellow-300 blur-3xl" />
         </div>
+      </section>
 
-        {/* Search and Filters */}
-        <div className="mb-8">
-          <div className="card">
-            <div className="grid gap-4 md:grid-cols-4">
-              <div className="md:col-span-2">
-                <label htmlFor="search" className="mb-2 block text-sm font-medium text-gray-700">
-                  Search Courses
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    id="search"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search by title or description..."
-                    className="input-field w-full"
-                  />
-                </div>
+      {/* Stats Section */}
+      <section className="px-4 py-16">
+        <div className="container-custom">
+          <div className="card mx-auto -mt-16 max-w-5xl">
+            <div className="grid gap-8 md:grid-cols-4">
+              <div className="text-center">
+                <div className="mb-2 text-4xl font-bold text-primary-600">50+</div>
+                <div className="text-sm text-gray-600">Expert-Led Courses</div>
               </div>
-              <div>
-                <label htmlFor="category" className="mb-2 block text-sm font-medium text-gray-700">
-                  Category
-                </label>
-                <select 
-                  id="category" 
-                  className="input-field w-full"
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                >
-                  <option value="">All Categories</option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>{cat.name}</option>
-                  ))}
-                </select>
+              <div className="text-center">
+                <div className="mb-2 text-4xl font-bold text-primary-600">10,000+</div>
+                <div className="text-sm text-gray-600">Learners Trained</div>
               </div>
-              <div>
-                <label htmlFor="level" className="mb-2 block text-sm font-medium text-gray-700">
-                  Level
-                </label>
-                <select 
-                  id="level" 
-                  className="input-field w-full"
-                  value={selectedLevel}
-                  onChange={(e) => setSelectedLevel(e.target.value)}
-                >
-                  <option value="">All Levels</option>
-                  <option value="beginner">Beginner</option>
-                  <option value="intermediate">Intermediate</option>
-                  <option value="advanced">Advanced</option>
-                </select>
+              <div className="text-center">
+                <div className="mb-2 text-4xl font-bold text-primary-600">95%</div>
+                <div className="text-sm text-gray-600">Completion Rate</div>
+              </div>
+              <div className="text-center">
+                <div className="mb-2 text-4xl font-bold text-primary-600">4.8/5</div>
+                <div className="text-sm text-gray-600">Average Rating</div>
               </div>
             </div>
-            <div className="mt-4 flex items-center justify-between border-t pt-4">
-              <p className="text-sm text-gray-600">
-                <strong>{filteredCourses.length}</strong> {filteredCourses.length === 1 ? 'course' : 'courses'} {searchQuery || selectedCategory || selectedLevel ? 'match your criteria' : 'available'}
+          </div>
+        </div>
+      </section>
+
+      {/* What You'll Learn */}
+      <section className="px-4 py-16">
+        <div className="container-custom">
+          <div className="mx-auto max-w-6xl">
+            <div className="mb-12 text-center">
+              <h2 className="mb-4 text-3xl font-bold text-gray-900 md:text-4xl">
+                What You'll Learn
+              </h2>
+              <p className="text-xl text-gray-600">
+                Comprehensive training covering all aspects of anti-Black racism and workplace equity
               </p>
             </div>
+
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+              <div className="card hover:shadow-xl transition-shadow">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary-100">
+                  <Target className="h-6 w-6 text-primary-600" />
+                </div>
+                <h3 className="mb-2 text-xl font-bold text-gray-900">Understanding Systemic Racism</h3>
+                <p className="text-gray-600">
+                  Learn about the historical context and current manifestations of anti-Black racism in Canadian institutions
+                </p>
+              </div>
+
+              <div className="card hover:shadow-xl transition-shadow">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary-100">
+                  <Users className="h-6 w-6 text-primary-600" />
+                </div>
+                <h3 className="mb-2 text-xl font-bold text-gray-900">Inclusive Leadership</h3>
+                <p className="text-gray-600">
+                  Develop skills to create equitable workplace cultures and lead diverse teams effectively
+                </p>
+              </div>
+
+              <div className="card hover:shadow-xl transition-shadow">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary-100">
+                  <BookOpen className="h-6 w-6 text-primary-600" />
+                </div>
+                <h3 className="mb-2 text-xl font-bold text-gray-900">Legal Frameworks</h3>
+                <p className="text-gray-600">
+                  Understand human rights legislation, tribunal decisions, and compliance requirements
+                </p>
+              </div>
+
+              <div className="card hover:shadow-xl transition-shadow">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary-100">
+                  <CheckCircle className="h-6 w-6 text-primary-600" />
+                </div>
+                <h3 className="mb-2 text-xl font-bold text-gray-900">Practical Strategies</h3>
+                <p className="text-gray-600">
+                  Implement evidence-based interventions to address bias and discrimination in real-world scenarios
+                </p>
+              </div>
+
+              <div className="card hover:shadow-xl transition-shadow">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary-100">
+                  <Clock className="h-6 w-6 text-primary-600" />
+                </div>
+                <h3 className="mb-2 text-xl font-bold text-gray-900">Self-Paced Learning</h3>
+                <p className="text-gray-600">
+                  Study at your own pace with flexible access to video lessons, case studies, and interactive content
+                </p>
+              </div>
+
+              <div className="card hover:shadow-xl transition-shadow">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary-100">
+                  <Award className="h-6 w-6 text-primary-600" />
+                </div>
+                <h3 className="mb-2 text-xl font-bold text-gray-900">Professional Certification</h3>
+                <p className="text-gray-600">
+                  Earn certificates and continuing education credits recognized by professional bodies
+                </p>
+              </div>
+            </div>
           </div>
         </div>
+      </section>
 
-        {/* All Courses */}
-        <div>
-          <h2 className="mb-6 text-2xl font-bold text-gray-900">
-            {searchQuery || selectedCategory || selectedLevel ? 'Search Results' : 'All Courses'}
-          </h2>
-          
-          {filteredCourses.length === 0 ? (
-            <div className="card py-12 text-center">
-              <BookOpen className="mx-auto mb-4 h-12 w-12 text-gray-400" />
-              <h3 className="mb-2 text-lg font-semibold text-gray-900">No courses found</h3>
-              <p className="text-gray-600">Try adjusting your search criteria or filters</p>
+      {/* Course Categories */}
+      <section className="bg-white px-4 py-16">
+        <div className="container-custom">
+          <div className="mx-auto max-w-6xl">
+            <div className="mb-12 text-center">
+              <h2 className="mb-4 text-3xl font-bold text-gray-900 md:text-4xl">
+                Course Categories
+              </h2>
+              <p className="text-xl text-gray-600">
+                Explore our comprehensive curriculum across multiple focus areas
+              </p>
             </div>
-          ) : (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {filteredCourses.map((course) => (
-                <Link 
-                  key={course.id} 
-                  href={`/courses/${course.slug}`}
-                  className="card group cursor-pointer transition-all hover:shadow-xl"
-                >
-                  <div className="mb-4 flex items-start justify-between">
-                    <span className="rounded-full bg-primary-100 px-3 py-1 text-xs font-semibold text-primary-700">
-                      {getCategoryName(course.category_id)}
-                    </span>
-                    <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium capitalize text-gray-700">
-                      {course.level}
-                    </span>
-                  </div>
-                  
-                  <h3 className="mb-2 text-xl font-bold text-gray-900 group-hover:text-primary-600">
-                    {course.title}
-                  </h3>
-                  
-                  {course.description && (
-                    <p className="mb-4 line-clamp-2 text-sm text-gray-600">
-                      {course.description}
-                    </p>
-                  )}
-                  
-                  <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-4 w-4" />
-                      <span>{formatDuration(course.estimated_duration_minutes)}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <BookOpen className="h-4 w-4" />
-                      <span>Course</span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
+
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="rounded-xl border-2 border-gray-200 p-6 hover:border-primary-500 hover:shadow-lg transition-all">
+                <h3 className="mb-3 text-xl font-bold text-gray-900">Foundational Training</h3>
+                <p className="mb-4 text-gray-600">
+                  Essential courses covering the basics of anti-Black racism, microaggressions, and unconscious bias
+                </p>
+                <ul className="space-y-2">
+                  <li className="flex items-start">
+                    <CheckCircle className="mr-2 h-5 w-5 flex-shrink-0 text-green-500" />
+                    <span className="text-sm text-gray-700">Introduction to Anti-Black Racism</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="mr-2 h-5 w-5 flex-shrink-0 text-green-500" />
+                    <span className="text-sm text-gray-700">Understanding Unconscious Bias</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="mr-2 h-5 w-5 flex-shrink-0 text-green-500" />
+                    <span className="text-sm text-gray-700">Microaggressions in the Workplace</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="rounded-xl border-2 border-gray-200 p-6 hover:border-primary-500 hover:shadow-lg transition-all">
+                <h3 className="mb-3 text-xl font-bold text-gray-900">Legal & Compliance</h3>
+                <p className="mb-4 text-gray-600">
+                  In-depth analysis of human rights law, tribunal cases, and organizational obligations
+                </p>
+                <ul className="space-y-2">
+                  <li className="flex items-start">
+                    <CheckCircle className="mr-2 h-5 w-5 flex-shrink-0 text-green-500" />
+                    <span className="text-sm text-gray-700">Canadian Human Rights Framework</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="mr-2 h-5 w-5 flex-shrink-0 text-green-500" />
+                    <span className="text-sm text-gray-700">Tribunal Case Analysis</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="mr-2 h-5 w-5 flex-shrink-0 text-green-500" />
+                    <span className="text-sm text-gray-700">Employer Obligations & Liability</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="rounded-xl border-2 border-gray-200 p-6 hover:border-primary-500 hover:shadow-lg transition-all">
+                <h3 className="mb-3 text-xl font-bold text-gray-900">Leadership & Management</h3>
+                <p className="mb-4 text-gray-600">
+                  Advanced training for leaders creating inclusive workplace cultures and driving change
+                </p>
+                <ul className="space-y-2">
+                  <li className="flex items-start">
+                    <CheckCircle className="mr-2 h-5 w-5 flex-shrink-0 text-green-500" />
+                    <span className="text-sm text-gray-700">Inclusive Leadership Practices</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="mr-2 h-5 w-5 flex-shrink-0 text-green-500" />
+                    <span className="text-sm text-gray-700">Equity-Focused Hiring & Promotion</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="mr-2 h-5 w-5 flex-shrink-0 text-green-500" />
+                    <span className="text-sm text-gray-700">Managing Difficult Conversations</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="rounded-xl border-2 border-gray-200 p-6 hover:border-primary-500 hover:shadow-lg transition-all">
+                <h3 className="mb-3 text-xl font-bold text-gray-900">Specialized Topics</h3>
+                <p className="mb-4 text-gray-600">
+                  Sector-specific training for law enforcement, healthcare, education, and public service
+                </p>
+                <ul className="space-y-2">
+                  <li className="flex items-start">
+                    <CheckCircle className="mr-2 h-5 w-5 flex-shrink-0 text-green-500" />
+                    <span className="text-sm text-gray-700">Police & Public Safety Training</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="mr-2 h-5 w-5 flex-shrink-0 text-green-500" />
+                    <span className="text-sm text-gray-700">Healthcare Equity & Access</span>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="mr-2 h-5 w-5 flex-shrink-0 text-green-500" />
+                    <span className="text-sm text-gray-700">Educational Institution Frameworks</span>
+                  </li>
+                </ul>
+              </div>
             </div>
-          )}
+          </div>
         </div>
-      </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="px-4 py-16">
+        <div className="container-custom">
+          <div className="mx-auto max-w-4xl rounded-2xl bg-gradient-to-r from-primary-600 to-secondary-600 p-12 text-center text-white shadow-2xl">
+            <h2 className="mb-4 text-3xl font-bold md:text-4xl">
+              Ready to Start Learning?
+            </h2>
+            <p className="mb-8 text-xl text-blue-100">
+              Join thousands of professionals building more equitable workplaces
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-4">
+              <Link href="/auth/signup" className="btn-primary bg-white text-primary-600 hover:bg-gray-100">
+                Create Free Account
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
+              <Link href="/contact" className="btn-secondary border-white text-white hover:bg-white/10">
+                Contact Sales
+              </Link>
+            </div>
+            <p className="mt-6 text-sm text-blue-100">
+              No credit card required • 14-day free trial • Cancel anytime
+            </p>
+          </div>
+        </div>
+      </section>
     </div>
   )
 }
