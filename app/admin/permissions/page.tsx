@@ -128,35 +128,50 @@ export default function PermissionsPage() {
   }, [loadData])
 
   async function loadPermissions() {
-    // Get all permissions
-    const { data: permsData } = await supabase
-      .from('permissions')
-      .select('*')
-      .order('category, name')
+    try {
+      // Get all permissions (try with category first, fall back to name only)
+      let permsQuery = supabase.from('permissions').select('*')
+      const { data: permsData, error: permsError } = await permsQuery.order('name')
+      
+      if (permsError) {
+        console.warn('[Permissions] Error fetching permissions:', permsError)
+        setPermissions([])
+      } else {
+        setPermissions(permsData || [])
+      }
 
-    setPermissions(permsData || [])
+      // Get resource permissions with joined data
+      const { data: resPermsData, error: resPermsError } = await supabase
+        .from('resource_permissions')
+        .select(`
+          *,
+          permissions (slug, name),
+          profiles (email)
+        `)
+        .order('created_at', { ascending: false })
+        .limit(100)
+      
+      if (resPermsError) {
+        console.warn('[Permissions] Error fetching resource permissions:', resPermsError)
+        setResourcePermissions([])
+        return
+      }
 
-    // Get resource permissions with joined data
-    const { data: resPermsData } = await supabase
-      .from('resource_permissions')
-      .select(`
-        *,
-        permissions (slug, name),
-        profiles (email)
-      `)
-      .order('created_at', { ascending: false })
-      .limit(100)
+      // Flatten joined data
+      const flattenedPerms = resPermsData?.map((rp: any) => ({
+        ...rp,
+        permission_slug: (rp.permissions as unknown as { slug: string })?.slug,
+        scope_name: (rp.profiles as unknown as { email: string })?.email || rp.scope_id,
+        permissions: undefined,
+        profiles: undefined,
+      })) as ResourcePermission[]
 
-    // Flatten joined data
-    const flattenedPerms = resPermsData?.map((rp: any) => ({
-      ...rp,
-      permission_slug: (rp.permissions as unknown as { slug: string })?.slug,
-      scope_name: (rp.profiles as unknown as { email: string })?.email || rp.scope_id,
-      permissions: undefined,
-      profiles: undefined,
-    })) as ResourcePermission[]
-
-    setResourcePermissions(flattenedPerms || [])
+      setResourcePermissions(flattenedPerms || [])
+    } catch (error) {
+      console.error('[Permissions] Error loading permissions:', error)
+      setPermissions([])
+      setResourcePermissions([])
+    }
   }
 
   async function loadOverrides() {

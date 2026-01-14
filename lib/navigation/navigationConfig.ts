@@ -63,9 +63,9 @@ const publicNavigation: NavLink[] = [
   },
   { 
     label: 'Cases', 
-    href: '/cases/browse',
+    href: '/cases',
     icon: FileText,
-    description: 'Explore public case studies'
+    description: 'Explore our case database'
   },
   { 
     label: 'Pricing', 

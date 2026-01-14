@@ -19,24 +19,40 @@ function LoginForm() {
   const { signIn } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirectTo = searchParams.get('redirect') || '/dashboard'
-
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError(null)
     
     try {
-      const { error } = await signIn(formState.email, formState.password)
+      const { error, data } = await signIn(formState.email, formState.password)
       
       if (error) {
         setError(error.message)
         setIsLoading(false)
         return
       }
+
+      // Get user role to determine redirect
+      const { createClient } = await import('@/lib/supabase/client')
+      const supabase = createClient()
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', data?.user?.id)
+        .single()
+
+      // Determine redirect path
+      const redirectTo = searchParams.get('redirect')
+      let redirectPath = redirectTo || '/dashboard'
       
-      // Success - redirect handled by AuthContext
-      router.push(redirectTo)
+      // Learners go to homepage unless explicitly redirected elsewhere
+      if (profile?.role === 'learner' && !redirectTo) {
+        redirectPath = '/'
+      }
+      
+      router.push(redirectPath)
     } catch (err) {
       setError('An unexpected error occurred. Please try again.')
       setIsLoading(false)
@@ -113,6 +129,7 @@ function LoginForm() {
                     onChange={(e) => setFormState({ ...formState, password: e.target.value })}
                     className="block w-full rounded-lg border border-gray-300 pl-10 pr-10 py-2.5 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                     placeholder="••••••••"
+                    autoComplete="current-password"
                     required
                   />
                   <button

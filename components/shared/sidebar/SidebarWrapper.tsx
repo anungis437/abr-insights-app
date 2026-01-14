@@ -1,6 +1,7 @@
 'use client'
 
 import { useAuth } from '@/lib/auth/AuthContext'
+import { useEffect } from 'react'
 import Sidebar from './Sidebar'
 import { getSidebarNavigation, type UserRole } from '@/lib/navigation/sidebarConfig'
 
@@ -10,6 +11,19 @@ import { getSidebarNavigation, type UserRole } from '@/lib/navigation/sidebarCon
  */
 export default function SidebarWrapper() {
   const { user, profile, loading } = useAuth()
+
+  // Add/remove class to body to indicate sidebar visibility
+  useEffect(() => {
+    if (user && !loading) {
+      document.body.classList.add('has-sidebar')
+    } else {
+      document.body.classList.remove('has-sidebar')
+    }
+    
+    return () => {
+      document.body.classList.remove('has-sidebar')
+    }
+  }, [user, loading])
 
   // Don't show sidebar if not authenticated
   if (!user || loading) {

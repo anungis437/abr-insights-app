@@ -25,6 +25,7 @@ import {
   Lock,
   Activity,
   Trophy,
+  LogOut,
   type LucideIcon
 } from 'lucide-react'
 
@@ -90,6 +91,7 @@ const learnerNav: SidebarNavItem[] = [
       { label: 'My Profile', href: '/profile', icon: Users },
       { label: 'Settings', href: '/profile/settings', icon: Settings },
       { label: 'Certificates', href: '/certificates', icon: Award },
+      { label: 'Sign Out', href: '/auth/signout', icon: LogOut },
     ],
   },
 ]
@@ -102,7 +104,7 @@ const educatorNav: SidebarNavItem[] = [
     icon: Home,
   },
   {
-    label: 'Content Management',
+    label: 'Content',
     icon: BookOpen,
     children: [
       { label: 'My Courses', href: '/instructor/courses', icon: BookOpen },
@@ -134,6 +136,7 @@ const educatorNav: SidebarNavItem[] = [
     children: [
       { label: 'My Profile', href: '/profile', icon: Users },
       { label: 'Settings', href: '/profile/settings', icon: Settings },
+      { label: 'Sign Out', href: '/auth/signout', icon: LogOut },
     ],
   },
 ]
@@ -167,7 +170,7 @@ const analystNav: SidebarNavItem[] = [
   },
   {
     label: 'Team',
-    href: '/team',
+    href: '/admin/team',
     icon: Users,
   },
   {
@@ -176,6 +179,7 @@ const analystNav: SidebarNavItem[] = [
     children: [
       { label: 'My Profile', href: '/profile', icon: Users },
       { label: 'Settings', href: '/profile/settings', icon: Settings },
+      { label: 'Sign Out', href: '/auth/signout', icon: LogOut },
     ],
   },
 ]
@@ -208,7 +212,7 @@ const investigatorNav: SidebarNavItem[] = [
   },
   {
     label: 'Team',
-    href: '/team',
+    href: '/admin/team',
     icon: Users,
   },
   {
@@ -217,6 +221,7 @@ const investigatorNav: SidebarNavItem[] = [
     children: [
       { label: 'My Profile', href: '/profile', icon: Users },
       { label: 'Settings', href: '/profile/settings', icon: Settings },
+      { label: 'Sign Out', href: '/auth/signout', icon: LogOut },
     ],
   },
 ]
@@ -225,7 +230,7 @@ const investigatorNav: SidebarNavItem[] = [
 const orgAdminNav: SidebarNavItem[] = [
   {
     label: 'Home',
-    href: '/dashboard',
+    href: '/admin/dashboard',
     icon: Home,
   },
   {
@@ -270,6 +275,7 @@ const orgAdminNav: SidebarNavItem[] = [
     children: [
       { label: 'My Profile', href: '/profile', icon: Users },
       { label: 'Settings', href: '/profile/settings', icon: Settings },
+      { label: 'Sign Out', href: '/auth/signout', icon: LogOut },
     ],
   },
 ]
@@ -278,7 +284,7 @@ const orgAdminNav: SidebarNavItem[] = [
 const complianceNav: SidebarNavItem[] = [
   {
     label: 'Home',
-    href: '/dashboard',
+    href: '/admin/compliance',
     icon: Home,
   },
   {
@@ -312,6 +318,7 @@ const complianceNav: SidebarNavItem[] = [
     children: [
       { label: 'My Profile', href: '/profile', icon: Users },
       { label: 'Settings', href: '/profile/settings', icon: Settings },
+      { label: 'Sign Out', href: '/auth/signout', icon: LogOut },
     ],
   },
 ]
@@ -320,7 +327,7 @@ const complianceNav: SidebarNavItem[] = [
 const superAdminNav: SidebarNavItem[] = [
   {
     label: 'Home',
-    href: '/dashboard',
+    href: '/admin/dashboard',
     icon: Home,
   },
   {
@@ -335,7 +342,7 @@ const superAdminNav: SidebarNavItem[] = [
     ],
   },
   {
-    label: 'Content Management',
+    label: 'Content',
     icon: BookOpen,
     children: [
       { label: 'Courses', href: '/admin/courses', icon: GraduationCap },
@@ -355,7 +362,7 @@ const superAdminNav: SidebarNavItem[] = [
     ],
   },
   {
-    label: 'Analytics & Reports',
+    label: 'Analytics',
     icon: BarChart3,
     children: [
       { label: 'Platform Analytics', href: '/admin/analytics', icon: BarChart3 },
@@ -364,10 +371,10 @@ const superAdminNav: SidebarNavItem[] = [
     ],
   },
   {
-    label: 'Compliance & Security',
+    label: 'Compliance',
     icon: Shield,
     children: [
-      { label: 'Compliance', href: '/admin/compliance', icon: Shield },
+      { label: 'Dashboard', href: '/admin/compliance', icon: Shield },
       { label: 'Audit Logs', href: '/admin/audit-logs', icon: FileText },
       { label: 'Team Activity', href: '/admin/team-activity', icon: Activity },
       { label: 'Flagged Cases', href: '/cases/flagged', icon: Shield },
@@ -375,7 +382,7 @@ const superAdminNav: SidebarNavItem[] = [
   },
   {
     label: 'Team',
-    href: '/team',
+    href: '/admin/team',
     icon: Users,
   },
   {
@@ -384,6 +391,7 @@ const superAdminNav: SidebarNavItem[] = [
     children: [
       { label: 'My Profile', href: '/profile', icon: Users },
       { label: 'Settings', href: '/profile/settings', icon: Settings },
+      { label: 'Sign Out', href: '/auth/signout', icon: LogOut },
     ],
   },
 ]
@@ -410,6 +418,7 @@ const viewerNav: SidebarNavItem[] = [
     children: [
       { label: 'My Profile', href: '/profile', icon: Users },
       { label: 'Settings', href: '/profile/settings', icon: Settings },
+      { label: 'Sign Out', href: '/auth/signout', icon: LogOut },
     ],
   },
 ]

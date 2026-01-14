@@ -1,8 +1,13 @@
 import { NextResponse } from 'next/server';
+import { requireAnyPermission } from '@/lib/auth/permissions';
 // Import commented out to avoid build-time issues with Supabase client initialization
 // import { evaluateModel } from '@/lib/services/outcome-prediction-service';
 
 export async function GET() {
+  // Check permissions
+  const permissionError = await requireAnyPermission(['ai.view', 'ai.manage', 'admin.ai.manage']);
+  if (permissionError) return permissionError;
+
   try {
     // Lazy import to avoid build-time initialization issues
     const { evaluateModel } = await import('@/lib/services/outcome-prediction-service');

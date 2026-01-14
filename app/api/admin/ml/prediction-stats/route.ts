@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { requireAnyPermission } from '@/lib/auth/permissions';
 
 export async function GET() {
+  // Check permissions
+  const permissionError = await requireAnyPermission(['ai.view', 'ai.manage', 'admin.ai.manage']);
+  if (permissionError) return permissionError;
+
   try {
     const supabase = await createClient();
 
