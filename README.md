@@ -16,12 +16,12 @@ ABR Insights is a Next.js-based learning management system that provides:
 
 ## Tech Stack
 
-- **Framework**: Next.js 14 (App Router)
+- **Framework**: Next.js 15 (App Router)
 - **Database**: Supabase (PostgreSQL)
 - **Authentication**: Supabase Auth
 - **Styling**: Tailwind CSS + shadcn/ui
 - **Payment**: Stripe
-- **AI**: OpenAI integration
+- **AI**: Azure OpenAI
 - **Storage**: Supabase Storage
 - **Deployment**: Azure Static Web Apps
 
@@ -65,7 +65,8 @@ Edit `.env.local` with your credentials:
 1. Run database migrations:
 
 ```bash
-npm run db:migrate
+# Migrations are managed through Supabase CLI or dashboard
+# See docs/migration/ for migration guides
 ```
 
 1. Start the development server:

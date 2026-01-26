@@ -24,8 +24,8 @@ import { logger } from '@/lib/utils/logger'
 // =====================================================
 
 const AZURE_OPENAI_ENDPOINT = process.env.AZURE_OPENAI_ENDPOINT!
-const AZURE_OPENAI_KEY = process.env.AZURE_OPENAI_KEY!
-const AZURE_OPENAI_EMBEDDING_DEPLOYMENT = process.env.AZURE_OPENAI_EMBEDDING_DEPLOYMENT || 'text-embedding-3-large'
+const AZURE_OPENAI_KEY = process.env.AZURE_OPENAI_API_KEY!
+const AZURE_OPENAI_EMBEDDING_DEPLOYMENT = process.env.AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT || 'text-embedding-3-large'
 const EMBEDDING_MODEL = 'text-embedding-3-large'
 const EMBEDDING_DIMENSIONS = 1536
 const MAX_TOKENS_PER_REQUEST = 8191 // text-embedding-3-large limit

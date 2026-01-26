@@ -29,8 +29,6 @@
     "test": "vitest",
     "test:unit": "vitest run --coverage",
     "test:integration": "vitest run --config vitest.integration.config.ts",
-    "test:e2e": "playwright test",
-    "test:smoke": "playwright test --grep @smoke",
     "ingest": "tsx --env-file=.env.local ingestion/src/cli.ts"
   },
   "dependencies": {
