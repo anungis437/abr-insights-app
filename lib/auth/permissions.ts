@@ -193,9 +193,9 @@ export async function checkAllPermissions(
 
 /**
  * Middleware helper to require permission
- * Returns 403 response if permission check fails
+ * Returns 403 response if permission check fails, null otherwise
  */
-export async function requirePermission(permission: string) {
+export async function requirePermission(permission: string): Promise<NextResponse | null> {
   const check = await checkPermission(permission)
   
   if (!check.allowed) {
@@ -205,13 +205,13 @@ export async function requirePermission(permission: string) {
     )
   }
   
-  return check
+  return null
 }
 
 /**
  * Middleware helper to require any of the permissions
  */
-export async function requireAnyPermission(permissions: string[]) {
+export async function requireAnyPermission(permissions: string[]): Promise<NextResponse | null> {
   const check = await checkAnyPermission(permissions)
   
   if (!check.allowed) {
@@ -221,13 +221,13 @@ export async function requireAnyPermission(permissions: string[]) {
     )
   }
   
-  return check
+  return null
 }
 
 /**
  * Middleware helper to require all permissions
  */
-export async function requireAllPermissions(permissions: string[]) {
+export async function requireAllPermissions(permissions: string[]): Promise<NextResponse | null> {
   const check = await checkAllPermissions(permissions)
   
   if (!check.allowed) {
@@ -237,7 +237,7 @@ export async function requireAllPermissions(permissions: string[]) {
     )
   }
   
-  return check
+  return null
 }
 
 /**

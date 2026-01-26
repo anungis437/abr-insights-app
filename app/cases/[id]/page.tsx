@@ -20,7 +20,7 @@ import {
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from '@/lib/supabase/server'
 
 // Force dynamic rendering - don't prerender at build time
 export const dynamic = 'force-dynamic'
@@ -64,10 +64,26 @@ export async function generateStaticParams() {
 // Fetch case from database
 async function getCaseStudy(id: string) {
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+    const supabase = await createClient()
+    
+    // Use RLS-protected query - user's access is enforced by database policies
+    const { data: caseData, error } = await supabase
+      .from('tribunal_cases')
+      .select('*')
+      .eq('id', id)
+      .single()
+
+    if (error) {
+      console.error('Error fetching case:', error)
+      return null
+    }
+
+    return caseData
+  } catch (error) {
+    console.error('Error in getCaseStudy:', error)
+    return null
+  }
+}
     
     const { data: caseData, error } = await supabase
       .from('tribunal_cases')

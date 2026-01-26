@@ -6,7 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 import Stripe from 'stripe'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 export async function POST(req: NextRequest) {
   // Lazy load Stripe to avoid build-time initialization
@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
  * Handle successful checkout
  */
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const userId = session.metadata?.supabase_user_id
 
   if (!userId) {
@@ -120,7 +120,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
  * Handle subscription updates
  */
 async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const customerId = subscription.customer as string
 
   // Find user by Stripe customer ID
@@ -156,7 +156,7 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
  * Handle subscription cancellation
  */
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const customerId = subscription.customer as string
 
   const { data: profile } = await supabase

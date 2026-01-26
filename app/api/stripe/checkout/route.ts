@@ -5,11 +5,16 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { z } from 'zod'
+
+const checkoutSchema = z.object({
+  tier: z.enum(['FREE', 'PROFESSIONAL', 'ENTERPRISE']),
+})
 
 export async function POST(req: NextRequest) {
   try {
     // Lazy load Stripe to avoid build-time initialization
-    const { stripe, getOrCreateStripeCustomer } = await import('@/lib/stripe')
+    const { stripe, getOrCreateStripeCustomer, STRIPE_PRICES } = await import('@/lib/stripe')
     
     const supabase = await createClient()
     
@@ -24,11 +29,23 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    const { priceId, tier } = body
+    
+    // Validate input - only accept tier, not arbitrary priceId
+    const validation = checkoutSchema.safeParse(body)
+    if (!validation.success) {
+      return NextResponse.json(
+        { error: 'Invalid tier. Must be FREE, PROFESSIONAL, or ENTERPRISE' },
+        { status: 400 }
+      )
+    }
 
+    const { tier } = validation.data
+    
+    // Map tier to server-approved price ID
+    const priceId = STRIPE_PRICES[tier]
     if (!priceId) {
       return NextResponse.json(
-        { error: 'Price ID is required' },
+        { error: 'Price not configured for this tier' },
         { status: 400 }
       )
     }
@@ -51,12 +68,12 @@ export async function POST(req: NextRequest) {
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/pricing?canceled=true`,
       metadata: {
         supabase_user_id: user.id,
-        tier: tier || 'professional',
+        tier: tier.toLowerCase(),
       },
       subscription_data: {
         metadata: {
           supabase_user_id: user.id,
-          tier: tier || 'professional',
+          tier: tier.toLowerCase(),
         },
       },
     })
