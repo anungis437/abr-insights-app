@@ -37,33 +37,39 @@ ABR Insights is a Next.js-based learning management system that provides:
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/anungis437/abr-insights-app.git
 cd abr-insights-app
 ```
 
-2. Install dependencies:
+1. Install dependencies:
+
 ```bash
 npm install
 ```
 
-3. Set up environment variables:
+1. Set up environment variables:
+
 ```bash
 cp .env.example .env.local
 ```
 
 Edit `.env.local` with your credentials:
+
 - Supabase URL and keys
 - Stripe API keys
 - OpenAI API key
 - Other service credentials
 
-4. Run database migrations:
+1. Run database migrations:
+
 ```bash
 npm run db:migrate
 ```
 
-5. Start the development server:
+1. Start the development server:
+
 ```bash
 npm run dev
 ```
@@ -72,7 +78,7 @@ Visit `http://localhost:3000` to see the application.
 
 ## Project Structure
 
-```
+```text
 ├── app/                    # Next.js app directory
 │   ├── (routes)/          # Route groups
 │   ├── api/               # API routes
@@ -111,6 +117,7 @@ Common scripts available in the `scripts/` folder:
 - Schema verification
 
 Run scripts with Node.js:
+
 ```bash
 node scripts/[script-name].mjs
 ```
@@ -118,6 +125,7 @@ node scripts/[script-name].mjs
 ## Testing
 
 Run tests with:
+
 ```bash
 npm test
 ```
