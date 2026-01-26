@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useAuth } from '@/lib/auth/AuthContext'
 import { usePermissions } from './usePermissions'
-import { sidebarConfig, SidebarNavItem } from '@/lib/navigation/sidebarConfig'
+import { sidebarNavigationByRole, SidebarNavItem, UserRole } from '@/lib/navigation/sidebarConfig'
 import { filterNavByPermissions } from '@/lib/navigation/navPermissions'
 
 /**
@@ -26,7 +26,7 @@ import { filterNavByPermissions } from '@/lib/navigation/navPermissions'
  */
 export function useSidebarNav() {
   const { profile } = useAuth()
-  const { permissions, isLoading: permissionsLoading } = usePermissions()
+  const { permissions, loading: permissionsLoading } = usePermissions()
   
   const navigation = useMemo(() => {
     // No profile or still loading
@@ -35,14 +35,14 @@ export function useSidebarNav() {
     }
     
     // Get base navigation for user's role
-    const roleNav = sidebarConfig[profile.role]
+    const roleNav = sidebarNavigationByRole[profile.role as UserRole]
     if (!roleNav) {
       console.warn(`No navigation config found for role: ${profile.role}`)
       return []
     }
     
     // Convert permissions array to Set for efficient lookup
-    const permissionSet = new Set(permissions.map(p => p.name))
+    const permissionSet = new Set(permissions)
     
     // Filter navigation based on permissions
     return filterNavByPermissions(roleNav, permissionSet)
@@ -76,7 +76,7 @@ export function useNavItemAccess(itemLabel: string): boolean {
   // No permissions required - accessible to all
   if (!requiredPerms) return true
   
-  const permissionSet = new Set(permissions.map(p => p.name))
+  const permissionSet = new Set(permissions)
   
   // Single permission check
   if (typeof requiredPerms === 'string') {
