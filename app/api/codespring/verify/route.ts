@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyCodespringApiKey } from '@/lib/services/codespring';
+import { requireAnyPermission } from '@/lib/auth/permissions';
 
 /**
  * GET /api/codespring/verify
  * Verify Codespring API key is valid and working
+ * Admin-only endpoint to protect API configuration
  */
 export async function GET(request: NextRequest) {
+  // Require admin permissions to verify API keys
+  const permissionError = await requireAnyPermission(['admin.view', 'admin.manage']);
+  if (permissionError) return permissionError;
+
   try {
     const result = await verifyCodespringApiKey();
 
