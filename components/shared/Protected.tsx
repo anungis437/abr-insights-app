@@ -1,7 +1,7 @@
 'use client'
 
 import { ReactNode } from 'react'
-import { usePermissionCheck, useAnyPermission, useAllPermissions } from '@/lib/hooks/usePermissions'
+import { usePermissionCheck, useAnyPermissionCheck, useAllPermissionsCheck } from '@/lib/hooks/usePermissions'
 import { Skeleton } from '@/components/ui/skeleton'
 
 interface ProtectedProps {
@@ -37,8 +37,8 @@ export function Protected({
 }: ProtectedProps) {
   // Determine which hook to use based on props
   const singleCheck = usePermissionCheck(permission || '')
-  const anyCheck = useAnyPermission(anyPermissions || [])
-  const allCheck = useAllPermissions(allPermissions || [])
+  const anyCheck = useAnyPermissionCheck(anyPermissions || [])
+  const allCheck = useAllPermissionsCheck(allPermissions || [])
 
   let allowed = false
   let loading = false
@@ -101,8 +101,8 @@ export function PermissionGate({
   allPermissions,
 }: PermissionGateProps) {
   const singleCheck = usePermissionCheck(permission || '')
-  const anyCheck = useAnyPermission(anyPermissions || [])
-  const allCheck = useAllPermissions(allPermissions || [])
+  const anyCheck = useAnyPermissionCheck(anyPermissions || [])
+  const allCheck = useAllPermissionsCheck(allPermissions || [])
 
   let allowed = false
   let loading = false
