@@ -19,7 +19,8 @@
   },
   "scripts": {
     "dev": "next dev --turbo",
-    "build": "next build",
+    "build": "next build --experimental-build-mode=compile",
+    "build:webpack": "next build",
     "build:analyze": "cross-env ANALYZE=true next build",
     "start": "next start",
     "lint": "next lint",
