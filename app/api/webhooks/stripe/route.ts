@@ -49,6 +49,19 @@ export async function POST(req: NextRequest) {
 
   console.log(`[Stripe Webhook] Received event: ${event.type}`)
 
+  // Check idempotency - prevent duplicate processing
+  const supabase = createAdminClient()
+  const { data: existingEvent } = await supabase
+    .from('stripe_webhook_events')
+    .select('id')
+    .eq('id', event.id)
+    .single()
+
+  if (existingEvent) {
+    console.log(`[Stripe Webhook] Event ${event.id} already processed, skipping`)
+    return NextResponse.json({ received: true, skipped: true })
+  }
+
   try {
     switch (event.type) {
       case 'checkout.session.completed':
@@ -75,6 +88,15 @@ export async function POST(req: NextRequest) {
       default:
         console.log(`[Stripe Webhook] Unhandled event type: ${event.type}`)
     }
+
+    // Mark event as processed
+    await supabase
+      .from('stripe_webhook_events')
+      .insert({
+        id: event.id,
+        event_type: event.type,
+        processed_at: new Date().toISOString()
+      })
 
     return NextResponse.json({ received: true })
   } catch (error) {

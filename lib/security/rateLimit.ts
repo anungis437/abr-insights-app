@@ -6,7 +6,18 @@
  * - User-based: For authenticated user actions (AI chat, search)
  * - Org-based: For organization-level limits (batch operations)
  * 
- * Storage: In-memory with LRU eviction (upgrade to Redis for production scale)
+ * ⚠️ PRODUCTION WARNING ⚠️
+ * Current implementation uses in-memory storage (Map) which is NOT production-safe:
+ * - Breaks across horizontal scaling (multiple instances)
+ * - Resets on serverless cold starts
+ * - Not shared across Azure Static Web Apps nodes
+ * 
+ * REQUIRED FOR PRODUCTION:
+ * - Migrate to Redis (recommended: Upstash Redis for serverless)
+ * - Alternative: Azure Cache for Redis
+ * - See: https://upstash.com/ or https://azure.microsoft.com/en-us/services/cache/
+ * 
+ * TODO: Implement Redis-based rate limiting before production deployment
  */
 
 import { NextRequest, NextResponse } from 'next/server';

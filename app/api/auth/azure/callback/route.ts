@@ -11,6 +11,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAzureADService } from '@/lib/auth/azure-ad'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { cookies } from 'next/headers'
 
 export async function GET(request: NextRequest) {
@@ -62,11 +63,9 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Get Supabase client
-    const supabase = await createClient()
-
-    // Get organization
-    const { data: organization } = await supabase
+    // Get organization using admin client (user not authenticated yet)
+    const adminSupabase = createAdminClient()
+    const { data: organization } = await adminSupabase
       .from('organizations')
       .select('id')
       .eq('slug', organizationSlug)

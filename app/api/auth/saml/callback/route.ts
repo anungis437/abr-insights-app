@@ -26,6 +26,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSAMLService } from '@/lib/auth/saml'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { cookies } from 'next/headers'
 
 export async function POST(request: NextRequest) {
@@ -71,9 +72,9 @@ export async function POST(request: NextRequest) {
     // Validate SAML response and extract attributes
     const attributes = await samlService.validateResponse(samlResponse, relayState)
 
-    // Get organization ID
-    const supabase = await createClient()
-    const { data: organization } = await supabase
+    // Use admin client for org and provider lookup (user not authenticated yet)
+    const adminSupabase = createAdminClient()
+    const { data: organization } = await adminSupabase
       .from('organizations')
       .select('id')
       .eq('slug', organizationSlug)
@@ -84,7 +85,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get SSO provider ID
-    const { data: ssoProvider } = await supabase
+    const { data: ssoProvider } = await adminSupabase
       .from('sso_providers')
       .select('id')
       .eq('organization_id', organization.id)
