@@ -1,12 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Mock Azure OpenAI
-vi.mock('@azure/openai', () => ({
-  OpenAIClient: vi.fn(() => ({
-    getChatCompletions: vi.fn(),
-    getEmbeddings: vi.fn(),
+vi.mock('openai', () => ({
+  AzureOpenAI: vi.fn(() => ({
+    chat: {
+      completions: {
+        create: vi.fn(),
+      },
+    },
+    embeddings: {
+      create: vi.fn(),
+    },
   })),
-  AzureKeyCredential: vi.fn(),
 }));
 
 describe('AI Features Tests', () => {
@@ -16,8 +21,8 @@ describe('AI Features Tests', () => {
 
   describe('AI Chat', () => {
     it('should send messages and receive responses', async () => {
-      const { OpenAIClient } = await import('@azure/openai');
-      const client = new OpenAIClient('endpoint', {} as any);
+      const { AzureOpenAI } = await import('openai');
+      const client = new AzureOpenAI({ endpoint: 'endpoint', apiKey: 'test-key' });
 
       const mockResponse = {
         choices: [{
@@ -31,18 +36,18 @@ describe('AI Features Tests', () => {
         },
       };
 
-      (client.getChatCompletions as any).mockResolvedValue(mockResponse);
+      vi.mocked(client.chat.completions.create).mockResolvedValue(mockResponse as any);
 
-      const response = await client.getChatCompletions(
-        'test-deployment',
-        [{
+      const response = await client.chat.completions.create({
+        model: 'test-deployment',
+        messages: [{
           role: 'user',
           content: 'Hello, AI!',
-        }]
-      );
+        }],
+      });
 
       expect(response.choices[0].message.content).toBe('This is a test response from the AI.');
-      expect(response.usage.total_tokens).toBe(50);
+      expect(response.usage?.total_tokens).toBe(50);
     });
 
     it('should maintain conversation history', () => {
@@ -125,8 +130,8 @@ describe('AI Features Tests', () => {
 
   describe('Vector Embeddings', () => {
     it('should generate embeddings for text', async () => {
-      const { OpenAIClient } = await import('@azure/openai');
-      const client = new OpenAIClient('endpoint', {} as any);
+      const { AzureOpenAI } = await import('openai');
+      const client = new AzureOpenAI({ endpoint: 'endpoint', apiKey: 'test-key' });
 
       const mockEmbedding = {
         data: [{
@@ -134,12 +139,12 @@ describe('AI Features Tests', () => {
         }],
       };
 
-      (client.getEmbeddings as any).mockResolvedValue(mockEmbedding);
+      vi.mocked(client.embeddings.create).mockResolvedValue(mockEmbedding as any);
 
-      const response = await client.getEmbeddings(
-        'text-embedding-3-large',
-        ['Test text for embedding']
-      );
+      const response = await client.embeddings.create({
+        model: 'text-embedding-3-large',
+        input: ['Test text for embedding'],
+      });
 
       expect(response.data[0].embedding.length).toBe(3072);
     });
@@ -272,30 +277,30 @@ describe('AI Features Tests', () => {
 
   describe('Error Handling', () => {
     it('should handle API rate limits', async () => {
-      const { OpenAIClient } = await import('@azure/openai');
-      const client = new OpenAIClient('endpoint', {} as any);
+      const { AzureOpenAI } = await import('openai');
+      const client = new AzureOpenAI({ endpoint: 'endpoint', apiKey: 'test-key' });
 
-      (client.getChatCompletions as any).mockRejectedValue({
+      (client.chat.completions.create as any).mockRejectedValue({
         code: 429,
         message: 'Rate limit exceeded',
       });
 
       await expect(
-        client.getChatCompletions('deployment', [])
+        client.chat.completions.create({ model: 'deployment', messages: [] })
       ).rejects.toMatchObject({
         code: 429,
       });
     });
 
     it('should handle invalid responses', async () => {
-      const { OpenAIClient } = await import('@azure/openai');
-      const client = new OpenAIClient('endpoint', {} as any);
+      const { AzureOpenAI } = await import('openai');
+      const client = new AzureOpenAI({ endpoint: 'endpoint', apiKey: 'test-key' });
 
-      (client.getChatCompletions as any).mockResolvedValue({
+      (client.chat.completions.create as any).mockResolvedValue({
         choices: [],
       });
 
-      const response = await client.getChatCompletions('deployment', []);
+      const response = await client.chat.completions.create({ model: 'deployment', messages: [] });
       expect(response.choices.length).toBe(0);
     });
 
