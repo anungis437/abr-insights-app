@@ -1,6 +1,77 @@
 # ABR Insights App
 
-A comprehensive legal education platform focused on African Bar Review (ABR) training and professional development.
+**Canada's Leading Anti-Black Racism Training & Analytics Platform**
+
+ABR Insights is a comprehensive platform designed to help Canadian organizations combat anti-Black racism in the workplace through data-driven insights, expert-led training, and evidence-based decision making.
+
+## 🎓 For Organizations & Professionals
+
+### What is ABR Insights?
+
+ABR Insights combines cutting-edge AI technology with comprehensive legal data to provide accessible, actionable resources that enable organizations to understand, address, and prevent anti-Black racism. Our platform offers:
+
+- **📊 Tribunal Case Database** - Search and analyze 10,000+ Canadian human rights tribunal cases with AI-powered classification
+- **📚 Expert Training Courses** - 50+ courses covering anti-Black racism, workplace equity, legal compliance, and allyship
+- **🤖 AI-Powered Analytics** - Get personalized insights and recommendations powered by Azure OpenAI
+- **📈 Progress Tracking** - Monitor organizational learning, earn certificates, and track equity initiatives
+- **🎯 Evidence-Based Insights** - Make data-driven decisions with comprehensive analytics and reporting
+- **🏆 Gamification** - Engage teams with achievements, leaderboards, and recognition systems
+
+### Who Should Use ABR Insights?
+
+- **HR Professionals** building equitable workplace policies and practices
+- **DEI/EDI Leaders** implementing anti-racism training programs
+- **Legal Teams** researching Canadian tribunal case law and precedents
+- **Organizational Leaders** tracking equity initiatives and compliance
+- **Trainers & Educators** teaching anti-racism and diversity courses
+- **Canadian Employers** meeting legal obligations and creating inclusive cultures
+
+### Getting Started as a User
+
+1. **Visit** [abrinsights.ca](https://abrinsights.ca) 
+2. **Create an account** - Sign up with your organization email
+3. **Explore the platform** - Browse tribunal cases, courses, and resources
+4. **Start learning** - Enroll in courses or explore case database
+5. **Track progress** - Monitor achievements and earn certificates
+6. **Generate reports** - Use analytics to drive organizational change
+
+### Key Features
+
+#### For HR & EDI Professionals
+- ✅ Access 10,000+ tribunal cases with advanced search and filtering
+- ✅ AI-powered case classification and trend analysis
+- ✅ Comprehensive training courses on anti-Black racism
+- ✅ Downloadable compliance reports and analytics
+- ✅ Track team progress and completion rates
+
+#### For Trainers & Instructors
+- ✅ Create and manage custom training courses
+- ✅ Monitor learner engagement and outcomes
+- ✅ Leverage tribunal cases as teaching materials
+- ✅ Automated assessments and feedback
+- ✅ CE credit tracking and certificates
+
+#### For Organizations
+- ✅ Multi-tenant support for team management
+- ✅ Custom branding and organizational dashboards
+- ✅ Advanced analytics on equity initiatives
+- ✅ Role-based access control (RBAC)
+- ✅ Enterprise-grade security and compliance
+- ✅ API access for integrations
+
+### Need Help?
+
+- 📖 **User Guide** - See [docs/USER_GUIDE.md](docs/USER_GUIDE.md) for comprehensive instructions
+- 🚀 **Quick Start** - Get up and running in 5 minutes with [docs/QUICK_START.md](docs/QUICK_START.md)
+- 💬 **Support** - Contact us through the platform
+- ❓ **FAQ** - Visit [/help](/help) for common questions
+- 📧 **Contact** - [support@abrinsights.ca](mailto:support@abrinsights.ca)
+
+---
+
+## 💻 For Developers & Contributors
+
+Below you'll find technical documentation for developers, contributors, and system administrators.
 
 ## 🎯 Production Status: 100% Ready
 
