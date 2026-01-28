@@ -1,8 +1,11 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import { createClient } from '@supabase/supabase-js';
 
+// Type assertion helper for test database operations
+type SupabaseClient = ReturnType<typeof createClient>;
+
 describe('Permission System Tests', () => {
-  let supabase: ReturnType<typeof createClient>;
+  let supabase: SupabaseClient;
   let testUserId: string;
   let testOrgId: string;
 
@@ -23,11 +26,11 @@ describe('Permission System Tests', () => {
       .insert({
         name: `Test Org ${Date.now()}`,
         slug: `test-org-${Date.now()}`,
-      })
+      } as any)
       .select()
       .single();
     
-    testOrgId = org!.id;
+    testOrgId = (org as any)!.id;
 
     // Create test user
     const { data: authUser } = await supabase.auth.admin.createUser({
@@ -44,35 +47,35 @@ describe('Permission System Tests', () => {
       organization_id: testOrgId,
       email: authUser.user!.email,
       full_name: 'Test User',
-    });
+    } as any);
   });
 
   describe('Permission Check Functions', () => {
     it('should verify check_permission function exists', async () => {
-      const { data, error } = await supabase.rpc('check_permission', {
+      const { data, error } = await supabase.rpc('check_permission' as any, {
         user_id: testUserId,
         permission_name: 'courses.view',
-      });
+      } as any);
 
       expect(error).toBeNull();
       expect(typeof data).toBe('boolean');
     });
 
     it('should verify check_permissions function exists', async () => {
-      const { data, error } = await supabase.rpc('check_permissions', {
+      const { data, error } = await supabase.rpc('check_permissions' as any, {
         user_id: testUserId,
         permission_names: ['courses.view', 'profile.view'],
-      });
+      } as any);
 
       expect(error).toBeNull();
       expect(typeof data).toBe('boolean');
     });
 
     it('should verify check_role function exists', async () => {
-      const { data, error } = await supabase.rpc('check_role', {
+      const { data, error } = await supabase.rpc('check_role' as any, {
         user_id: testUserId,
         role_name: 'student',
-      });
+      } as any);
 
       expect(error).toBeNull();
       expect(typeof data).toBe('boolean');
@@ -87,12 +90,12 @@ describe('Permission System Tests', () => {
           user_id: testUserId,
           role: 'student',
           organization_id: testOrgId,
-        })
+        } as any)
         .select()
         .single();
 
       expect(error).toBeNull();
-      expect(data?.role).toBe('student');
+      expect((data as any)?.role).toBe('student');
     });
 
     it('should prevent duplicate role assignments', async () => {
@@ -101,7 +104,7 @@ describe('Permission System Tests', () => {
         user_id: testUserId,
         role: 'instructor',
         organization_id: testOrgId,
-      });
+      } as any);
 
       // Try to insert duplicate
       const { error } = await supabase
@@ -110,7 +113,7 @@ describe('Permission System Tests', () => {
           user_id: testUserId,
           role: 'instructor',
           organization_id: testOrgId,
-        });
+        } as any);
 
       expect(error).not.toBeNull();
       expect(error?.code).toBe('23505'); // Unique violation
@@ -154,7 +157,7 @@ describe('Permission System Tests', () => {
         .insert({
           name: `Test Org 2 ${Date.now()}`,
           slug: `test-org-2-${Date.now()}`,
-        })
+        } as any)
         .select()
         .single();
 
@@ -163,7 +166,7 @@ describe('Permission System Tests', () => {
         user_id: testUserId,
         role: 'admin',
         organization_id: testOrgId,
-      });
+      } as any);
 
       // Verify role only exists in first org
       const { data: roles } = await supabase
@@ -173,7 +176,7 @@ describe('Permission System Tests', () => {
         .eq('organization_id', testOrgId);
 
       expect(roles?.length).toBeGreaterThan(0);
-      expect(roles?.[0].organization_id).toBe(testOrgId);
+      expect((roles as any)?.[0].organization_id).toBe(testOrgId);
     });
   });
 
@@ -184,13 +187,13 @@ describe('Permission System Tests', () => {
         user_id: testUserId,
         role: 'admin',
         organization_id: testOrgId,
-      });
+      } as any);
 
       // Check for admin permissions
-      const { data: hasAdminPerm } = await supabase.rpc('check_permission', {
+      const { data: hasAdminPerm } = await supabase.rpc('check_permission' as any, {
         user_id: testUserId,
         permission_name: 'admin.manage',
-      });
+      } as any);
 
       expect(hasAdminPerm).toBe(true);
     });
@@ -201,13 +204,13 @@ describe('Permission System Tests', () => {
         user_id: testUserId,
         role: 'instructor',
         organization_id: testOrgId,
-      });
+      } as any);
 
       // Check for instructor permissions
-      const { data: hasCoursePerm } = await supabase.rpc('check_permission', {
+      const { data: hasCoursePerm } = await supabase.rpc('check_permission' as any, {
         user_id: testUserId,
         permission_name: 'courses.create',
-      });
+      } as any);
 
       expect(hasCoursePerm).toBe(true);
     });
