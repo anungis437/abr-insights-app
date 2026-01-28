@@ -126,6 +126,7 @@ export default function PermissionMatrix({ onPermissionToggle, readOnly = false 
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value as PermissionCategory | 'all')}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+            aria-label="Filter permissions by category"
           >
             <option value="all">All Categories ({permissions.length})</option>
             {Object.entries(PERMISSION_CATEGORIES).map(([key, { label, icon }]) => {
