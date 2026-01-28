@@ -10,31 +10,29 @@ export async function GET() {
   try {
     const supabase = await createClient();
 
-    // Get all embedding jobs ordered by most recent first
+    // Get recent embedding jobs
     const { data: jobs, error } = await supabase
       .from('embedding_jobs')
       .select('*')
       .order('created_at', { ascending: false })
       .limit(50);
 
-    if (error) {
-      throw error;
-    }
+    if (error) throw error;
+
+    // Get job statistics
+    const { data: stats, error: statsError } = await supabase.rpc('get_embedding_job_stats');
+
+    if (statsError) throw statsError;
 
     return NextResponse.json({
-      success: true,
       jobs: jobs || [],
+      stats: stats || {},
     });
   } catch (error) {
     console.error('Error fetching embedding jobs:', error);
     return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to fetch embedding jobs',
-        details: error instanceof Error ? error.message : 'Unknown error',
-      },
+      { error: 'Failed to fetch embedding jobs' },
       { status: 500 }
     );
   }
 }
-

@@ -50,12 +50,18 @@ Azure Static Web Apps builds in the cloud using Linux runners, bypassing Windows
 
 ## Development on Windows
 
-Development server works fine on Windows:
+Development server works perfectly on Windows using Turbopack:
 ```bash
-npm run dev
+npm run dev  # Uses Turbopack (--turbo flag) - no webpack issues
 ```
 
-Only production builds are affected by this webpack/Windows issue.
+**Benefits of Turbopack in dev mode**:
+- ✅ No EISDIR errors on Windows
+- ✅ Faster compilation and hot reload
+- ✅ Better memory usage
+- ✅ All features work identically to production
+
+Only production builds (webpack-based) are affected by Windows limitations.
 
 ## Verification
 

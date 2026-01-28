@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { requireAnyPermission } from '@/lib/auth/permissions'
 import { z } from 'zod'
 
 const checkoutSchema = z.object({
@@ -12,6 +13,10 @@ const checkoutSchema = z.object({
 })
 
 export async function POST(req: NextRequest) {
+  // Check permissions - users need subscription.manage to create checkout sessions
+  const permissionError = await requireAnyPermission(['subscription.manage', 'admin.manage']);
+  if (permissionError) return permissionError;
+
   try {
     // Lazy load Stripe to avoid build-time initialization
     const { stripe, getOrCreateStripeCustomer, STRIPE_PRICES } = await import('@/lib/stripe')

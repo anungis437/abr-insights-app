@@ -5,8 +5,13 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { requireAnyPermission } from '@/lib/auth/permissions'
 
 export async function POST(req: NextRequest) {
+  // Check permissions - users need subscription.view to access portal
+  const permissionError = await requireAnyPermission(['subscription.view', 'subscription.manage', 'admin.manage']);
+  if (permissionError) return permissionError;
+
   try {
     // Lazy load Stripe to avoid build-time initialization
     const { stripe } = await import('@/lib/stripe')
