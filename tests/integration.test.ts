@@ -225,8 +225,8 @@ describe('Integration Tests', () => {
     });
 
     it('should enforce RLS on cross-org queries', async () => {
-      const currentOrgId = 'org_1';
-      const queriedOrgId = 'org_2';
+      const currentOrgId: string = 'org_1';
+      const queriedOrgId: string = 'org_2';
 
       const canAccess = currentOrgId === queriedOrgId;
       expect(canAccess).toBe(false);
