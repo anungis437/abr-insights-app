@@ -28,7 +28,7 @@ describe('Stripe Integration Tests', () => {
   describe('Checkout Session Creation', () => {
     it('should create checkout session with valid parameters', async () => {
       const Stripe = (await import('stripe')).default;
-      const stripe = new Stripe('test_key', { apiVersion: '2024-12-18.acacia' });
+      const stripe = new Stripe('test_key', { apiVersion: '2025-12-15.clover' });
 
       const mockSession = {
         id: 'cs_test_123',
@@ -54,7 +54,7 @@ describe('Stripe Integration Tests', () => {
 
     it('should include customer email in session', async () => {
       const Stripe = (await import('stripe')).default;
-      const stripe = new Stripe('test_key', { apiVersion: '2024-12-18.acacia' });
+      const stripe = new Stripe('test_key', { apiVersion: '2025-12-15.clover' });
 
       await stripe.checkout.sessions.create({
         mode: 'subscription',
@@ -69,7 +69,7 @@ describe('Stripe Integration Tests', () => {
 
     it('should set metadata for tracking', async () => {
       const Stripe = (await import('stripe')).default;
-      const stripe = new Stripe('test_key', { apiVersion: '2024-12-18.acacia' });
+      const stripe = new Stripe('test_key', { apiVersion: '2025-12-15.clover' });
 
       await stripe.checkout.sessions.create({
         mode: 'subscription',
@@ -96,7 +96,7 @@ describe('Stripe Integration Tests', () => {
   describe('Customer Portal', () => {
     it('should create customer portal session', async () => {
       const Stripe = (await import('stripe')).default;
-      const stripe = new Stripe('test_key', { apiVersion: '2024-12-18.acacia' });
+      const stripe = new Stripe('test_key', { apiVersion: '2025-12-15.clover' });
 
       const mockPortalSession = {
         id: 'bps_test_123',
@@ -117,7 +117,7 @@ describe('Stripe Integration Tests', () => {
   describe('Webhook Processing', () => {
     it('should verify webhook signatures', async () => {
       const Stripe = (await import('stripe')).default;
-      const stripe = new Stripe('test_key', { apiVersion: '2024-12-18.acacia' });
+      const stripe = new Stripe('test_key', { apiVersion: '2025-12-15.clover' });
 
       const mockEvent = {
         id: 'evt_test_123',
@@ -251,7 +251,7 @@ describe('Stripe Integration Tests', () => {
   describe('Error Handling', () => {
     it('should handle invalid checkout parameters', async () => {
       const Stripe = (await import('stripe')).default;
-      const stripe = new Stripe('test_key', { apiVersion: '2024-12-18.acacia' });
+      const stripe = new Stripe('test_key', { apiVersion: '2025-12-15.clover' });
 
       (stripe.checkout.sessions.create as any).mockRejectedValue(
         new Error('Invalid parameters')
@@ -264,7 +264,7 @@ describe('Stripe Integration Tests', () => {
 
     it('should handle webhook signature verification failures', async () => {
       const Stripe = (await import('stripe')).default;
-      const stripe = new Stripe('test_key', { apiVersion: '2024-12-18.acacia' });
+      const stripe = new Stripe('test_key', { apiVersion: '2025-12-15.clover' });
 
       (stripe.webhooks.constructEvent as any).mockImplementation(() => {
         throw new Error('Invalid signature');
