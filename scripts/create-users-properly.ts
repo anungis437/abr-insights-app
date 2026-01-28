@@ -1,8 +1,23 @@
 import { createClient } from '@supabase/supabase-js';
+import * as dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config({ path: '.env.local' });
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl || !supabaseServiceKey) {
+  console.error('❌ Missing required environment variables:');
+  console.error('   - NEXT_PUBLIC_SUPABASE_URL');
+  console.error('   - SUPABASE_SERVICE_ROLE_KEY');
+  console.error('\nPlease set these in your .env.local file.');
+  process.exit(1);
+}
 
 const supabase = createClient(
-  '***REMOVED***',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.***REMOVED***.sS8oTvZoRtnGUi5TUZshHKtM7fxkTLbDAHEu14iul_4',
+  supabaseUrl,
+  supabaseServiceKey,
   { auth: { autoRefreshToken: false, persistSession: false } }
 );
 

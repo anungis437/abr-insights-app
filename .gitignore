@@ -3,6 +3,7 @@
 /node_modules
 /.pnp
 .pnp.js
+/.pnpm-cache
 
 # testing
 /coverage
@@ -16,6 +17,8 @@
 # misc
 .DS_Store
 *.pem
+build.log
+migration-output.log
 
 # debug
 npm-debug.log*
