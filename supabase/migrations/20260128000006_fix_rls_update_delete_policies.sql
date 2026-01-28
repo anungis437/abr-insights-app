@@ -1,3 +1,4 @@
+-- language: postgresql
 -- Migration: Fix RLS UPDATE and DELETE policies for tenant isolation
 -- Date: 2026-01-28
 -- Description: Add missing UPDATE and DELETE policies identified in tenant-isolation tests
