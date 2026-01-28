@@ -16,21 +16,31 @@ beforeAll(() => {
 });
 
 // Mock Azure OpenAI to prevent actual API calls
-vi.mock('@azure/openai', () => ({
-  OpenAIClient: vi.fn().mockImplementation(() => ({
-    getChatCompletions: vi.fn().mockResolvedValue({
-      choices: [{
-        message: {
-          content: JSON.stringify({
-            category: 'anti_black_racism',
-            confidence: 0.85,
-            reasoning: 'Mock AI classification result',
-            keyPhrases: ['race', 'discrimination'],
-            groundsDetected: ['race'],
-          }),
-        },
-      }],
-    }),
+vi.mock('openai', () => ({
+  AzureOpenAI: vi.fn().mockImplementation(() => ({
+    chat: {
+      completions: {
+        create: vi.fn().mockResolvedValue({
+          choices: [{
+            message: {
+              content: JSON.stringify({
+                category: 'anti_black_racism',
+                confidence: 0.85,
+                reasoning: 'Mock AI classification result',
+                keyPhrases: ['race', 'discrimination'],
+                groundsDetected: ['race'],
+              }),
+            },
+          }],
+        }),
+      },
+    },
+    embeddings: {
+      create: vi.fn().mockResolvedValue({
+        data: [{
+          embedding: new Array(1536).fill(0),
+        }],
+      }),
+    },
   })),
-  AzureKeyCredential: vi.fn(),
 }));
