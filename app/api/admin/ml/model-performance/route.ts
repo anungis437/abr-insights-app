@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server';
 import { requireAnyPermission } from '@/lib/auth/permissions';
-// Import commented out to avoid build-time issues with Supabase client initialization
-// import { evaluateModel } from '@/lib/services/outcome-prediction-service';
 
 export async function GET() {
   // Check permissions
@@ -9,24 +8,21 @@ export async function GET() {
   if (permissionError) return permissionError;
 
   try {
-    // Lazy import to avoid build-time initialization issues
-    const { evaluateModel } = await import('@/lib/services/outcome-prediction-service');
-    
-    // Call the outcome prediction service to evaluate model performance
-    const performance = await evaluateModel();
+    const supabase = await createClient();
+
+    // Get model performance metrics
+    const { data, error } = await supabase.rpc('get_model_performance_metrics');
+
+    if (error) throw error;
 
     return NextResponse.json({
-      success: true,
-      performance,
+      metrics: data || [],
+      lastUpdated: new Date().toISOString(),
     });
   } catch (error) {
     console.error('Error fetching model performance:', error);
     return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to fetch model performance metrics',
-        details: error instanceof Error ? error.message : 'Unknown error',
-      },
+      { error: 'Failed to fetch model performance metrics' },
       { status: 500 }
     );
   }

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Check, X, Info } from 'lucide-react'
 import type { Permission, Role, PermissionMatrixRow, PermissionCategory } from '@/lib/types/permissions'
 import { groupPermissionsByCategory, PERMISSION_CATEGORIES } from '@/lib/types/permissions'
+import { Protected } from '@/components/auth/Protected'
 
 interface PermissionMatrixProps {
   onPermissionToggle?: (roleId: string, permissionId: string, currentState: boolean) => Promise<void>
@@ -107,8 +108,8 @@ export default function PermissionMatrix({ onPermissionToggle, readOnly = false 
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header Controls */}
+    <Protected permissions={['admin.permissions.view']} requireAll={true}>
+      <div className="space-y-6">{/* Header Controls */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div className="flex-1 max-w-md">
           <input
@@ -281,5 +282,6 @@ export default function PermissionMatrix({ onPermissionToggle, readOnly = false 
         </div>
       </div>
     </div>
+    </Protected>
   )
 }

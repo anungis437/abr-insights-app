@@ -1,13 +1,11 @@
 /** @type {import('next').NextConfig} */
 
-// Bundle analyzer
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
-  enabled: process.env.ANALYZE === 'true',
-})
-
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  
+  // Enable standalone output for Docker builds
+  output: process.env.DOCKER_BUILD === 'true' ? 'standalone' : undefined,
   
   // Next.js 15 Performance Optimizations
   experimental: {
@@ -61,7 +59,18 @@ const nextConfig = {
 
   trailingSlash: true,
 
-  webpack: (config, { isServer }) => {
+  // Turbopack configuration (for dev mode with --turbo)
+  turbopack: {
+    resolveAlias: {
+      // Turbopack handles Node.js built-ins automatically, no fallbacks needed
+    },
+    // Turbopack uses different caching - no manual config needed
+  },
+
+  webpack: (config, { isServer, dev }) => {
+    // Only apply webpack config when not using Turbopack
+    // Turbopack is used with `next dev --turbo`
+    
     // Fixes npm packages that depend on `fs` module
     if (!isServer) {
       config.resolve.fallback = {
@@ -71,6 +80,34 @@ const nextConfig = {
         tls: false,
       }
     }
+    
+    // CRITICAL FIX: Disable symlink resolution to prevent EISDIR errors
+    // Windows exFAT filesystem issue with webpack symlink handling
+    config.resolve = {
+      ...config.resolve,
+      symlinks: false,
+    }
+    
+    // Fix for Windows EISDIR error with webpack 5 on Next.js
+    // This is a known issue: https://github.com/vercel/next.js/issues/56114
+    config.watchOptions = {
+      ...config.watchOptions,
+      ignored: /node_modules/,
+    }
+    
+    // Disable filesystem caching which causes issues on Windows
+    if (config.cache && typeof config.cache === 'object' && config.cache.type === 'filesystem') {
+      config.cache = {
+        type: 'memory',
+      }
+    }
+    
+    // Disable module resolution caching
+    config.infrastructureLogging = {
+      ...config.infrastructureLogging,
+      level: 'error',
+    }
+    
     return config
   },
 
@@ -129,4 +166,4 @@ const nextConfig = {
   },
 }
 
-module.exports = withBundleAnalyzer(nextConfig)
+module.exports = nextConfig

@@ -10,76 +10,55 @@ export async function GET() {
   try {
     const supabase = await createClient();
 
-    // Get total predictions count
-    const { count: totalCount, error: totalError } = await supabase
-      .from('outcome_predictions')
-      .select('*', { count: 'exact', head: true });
+    // Get prediction statistics
+    const { data: stats, error: statsError } = await supabase
+      .from('predictions')
+      .select('prediction_type, confidence, created_at')
+      .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
+      .order('created_at', { ascending: false });
 
-    if (totalError) {
-      throw totalError;
-    }
+    if (statsError) throw statsError;
 
-    // Get validated predictions count (those with actual outcomes)
-    const { count: validatedCount, error: validatedError } = await supabase
-      .from('outcome_predictions')
-      .select('*', { count: 'exact', head: true })
-      .not('actual_outcome', 'is', null);
+    // Get prediction accuracy metrics
+    const { data: accuracy, error: accuracyError } = await supabase.rpc('get_prediction_accuracy');
 
-    if (validatedError) {
-      throw validatedError;
-    }
+    if (accuracyError) throw accuracyError;
 
-    // Calculate accuracy from validated predictions
-    // Get predictions where predicted_outcome matches actual_outcome
-    const { data: accuratePredictions, error: accuracyError } = await supabase
-      .from('outcome_predictions')
-      .select('id, predicted_outcome, actual_outcome')
-      .not('actual_outcome', 'is', null);
+    // Process statistics
+    const predictionsByType: Record<string, number> = {};
+    const predictionsByDay: Record<string, number> = {};
+    let totalPredictions = 0;
+    let totalConfidence = 0;
 
-    if (accuracyError) {
-      throw accuracyError;
-    }
+    stats?.forEach((prediction: any) => {
+      totalPredictions++;
+      totalConfidence += prediction.confidence || 0;
 
-    const accurateCount = accuratePredictions?.filter(
-      (p) => p.predicted_outcome === p.actual_outcome
-    ).length || 0;
+      // Count by type
+      const type = prediction.prediction_type || 'unknown';
+      predictionsByType[type] = (predictionsByType[type] || 0) + 1;
 
-    const accuracy =
-      validatedCount && validatedCount > 0
-        ? (accurateCount / validatedCount) * 100
-        : 0;
+      // Count by day
+      const day = new Date(prediction.created_at).toISOString().split('T')[0];
+      predictionsByDay[day] = (predictionsByDay[day] || 0) + 1;
+    });
 
-    // Get average confidence score
-    const { data: avgData, error: avgError } = await supabase
-      .from('outcome_predictions')
-      .select('confidence_score');
-
-    if (avgError) {
-      throw avgError;
-    }
-
-    const avgConfidence =
-      avgData && avgData.length > 0
-        ? avgData.reduce((sum, p) => sum + (p.confidence_score || 0), 0) / avgData.length
-        : 0;
+    const averageConfidence = totalPredictions > 0
+      ? (totalConfidence / totalPredictions) * 100
+      : 0;
 
     return NextResponse.json({
-      success: true,
-      stats: {
-        totalPredictions: totalCount || 0,
-        validatedPredictions: validatedCount || 0,
-        accuracy: Number(accuracy.toFixed(2)),
-        averageConfidence: Number((avgConfidence * 100).toFixed(2)),
-      },
+      totalPredictions,
+      averageConfidence: Math.round(averageConfidence * 100) / 100,
+      predictionsByType,
+      predictionsByDay,
+      accuracy: accuracy || {},
+      period: 'last_30_days',
     });
   } catch (error) {
     console.error('Error fetching prediction stats:', error);
     return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to fetch prediction statistics',
-        details: error instanceof Error ? error.message : 'Unknown error',
-      },
+      { error: 'Failed to fetch prediction statistics' },
       { status: 500 }
     );
   }
