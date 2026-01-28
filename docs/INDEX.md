@@ -6,13 +6,14 @@ Welcome to the ABR Insights App documentation. This index will help you navigate
 
 | System | Status | Documentation |
 |--------|--------|---------------|
-| Permission System | ✅ 100% | [PERMISSION_SYSTEM_100_COMPLETE.md](../PERMISSION_SYSTEM_100_COMPLETE.md) |
-| API Protection | ✅ 100% | [API_PROTECTION_100_COMPLETE.md](../API_PROTECTION_100_COMPLETE.md) |
-| Stripe Integration | ✅ 100% | [STRIPE_INTEGRATION_100_COMPLETE.md](../STRIPE_INTEGRATION_100_COMPLETE.md) |
-| AI Features | ✅ 100% | [AI_FEATURES_100_COMPLETE.md](../AI_FEATURES_100_COMPLETE.md) |
-| Testing System | ✅ 100% | [TESTING_100_COMPLETE.md](../TESTING_100_COMPLETE.md) |
+| Permission System | ✅ 100% | [PERMISSION_SYSTEM_100_COMPLETE.md](completion-guides/PERMISSION_SYSTEM_100_COMPLETE.md) |
+| API Protection | ✅ 100% | [API_PROTECTION_100_COMPLETE.md](completion-guides/API_PROTECTION_100_COMPLETE.md) |
+| Stripe Integration | ✅ 100% | [STRIPE_INTEGRATION_100_COMPLETE.md](completion-guides/STRIPE_INTEGRATION_100_COMPLETE.md) |
+| AI Features | ✅ 100% | [AI_FEATURES_100_COMPLETE.md](completion-guides/AI_FEATURES_100_COMPLETE.md) |
+| Testing System | ✅ 100% | [TESTING_100_COMPLETE.md](completion-guides/TESTING_100_COMPLETE.md) |
 | Database & RLS | ✅ 100% | 28/28 tests passing |
 | Documentation | ✅ 100% | This index + comprehensive guides |
+| Build System | ✅ 100% | [Docker Build Solution](docker/DOCKER_SOLUTION_README.md) |
 
 ## 📚 Quick Start
 
@@ -22,10 +23,19 @@ Welcome to the ABR Insights App documentation. This index will help you navigate
 
 ## 🔧 Development
 
-- **[Testing System 100%](../TESTING_100_COMPLETE.md)** ✅ - 198+ tests across all systems
+- **[Testing System 100%](completion-guides/TESTING_100_COMPLETE.md)** ✅ - 198+ tests across all systems
+- **[Testing Quick Start](completion-guides/TESTING_QUICK_START.md)** - Get started with testing
 - **[Testing Strategy](development/TESTING_STRATEGY.md)** - Comprehensive testing approach
 - **[Performance Optimization](development/PERFORMANCE_OPTIMIZATION.md)** ⚡ - Next.js 15 optimizations
 - **[Supabase Setup](SUPABASE_SETUP.md)** - Database configuration
+
+## 🐳 Docker & Build System
+
+- **[Docker Quick Start](docker/DOCKER_QUICK_START.md)** - Get building with Docker in 5 minutes
+- **[Docker Build Guide](docker/DOCKER_BUILD_GUIDE.md)** - Comprehensive Docker build reference
+- **[Docker Solution Overview](docker/DOCKER_SOLUTION_README.md)** - Why Docker for this project
+- **[Docker Implementation Details](docker/DOCKER_SOLUTION_COMPLETE.md)** - Complete implementation guide
+- **[Critical Assessment](CRITICAL_ASSESSMENT_FILESYSTEM_ISSUE.md)** - Filesystem issue analysis & resolution
 
 ## 🏗️ Architecture
 
