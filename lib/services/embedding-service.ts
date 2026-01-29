@@ -304,7 +304,7 @@ export async function generateAllCaseEmbeddings(
     const totalItems = cases.length
     let processedItems = 0
     let failedItems = 0
-    let totalTokens = 0
+    const totalTokens = 0
     const errorLog: any[] = []
 
     // Update total items

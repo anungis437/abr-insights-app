@@ -54,7 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single()
 
     if (error) {
-      // eslint-disable-next-line no-console
+       
       console.error('Error fetching profile:', error)
       return null
     }
@@ -86,7 +86,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             .eq('id', session.user.id)
         }
       } catch (error) {
-        // eslint-disable-next-line no-console
+         
         console.error('Error initializing auth:', error)
       } finally {
         setLoading(false)
@@ -155,7 +155,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       })
 
       if (profileError) {
-        // eslint-disable-next-line no-console
+         
         console.error('Error creating profile:', profileError)
       }
     }

@@ -14,6 +14,7 @@ export default tseslint.config(
       'coverage/**',
       'dist/**',
       'scripts/**',
+      'public/sw.js',
       '*.config.js',
       '*.config.ts',
       '*.config.mjs',

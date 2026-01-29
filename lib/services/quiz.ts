@@ -643,7 +643,7 @@ function evaluateAnswer(
       const correctPairs = question.metadata.correct_pairs || {}
       const userPairs = answer_data.pairs || {}
       let correctCount = 0
-      let totalPairs = Object.keys(correctPairs).length
+      const totalPairs = Object.keys(correctPairs).length
 
       Object.keys(correctPairs).forEach((key) => {
         if (userPairs[key] === correctPairs[key]) correctCount++

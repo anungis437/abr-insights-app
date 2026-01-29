@@ -132,7 +132,7 @@ export default function PermissionsPage() {
   async function loadPermissions() {
     try {
       // Get all permissions (try with category first, fall back to name only)
-      let permsQuery = supabase.from('permissions').select('*')
+      const permsQuery = supabase.from('permissions').select('*')
       const { data: permsData, error: permsError } = await permsQuery.order('name')
 
       if (permsError) {
