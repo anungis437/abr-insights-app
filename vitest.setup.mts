@@ -11,7 +11,7 @@ if (typeof File === 'undefined') {
       this.name = name
       this.lastModified = options?.lastModified || Date.now()
     }
-  } as any
+  } as unknown as typeof File
 }
 
 // Mock environment variables for testing
