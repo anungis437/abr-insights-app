@@ -4,16 +4,22 @@ import { createClient } from '@supabase/supabase-js';
 // Type assertion helper for test database operations
 type SupabaseClient = ReturnType<typeof createClient>;
 
-describe('Permission System Tests', () => {
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+const skipTests = !supabaseUrl || !supabaseKey;
+
+if (skipTests) {
+  console.warn('⚠️  Skipping permission tests: Missing Supabase credentials');
+}
+
+describe.skipIf(skipTests)('Permission System Tests', () => {
   let supabase: SupabaseClient;
   let testUserId: string;
   let testOrgId: string;
 
   beforeAll(async () => {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-    
-    supabase = createClient(supabaseUrl, supabaseKey, {
+    supabase = createClient(supabaseUrl!, supabaseKey!, {
       auth: {
         autoRefreshToken: false,
         persistSession: false,
