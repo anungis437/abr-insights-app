@@ -277,10 +277,10 @@ function CourseCard({ course }: { course: Course }) {
         <span className={`rounded-full px-3 py-1 text-xs font-semibold ${levelColor}`}>
           {course.level.charAt(0).toUpperCase() + course.level.slice(1)}
         </span>
-        {course.duration_minutes && (
+        {course.estimated_duration_minutes && (
           <span className="flex items-center text-sm text-gray-500">
             <Clock className="mr-1 h-4 w-4" />
-            {course.duration_minutes} min
+            {course.estimated_duration_minutes} min
           </span>
         )}
       </div>

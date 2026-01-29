@@ -26,7 +26,7 @@ function LoginForm() {
     setError(null)
     
     try {
-      const { error, data } = await signIn(formState.email, formState.password)
+      const { error } = await signIn(formState.email, formState.password)
       
       if (error) {
         setError(error.message)

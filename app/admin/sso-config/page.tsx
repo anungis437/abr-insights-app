@@ -851,13 +851,14 @@ export default function SSOConfigPage() {
                   id="sso-status"
                   value={formData.status}
                   onChange={(e) =>
-                    setFormData({ ...formData, status: e.target.value as 'active' | 'inactive' | 'testing' })
+                    setFormData({ ...formData, status: e.target.value as 'draft' | 'active' | 'inactive' | 'error' })
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
-                  <option value="testing">Testing</option>
+                  <option value="draft">Draft</option>
                   <option value="active">Active</option>
                   <option value="inactive">Inactive</option>
+                  <option value="error">Error</option>
                 </select>
               </div>
             </div>
@@ -875,7 +876,7 @@ export default function SSOConfigPage() {
               </button>
               <button
                 onClick={handleSave}
-                disabled={!formData.provider_name || !formData.client_id}
+                disabled={!formData.name || !formData.azure_client_id}
                 className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {selectedProvider ? 'Save Changes' : 'Add Provider'}

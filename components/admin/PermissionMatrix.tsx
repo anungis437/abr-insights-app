@@ -108,7 +108,7 @@ export default function PermissionMatrix({ onPermissionToggle, readOnly = false 
   }
 
   return (
-    <Protected permissions={['admin.permissions.view']} requireAll={true}>
+    <Protected permission="admin.permissions.view">
       <div className="space-y-6">{/* Header Controls */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div className="flex-1 max-w-md">

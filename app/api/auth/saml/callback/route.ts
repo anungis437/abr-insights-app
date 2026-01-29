@@ -32,6 +32,7 @@ import { cookies } from 'next/headers'
 export async function POST(request: NextRequest) {
   let organizationSlug = ''
   let samlService: Awaited<ReturnType<typeof getSAMLService>> | null = null
+  const adminSupabase = createAdminClient()
 
   try {
     // Parse form data
@@ -73,7 +74,6 @@ export async function POST(request: NextRequest) {
     const attributes = await samlService.validateResponse(samlResponse, relayState)
 
     // Use admin client for org and provider lookup (user not authenticated yet)
-    const adminSupabase = createAdminClient()
     const { data: organization } = await adminSupabase
       .from('organizations')
       .select('id')

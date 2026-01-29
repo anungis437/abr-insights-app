@@ -58,7 +58,7 @@ export function RevokeCertificateForm({ certificateId }: RevokeCertificateFormPr
   }
 
   return (
-    <Protected permissions={['admin.manage', 'certificates.revoke']} requireAll={false}>
+    <Protected anyPermissions={['admin.manage', 'certificates.revoke']}>
       <div className="space-y-4">
         <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded text-sm text-red-800">
           <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0" />
