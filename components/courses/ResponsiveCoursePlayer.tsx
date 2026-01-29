@@ -220,95 +220,95 @@ export default function ResponsiveCoursePlayer({
 
   const desktopSidebar = useMemo(
     () => (
-    <aside
-      className={`${
-        responsive.isMobile ? 'hidden' : 'block'
-      } w-80 overflow-y-auto border-r border-gray-200 bg-white transition-all dark:border-gray-700 dark:bg-gray-900 ${
-        sidebarOpen ? 'translate-x-0' : 'absolute -translate-x-full'
-      }`}
-    >
-      {/* Course Header */}
-      <div className="border-b border-gray-200 p-4 dark:border-gray-700">
-        <Link
-          href={`/courses/${courseId}`}
-          className="mb-2 flex items-center gap-2 text-sm text-blue-600 hover:underline dark:text-blue-400"
-        >
-          <ChevronLeft className="h-4 w-4" />
-          Back to Course
-        </Link>
-        <h2 className="line-clamp-2 text-lg font-semibold text-gray-900 dark:text-white">
-          {courseTitle}
-        </h2>
-
-        {/* Progress Bar */}
-        <div className="mt-3">
-          <div className="mb-1 flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
-            <span>Course Progress</span>
-            <span>{calculateCourseProgress()}%</span>
-          </div>
-          <div className="h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
-            <div
-              className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300"
-              style={{ width: `${calculateCourseProgress()}%` } as React.CSSProperties}
-            />
-          </div>
-        </div>
-
-        {/* Stats */}
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          <div className="text-xs">
-            <p className="text-gray-600 dark:text-gray-400">Total Duration</p>
-            <p className="font-medium text-gray-900 dark:text-white">
-              {formatDuration(getTotalDuration())}
-            </p>
-          </div>
-          <div className="text-xs">
-            <p className="text-gray-600 dark:text-gray-400">Modules</p>
-            <p className="font-medium text-gray-900 dark:text-white">{modules.length}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Module List */}
-      <div className="p-2">
-        {modules.map((module, index) => (
-          <button
-            key={module.id}
-            onClick={() => onModuleChange(index)}
-            className={`mb-1 flex w-full items-start gap-3 rounded-lg p-3 text-left transition-colors ${
-              index === currentModuleIndex
-                ? 'border-2 border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                : 'hover:bg-gray-50 dark:hover:bg-gray-800'
-            }`}
+      <aside
+        className={`${
+          responsive.isMobile ? 'hidden' : 'block'
+        } w-80 overflow-y-auto border-r border-gray-200 bg-white transition-all dark:border-gray-700 dark:bg-gray-900 ${
+          sidebarOpen ? 'translate-x-0' : 'absolute -translate-x-full'
+        }`}
+      >
+        {/* Course Header */}
+        <div className="border-b border-gray-200 p-4 dark:border-gray-700">
+          <Link
+            href={`/courses/${courseId}`}
+            className="mb-2 flex items-center gap-2 text-sm text-blue-600 hover:underline dark:text-blue-400"
           >
-            {module.completed ? (
-              <CheckCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-500" />
-            ) : index === currentModuleIndex ? (
-              <PlayCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-500" />
-            ) : (
-              <Circle className="mt-0.5 h-5 w-5 flex-shrink-0 text-gray-400" />
-            )}
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-gray-900 dark:text-white">
-                {index + 1}. {module.title}
-              </p>
-              <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
-                <Clock className="mr-1 inline h-3 w-3" />
-                {formatDuration(module.duration)}
-              </p>
-              {module.currentProgress && module.currentProgress > 0 && !module.completed && (
-                <div className="mt-2 h-1 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
-                  <div
-                    className="h-full bg-blue-500"
-                    style={{ width: `${module.currentProgress}%` } as React.CSSProperties}
-                  />
-                </div>
-              )}
+            <ChevronLeft className="h-4 w-4" />
+            Back to Course
+          </Link>
+          <h2 className="line-clamp-2 text-lg font-semibold text-gray-900 dark:text-white">
+            {courseTitle}
+          </h2>
+
+          {/* Progress Bar */}
+          <div className="mt-3">
+            <div className="mb-1 flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
+              <span>Course Progress</span>
+              <span>{calculateCourseProgress()}%</span>
             </div>
-          </button>
-        ))}
-      </div>
-    </aside>
+            <div className="h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+              <div
+                className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300"
+                style={{ width: `${calculateCourseProgress()}%` } as React.CSSProperties}
+              />
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <div className="text-xs">
+              <p className="text-gray-600 dark:text-gray-400">Total Duration</p>
+              <p className="font-medium text-gray-900 dark:text-white">
+                {formatDuration(getTotalDuration())}
+              </p>
+            </div>
+            <div className="text-xs">
+              <p className="text-gray-600 dark:text-gray-400">Modules</p>
+              <p className="font-medium text-gray-900 dark:text-white">{modules.length}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Module List */}
+        <div className="p-2">
+          {modules.map((module, index) => (
+            <button
+              key={module.id}
+              onClick={() => onModuleChange(index)}
+              className={`mb-1 flex w-full items-start gap-3 rounded-lg p-3 text-left transition-colors ${
+                index === currentModuleIndex
+                  ? 'border-2 border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                  : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+              }`}
+            >
+              {module.completed ? (
+                <CheckCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-500" />
+              ) : index === currentModuleIndex ? (
+                <PlayCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-500" />
+              ) : (
+                <Circle className="mt-0.5 h-5 w-5 flex-shrink-0 text-gray-400" />
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                  {index + 1}. {module.title}
+                </p>
+                <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+                  <Clock className="mr-1 inline h-3 w-3" />
+                  {formatDuration(module.duration)}
+                </p>
+                {module.currentProgress && module.currentProgress > 0 && !module.completed && (
+                  <div className="mt-2 h-1 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                    <div
+                      className="h-full bg-blue-500"
+                      style={{ width: `${module.currentProgress}%` } as React.CSSProperties}
+                    />
+                  </div>
+                )}
+              </div>
+            </button>
+          ))}
+        </div>
+      </aside>
     ),
     [
       responsive.isMobile,

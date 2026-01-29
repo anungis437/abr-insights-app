@@ -146,9 +146,7 @@ export function useOnlineStatus() {
 export function useInstallPrompt() {
   const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [isInstalled, setIsInstalled] = useState(() =>
-    typeof window !== 'undefined'
-      ? window.matchMedia('(display-mode: standalone)').matches
-      : false
+    typeof window !== 'undefined' ? window.matchMedia('(display-mode: standalone)').matches : false
   )
 
   useEffect(() => {
@@ -205,9 +203,7 @@ export function useInstallPrompt() {
 
 export function usePushNotifications() {
   const [permission, setPermission] = useState<NotificationPermission>(() =>
-    typeof window !== 'undefined' && 'Notification' in window
-      ? Notification.permission
-      : 'default'
+    typeof window !== 'undefined' && 'Notification' in window ? Notification.permission : 'default'
   )
   const [subscription, setSubscription] = useState<PushSubscription | null>(null)
 

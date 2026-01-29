@@ -298,9 +298,7 @@ export default function CertificatePDF({
 
         {/* Header */}
         <View style={styles.header}>
-          {organizationLogo && (
-            <Image src={organizationLogo} style={styles.logo} />
-          )}
+          {organizationLogo && <Image src={organizationLogo} style={styles.logo} />}
           <Text style={styles.organizationName}>{organizationName}</Text>
         </View>
 
