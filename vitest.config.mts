@@ -32,7 +32,7 @@ export default defineConfig({
       ],
     },
     // Mock environment variables
-    setupFiles: ['./vitest.setup.ts'],
+    setupFiles: ['./vitest.setup.mts'],
   },
   resolve: {
     alias: {
