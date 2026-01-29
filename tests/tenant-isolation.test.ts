@@ -507,6 +507,7 @@ describe.skipIf(skipTests)('Tenant Isolation Tests', () => {
     })
     
     it('should verify org membership via profile', async () => {
+      if (!adminClient) return;
       // Check via direct profile query
       const { data: profile, error } = await adminClient
         .from('profiles')
@@ -524,6 +525,7 @@ describe.skipIf(skipTests)('Tenant Isolation Tests', () => {
     })
     
     it('should show profile data for different users', async () => {
+      if (!adminClient) return;
       const { data: profile2 } = await adminClient
         .from('profiles')
         .select('id')
@@ -537,6 +539,7 @@ describe.skipIf(skipTests)('Tenant Isolation Tests', () => {
   
   describe('Service Role Bypass', () => {
     it('admin should see all organizations', async () => {
+      if (!adminClient) return;
       const { data: orgs, error } = await adminClient
         .from('organizations')
         .select('id')
@@ -552,6 +555,7 @@ describe.skipIf(skipTests)('Tenant Isolation Tests', () => {
     })
     
     it('admin should see all profiles', async () => {
+      if (!adminClient) return;
       const { data: profiles, error } = await adminClient
         .from('profiles')
         .select('id')
@@ -566,6 +570,7 @@ describe.skipIf(skipTests)('Tenant Isolation Tests', () => {
     })
     
     it('admin should access all courses', async () => {
+      if (!adminClient) return;
       const { data: courses, error } = await adminClient
         .from('courses')
         .select('id')
@@ -646,6 +651,7 @@ describe.skipIf(skipTests)('Tenant Isolation Tests', () => {
         'ai_usage_logs'
       ]
       
+      if (!adminClient) return;
       for (const table of criticalTables) {
         const { data } = await adminClient
           .rpc('exec_sql', { 

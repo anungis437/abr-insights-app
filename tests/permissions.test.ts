@@ -21,7 +21,7 @@ describe('Permission System Tests', () => {
     });
 
     // Create test organization
-    const { data: org } = await supabase
+    const { data: org, error } = await supabase
       .from('organizations')
       .insert({
         name: `Test Org ${Date.now()}`,
