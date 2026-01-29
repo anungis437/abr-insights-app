@@ -30,8 +30,8 @@ describe('Permission System Tests', () => {
       .select()
       .single();
     
-    if (!org) {
-      throw new Error('Failed to create test organization')
+    if (!org || error) {
+      throw new Error(`Failed to create test organization: ${error?.message || 'No data returned'}`)
     }
     
     testOrgId = org.id;

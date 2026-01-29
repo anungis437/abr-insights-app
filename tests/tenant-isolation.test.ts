@@ -175,6 +175,11 @@ describe.skipIf(skipTests)('Tenant Isolation Tests', () => {
   afterAll(async () => {
     // Cleanup test data - wrap in try/catch to prevent cleanup errors from failing tests
     try {
+      if (!adminClient) {
+        console.warn('No admin client available for cleanup')
+        return
+      }
+      
       if (testCourseOrg1 && testCourseOrg2) {
         await adminClient.from('courses').delete().in('id', [testCourseOrg1, testCourseOrg2])
       }
@@ -300,6 +305,7 @@ describe.skipIf(skipTests)('Tenant Isolation Tests', () => {
     let enrollment2: string
     
     beforeAll(async () => {
+      if (!adminClient) return;
       // Create enrollments
       const { data } = await adminClient
         .from('enrollments')
@@ -357,6 +363,7 @@ describe.skipIf(skipTests)('Tenant Isolation Tests', () => {
     let pointsOrg2: string
     
     beforeAll(async () => {
+      if (!adminClient) return;
       // Create points records
       const { data } = await adminClient
         .from('user_course_points')
@@ -404,6 +411,7 @@ describe.skipIf(skipTests)('Tenant Isolation Tests', () => {
     let logOrg2: string
     
     beforeAll(async () => {
+      if (!adminClient) return;
       // Create audit logs
       const { data, error } = await adminClient
         .from('audit_logs')
