@@ -148,7 +148,7 @@ export default function HelpPage() {
                   <ol className="mt-2 ml-6 list-decimal space-y-1">
                     <li>Browse the course catalog from your dashboard</li>
                     <li>Click on a course to view details</li>
-                    <li>Click "Enroll Now" or "Start Course"</li>
+                    <li>Click &quot;Enroll Now&quot; or &quot;Start Course&quot;</li>
                     <li>Complete the enrollment process and begin learning</li>
                   </ol>
                 </div>
@@ -176,7 +176,7 @@ export default function HelpPage() {
                   <CheckCircle className="h-5 w-5 flex-shrink-0 text-primary-600 group-open:rotate-180 transition-transform" />
                 </summary>
                 <div className="mt-4 text-gray-600">
-                  Yes! Once you complete a course with a passing grade, you can download your certificate from the "My Certificates" section in your dashboard. Certificates include verification codes and can be shared digitally.
+                  Yes! Once you complete a course with a passing grade, you can download your certificate from the &quot;My Certificates&quot; section in your dashboard. Certificates include verification codes and can be shared digitally.
                 </div>
               </details>
 
