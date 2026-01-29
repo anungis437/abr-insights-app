@@ -21,7 +21,7 @@ describe('Permission System Tests', () => {
     });
 
     // Create test organization
-    const { data: org, error: orgError } = await supabase
+    const orgResult = await supabase
       .from('organizations')
       .insert({
         name: `Test Org ${Date.now()}`,
@@ -30,11 +30,11 @@ describe('Permission System Tests', () => {
       .select()
       .single();
     
-    if (orgError || !org) {
-      throw new Error(`Failed to create test organization: ${orgError?.message || 'No data returned'}`)
+    if (orgResult.error || !orgResult.data) {
+      throw new Error(`Failed to create test organization: ${orgResult.error?.message || 'No data returned'}`)
     }
     
-    testOrgId = org.id;
+    testOrgId = orgResult.data.id;
 
     // Create test user
     const { data: authUser } = await supabase.auth.admin.createUser({
