@@ -16,14 +16,28 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-const skipTests = !supabaseUrl || !supabaseServiceKey
+// Enhanced validation: Check if URL is a valid HTTP/HTTPS URL
+const isValidUrl = (url: string | undefined): boolean => {
+  if (!url) return false;
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
+};
+
+const skipTests = !isValidUrl(supabaseUrl) || !supabaseServiceKey;
 
 if (skipTests) {
   console.warn('⚠️  Skipping tenant isolation tests: Missing Supabase credentials')
 }
 
-// Service role client (bypasses RLS)
-const adminClient = skipTests ? null : createClient(supabaseUrl!, supabaseServiceKey!)
+// Service role client (bypasses RLS) - only create if we have valid credentials
+let adminClient: ReturnType<typeof createClient> | null = null;
+if (!skipTests) {
+  adminClient = createClient(supabaseUrl!, supabaseServiceKey!);
+}
 
 // Test data
 let org1Id: string

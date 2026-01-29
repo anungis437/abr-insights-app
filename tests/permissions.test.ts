@@ -7,7 +7,18 @@ type SupabaseClient = ReturnType<typeof createClient>;
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-const skipTests = !supabaseUrl || !supabaseKey;
+// Enhanced validation: Check if URL is a valid HTTP/HTTPS URL
+const isValidUrl = (url: string | undefined): boolean => {
+  if (!url) return false;
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
+};
+
+const skipTests = !isValidUrl(supabaseUrl) || !supabaseKey;
 
 if (skipTests) {
   console.warn('⚠️  Skipping permission tests: Missing Supabase credentials');
