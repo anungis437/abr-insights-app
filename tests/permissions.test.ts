@@ -27,7 +27,7 @@ describe.skipIf(skipTests)('Permission System Tests', () => {
     });
 
     // Create test organization
-    const orgResult = await supabase
+    const { data: org, error: orgError } = await supabase
       .from('organizations')
       .insert({
         name: `Test Org ${Date.now()}`,
@@ -36,11 +36,15 @@ describe.skipIf(skipTests)('Permission System Tests', () => {
       .select()
       .single();
     
-    if (orgResult.error || !orgResult.data) {
-      throw new Error(`Failed to create test organization: ${orgResult.error?.message || 'No data returned'}`)
+    if (orgError) {
+      throw new Error(`Failed to create test organization: ${orgError.message}`)
     }
     
-    testOrgId = orgResult.data.id;
+    if (!org) {
+      throw new Error('Failed to create test organization: No data returned')
+    }
+    
+    testOrgId = (org as any).id;
 
     // Create test user
     const authUserResult = await supabase.auth.admin.createUser({
@@ -55,7 +59,7 @@ describe.skipIf(skipTests)('Permission System Tests', () => {
     await supabase.from('profiles').insert({
       user_id: testUserId,
       organization_id: testOrgId,
-      email: authUser.user!.email,
+      email: authUserResult.data.user!.email,
       full_name: 'Test User',
     } as any);
   });
