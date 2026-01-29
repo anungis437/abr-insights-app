@@ -2,10 +2,10 @@ import 'server-only'
 
 /**
  * Embedding Generation Service
- * 
+ *
  * World-class implementation for generating vector embeddings using Azure OpenAI
  * text-embedding-3-large model. Features:
- * 
+ *
  * - Batch processing with retry logic and exponential backoff
  * - Rate limiting and concurrent request management
  * - Content hashing for change detection
@@ -13,7 +13,7 @@ import 'server-only'
  * - Progress tracking and job management
  * - Error handling and logging
  * - Automatic chunking for large texts
- * 
+ *
  * @module lib/services/embedding-service
  */
 
@@ -28,7 +28,8 @@ import { logger } from '@/lib/utils/logger'
 
 const AZURE_OPENAI_ENDPOINT = process.env.AZURE_OPENAI_ENDPOINT!
 const AZURE_OPENAI_KEY = process.env.AZURE_OPENAI_API_KEY!
-const AZURE_OPENAI_EMBEDDING_DEPLOYMENT = process.env.AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT || 'text-embedding-3-large'
+const AZURE_OPENAI_EMBEDDING_DEPLOYMENT =
+  process.env.AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT || 'text-embedding-3-large'
 const EMBEDDING_MODEL = 'text-embedding-3-large'
 const EMBEDDING_DIMENSIONS = 1536
 const MAX_TOKENS_PER_REQUEST = 8191 // text-embedding-3-large limit
@@ -247,16 +248,16 @@ export async function generateCaseEmbedding(
     }
   } else {
     // Insert new
-    const { error: insertError } = await supabase
-      .from('case_embeddings')
-      .insert(embeddingData)
+    const { error: insertError } = await supabase.from('case_embeddings').insert(embeddingData)
 
     if (insertError) {
       throw new Error(`Failed to insert case embedding: ${insertError.message}`)
     }
   }
 
-  logger.info(`Generated embedding for case ${caseId} (${embeddingType}): ${result.tokenCount} tokens`)
+  logger.info(
+    `Generated embedding for case ${caseId} (${embeddingType}): ${result.tokenCount} tokens`
+  )
 }
 
 /**
@@ -294,9 +295,7 @@ export async function generateAllCaseEmbeddings(
       .eq('id', jobId)
 
     // Fetch all cases that need embeddings
-    const { data: cases, error: casesError } = await supabase
-      .from('tribunal_cases')
-      .select('id')
+    const { data: cases, error: casesError } = await supabase.from('tribunal_cases').select('id')
 
     if (casesError || !cases) {
       throw new Error(`Failed to fetch cases: ${casesError?.message}`)
@@ -309,10 +308,7 @@ export async function generateAllCaseEmbeddings(
     const errorLog: any[] = []
 
     // Update total items
-    await supabase
-      .from('embedding_jobs')
-      .update({ total_items: totalItems })
-      .eq('id', jobId)
+    await supabase.from('embedding_jobs').update({ total_items: totalItems }).eq('id', jobId)
 
     // Process in batches
     const batches = chunkArray(cases, batchSize)
@@ -406,14 +402,16 @@ export async function generateCourseEmbedding(
   // Fetch course data with lessons
   const { data: course, error: fetchError } = await supabase
     .from('courses')
-    .select(`
+    .select(
+      `
       *,
       lessons (
         title,
         content,
         learning_objectives
       )
-    `)
+    `
+    )
     .eq('id', courseId)
     .single()
 
@@ -489,23 +487,26 @@ export async function generateCourseEmbedding(
       throw new Error(`Failed to update course embedding: ${updateError.message}`)
     }
   } else {
-    const { error: insertError } = await supabase
-      .from('course_embeddings')
-      .insert(embeddingData)
+    const { error: insertError } = await supabase.from('course_embeddings').insert(embeddingData)
 
     if (insertError) {
       throw new Error(`Failed to insert course embedding: ${insertError.message}`)
     }
   }
 
-  logger.info(`Generated embedding for course ${courseId} (${embeddingType}): ${result.tokenCount} tokens`)
+  logger.info(
+    `Generated embedding for course ${courseId} (${embeddingType}): ${result.tokenCount} tokens`
+  )
 }
 
 /**
  * Generate embeddings for all courses in batch
  */
 export async function generateAllCourseEmbeddings(
-  options: { batchSize?: number; embeddingType?: 'full_content' | 'description' | 'objectives' } = {}
+  options: {
+    batchSize?: number
+    embeddingType?: 'full_content' | 'description' | 'objectives'
+  } = {}
 ): Promise<EmbeddingJobProgress> {
   const { batchSize = BATCH_SIZE, embeddingType = 'full_content' } = options
 
@@ -533,9 +534,7 @@ export async function generateAllCourseEmbeddings(
       .update({ status: 'running', started_at: new Date().toISOString() })
       .eq('id', jobId)
 
-    const { data: courses, error: coursesError } = await supabase
-      .from('courses')
-      .select('id')
+    const { data: courses, error: coursesError } = await supabase.from('courses').select('id')
 
     if (coursesError || !courses) {
       throw new Error(`Failed to fetch courses: ${coursesError?.message}`)
@@ -546,10 +545,7 @@ export async function generateAllCourseEmbeddings(
     let failedItems = 0
     const errorLog: any[] = []
 
-    await supabase
-      .from('embedding_jobs')
-      .update({ total_items: totalItems })
-      .eq('id', jobId)
+    await supabase.from('embedding_jobs').update({ total_items: totalItems }).eq('id', jobId)
 
     const batches = chunkArray(courses, batchSize)
 
@@ -733,12 +729,7 @@ export async function searchSimilarCoursesByText(
     category?: string
   } = {}
 ): Promise<any[]> {
-  const {
-    similarityThreshold = 0.7,
-    maxResults = 10,
-    difficulty = null,
-    category = null,
-  } = options
+  const { similarityThreshold = 0.7, maxResults = 10, difficulty = null, category = null } = options
 
   const queryEmbedding = await generateQueryEmbedding(query)
 
@@ -765,11 +756,7 @@ export async function searchSimilarCoursesByText(
  * Get embedding job status
  */
 export async function getEmbeddingJobStatus(jobId: string): Promise<EmbeddingJobProgress | null> {
-  const { data, error } = await supabase
-    .from('embedding_jobs')
-    .select('*')
-    .eq('id', jobId)
-    .single()
+  const { data, error } = await supabase.from('embedding_jobs').select('*').eq('id', jobId).single()
 
   if (error || !data) {
     return null
