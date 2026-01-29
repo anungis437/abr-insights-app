@@ -154,7 +154,7 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
         setLessons(lessonsData || [])
 
         // Get or create enrollment
-        let { data: enrollmentData, error: enrollmentError } = await supabase
+        const { data: initialEnrollmentData, error: enrollmentError } = await supabase
           .from('enrollments')
           .select('*')
           .eq('user_id', user.id)
@@ -162,6 +162,8 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
           .single()
 
         if (enrollmentError && enrollmentError.code !== 'PGRST116') throw enrollmentError
+
+        let enrollmentData = initialEnrollmentData
 
         if (!enrollmentData) {
           // Create enrollment
