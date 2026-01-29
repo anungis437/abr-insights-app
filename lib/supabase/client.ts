@@ -2,9 +2,9 @@ import { createBrowserClient } from '@supabase/ssr'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 // Singleton instance to prevent multiple GoTrueClient instances
-let clientInstance: SupabaseClient | null = null
+let clientInstance: SupabaseClient<any, 'public', any> | null = null
 
-export function createClient() {
+export function createClient(): SupabaseClient<any, 'public', any> | null {
   // Check for required environment variables
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
