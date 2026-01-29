@@ -101,8 +101,6 @@ export function useServiceWorker() {
 // =====================================================
 
 export function useOnlineStatus() {
-  const [isOnline, setIsOnline] = useState(true)
-
   const [isOnline, setIsOnline] = useState(() => navigator.onLine)
 
   useEffect(() => {

@@ -34,6 +34,9 @@ export default function InstructorDashboardPage() {
   const [courses, setCourses] = useState<InstructorCourseWithStats[]>([])
   const [analytics, setAnalytics] = useState<InstructorAnalytics[]>([])
   const [selectedPeriod, setSelectedPeriod] = useState<'daily' | 'weekly' | 'monthly'>('weekly')
+  const [recentStudents, setRecentStudents] = useState<any[]>([])
+  const [popularLessons, setPopularLessons] = useState<any[]>([])
+  const [recentAnnouncements, setAnnouncements] = useState<any[]>([])
 
   const loadAnalytics = useCallback(async () => {
     if (!user) return
@@ -63,21 +66,9 @@ export default function InstructorDashboardPage() {
       const profile = await instructorsService.getProfile(userId)
       if (!profile) return
 
-      // Load courses
-      const instructorCourses = await instructorsService.getCourses(profile.id)
-      setCourses(instructorCourses)
-
-      // Load recent students
-      const recentStudentsList = await instructorsService.getRecentStudents(profile.id, 5)
-      setRecentStudents(recentStudentsList)
-
-      // Load popular lessons
-      const popularLessonsList = await instructorsService.getPopularLessons(profile.id, 5)
-      setPopularLessons(popularLessonsList)
-
-      // Load announcements
-      const recentAnnouncements = await instructorsService.getAnnouncements(profile.id, 5)
-      setAnnouncements(recentAnnouncements)
+      // Load courses with stats
+      const coursesWithStats = await instructorsService.getInstructorCourses(profile.id)
+      setCourses(coursesWithStats)
     } catch (error) {
       console.error('Failed to load dashboard data:', error)
     }
