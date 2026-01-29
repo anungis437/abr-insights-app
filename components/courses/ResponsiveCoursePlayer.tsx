@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import {
   ChevronLeft,
@@ -62,7 +62,7 @@ export default function ResponsiveCoursePlayer({
   onNotesChange,
 }: CoursePlayerProps) {
   const responsive = useResponsive()
-  const [sidebarOpen, setSidebarOpen] = useState(!responsive.isMobile)
+  const [sidebarOpen, setSidebarOpen] = useState(() => !responsive.isMobile)
   const [activeTab, setActiveTab] = useState<'video' | 'transcript' | 'resources' | 'notes'>(
     'video'
   )
@@ -74,17 +74,21 @@ export default function ResponsiveCoursePlayer({
   const hasNext = currentModuleIndex < modules.length - 1
   const hasPrevious = currentModuleIndex > 0
 
-  // Close sidebar on mobile when module changes
+  // Close module sheet on mobile when module changes
   useEffect(() => {
     if (responsive.isMobile) {
-      setSidebarOpen(false)
-      setShowModuleSheet(false)
+      Promise.resolve().then(() => {
+        setShowModuleSheet(false)
+      })
     }
   }, [currentModuleIndex, responsive.isMobile])
 
-  // Update sidebar visibility on responsive change
+  // Update sidebar visibility when screen size changes
   useEffect(() => {
-    setSidebarOpen(!responsive.isMobile)
+    // Schedule state update to avoid cascading renders
+    Promise.resolve().then(() => {
+      setSidebarOpen(!responsive.isMobile)
+    })
   }, [responsive.isMobile])
 
   const handlePreviousModule = () => {
@@ -128,88 +132,94 @@ export default function ResponsiveCoursePlayer({
   }
 
   // =====================================================
-  // Mobile Module Sheet
+  // Mobile Module Sheet (memoized to avoid recreation)
   // =====================================================
 
-  const MobileModuleSheet = () => (
-    <div
-      className={`fixed inset-0 z-50 bg-black/50 transition-opacity ${
-        showModuleSheet ? 'opacity-100' : 'pointer-events-none opacity-0'
-      }`}
-      onClick={() => setShowModuleSheet(false)}
-    >
+  const mobileModuleSheet = useMemo(
+    () => (
       <div
-        className={`absolute bottom-0 left-0 right-0 max-h-[70vh] overflow-y-auto rounded-t-2xl bg-white transition-transform dark:bg-gray-900 ${
-          showModuleSheet ? 'translate-y-0' : 'translate-y-full'
+        className={`fixed inset-0 z-50 bg-black/50 transition-opacity ${
+          showModuleSheet ? 'opacity-100' : 'pointer-events-none opacity-0'
         }`}
-        onClick={(e) => e.stopPropagation()}
+        onClick={() => setShowModuleSheet(false)}
       >
-        {/* Handle */}
-        <div className="flex justify-center pb-2 pt-4">
-          <div className="h-1 w-12 rounded-full bg-gray-300 dark:bg-gray-600" />
-        </div>
-
-        {/* Header */}
-        <div className="border-b border-gray-200 px-4 py-3 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Course Modules</h3>
-            <button
-              onClick={() => setShowModuleSheet(false)}
-              className="rounded-lg p-2 hover:bg-gray-100 dark:hover:bg-gray-800"
-              aria-label="Close module list"
-              title="Close module list"
-            >
-              <X className="h-5 w-5" />
-            </button>
+        <div
+          className={`absolute bottom-0 left-0 right-0 max-h-[70vh] overflow-y-auto rounded-t-2xl bg-white transition-transform dark:bg-gray-900 ${
+            showModuleSheet ? 'translate-y-0' : 'translate-y-full'
+          }`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Handle */}
+          <div className="flex justify-center pb-2 pt-4">
+            <div className="h-1 w-12 rounded-full bg-gray-300 dark:bg-gray-600" />
           </div>
-          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            {modules.filter((m) => m.completed).length} of {modules.length} completed
-          </p>
-        </div>
 
-        {/* Module List */}
-        <div className="space-y-2 p-4">
-          {modules.map((module, index) => (
-            <button
-              key={module.id}
-              onClick={() => {
-                onModuleChange(index)
-                setShowModuleSheet(false)
-              }}
-              className={`flex w-full items-start gap-3 rounded-lg p-3 text-left transition-colors ${
-                index === currentModuleIndex
-                  ? 'border-2 border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                  : 'bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700'
-              }`}
-            >
-              {module.completed ? (
-                <CheckCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-500" />
-              ) : index === currentModuleIndex ? (
-                <PlayCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-500" />
-              ) : (
-                <Circle className="mt-0.5 h-5 w-5 flex-shrink-0 text-gray-400" />
-              )}
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
-                  {index + 1}. {module.title}
-                </p>
-                <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
-                  <Clock className="mr-1 inline h-3 w-3" />
-                  {formatDuration(module.duration)}
-                </p>
-              </div>
-            </button>
-          ))}
+          {/* Header */}
+          <div className="border-b border-gray-200 px-4 py-3 dark:border-gray-700">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Course Modules
+              </h3>
+              <button
+                onClick={() => setShowModuleSheet(false)}
+                className="rounded-lg p-2 hover:bg-gray-100 dark:hover:bg-gray-800"
+                aria-label="Close module list"
+                title="Close module list"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+              {modules.filter((m) => m.completed).length} of {modules.length} completed
+            </p>
+          </div>
+
+          {/* Module List */}
+          <div className="space-y-2 p-4">
+            {modules.map((module, index) => (
+              <button
+                key={module.id}
+                onClick={() => {
+                  onModuleChange(index)
+                  setShowModuleSheet(false)
+                }}
+                className={`flex w-full items-start gap-3 rounded-lg p-3 text-left transition-colors ${
+                  index === currentModuleIndex
+                    ? 'border-2 border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                    : 'bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700'
+                }`}
+              >
+                {module.completed ? (
+                  <CheckCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-500" />
+                ) : index === currentModuleIndex ? (
+                  <PlayCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-500" />
+                ) : (
+                  <Circle className="mt-0.5 h-5 w-5 flex-shrink-0 text-gray-400" />
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
+                    {index + 1}. {module.title}
+                  </p>
+                  <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+                    <Clock className="mr-1 inline h-3 w-3" />
+                    {formatDuration(module.duration)}
+                  </p>
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+    ),
+    [showModuleSheet, modules, currentModuleIndex, onModuleChange]
   )
 
   // =====================================================
-  // Desktop Sidebar
+  // Desktop Sidebar (memoized to avoid recreation)
   // =====================================================
 
-  const DesktopSidebar = () => (
+  const desktopSidebar = useMemo(
+    () => (
     <aside
       className={`${
         responsive.isMobile ? 'hidden' : 'block'
@@ -299,6 +309,19 @@ export default function ResponsiveCoursePlayer({
         ))}
       </div>
     </aside>
+    ),
+    [
+      responsive.isMobile,
+      sidebarOpen,
+      courseId,
+      courseTitle,
+      modules,
+      currentModuleIndex,
+      onModuleChange,
+      calculateCourseProgress,
+      formatDuration,
+      getTotalDuration,
+    ]
   )
 
   // =====================================================
@@ -308,10 +331,10 @@ export default function ResponsiveCoursePlayer({
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-950">
       {/* Desktop Sidebar */}
-      {!responsive.isMobile && <DesktopSidebar />}
+      {!responsive.isMobile && desktopSidebar}
 
       {/* Mobile Module Sheet */}
-      {responsive.isMobile && <MobileModuleSheet />}
+      {responsive.isMobile && mobileModuleSheet}
 
       {/* Main Content */}
       <main className="flex flex-1 flex-col overflow-hidden">

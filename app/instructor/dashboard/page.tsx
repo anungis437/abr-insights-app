@@ -53,6 +53,36 @@ export default function InstructorDashboardPage() {
     }
   }, [user, selectedPeriod])
 
+  const loadDashboardData = useCallback(async (userId: string) => {
+    try {
+      // Load summary
+      const dashboardSummary = await instructorsService.getDashboardSummary(userId)
+      setSummary(dashboardSummary)
+
+      // Load instructor profile to get instructor_id
+      const profile = await instructorsService.getProfile(userId)
+      if (!profile) return
+
+      // Load courses
+      const instructorCourses = await instructorsService.getCourses(profile.id)
+      setCourses(instructorCourses)
+
+      // Load recent students
+      const recentStudentsList = await instructorsService.getRecentStudents(profile.id, 5)
+      setRecentStudents(recentStudentsList)
+
+      // Load popular lessons
+      const popularLessonsList = await instructorsService.getPopularLessons(profile.id, 5)
+      setPopularLessons(popularLessonsList)
+
+      // Load announcements
+      const recentAnnouncements = await instructorsService.getAnnouncements(profile.id, 5)
+      setAnnouncements(recentAnnouncements)
+    } catch (error) {
+      console.error('Failed to load dashboard data:', error)
+    }
+  }, [])
+
   const checkAuthAndLoadData = useCallback(async () => {
     const supabase = createClient()
     const {
@@ -77,25 +107,7 @@ export default function InstructorDashboardPage() {
 
     await loadDashboardData(currentUser.id)
     setIsLoading(false)
-  }, [router])
-
-  const loadDashboardData = async (userId: string) => {
-    try {
-      // Load summary
-      const dashboardSummary = await instructorsService.getDashboardSummary(userId)
-      setSummary(dashboardSummary)
-
-      // Load instructor profile to get instructor_id
-      const profile = await instructorsService.getProfile(userId)
-      if (!profile) return
-
-      // Load courses
-      const instructorCourses = await instructorsService.getInstructorCourses(profile.id)
-      setCourses(instructorCourses)
-    } catch (error) {
-      console.error('Failed to load dashboard data:', error)
-    }
-  }
+  }, [router, loadDashboardData])
 
   useEffect(() => {
     checkAuthAndLoadData()

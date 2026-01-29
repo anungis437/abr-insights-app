@@ -126,7 +126,6 @@ export function useMediaQuery(query: string): boolean {
     const mediaQuery = window.matchMedia(query)
     const handleChange = (e: MediaQueryListEvent) => setMatches(e.matches)
 
-    setMatches(mediaQuery.matches)
     mediaQuery.addEventListener('change', handleChange)
 
     return () => mediaQuery.removeEventListener('change', handleChange)
@@ -351,7 +350,10 @@ export function usePerformanceMetrics(): PerformanceMetrics {
       // Get TTFB from Navigation Timing
       const navEntry = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming
       if (navEntry) {
-        setMetrics((prev) => ({ ...prev, ttfb: navEntry.responseStart - navEntry.requestStart }))
+        // Use flushSync-safe approach by scheduling state update
+        Promise.resolve().then(() => {
+          setMetrics((prev) => ({ ...prev, ttfb: navEntry.responseStart - navEntry.requestStart }))
+        })
       }
 
       return () => {

@@ -93,7 +93,6 @@ export default function AIModelManagementPage() {
   useEffect(() => {
     checkAuth()
     fetchData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const checkAuth = async () => {

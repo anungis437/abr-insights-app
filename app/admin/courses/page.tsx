@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
@@ -44,7 +44,6 @@ export default function AdminCoursesPage() {
   const [user, setUser] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [courses, setCourses] = useState<Course[]>([])
-  const [filteredCourses, setFilteredCourses] = useState<Course[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [filterLevel, setFilterLevel] = useState('all')
   const [filterTier, setFilterTier] = useState('all')
@@ -101,7 +100,6 @@ export default function AdminCoursesPage() {
 
       if (!error && coursesData) {
         setCourses(coursesData)
-        setFilteredCourses(coursesData)
       }
 
       setIsLoading(false)
@@ -110,8 +108,8 @@ export default function AdminCoursesPage() {
     checkAuthAndLoadCourses()
   }, [router])
 
-  // Apply filters
-  useEffect(() => {
+  // Apply filters with useMemo (derived state)
+  const filteredCourses = useMemo(() => {
     let filtered = [...courses]
 
     // Search filter
@@ -141,7 +139,7 @@ export default function AdminCoursesPage() {
       filtered = filtered.filter((course) => !course.is_published)
     }
 
-    setFilteredCourses(filtered)
+    return filtered
   }, [searchQuery, filterLevel, filterTier, filterStatus, courses])
 
   const handleTogglePublish = async (courseId: string, currentStatus: boolean) => {

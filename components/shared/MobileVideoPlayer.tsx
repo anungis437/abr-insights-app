@@ -53,17 +53,25 @@ export default function MobileVideoPlayer({
   const [isLoading, setIsLoading] = useState(true)
 
   const isOnline = useOnlineStatus()
-  const [connectionType, setConnectionType] = useState<string>('4g')
+  const [connectionType, setConnectionType] = useState<string>(() => {
+    if (typeof navigator !== 'undefined' && 'connection' in navigator) {
+      const conn = (navigator as any).connection
+      return conn.effectiveType || '4g'
+    }
+    return '4g'
+  })
 
   useEffect(() => {
-    // Detect network connection type
+    // Detect network connection type changes
     if ('connection' in navigator) {
       const conn = (navigator as any).connection
-      setConnectionType(conn.effectiveType || '4g')
 
-      conn.addEventListener('change', () => {
+      const handleChange = () => {
         setConnectionType(conn.effectiveType || '4g')
-      })
+      }
+
+      conn.addEventListener('change', handleChange)
+      return () => conn.removeEventListener('change', handleChange)
     }
   }, [])
 

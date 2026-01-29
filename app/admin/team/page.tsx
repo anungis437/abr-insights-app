@@ -189,7 +189,6 @@ export default function TeamManagementPage() {
     if (organization) {
       loadOrganizationData()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [organization])
 
   if (isLoading) {

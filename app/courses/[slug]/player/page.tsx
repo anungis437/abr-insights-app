@@ -154,7 +154,7 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
         setLessons(lessonsData || [])
 
         // Get or create enrollment
-        let { data: enrollmentData, error: enrollmentError } = await supabase
+        const { data: enrollmentData, error: enrollmentError } = await supabase
           .from('enrollments')
           .select('*')
           .eq('user_id', user.id)

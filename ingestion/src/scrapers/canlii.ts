@@ -5,9 +5,6 @@
  * Implements respectful scraping with rate limiting, error handling, and resume capability.
  */
 
-/* eslint-disable no-console */
-// Console output is intentional for CLI tool feedback
-
 import axios, { AxiosInstance } from 'axios'
 import * as cheerio from 'cheerio'
 import type { DecisionLink, DecisionContent, SourceConfig, SourceSystem } from '../types'

@@ -11,6 +11,7 @@ export const runtime = 'edge'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 import {
   Trophy,
   Medal,
@@ -36,7 +37,6 @@ export default function LeaderboardPage() {
   const router = useRouter()
   const [supabase] = useState(() => {
     if (typeof window === 'undefined') return null as any
-    const { createClient } = require('@/lib/supabase/client')
     return createClient()
   })
 

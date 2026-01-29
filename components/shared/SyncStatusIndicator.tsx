@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Cloud, CloudOff, CheckCircle, Clock, AlertTriangle, RefreshCw } from 'lucide-react'
 import { useOnlineStatus } from '@/lib/hooks/usePWA'
 
@@ -24,23 +24,36 @@ export default function SyncStatusIndicator({
   const [isSyncing, setIsSyncing] = useState(false)
   const [lastSyncTime, setLastSyncTime] = useState<number | null>(null)
   const [showDetails, setShowDetails] = useState(false)
+  const [currentTime, setCurrentTime] = useState(() => Date.now())
 
+  // Update current time every second for relative time calculations
   useEffect(() => {
-    loadPendingItems()
-
-    const interval = setInterval(loadPendingItems, 5000)
-    return () => clearInterval(interval)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const timer = setInterval(() => {
+      setCurrentTime(Date.now())
+    }, 1000)
+    return () => clearInterval(timer)
   }, [])
 
-  useEffect(() => {
-    if (isOnline && pendingItems.length > 0) {
-      handleSync()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOnline, pendingItems.length])
+  const openDB = (): Promise<IDBDatabase> => {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open('abr-insights-pwa', 1)
+      request.onerror = () => reject(request.error)
+      request.onsuccess = () => resolve(request.result)
+    })
+  }
 
-  const loadPendingItems = async () => {
+  const getAllFromStore = (db: IDBDatabase, storeName: string): Promise<any[]> => {
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([storeName], 'readonly')
+      const store = transaction.objectStore(storeName)
+      const request = store.getAll()
+
+      request.onerror = () => reject(request.error)
+      request.onsuccess = () => resolve(request.result)
+    })
+  }
+
+  const loadPendingItems = useCallback(async () => {
     try {
       const db = await openDB()
       const [quizAttempts, progressItems] = await Promise.all([
@@ -65,9 +78,9 @@ export default function SyncStatusIndicator({
     } catch (error) {
       console.error('[SyncStatus] Failed to load pending items:', error)
     }
-  }
+  }, [])
 
-  const handleSync = async () => {
+  const handleSync = useCallback(async () => {
     if (!isOnline || isSyncing) return
 
     setIsSyncing(true)
@@ -89,29 +102,23 @@ export default function SyncStatusIndicator({
       console.error('[SyncStatus] Sync failed:', error)
       setIsSyncing(false)
     }
-  }
+  }, [isOnline, isSyncing, loadPendingItems])
 
-  const openDB = (): Promise<IDBDatabase> => {
-    return new Promise((resolve, reject) => {
-      const request = indexedDB.open('abr-insights-pwa', 1)
-      request.onerror = () => reject(request.error)
-      request.onsuccess = () => resolve(request.result)
-    })
-  }
+  useEffect(() => {
+    loadPendingItems()
 
-  const getAllFromStore = (db: IDBDatabase, storeName: string): Promise<any[]> => {
-    return new Promise((resolve, reject) => {
-      const transaction = db.transaction([storeName], 'readonly')
-      const store = transaction.objectStore(storeName)
-      const request = store.getAll()
+    const interval = setInterval(loadPendingItems, 5000)
+    return () => clearInterval(interval)
+  }, [loadPendingItems])
 
-      request.onerror = () => reject(request.error)
-      request.onsuccess = () => resolve(request.result)
-    })
-  }
+  useEffect(() => {
+    if (isOnline && pendingItems.length > 0) {
+      handleSync()
+    }
+  }, [isOnline, pendingItems.length, handleSync])
 
   const formatRelativeTime = (timestamp: number): string => {
-    const seconds = Math.floor((Date.now() - timestamp) / 1000)
+    const seconds = Math.floor((currentTime - timestamp) / 1000)
     if (seconds < 60) return 'just now'
     if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`
     if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`

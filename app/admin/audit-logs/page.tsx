@@ -83,7 +83,6 @@ export default function AuditLogsPage() {
 
   useEffect(() => {
     loadData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterCategory, filterSeverity, filterComplianceLevel, dateRange])
 
   async function loadData() {

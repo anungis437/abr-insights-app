@@ -24,21 +24,21 @@ const COLLAPSED_STATE_KEY = 'sidebar-collapsed-sections'
 
 export default function Sidebar({ items, role }: SidebarProps) {
   const pathname = usePathname()
-  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set())
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
-  const [isMobileOpen, setIsMobileOpen] = useState(false)
-
-  // Load collapsed state from localStorage
-  useEffect(() => {
+  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(() => {
+    if (typeof window === 'undefined') return new Set()
     const saved = localStorage.getItem(COLLAPSED_STATE_KEY)
     if (saved) {
       try {
-        setCollapsedSections(new Set(JSON.parse(saved)))
+        return new Set(JSON.parse(saved))
       } catch (e) {
         console.error('Failed to parse collapsed state:', e)
+        return new Set()
       }
     }
-  }, [])
+    return new Set()
+  })
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+  const [isMobileOpen, setIsMobileOpen] = useState(false)
 
   // Save collapsed state to localStorage
   const toggleSection = (label: string) => {

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -66,7 +66,6 @@ export default function AdminUsersPage() {
   const [profile, setProfile] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [users, setUsers] = useState<Profile[]>([])
-  const [filteredUsers, setFilteredUsers] = useState<Profile[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')
   const [filterOrg, setFilterOrg] = useState('all')
@@ -125,15 +124,14 @@ export default function AdminUsersPage() {
         .limit(100)
       if (!error && usersData) {
         setUsers(usersData)
-        setFilteredUsers(usersData)
       }
       setIsLoading(false)
     }
     checkAuthAndLoadUsers()
   }, [router])
 
-  // Apply filters
-  useEffect(() => {
+  // Apply filters with useMemo (derived state)
+  const filteredUsers = useMemo(() => {
     let filtered = [...users]
 
     // Search filter
@@ -158,7 +156,7 @@ export default function AdminUsersPage() {
       filtered = filtered.filter((u) => u.organization_id === filterOrg)
     }
 
-    setFilteredUsers(filtered)
+    return filtered
   }, [searchQuery, filterStatus, filterOrg, users])
 
   const handleStatusChange = async (userId: string, newStatus: string) => {

@@ -586,7 +586,7 @@ function evaluateAnswer(
 
   switch (question.question_type) {
     case 'multiple_choice':
-    case 'true_false':
+    case 'true_false': {
       // Single correct answer
       const correctOption = question.options.find((opt) => opt.is_correct)
       const is_correct = answer_data.selected_option_id === correctOption?.id
@@ -595,8 +595,9 @@ function evaluateAnswer(
         points_earned: is_correct ? points_possible : 0,
         points_possible,
       }
+    }
 
-    case 'multiple_response':
+    case 'multiple_response': {
       // Multiple correct answers
       const correctOptions = question.options.filter((opt) => opt.is_correct).map((opt) => opt.id)
       const selectedOptions = answer_data.selected_option_ids || []
@@ -613,8 +614,9 @@ function evaluateAnswer(
         points_earned: score * points_possible,
         points_possible,
       }
+    }
 
-    case 'fill_blank':
+    case 'fill_blank': {
       // Text matching (case-insensitive)
       const correctAnswer = question.options[0]?.option_text.toLowerCase().trim()
       const userAnswer = (answer_data.text_answer || '').toLowerCase().trim()
@@ -624,8 +626,9 @@ function evaluateAnswer(
         points_earned: matches ? points_possible : 0,
         points_possible,
       }
+    }
 
-    case 'drag_drop_order':
+    case 'drag_drop_order': {
       // Check if order matches
       const correctOrder = question.options
         .sort((a, b) => a.order_index - b.order_index)
@@ -637,8 +640,9 @@ function evaluateAnswer(
         points_earned: orderMatches ? points_possible : 0,
         points_possible,
       }
+    }
 
-    case 'matching':
+    case 'matching': {
       // Check pairs
       const correctPairs = question.metadata.correct_pairs || {}
       const userPairs = answer_data.pairs || {}
@@ -655,8 +659,9 @@ function evaluateAnswer(
         points_earned: matchScore * points_possible,
         points_possible,
       }
+    }
 
-    case 'calculation':
+    case 'calculation': {
       // Numeric answer with tolerance
       const correctValue = parseFloat(question.metadata.correct_answer)
       const userValue = parseFloat(answer_data.numeric_answer)
@@ -667,15 +672,17 @@ function evaluateAnswer(
         points_earned: isCorrect ? points_possible : 0,
         points_possible,
       }
+    }
 
     case 'essay':
-    case 'case_study':
+    case 'case_study': {
       // Requires manual grading
       return {
         is_correct: false,
         points_earned: 0,
         points_possible,
       }
+    }
 
     default:
       return {

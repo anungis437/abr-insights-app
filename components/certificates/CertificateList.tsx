@@ -89,7 +89,6 @@ export default function CertificateList({
 
   useEffect(() => {
     loadCertificates()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, courseId, filterType, filterStatus])
 
   // Format date

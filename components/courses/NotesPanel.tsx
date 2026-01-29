@@ -46,7 +46,6 @@ export default function NotesPanel({
     if (userId && lessonId) {
       loadNotes()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lessonId, userId])
 
   const loadNotes = async () => {

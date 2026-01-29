@@ -103,9 +103,9 @@ export function useServiceWorker() {
 export function useOnlineStatus() {
   const [isOnline, setIsOnline] = useState(true)
 
-  useEffect(() => {
-    setIsOnline(navigator.onLine)
+  const [isOnline, setIsOnline] = useState(() => navigator.onLine)
 
+  useEffect(() => {
     const handleOnline = () => {
       setIsOnline(true)
       logger.info('[PWA] Back online')
@@ -113,11 +113,11 @@ export function useOnlineStatus() {
       // Trigger sync
       if ('serviceWorker' in navigator && 'sync' in ServiceWorkerRegistration.prototype) {
         navigator.serviceWorker.ready.then((reg) => {
-          // @ts-ignore - Background Sync API not in TypeScript types yet
+          // @ts-expect-error - Background Sync API not in TypeScript types yet
           if (reg.sync) {
-            // @ts-ignore
+            // @ts-expect-error - Background Sync API not in TypeScript types yet
             reg.sync.register('sync-quiz-attempts')
-            // @ts-ignore
+            // @ts-expect-error - Background Sync API not in TypeScript types yet
             reg.sync.register('sync-course-progress')
           }
         })
@@ -147,14 +147,13 @@ export function useOnlineStatus() {
 
 export function useInstallPrompt() {
   const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null)
-  const [isInstalled, setIsInstalled] = useState(false)
+  const [isInstalled, setIsInstalled] = useState(() =>
+    typeof window !== 'undefined'
+      ? window.matchMedia('(display-mode: standalone)').matches
+      : false
+  )
 
   useEffect(() => {
-    // Check if already installed
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-      setIsInstalled(true)
-    }
-
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault()
       setInstallPrompt(e as BeforeInstallPromptEvent)
@@ -207,14 +206,12 @@ export function useInstallPrompt() {
 // =====================================================
 
 export function usePushNotifications() {
-  const [permission, setPermission] = useState<NotificationPermission>('default')
+  const [permission, setPermission] = useState<NotificationPermission>(() =>
+    typeof window !== 'undefined' && 'Notification' in window
+      ? Notification.permission
+      : 'default'
+  )
   const [subscription, setSubscription] = useState<PushSubscription | null>(null)
-
-  useEffect(() => {
-    if ('Notification' in window) {
-      setPermission(Notification.permission)
-    }
-  }, [])
 
   const requestPermission = useCallback(async () => {
     if (!('Notification' in window)) {
@@ -300,11 +297,7 @@ export function useCourseDownload() {
   const [downloadedCourses, setDownloadedCourses] = useState<DownloadedCourse[]>([])
   const [downloading, setDownloading] = useState<string[]>([])
 
-  useEffect(() => {
-    loadDownloadedCourses()
-  }, [])
-
-  const loadDownloadedCourses = async () => {
+  const loadDownloadedCourses = useCallback(async () => {
     try {
       const db = await openDB()
       const courses = await getAllFromStore(db, 'downloadedCourses')
@@ -312,7 +305,11 @@ export function useCourseDownload() {
     } catch (error) {
       console.error('[PWA] Failed to load downloaded courses:', error)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    loadDownloadedCourses()
+  }, [loadDownloadedCourses])
 
   const downloadCourse = useCallback(
     async (courseId: string) => {

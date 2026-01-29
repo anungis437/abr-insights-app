@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { useAuth } from '@/lib/auth/AuthContext'
 import { usePermissions } from './usePermissions'
 import { sidebarNavigationByRole, SidebarNavItem, UserRole } from '@/lib/navigation/sidebarConfig'
-import { filterNavByPermissions } from '@/lib/navigation/navPermissions'
+import { filterNavByPermissions, navPermissions } from '@/lib/navigation/navPermissions'
 
 /**
  * Hook to get filtered sidebar navigation based on user role and permissions
@@ -69,7 +69,6 @@ export function useSidebarNav() {
  */
 export function useNavItemAccess(itemLabel: string): boolean {
   const { permissions } = usePermissions()
-  const { navPermissions } = require('@/lib/navigation/navPermissions')
 
   const requiredPerms = navPermissions[itemLabel]
 

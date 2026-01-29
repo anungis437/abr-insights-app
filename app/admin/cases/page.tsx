@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { logger } from '@/lib/utils/logger'
@@ -38,7 +38,6 @@ export default function AdminCasesPage() {
   const [user, setUser] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [cases, setCases] = useState<TribunalCase[]>([])
-  const [filteredCases, setFilteredCases] = useState<TribunalCase[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [filterTribunal, setFilterTribunal] = useState('all')
   const [filterCategory, setFilterCategory] = useState('all')
@@ -98,7 +97,6 @@ export default function AdminCasesPage() {
 
       if (!error && casesData) {
         setCases(casesData)
-        setFilteredCases(casesData)
       }
 
       setIsLoading(false)
@@ -107,8 +105,8 @@ export default function AdminCasesPage() {
     checkAuthAndLoadCases()
   }, [router])
 
-  // Apply filters
-  useEffect(() => {
+  // Apply filters with useMemo (derived state)
+  const filteredCases = useMemo(() => {
     let filtered = [...cases]
 
     // Search filter
@@ -137,7 +135,7 @@ export default function AdminCasesPage() {
       filtered = filtered.filter((c) => c.language === filterLanguage)
     }
 
-    setFilteredCases(filtered)
+    return filtered
   }, [searchQuery, filterTribunal, filterCategory, filterLanguage, cases])
 
   const handleDelete = async (caseId: string) => {

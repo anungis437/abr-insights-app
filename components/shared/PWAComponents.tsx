@@ -7,15 +7,13 @@ import { X, Download, RefreshCw, Wifi, WifiOff } from 'lucide-react'
 export function PWAInstallPrompt() {
   const { canInstall, isInstalled, promptInstall } = useInstallPrompt()
   const [showPrompt, setShowPrompt] = useState(false)
-  const [dismissed, setDismissed] = useState(false)
+  const [dismissed, setDismissed] = useState(() => {
+    if (typeof window === 'undefined') return false
+    return localStorage.getItem('pwa-install-dismissed') === 'true'
+  })
 
   useEffect(() => {
-    // Check if user has previously dismissed
-    const wasDismissed = localStorage.getItem('pwa-install-dismissed')
-    if (wasDismissed) {
-      setDismissed(true)
-      return
-    }
+    if (dismissed) return
 
     // Show prompt after a delay if can install
     if (canInstall && !isInstalled) {
@@ -85,13 +83,7 @@ export function PWAInstallPrompt() {
 
 export function PWAUpdateNotification() {
   const { isUpdateAvailable, updateServiceWorker } = useServiceWorker()
-  const [showNotification, setShowNotification] = useState(false)
-
-  useEffect(() => {
-    if (isUpdateAvailable) {
-      setShowNotification(true)
-    }
-  }, [isUpdateAvailable])
+  const [showNotification, setShowNotification] = useState(isUpdateAvailable)
 
   if (!showNotification) return null
 
@@ -130,21 +122,25 @@ export function PWAUpdateNotification() {
 export function OnlineStatusIndicator() {
   const isOnline = useOnlineStatus()
   const [showIndicator, setShowIndicator] = useState(false)
-  const [wasOffline, setWasOffline] = useState(false)
+  const [wasOffline, setWasOffline] = useState(!isOnline)
 
   useEffect(() => {
-    if (!isOnline) {
-      setWasOffline(true)
-      setShowIndicator(true)
-    } else if (wasOffline) {
-      // Show "back online" message briefly
-      setShowIndicator(true)
-      const timer = setTimeout(() => {
-        setShowIndicator(false)
-        setWasOffline(false)
-      }, 3000)
-      return () => clearTimeout(timer)
+    // Schedule state update to avoid cascading renders
+    const updateIndicator = async () => {
+      if (!isOnline) {
+        setShowIndicator(true)
+      } else if (wasOffline) {
+        // Show "back online" message briefly
+        setShowIndicator(true)
+        const timer = setTimeout(() => {
+          setShowIndicator(false)
+          setWasOffline(false)
+        }, 3000)
+        return () => clearTimeout(timer)
+      }
     }
+
+    Promise.resolve().then(updateIndicator)
   }, [isOnline, wasOffline])
 
   if (!showIndicator) return null

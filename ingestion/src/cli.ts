@@ -12,9 +12,6 @@
  *   npm run ingest -- --resume  # Resume from last checkpoint
  */
 
-/* eslint-disable no-console */
-// Console output is intentional for CLI tool feedback
-
 // Load environment variables from .env.local
 import { config } from 'dotenv'
 config({ path: '.env.local' })
