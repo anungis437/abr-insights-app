@@ -1,16 +1,15 @@
 /**
  * Azure AD B2C OAuth Callback API Route
- *
+ * 
  * Handles OAuth 2.0 authorization code callback from Azure AD B2C
  * Exchanges code for tokens, validates, and provisions/logs in user
- *
+ * 
  * @route GET /api/auth/azure/callback
  * @access Public (callback from Azure AD)
  */
 
 import { NextRequest, NextResponse } from 'next/server'
 import { getAzureADService } from '@/lib/auth/azure-ad'
-import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { cookies } from 'next/headers'
 
@@ -35,7 +34,9 @@ export async function GET(request: NextRequest) {
 
     // Validate parameters
     if (!code || !state) {
-      return NextResponse.redirect(new URL('/login?error=missing_parameters', request.url))
+      return NextResponse.redirect(
+        new URL('/login?error=missing_parameters', request.url)
+      )
     }
 
     // Validate state (CSRF protection)
@@ -44,7 +45,9 @@ export async function GET(request: NextRequest) {
 
     if (!storedState || storedState !== state.split('|')[0]) {
       console.error('[Azure AD Callback] State mismatch - possible CSRF attack')
-      return NextResponse.redirect(new URL('/login?error=invalid_state', request.url))
+      return NextResponse.redirect(
+        new URL('/login?error=invalid_state', request.url)
+      )
     }
 
     // Clear state cookie
@@ -54,7 +57,9 @@ export async function GET(request: NextRequest) {
     const organizationSlug = state.split('|')[1]
 
     if (!organizationSlug) {
-      return NextResponse.redirect(new URL('/login?error=missing_organization', request.url))
+      return NextResponse.redirect(
+        new URL('/login?error=missing_organization', request.url)
+      )
     }
 
     // Get organization using admin client (user not authenticated yet)
@@ -66,7 +71,9 @@ export async function GET(request: NextRequest) {
       .single()
 
     if (!organization) {
-      return NextResponse.redirect(new URL('/login?error=invalid_organization', request.url))
+      return NextResponse.redirect(
+        new URL('/login?error=invalid_organization', request.url)
+      )
     }
 
     // Initialize Azure AD service
@@ -77,10 +84,9 @@ export async function GET(request: NextRequest) {
     const redirectUri = `${baseUrl}/api/auth/azure/callback`
 
     // Get client IP and user agent for logging
-    const ipAddress =
-      request.headers.get('x-forwarded-for')?.split(',')[0] ||
-      request.headers.get('x-real-ip') ||
-      'unknown'
+    const ipAddress = request.headers.get('x-forwarded-for')?.split(',')[0] || 
+                      request.headers.get('x-real-ip') || 
+                      'unknown'
     const userAgent = request.headers.get('user-agent') || 'unknown'
 
     let ssoProviderId: string | undefined

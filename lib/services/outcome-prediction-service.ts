@@ -1,20 +1,22 @@
+import 'server-only'
+
 /**
  * Outcome Prediction Service
- *
+ * 
  * World-class statistical ML model for predicting tribunal case outcomes.
  * Uses ensemble methods combining:
  * - Historical outcome analysis (base rates by tribunal/ground)
  * - Feature-based logistic regression
  * - Similar case precedent matching
  * - Bayesian inference with prior distributions
- *
+ * 
  * Features:
  * - Multi-class outcome prediction (upheld/dismissed/partially_upheld/settled)
  * - Confidence scoring with calibration
  * - Remedy prediction (monetary/non-monetary)
  * - Explainable AI with feature importance
  * - Continuous learning from validated predictions
- *
+ * 
  * @module lib/services/outcome-prediction-service
  */
 
@@ -170,13 +172,15 @@ async function getBaseRates(
   tribunalName?: string,
   discriminationGrounds?: string[]
 ): Promise<Record<string, number>> {
-  const { data, error } = await supabase.from('case_outcomes').select('outcome_type')
+  const { data, error } = await supabase
+    .from('case_outcomes')
+    .select('outcome_type')
 
   if (error || !data || data.length === 0) {
     // Default priors if no data available
     return {
       upheld: 0.35,
-      dismissed: 0.4,
+      dismissed: 0.40,
       partially_upheld: 0.15,
       settled: 0.08,
       withdrawn: 0.02,
@@ -217,7 +221,9 @@ async function getTribunalSuccessRate(tribunalName: string): Promise<number> {
 /**
  * Get discrimination ground success rates
  */
-async function getGroundSuccessRates(grounds: string[]): Promise<Record<string, number>> {
+async function getGroundSuccessRates(
+  grounds: string[]
+): Promise<Record<string, number>> {
   const { data, error } = await supabase.rpc('get_outcome_statistics_by_ground')
 
   if (error || !data) {
@@ -255,7 +261,9 @@ function logisticRegression(
 /**
  * Ensemble prediction combining multiple models
  */
-async function ensemblePrediction(caseFeatures: CaseFeatures): Promise<Record<string, number>> {
+async function ensemblePrediction(
+  caseFeatures: CaseFeatures
+): Promise<Record<string, number>> {
   // Get base rates (prior)
   const baseRates = await getBaseRates(
     caseFeatures.tribunalName,
@@ -267,13 +275,12 @@ async function ensemblePrediction(caseFeatures: CaseFeatures): Promise<Record<st
 
   // Get ground-specific rates
   const groundRates = await getGroundSuccessRates(caseFeatures.discriminationGrounds)
-  const avgGroundRate =
-    Object.values(groundRates).reduce((a, b) => a + b, 0) /
-      Math.max(Object.values(groundRates).length, 1) || 0.35
+  const avgGroundRate = Object.values(groundRates).reduce((a, b) => a + b, 0) / 
+                        Math.max(Object.values(groundRates).length, 1) || 0.35
 
   // Feature-based prediction
   const features = extractFeatures(caseFeatures)
-
+  
   // Learned weights (these would be trained from historical data)
   const weights: Record<string, number> = {
     has_legal_rep: 0.5,
@@ -290,27 +297,27 @@ async function ensemblePrediction(caseFeatures: CaseFeatures): Promise<Record<st
 
   // Combine predictions with weighted ensemble
   const ensembleWeights = {
-    baseRate: 0.2,
+    baseRate: 0.20,
     tribunalRate: 0.25,
     groundRate: 0.25,
-    featureScore: 0.3,
+    featureScore: 0.30,
   }
 
-  const upheldProb =
+  const upheldProb = 
     baseRates.upheld * ensembleWeights.baseRate +
     tribunalRate * ensembleWeights.tribunalRate +
     avgGroundRate * ensembleWeights.groundRate +
     featureScore * ensembleWeights.featureScore
 
   // Adjust other probabilities proportionally
-  const dismissed = (baseRates.dismissed * (1 - upheldProb)) / (1 - baseRates.upheld)
-  const partiallyUpheld = (baseRates.partially_upheld * (1 - upheldProb)) / (1 - baseRates.upheld)
-  const settled = (baseRates.settled * (1 - upheldProb)) / (1 - baseRates.upheld)
-  const withdrawn = (baseRates.withdrawn * (1 - upheldProb)) / (1 - baseRates.upheld)
+  const dismissed = baseRates.dismissed * (1 - upheldProb) / (1 - baseRates.upheld)
+  const partiallyUpheld = baseRates.partially_upheld * (1 - upheldProb) / (1 - baseRates.upheld)
+  const settled = baseRates.settled * (1 - upheldProb) / (1 - baseRates.upheld)
+  const withdrawn = baseRates.withdrawn * (1 - upheldProb) / (1 - baseRates.upheld)
 
   // Normalize to sum to 1
   const total = upheldProb + dismissed + partiallyUpheld + settled + withdrawn
-
+  
   return {
     upheld: upheldProb / total,
     dismissed: dismissed / total,
@@ -405,7 +412,10 @@ export async function predictCaseOutcome(
 /**
  * Calibrate confidence score to improve reliability
  */
-function calibrateConfidence(maxProb: number, probabilities: Record<string, number>): number {
+function calibrateConfidence(
+  maxProb: number,
+  probabilities: Record<string, number>
+): number {
   // Calculate entropy (uncertainty)
   let entropy = 0
   for (const prob of Object.values(probabilities)) {
@@ -427,15 +437,18 @@ function calibrateConfidence(maxProb: number, probabilities: Record<string, numb
 /**
  * Predict remedies probabilities
  */
-function predictRemedies(caseFeatures: CaseFeatures, probabilities: Record<string, number>): any {
+function predictRemedies(
+  caseFeatures: CaseFeatures,
+  probabilities: Record<string, number>
+): any {
   const successProb = probabilities.upheld + probabilities.partially_upheld
 
   return {
     monetary: successProb * 0.85, // 85% of successful cases get monetary awards
     reinstatement: caseFeatures.respondentType === 'employer' ? successProb * 0.25 : 0,
-    training: successProb * 0.6,
+    training: successProb * 0.60,
     policy_change: successProb * 0.45,
-    apology: successProb * 0.7,
+    apology: successProb * 0.70,
   }
 }
 
@@ -469,7 +482,7 @@ async function estimateMonetaryAwards(
   // Calculate percentiles
   const amounts = data.map((d) => d.monetary_amount).sort((a, b) => a - b)
   const p25 = amounts[Math.floor(amounts.length * 0.25)]
-  const p50 = amounts[Math.floor(amounts.length * 0.5)]
+  const p50 = amounts[Math.floor(amounts.length * 0.50)]
   const p75 = amounts[Math.floor(amounts.length * 0.75)]
 
   // Adjust based on case features
@@ -514,11 +527,9 @@ function generateExplanation(
   similarCaseCount: number
 ): string {
   const confidenceDesc =
-    confidence > 0.8
-      ? 'high confidence'
-      : confidence > 0.6
-        ? 'moderate confidence'
-        : 'low confidence'
+    confidence > 0.8 ? 'high confidence'
+    : confidence > 0.6 ? 'moderate confidence'
+    : 'low confidence'
 
   const topFeatures = Object.entries(importance)
     .sort((a, b) => b[1] - a[1])
@@ -534,8 +545,7 @@ function generateExplanation(
   }
 
   if (features.evidenceStrength === 'strong') {
-    explanation +=
-      'The strong evidence presented significantly increases the likelihood of a favorable outcome. '
+    explanation += 'The strong evidence presented significantly increases the likelihood of a favorable outcome. '
   } else if (features.evidenceStrength === 'weak') {
     explanation += 'The weak evidence may reduce the likelihood of success. '
   }
@@ -555,8 +565,9 @@ async function savePrediction(
   prediction: OutcomePrediction,
   features: Record<string, number>
 ): Promise<void> {
-  const { error } = await supabase.from('outcome_predictions').upsert(
-    {
+  const { error } = await supabase
+    .from('outcome_predictions')
+    .upsert({
       case_id: caseId,
       predicted_outcome: prediction.predictedOutcome,
       confidence_score: prediction.confidenceScore,
@@ -569,11 +580,9 @@ async function savePrediction(
       feature_importance: prediction.featureImportance,
       explanation: prediction.explanation,
       similar_cases: prediction.similarCases,
-    },
-    {
-      onConflict: 'case_id,model_version',
-    }
-  )
+    }, {
+      onConflict: 'case_id,model_version'
+    })
 
   if (error) {
     console.error('Failed to save prediction:', error)
@@ -601,9 +610,7 @@ export async function evaluateModel(): Promise<ModelPerformanceMetrics> {
 
   // Calculate confusion matrix
   const outcomes = ['upheld', 'dismissed', 'partially_upheld', 'settled', 'withdrawn']
-  const confusionMatrix: number[][] = Array(5)
-    .fill(0)
-    .map(() => Array(5).fill(0))
+  const confusionMatrix: number[][] = Array(5).fill(0).map(() => Array(5).fill(0))
 
   data.forEach((pred) => {
     const actualIdx = outcomes.indexOf(pred.actual_outcome)
@@ -619,7 +626,7 @@ export async function evaluateModel(): Promise<ModelPerformanceMetrics> {
   // Precision, recall, F1 (macro-averaged across classes)
   let totalPrecision = 0
   let totalRecall = 0
-
+  
   for (let i = 0; i < outcomes.length; i++) {
     const tp = confusionMatrix[i][i]
     const fp = confusionMatrix.reduce((sum, row, j) => (j !== i ? sum + row[i] : sum), 0)
@@ -634,7 +641,7 @@ export async function evaluateModel(): Promise<ModelPerformanceMetrics> {
 
   const precision = totalPrecision / outcomes.length
   const recall = totalRecall / outcomes.length
-  const f1Score = (2 * (precision * recall)) / (precision + recall) || 0
+  const f1Score = 2 * (precision * recall) / (precision + recall) || 0
 
   return {
     accuracy,
