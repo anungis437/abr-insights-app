@@ -88,6 +88,10 @@ const nextConfig = {
       symlinks: false,
     }
     
+    // CRITICAL: Disable snapshot entirely to fix Windows EISDIR error
+    // This is a Next.js 15 + Webpack 5 + Windows bug
+    config.snapshot = undefined
+    
     // Fix for Windows EISDIR error with webpack 5 on Next.js
     // This is a known issue: https://github.com/vercel/next.js/issues/56114
     config.watchOptions = {
@@ -96,11 +100,7 @@ const nextConfig = {
     }
     
     // Disable filesystem caching which causes issues on Windows
-    if (config.cache && typeof config.cache === 'object' && config.cache.type === 'filesystem') {
-      config.cache = {
-        type: 'memory',
-      }
-    }
+    config.cache = false
     
     // Disable module resolution caching
     config.infrastructureLogging = {

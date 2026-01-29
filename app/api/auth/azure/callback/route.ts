@@ -100,7 +100,7 @@ export async function GET(request: NextRequest) {
       const claims = azureADService.validateIdToken(tokenResponse.idToken!)
 
       // Get SSO provider ID (we need it for logging)
-      const { data: ssoProvider } = await supabase
+      const { data: ssoProvider } = await adminSupabase
         .from('sso_providers')
         .select('id')
         .eq('organization_id', organization.id)
@@ -130,7 +130,7 @@ export async function GET(request: NextRequest) {
 
       // Create Supabase auth session using service role
       // For SSO users, we create a session directly as they're already authenticated by Azure AD
-      const { data: authData, error: authError } = await supabase.auth.admin.updateUserById(
+      const { data: authData, error: authError } = await adminSupabase.auth.admin.updateUserById(
         userId,
         { user_metadata: { last_sso_login: new Date().toISOString() } }
       )

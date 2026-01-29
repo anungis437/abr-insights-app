@@ -15,6 +15,7 @@
  * @module lib/services/embedding-service
  */
 
+import 'server-only'
 import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
 import { logger } from '@/lib/utils/logger'
