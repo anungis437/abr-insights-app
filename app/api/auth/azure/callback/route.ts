@@ -8,6 +8,7 @@
  * @access Public (callback from Azure AD)
  */
 
+import 'server-only'
 import { NextRequest, NextResponse } from 'next/server'
 import { getAzureADService } from '@/lib/auth/azure-ad'
 import { createAdminClient } from '@/lib/supabase/admin'

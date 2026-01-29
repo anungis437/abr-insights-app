@@ -23,9 +23,9 @@
  * @route /api/auth/saml/callback
  */
 
+import 'server-only'
 import { NextRequest, NextResponse } from 'next/server'
 import { getSAMLService } from '@/lib/auth/saml'
-import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { cookies } from 'next/headers'
 

@@ -3,6 +3,7 @@
  * Handles Stripe events (payments, subscriptions, etc.)
  */
 
+import 'server-only'
 import { NextRequest, NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 import Stripe from 'stripe'
