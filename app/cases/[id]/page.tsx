@@ -73,24 +73,6 @@ async function getCaseStudy(id: string) {
       .eq('id', id)
       .single()
 
-    if (error) {
-      console.error('Error fetching case:', error)
-      return null
-    }
-
-    return caseData
-  } catch (error) {
-    console.error('Error in getCaseStudy:', error)
-    return null
-  }
-}
-    
-    const { data: caseData, error } = await supabase
-      .from('tribunal_cases')
-      .select('*')
-      .eq('id', id)
-      .single()
-    
     if (error || !caseData) {
       console.error('Error fetching case:', error)
       return null

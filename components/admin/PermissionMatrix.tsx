@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Check, X, Info } from 'lucide-react'
 import type { Permission, Role, PermissionMatrixRow, PermissionCategory } from '@/lib/types/permissions'
 import { groupPermissionsByCategory, PERMISSION_CATEGORIES } from '@/lib/types/permissions'
-import { Protected } from '@/components/auth/Protected'
+import { Protected } from '@/components/shared/Protected'
 
 interface PermissionMatrixProps {
   onPermissionToggle?: (roleId: string, permissionId: string, currentState: boolean) => Promise<void>

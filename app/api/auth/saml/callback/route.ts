@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
     })
 
     // Update Supabase auth user metadata
-    await supabase.auth.admin.updateUserById(userId, {
+    await adminSupabase.auth.admin.updateUserById(userId, {
       user_metadata: {
         sso_provider: 'saml',
         saml_name_id: attributes.nameID,
@@ -148,15 +148,14 @@ export async function POST(request: NextRequest) {
     // Log failed login attempt
     if (samlService && organizationSlug) {
       try {
-        const supabase = await createClient()
-        const { data: organization } = await supabase
+        const { data: organization } = await adminSupabase
           .from('organizations')
           .select('id')
           .eq('slug', organizationSlug)
           .single()
 
         if (organization) {
-          const { data: ssoProvider } = await supabase
+          const { data: ssoProvider } = await adminSupabase
             .from('sso_providers')
             .select('id')
             .eq('organization_id', organization.id)

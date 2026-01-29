@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label'
 import { AlertTriangle } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { revokeCertificate } from '@/lib/services/certificates'
-import { Protected } from '@/components/auth/Protected'
+import { Protected } from '@/components/shared/Protected'
 
 interface RevokeCertificateFormProps {
   certificateId: string
