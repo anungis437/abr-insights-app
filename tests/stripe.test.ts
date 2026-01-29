@@ -1,28 +1,40 @@
 import { describe, it, expect, vi } from 'vitest';
 
-// Mock Stripe
-vi.mock('stripe', () => ({
-  default: vi.fn(() => ({
-    checkout: {
-      sessions: {
-        create: vi.fn(),
-        retrieve: vi.fn(),
-      },
+// Create mock functions that can be accessed in tests
+const mockCheckoutCreate = vi.fn();
+const mockCheckoutRetrieve = vi.fn();
+const mockCustomerCreate = vi.fn();
+const mockCustomerRetrieve = vi.fn();
+const mockPortalCreate = vi.fn();
+const mockConstructEvent = vi.fn();
+
+// Mock Stripe with proper class constructor
+vi.mock('stripe', () => {
+  return {
+    default: class MockStripe {
+      checkout = {
+        sessions: {
+          create: mockCheckoutCreate,
+          retrieve: mockCheckoutRetrieve,
+        },
+      };
+      customers = {
+        create: mockCustomerCreate,
+        retrieve: mockCustomerRetrieve,
+      };
+      billingPortal = {
+        sessions: {
+          create: mockPortalCreate,
+        },
+      };
+      webhooks = {
+        constructEvent: mockConstructEvent,
+      };
+      
+      constructor() {}
     },
-    customers: {
-      create: vi.fn(),
-      retrieve: vi.fn(),
-    },
-    billingPortal: {
-      sessions: {
-        create: vi.fn(),
-      },
-    },
-    webhooks: {
-      constructEvent: vi.fn(),
-    },
-  })),
-}));
+  };
+});
 
 describe('Stripe Integration Tests', () => {
   describe('Checkout Session Creation', () => {
@@ -36,7 +48,7 @@ describe('Stripe Integration Tests', () => {
         customer: 'cus_test_123',
       };
 
-      (stripe.checkout.sessions.create as any).mockResolvedValue(mockSession);
+      mockCheckoutCreate.mockResolvedValue(mockSession);
 
       const session = await stripe.checkout.sessions.create({
         mode: 'subscription',
@@ -103,7 +115,7 @@ describe('Stripe Integration Tests', () => {
         url: 'https://billing.stripe.com/session/test',
       };
 
-      (stripe.billingPortal.sessions.create as any).mockResolvedValue(mockPortalSession);
+      mockPortalCreate.mockResolvedValue(mockPortalSession);
 
       const session = await stripe.billingPortal.sessions.create({
         customer: 'cus_test_123',
@@ -130,7 +142,7 @@ describe('Stripe Integration Tests', () => {
         },
       };
 
-      (stripe.webhooks.constructEvent as any).mockReturnValue(mockEvent);
+      mockConstructEvent.mockReturnValue(mockEvent);
 
       const event = stripe.webhooks.constructEvent(
         'payload',
@@ -253,7 +265,7 @@ describe('Stripe Integration Tests', () => {
       const Stripe = (await import('stripe')).default;
       const stripe = new Stripe('test_key', { apiVersion: '2025-12-15.clover' });
 
-      (stripe.checkout.sessions.create as any).mockRejectedValue(
+      mockCheckoutCreate.mockRejectedValue(
         new Error('Invalid parameters')
       );
 
@@ -266,7 +278,7 @@ describe('Stripe Integration Tests', () => {
       const Stripe = (await import('stripe')).default;
       const stripe = new Stripe('test_key', { apiVersion: '2025-12-15.clover' });
 
-      (stripe.webhooks.constructEvent as any).mockImplementation(() => {
+      mockConstructEvent.mockImplementation(() => {
         throw new Error('Invalid signature');
       });
 

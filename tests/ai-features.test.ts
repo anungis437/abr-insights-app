@@ -1,18 +1,26 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Mock Azure OpenAI
-vi.mock('openai', () => ({
-  AzureOpenAI: vi.fn(() => ({
-    chat: {
-      completions: {
-        create: vi.fn(),
-      },
+// Create mock functions that can be accessed in tests
+const mockChatCreate = vi.fn();
+const mockEmbeddingsCreate = vi.fn();
+
+// Mock Azure OpenAI with proper class constructor
+vi.mock('openai', () => {
+  return {
+    AzureOpenAI: class MockAzureOpenAI {
+      chat = {
+        completions: {
+          create: mockChatCreate,
+        },
+      };
+      embeddings = {
+        create: mockEmbeddingsCreate,
+      };
+      
+      constructor() {}
     },
-    embeddings: {
-      create: vi.fn(),
-    },
-  })),
-}));
+  };
+});
 
 describe('AI Features Tests', () => {
   beforeEach(() => {
@@ -36,7 +44,7 @@ describe('AI Features Tests', () => {
         },
       };
 
-      vi.mocked(client.chat.completions.create).mockResolvedValue(mockResponse as any);
+      mockChatCreate.mockResolvedValue(mockResponse as any);
 
       const response = await client.chat.completions.create({
         model: 'test-deployment',
@@ -139,7 +147,7 @@ describe('AI Features Tests', () => {
         }],
       };
 
-      vi.mocked(client.embeddings.create).mockResolvedValue(mockEmbedding as any);
+      mockEmbeddingsCreate.mockResolvedValue(mockEmbedding as any);
 
       const response = await client.embeddings.create({
         model: 'text-embedding-3-large',
@@ -280,7 +288,7 @@ describe('AI Features Tests', () => {
       const { AzureOpenAI } = await import('openai');
       const client = new AzureOpenAI({ endpoint: 'endpoint', apiKey: 'test-key' });
 
-      (client.chat.completions.create as any).mockRejectedValue({
+      mockChatCreate.mockRejectedValue({
         code: 429,
         message: 'Rate limit exceeded',
       });
@@ -296,7 +304,7 @@ describe('AI Features Tests', () => {
       const { AzureOpenAI } = await import('openai');
       const client = new AzureOpenAI({ endpoint: 'endpoint', apiKey: 'test-key' });
 
-      (client.chat.completions.create as any).mockResolvedValue({
+      mockChatCreate.mockResolvedValue({
         choices: [],
       });
 
