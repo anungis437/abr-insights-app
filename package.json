@@ -14,7 +14,7 @@
   },
   "homepage": "https://github.com/anungis437/abr-insights-app#readme",
   "engines": {
-    "node": ">=18.0.0",
+    "node": ">=20.9.0",
     "npm": ">=9.0.0"
   },
   "scripts": {
@@ -99,7 +99,7 @@
     "cross-env": "^10.1.0",
     "dotenv": "^17.2.3",
     "eslint": "^9.18.0",
-    "eslint-config-next": "^15.1.2",
+    "eslint-config-next": "^16.1.6",
     "jsdom": "^24.0.0",
     "postcss": "^8.4.33",
     "prettier": "^3.2.4",
