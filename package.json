@@ -30,7 +30,7 @@
     "type-check": "tsc --noEmit",
     "test": "vitest",
     "test:unit": "vitest run --coverage",
-    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test:integration": "vitest run tests/integration.test.ts",
     "ingest": "tsx --env-file=.env.local ingestion/src/cli.ts"
   },
   "dependencies": {
