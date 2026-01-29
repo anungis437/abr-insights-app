@@ -1,5 +1,19 @@
 import { beforeAll, vi } from 'vitest';
 
+// Polyfill File API for Node 18 compatibility
+if (typeof File === 'undefined') {
+  global.File = class File extends Blob {
+    name: string;
+    lastModified: number;
+    
+    constructor(bits: BlobPart[], name: string, options?: FilePropertyBag) {
+      super(bits, options);
+      this.name = name;
+      this.lastModified = options?.lastModified || Date.now();
+    }
+  } as any;
+}
+
 // Mock environment variables for testing
 beforeAll(() => {
   // Use real Supabase credentials from .env for integration tests, or mocks for unit tests

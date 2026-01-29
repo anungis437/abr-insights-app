@@ -30,7 +30,11 @@ describe('Permission System Tests', () => {
       .select()
       .single();
     
-    testOrgId = (org as any)!.id;
+    if (!org) {
+      throw new Error('Failed to create test organization')
+    }
+    
+    testOrgId = org.id;
 
     // Create test user
     const { data: authUser } = await supabase.auth.admin.createUser({
