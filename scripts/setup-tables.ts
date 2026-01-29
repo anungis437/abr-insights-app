@@ -1,42 +1,44 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js'
 
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const key = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const key = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
 async function setupTables() {
-  console.log('🔧 Setting up ingestion pipeline tables...\n');
-  
-  const supabase = createClient(url, key);
-  
+  console.log('🔧 Setting up ingestion pipeline tables...\n')
+
+  const supabase = createClient(url, key)
+
   // Test connection by checking if tables exist
-  console.log('1. Checking ingestion_jobs...');
-  const { error: jobsError } = await supabase.from('ingestion_jobs').select('id').limit(0);
-  
-  console.log('2. Checking tribunal_cases_raw...');
-  const { error: casesError } = await supabase.from('tribunal_cases_raw').select('id').limit(0);
-  
-  console.log('3. Checking ingestion_errors...');
-  const { error: errorsError } = await supabase.from('ingestion_errors').select('id').limit(0);
-  
+  console.log('1. Checking ingestion_jobs...')
+  const { error: jobsError } = await supabase.from('ingestion_jobs').select('id').limit(0)
+
+  console.log('2. Checking tribunal_cases_raw...')
+  const { error: casesError } = await supabase.from('tribunal_cases_raw').select('id').limit(0)
+
+  console.log('3. Checking ingestion_errors...')
+  const { error: errorsError } = await supabase.from('ingestion_errors').select('id').limit(0)
+
   if (!jobsError && !casesError && !errorsError) {
-    console.log('\n✅ All tables already exist!\n');
-    console.log('Ready to run:');
-    console.log('  npx tsx --env-file=.env.local ingestion\\src\\debug\\test-storage-integration.ts\n');
-    return true;
+    console.log('\n✅ All tables already exist!\n')
+    console.log('Ready to run:')
+    console.log(
+      '  npx tsx --env-file=.env.local ingestion\\src\\debug\\test-storage-integration.ts\n'
+    )
+    return true
   }
-  
-  console.log('\n❌ Tables missing. They need to be created via SQL Editor.\n');
-  console.log('Steps to create tables:');
-  console.log('1. Open Supabase SQL Editor:');
-  console.log('   https://app.supabase.com/project/nuywgvbkgdvngrysqdul/sql/new\n');
-  console.log('2. Copy and paste this SQL:\n');
-  console.log('---START SQL---');
-  console.log(migrationSQL);
-  console.log('---END SQL---\n');
-  console.log('3. Click "Run" button\n');
-  console.log('4. Then run this script again to verify\n');
-  
-  return false;
+
+  console.log('\n❌ Tables missing. They need to be created via SQL Editor.\n')
+  console.log('Steps to create tables:')
+  console.log('1. Open Supabase SQL Editor:')
+  console.log('   https://app.supabase.com/project/nuywgvbkgdvngrysqdul/sql/new\n')
+  console.log('2. Copy and paste this SQL:\n')
+  console.log('---START SQL---')
+  console.log(migrationSQL)
+  console.log('---END SQL---\n')
+  console.log('3. Click "Run" button\n')
+  console.log('4. Then run this script again to verify\n')
+
+  return false
 }
 
 const migrationSQL = `
@@ -136,11 +138,13 @@ CREATE TABLE IF NOT EXISTS ingestion_errors (
 CREATE INDEX IF NOT EXISTS idx_tribunal_cases_raw_source_url ON tribunal_cases_raw(source_url);
 CREATE INDEX IF NOT EXISTS idx_tribunal_cases_raw_job_id ON tribunal_cases_raw(ingestion_job_id);
 CREATE INDEX IF NOT EXISTS idx_ingestion_jobs_status ON ingestion_jobs(status);
-`;
+`
 
-setupTables().then(success => {
-  process.exit(success ? 0 : 1);
-}).catch(err => {
-  console.error('Error:', err);
-  process.exit(1);
-});
+setupTables()
+  .then((success) => {
+    process.exit(success ? 0 : 1)
+  })
+  .catch((err) => {
+    console.error('Error:', err)
+    process.exit(1)
+  })

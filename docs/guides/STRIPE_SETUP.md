@@ -38,24 +38,29 @@ pnpm run dev
 For local testing of webhooks:
 
 ### 1. Install Stripe CLI
+
 ```powershell
 winget install stripe.stripe-cli
 ```
 
 ### 2. Login to Stripe
+
 ```powershell
 stripe login
 ```
 
 ### 3. Forward webhooks to local server
+
 ```powershell
 stripe listen --forward-to localhost:3002/api/webhooks/stripe
 ```
 
 ### 4. Copy webhook secret
+
 The CLI will display a webhook signing secret (starts with `whsec_`)
 
 Add to `.env.local`:
+
 ```env
 STRIPE_WEBHOOK_SECRET=whsec_YOUR_SECRET_HERE
 ```
@@ -66,10 +71,10 @@ STRIPE_WEBHOOK_SECRET=whsec_YOUR_SECRET_HERE
 
 Use these test cards in your app:
 
-| Card Number | Description |
-|-------------|-------------|
-| 4242 4242 4242 4242 | Success |
-| 4000 0000 0000 0002 | Decline |
+| Card Number         | Description        |
+| ------------------- | ------------------ |
+| 4242 4242 4242 4242 | Success            |
+| 4000 0000 0000 0002 | Decline            |
 | 4000 0000 0000 3220 | 3D Secure required |
 
 - **Expiry**: Any future date
@@ -101,11 +106,11 @@ STRIPE_PRICE_ID_ENTERPRISE=price_YOUR_ID
 
 Recommended setup:
 
-| Tier | Price | Price ID Variable |
-|------|-------|-------------------|
-| Free | $0 | STRIPE_PRICE_ID_FREE |
+| Tier         | Price     | Price ID Variable            |
+| ------------ | --------- | ---------------------------- |
+| Free         | $0        | STRIPE_PRICE_ID_FREE         |
 | Professional | $29.99/mo | STRIPE_PRICE_ID_PROFESSIONAL |
-| Enterprise | $99.99/mo | STRIPE_PRICE_ID_ENTERPRISE |
+| Enterprise   | $99.99/mo | STRIPE_PRICE_ID_ENTERPRISE   |
 
 ---
 
@@ -124,14 +129,17 @@ Recommended setup:
 ## Troubleshooting
 
 ### "Stripe is not configured"
+
 - Check `.env.local` has `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
 - Restart dev server after adding keys
 
 ### "Invalid API key"
+
 - Make sure you're using **test mode** keys (`pk_test_` and `sk_test_`)
 - Don't use live keys in development
 
 ### Webhook not receiving events
+
 - Check Stripe CLI is running: `stripe listen`
 - Verify webhook secret in `.env.local`
 - Check console for errors

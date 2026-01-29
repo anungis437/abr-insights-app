@@ -95,6 +95,7 @@ npm run test:integration
 **File**: `.github/workflows/testing.yml`
 
 **Jobs**:
+
 1. unit-tests - Run on Node 18.x and 20.x
 2. integration-tests - Run integration suite
 3. lint-and-typecheck - ESLint + TypeScript
@@ -102,6 +103,7 @@ npm run test:integration
 5. build-test - Verify production build
 
 **Triggers**:
+
 - Push to main/develop
 - Pull requests to main/develop
 

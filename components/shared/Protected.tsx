@@ -1,7 +1,11 @@
 'use client'
 
 import { ReactNode } from 'react'
-import { usePermissionCheck, useAnyPermissionCheck, useAllPermissionsCheck } from '@/lib/hooks/usePermissions'
+import {
+  usePermissionCheck,
+  useAnyPermissionCheck,
+  useAllPermissionsCheck,
+} from '@/lib/hooks/usePermissions'
 import { Skeleton } from '@/components/ui/skeleton'
 
 interface ProtectedProps {
@@ -15,13 +19,13 @@ interface ProtectedProps {
 
 /**
  * Component that conditionally renders children based on user permissions
- * 
+ *
  * @example
  * ```tsx
  * <Protected permission="courses.create">
  *   <CreateCourseButton />
  * </Protected>
- * 
+ *
  * <Protected anyPermissions={['courses.update', 'courses.manage']}>
  *   <EditCourseButton />
  * </Protected>
@@ -79,12 +83,12 @@ interface PermissionGateProps {
 
 /**
  * Render prop component that passes permission status to children
- * 
+ *
  * @example
  * ```tsx
  * <PermissionGate permission="courses.delete">
  *   {(canDelete) => (
- *     <Button 
+ *     <Button
  *       disabled={!canDelete}
  *       onClick={canDelete ? handleDelete : undefined}
  *     >
@@ -127,14 +131,14 @@ export function PermissionGate({
 
 /**
  * HOC to protect a component with permission checks
- * 
+ *
  * @example
  * ```tsx
  * const ProtectedButton = withPermission(
- *   Button, 
+ *   Button,
  *   { permission: 'courses.create' }
  * );
- * 
+ *
  * // Usage:
  * <ProtectedButton>Create Course</ProtectedButton>
  * ```

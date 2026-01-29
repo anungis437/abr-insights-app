@@ -5,7 +5,7 @@ import {
   getAutomationConfigs,
   createAutomationConfig,
   updateAutomationConfig,
-  deleteAutomationConfig
+  deleteAutomationConfig,
 } from '@/lib/ai/training-service'
 
 // GET /api/ai/automation - List all automation configs
@@ -19,7 +19,7 @@ async function postAutomationHandler(request: NextRequest, context: GuardedConte
   const body = await request.json()
   const config = await createAutomationConfig({
     ...body,
-    created_by: context.user!.id
+    created_by: context.user!.id,
   })
   return NextResponse.json(config, { status: 201 })
 }
@@ -28,11 +28,11 @@ async function postAutomationHandler(request: NextRequest, context: GuardedConte
 async function patchAutomationHandler(request: NextRequest, context: GuardedContext) {
   const body = await request.json()
   const { id, ...updates } = body
-  
+
   if (!id) {
     return NextResponse.json({ error: 'Config ID required' }, { status: 400 })
   }
-  
+
   const config = await updateAutomationConfig(id, updates)
   return NextResponse.json(config)
 }
@@ -41,11 +41,11 @@ async function patchAutomationHandler(request: NextRequest, context: GuardedCont
 async function deleteAutomationHandler(request: NextRequest, context: GuardedContext) {
   const searchParams = request.nextUrl.searchParams
   const id = searchParams.get('id')
-  
+
   if (!id) {
     return NextResponse.json({ error: 'Config ID required' }, { status: 400 })
   }
-  
+
   await deleteAutomationConfig(id)
   return NextResponse.json({ success: true })
 }
@@ -56,7 +56,7 @@ export const GET = withRateLimit(
   guardedRoute(getAutomationHandler, {
     requireAuth: true,
     requireOrg: false,
-    permissions: ['admin.ai.manage']
+    permissions: ['admin.ai.manage'],
   })
 )
 
@@ -65,7 +65,7 @@ export const POST = withRateLimit(
   guardedRoute(postAutomationHandler, {
     requireAuth: true,
     requireOrg: false,
-    permissions: ['admin.ai.manage']
+    permissions: ['admin.ai.manage'],
   })
 )
 
@@ -74,7 +74,7 @@ export const PATCH = withRateLimit(
   guardedRoute(patchAutomationHandler, {
     requireAuth: true,
     requireOrg: false,
-    permissions: ['admin.ai.manage']
+    permissions: ['admin.ai.manage'],
   })
 )
 
@@ -83,6 +83,6 @@ export const DELETE = withRateLimit(
   guardedRoute(deleteAutomationHandler, {
     requireAuth: true,
     requireOrg: false,
-    permissions: ['admin.ai.manage']
+    permissions: ['admin.ai.manage'],
   })
 )

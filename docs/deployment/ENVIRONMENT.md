@@ -28,11 +28,11 @@ This document defines all environment variables, configuration management strate
 
 ### Environments
 
-| Environment | Purpose | URL | Branch | Auto-Deploy |
-|------------|---------|-----|--------|-------------|
-| **Development** | Local development | `http://localhost:3000` | `feature/*` | No |
-| **Staging** | Pre-production testing | `https://staging.abrinsights.ca` | `develop` | Yes |
-| **Production** | Live application | `https://app.abrinsights.ca` | `main` | Yes (manual approval) |
+| Environment     | Purpose                | URL                              | Branch      | Auto-Deploy           |
+| --------------- | ---------------------- | -------------------------------- | ----------- | --------------------- |
+| **Development** | Local development      | `http://localhost:3000`          | `feature/*` | No                    |
+| **Staging**     | Pre-production testing | `https://staging.abrinsights.ca` | `develop`   | Yes                   |
+| **Production**  | Live application       | `https://app.abrinsights.ca`     | `main`      | Yes (manual approval) |
 
 ### Configuration Strategy
 
@@ -362,16 +362,16 @@ abr-insights-keyvault/
 
 ```typescript
 // Example: Azure Function accessing Key Vault
-import { SecretClient } from '@azure/keyvault-secrets';
-import { DefaultAzureCredential } from '@azure/identity';
+import { SecretClient } from '@azure/keyvault-secrets'
+import { DefaultAzureCredential } from '@azure/identity'
 
-const credential = new DefaultAzureCredential();
-const vaultUrl = `https://abr-insights-keyvault.vault.azure.net`;
-const client = new SecretClient(vaultUrl, credential);
+const credential = new DefaultAzureCredential()
+const vaultUrl = `https://abr-insights-keyvault.vault.azure.net`
+const client = new SecretClient(vaultUrl, credential)
 
 // Retrieve secret
-const secret = await client.getSecret('stripe-secret-key');
-const stripeKey = secret.value;
+const secret = await client.getSecret('stripe-secret-key')
+const stripeKey = secret.value
 ```
 
 ### GitHub Secrets (CI/CD)

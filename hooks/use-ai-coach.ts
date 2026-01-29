@@ -102,72 +102,78 @@ export function useAICoach() {
     }
   }, [user])
 
-  const getCustomGuidance = useCallback(async (query: string) => {
-    if (!user) {
-      setError('You must be logged in to use the AI coach')
-      return
-    }
-
-    if (!query.trim()) {
-      setError('Please enter a question')
-      return
-    }
-
-    setIsAnalyzing(true)
-    setError(null)
-
-    try {
-      const response = await fetch('/api/ai/coach', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'custom_guidance',
-          query,
-        }),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to get guidance')
+  const getCustomGuidance = useCallback(
+    async (query: string) => {
+      if (!user) {
+        setError('You must be logged in to use the AI coach')
+        return
       }
 
-      const data = await response.json()
-      setCurrentSession(data.session || data)
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An error occurred'
-      setError(errorMessage)
-      console.error('Coach guidance error:', err)
-    } finally {
-      setIsAnalyzing(false)
-    }
-  }, [user])
-
-  const provideFeedback = useCallback(async (sessionId: string, feedback: 'helpful' | 'not_helpful') => {
-    try {
-      const response = await fetch('/api/ai/feedback', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          session_id: sessionId,
-          feedback,
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to submit feedback')
+      if (!query.trim()) {
+        setError('Please enter a question')
+        return
       }
 
-      // Update local session
-      if (currentSession && currentSession.id === sessionId) {
-        setCurrentSession({
-          ...currentSession,
-          user_feedback: feedback,
+      setIsAnalyzing(true)
+      setError(null)
+
+      try {
+        const response = await fetch('/api/ai/coach', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'custom_guidance',
+            query,
+          }),
         })
+
+        if (!response.ok) {
+          const errorData = await response.json()
+          throw new Error(errorData.error || 'Failed to get guidance')
+        }
+
+        const data = await response.json()
+        setCurrentSession(data.session || data)
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'An error occurred'
+        setError(errorMessage)
+        console.error('Coach guidance error:', err)
+      } finally {
+        setIsAnalyzing(false)
       }
-    } catch (err) {
-      console.error('Feedback error:', err)
-    }
-  }, [currentSession])
+    },
+    [user]
+  )
+
+  const provideFeedback = useCallback(
+    async (sessionId: string, feedback: 'helpful' | 'not_helpful') => {
+      try {
+        const response = await fetch('/api/ai/feedback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_id: sessionId,
+            feedback,
+          }),
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to submit feedback')
+        }
+
+        // Update local session
+        if (currentSession && currentSession.id === sessionId) {
+          setCurrentSession({
+            ...currentSession,
+            user_feedback: feedback,
+          })
+        }
+      } catch (err) {
+        console.error('Feedback error:', err)
+      }
+    },
+    [currentSession]
+  )
 
   return {
     currentSession,

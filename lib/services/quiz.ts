@@ -1,7 +1,7 @@
 /**
  * Quiz Service
  * Manages quiz configuration, attempts, and scoring
- * 
+ *
  * Security: All mutations protected by permission checks via RLS policies.
  * Policies defined in migrations 020-023.
  */
@@ -96,7 +96,7 @@ export interface QuizWithQuestions extends Quiz {
 
 /**
  * Create a new quiz
- * 
+ *
  * Required permissions: quizzes.create, courses.manage, or instructor.access
  * RLS Policy: quizzes_insert_with_permission
  */
@@ -264,7 +264,7 @@ export async function getQuizzes(filters: {
 
 /**
  * Update quiz
- * 
+ *
  * Required permissions: Quiz creator OR quizzes.update OR courses.manage
  * RLS Policy: quizzes_update_creator_or_permission
  */
@@ -295,7 +295,7 @@ export async function updateQuiz(quizId: string, updates: Partial<Quiz>): Promis
 
 /**
  * Delete quiz
- * 
+ *
  * Required permissions: Quiz creator OR quizzes.delete OR courses.manage
  * RLS Policy: quizzes_delete_creator_or_permission
  */
@@ -511,7 +511,9 @@ export async function submitQuizAttempt(attemptId: string): Promise<QuizAttempt 
 /**
  * Get quiz attempt with responses
  */
-export async function getQuizAttempt(attemptId: string): Promise<(QuizAttempt & { responses: QuizResponse[] }) | null> {
+export async function getQuizAttempt(
+  attemptId: string
+): Promise<(QuizAttempt & { responses: QuizResponse[] }) | null> {
   const supabase = createClient()
 
   try {
@@ -543,10 +545,7 @@ export async function getQuizAttempt(attemptId: string): Promise<(QuizAttempt & 
 /**
  * Get user's quiz attempts
  */
-export async function getUserQuizAttempts(
-  userId: string,
-  quizId?: string
-): Promise<QuizAttempt[]> {
+export async function getUserQuizAttempts(userId: string, quizId?: string): Promise<QuizAttempt[]> {
   const supabase = createClient()
 
   try {
@@ -632,8 +631,7 @@ function evaluateAnswer(
         .sort((a, b) => a.order_index - b.order_index)
         .map((opt) => opt.id)
       const userOrder = answer_data.ordered_option_ids || []
-      const orderMatches =
-        JSON.stringify(correctOrder) === JSON.stringify(userOrder)
+      const orderMatches = JSON.stringify(correctOrder) === JSON.stringify(userOrder)
       return {
         is_correct: orderMatches,
         points_earned: orderMatches ? points_possible : 0,

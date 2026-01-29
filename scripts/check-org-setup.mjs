@@ -17,25 +17,25 @@ const supabase = createClient(
 
 async function checkOrgSetup() {
   console.log('\n🔍 Checking Organization Setup...\n')
-  
+
   // Check organizations
   const { data: orgs, error: orgsError } = await supabase
     .from('organizations')
     .select('*')
     .order('created_at')
-  
+
   if (orgsError) {
     console.error('❌ Error fetching organizations:', orgsError)
   } else {
     console.log('📊 Organizations:', orgs?.length || 0)
-    orgs?.forEach(org => {
+    orgs?.forEach((org) => {
       console.log(`  - ${org.name} (${org.slug})`)
       console.log(`    ID: ${org.id}`)
       console.log(`    Tier: ${org.subscription_tier}`)
       console.log(`    Status: ${org.subscription_status}`)
     })
   }
-  
+
   // Check super_admin profile
   console.log('\n👤 Checking Super Admin Profile...\n')
   const { data: profile, error: profileError } = await supabase
@@ -43,7 +43,7 @@ async function checkOrgSetup() {
     .select('*')
     .eq('email', 'super_admin@abr-insights.com')
     .single()
-  
+
   if (profileError) {
     console.error('❌ Error fetching super admin profile:', profileError)
   } else if (profile) {
@@ -56,47 +56,45 @@ async function checkOrgSetup() {
   } else {
     console.log('❌ Super admin profile not found')
   }
-  
+
   // Check RBAC tables
   console.log('\n🔒 Checking RBAC Setup...\n')
-  
+
   const { data: roles, error: rolesError } = await supabase
     .from('roles')
     .select('*')
     .order('level', { ascending: false })
-  
+
   if (rolesError) {
     console.error('❌ Error fetching roles:', rolesError)
   } else {
     console.log(`✅ Roles table: ${roles?.length || 0} roles`)
-    roles?.forEach(role => {
+    roles?.forEach((role) => {
       console.log(`  - ${role.name} (${role.slug}) - Level ${role.level}`)
     })
   }
-  
-  const { data: permissions, error: permsError } = await supabase
-    .from('permissions')
-    .select('*')
-  
+
+  const { data: permissions, error: permsError } = await supabase.from('permissions').select('*')
+
   if (permsError) {
     console.error('❌ Error fetching permissions:', permsError)
   } else {
     console.log(`\n✅ Permissions table: ${permissions?.length || 0} permissions`)
   }
-  
+
   const { data: userRoles, error: userRolesError } = await supabase
     .from('user_roles')
     .select('*, profiles(email), roles(name)')
-  
+
   if (userRolesError) {
     console.error('❌ Error fetching user roles:', userRolesError)
   } else {
     console.log(`\n✅ User Roles table: ${userRoles?.length || 0} assignments`)
-    userRoles?.forEach(ur => {
+    userRoles?.forEach((ur) => {
       console.log(`  - ${ur.profiles?.email} → ${ur.roles?.name}`)
     })
   }
-  
+
   console.log('\n✅ Check complete!\n')
 }
 

@@ -19,7 +19,7 @@ import {
   Award,
   BookOpen,
   Target,
-  TrendingUp
+  TrendingUp,
 } from 'lucide-react'
 
 interface Profile {
@@ -57,7 +57,7 @@ export default function UserDetailPage() {
     coursesCompleted: 0,
     coursesInProgress: 0,
     casesReviewed: 0,
-    achievements: 0
+    achievements: 0,
   })
 
   useEffect(() => {
@@ -84,7 +84,7 @@ export default function UserDetailPage() {
             .select('id, name, slug')
             .eq('id', userData.organization_id)
             .single()
-          
+
           if (orgData) setOrganization(orgData)
         }
 
@@ -94,7 +94,7 @@ export default function UserDetailPage() {
           coursesCompleted: 0,
           coursesInProgress: 0,
           casesReviewed: 0,
-          achievements: 0
+          achievements: 0,
         })
       } catch (error) {
         console.error('Error loading user:', error)
@@ -108,7 +108,7 @@ export default function UserDetailPage() {
 
   if (loading) {
     return (
-      <div className="container-custom pt-20 pb-8">
+      <div className="container-custom pb-8 pt-20">
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
             <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"></div>
@@ -121,11 +121,13 @@ export default function UserDetailPage() {
 
   if (!user) {
     return (
-      <div className="container-custom pt-20 pb-8">
-        <div className="text-center py-12">
+      <div className="container-custom pb-8 pt-20">
+        <div className="py-12 text-center">
           <Users className="mx-auto h-12 w-12 text-gray-400" />
           <h3 className="mt-2 text-sm font-medium text-gray-900">User not found</h3>
-          <p className="mt-1 text-sm text-gray-500">The user you&apos;re looking for doesn&apos;t exist.</p>
+          <p className="mt-1 text-sm text-gray-500">
+            The user you&apos;re looking for doesn&apos;t exist.
+          </p>
           <div className="mt-6">
             <Link href="/admin/users" className="btn-primary">
               <ArrowLeft className="h-4 w-4" />
@@ -137,24 +139,33 @@ export default function UserDetailPage() {
     )
   }
 
-  const displayName = user.display_name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'No name'
-  const roleName = user.role_name || (user.role === 'super_admin' ? 'Super Admin' : user.role === 'org_admin' ? 'Admin' : user.role === 'analyst' ? 'Analyst' : 'User')
+  const displayName =
+    user.display_name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'No name'
+  const roleName =
+    user.role_name ||
+    (user.role === 'super_admin'
+      ? 'Super Admin'
+      : user.role === 'org_admin'
+        ? 'Admin'
+        : user.role === 'analyst'
+          ? 'Analyst'
+          : 'User')
 
   return (
     <div className="min-h-screen bg-gray-50">
       <main className="flex-1 pt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           {/* Back Button */}
           <Link
             href="/admin/users"
-            className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-4"
+            className="mb-4 inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Users
           </Link>
 
           {/* Header */}
-          <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm mb-6">
+          <div className="mb-6 rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-6">
                 {/* Avatar */}
@@ -164,32 +175,37 @@ export default function UserDetailPage() {
                     alt={displayName}
                     width={96}
                     height={96}
-                    className="w-24 h-24 rounded-full object-cover"
+                    className="h-24 w-24 rounded-full object-cover"
                     priority
                   />
                 ) : (
-                  <div className="w-24 h-24 bg-gradient-to-br from-purple-100 to-blue-100 rounded-full flex items-center justify-center">
-                    <Users className="w-12 h-12 text-purple-600" />
+                  <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-purple-100 to-blue-100">
+                    <Users className="h-12 w-12 text-purple-600" />
                   </div>
                 )}
 
                 {/* User Info */}
                 <div>
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">{displayName}</h1>
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className={`px-3 py-1 text-sm font-medium rounded-full ${
-                      user.status === 'active' ? 'bg-green-100 text-green-800' :
-                      user.status === 'invited' ? 'bg-yellow-100 text-yellow-800' :
-                      user.status === 'suspended' ? 'bg-red-100 text-red-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
+                  <h1 className="mb-2 text-3xl font-bold text-gray-900">{displayName}</h1>
+                  <div className="mb-3 flex items-center gap-3">
+                    <span
+                      className={`rounded-full px-3 py-1 text-sm font-medium ${
+                        user.status === 'active'
+                          ? 'bg-green-100 text-green-800'
+                          : user.status === 'invited'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : user.status === 'suspended'
+                              ? 'bg-red-100 text-red-800'
+                              : 'bg-gray-100 text-gray-800'
+                      }`}
+                    >
                       {user.status}
                     </span>
-                    <span className="px-3 py-1 bg-purple-100 text-purple-800 text-sm font-medium rounded-full">
+                    <span className="rounded-full bg-purple-100 px-3 py-1 text-sm font-medium text-purple-800">
                       {roleName}
                     </span>
                     {user.onboarding_completed && (
-                      <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full flex items-center gap-1">
+                      <span className="flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800">
                         <CheckCircle className="h-4 w-4" />
                         Onboarded
                       </span>
@@ -224,8 +240,8 @@ export default function UserDetailPage() {
           </div>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+          <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
               <div className="flex items-center gap-3">
                 <div className="rounded-lg bg-blue-100 p-3">
                   <BookOpen className="h-6 w-6 text-blue-600" />
@@ -237,7 +253,7 @@ export default function UserDetailPage() {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
               <div className="flex items-center gap-3">
                 <div className="rounded-lg bg-purple-100 p-3">
                   <Target className="h-6 w-6 text-purple-600" />
@@ -249,7 +265,7 @@ export default function UserDetailPage() {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
               <div className="flex items-center gap-3">
                 <div className="rounded-lg bg-green-100 p-3">
                   <TrendingUp className="h-6 w-6 text-green-600" />
@@ -261,7 +277,7 @@ export default function UserDetailPage() {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
               <div className="flex items-center gap-3">
                 <div className="rounded-lg bg-yellow-100 p-3">
                   <Award className="h-6 w-6 text-yellow-600" />
@@ -275,11 +291,11 @@ export default function UserDetailPage() {
           </div>
 
           {/* User Details */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
             {/* Profile Information */}
-            <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">Profile Information</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm lg:col-span-2">
+              <h2 className="mb-6 text-xl font-bold text-gray-900">Profile Information</h2>
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div>
                   <label className="text-sm font-medium text-gray-500">First Name</label>
                   <p className="mt-1 text-gray-900">{user.first_name || 'Not provided'}</p>
@@ -308,9 +324,9 @@ export default function UserDetailPage() {
                   <label className="text-sm font-medium text-gray-500">Organization</label>
                   <p className="mt-1">
                     {organization ? (
-                      <Link 
+                      <Link
                         href={`/admin/organizations/${organization.id}`}
-                        className="text-purple-600 hover:text-purple-700 font-medium"
+                        className="font-medium text-purple-600 hover:text-purple-700"
                       >
                         {organization.name}
                       </Link>
@@ -331,50 +347,55 @@ export default function UserDetailPage() {
             </div>
 
             {/* Activity Information */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">Activity</h2>
+            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+              <h2 className="mb-6 text-xl font-bold text-gray-900">Activity</h2>
               <div className="space-y-4">
                 <div>
-                  <div className="flex items-center gap-2 text-sm font-medium text-gray-500 mb-1">
+                  <div className="mb-1 flex items-center gap-2 text-sm font-medium text-gray-500">
                     <Calendar className="h-4 w-4" />
                     Joined
                   </div>
                   <p className="text-gray-900">{new Date(user.created_at).toLocaleString()}</p>
                 </div>
                 <div>
-                  <div className="flex items-center gap-2 text-sm font-medium text-gray-500 mb-1">
+                  <div className="mb-1 flex items-center gap-2 text-sm font-medium text-gray-500">
                     <Clock className="h-4 w-4" />
                     Last Login
                   </div>
                   <p className="text-gray-900">
-                    {user.last_login_at 
+                    {user.last_login_at
                       ? new Date(user.last_login_at).toLocaleString()
                       : 'Never logged in'}
                   </p>
                 </div>
                 <div>
-                  <div className="flex items-center gap-2 text-sm font-medium text-gray-500 mb-1">
+                  <div className="mb-1 flex items-center gap-2 text-sm font-medium text-gray-500">
                     <Activity className="h-4 w-4" />
                     Last Activity
                   </div>
                   <p className="text-gray-900">
-                    {user.last_activity_at 
+                    {user.last_activity_at
                       ? new Date(user.last_activity_at).toLocaleString()
                       : 'No activity'}
                   </p>
                 </div>
                 <div>
-                  <div className="flex items-center gap-2 text-sm font-medium text-gray-500 mb-1">
+                  <div className="mb-1 flex items-center gap-2 text-sm font-medium text-gray-500">
                     <Shield className="h-4 w-4" />
                     Account Status
                   </div>
                   <p>
-                    <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-semibold ${
-                      user.status === 'active' ? 'bg-green-100 text-green-800' :
-                      user.status === 'invited' ? 'bg-yellow-100 text-yellow-800' :
-                      user.status === 'suspended' ? 'bg-red-100 text-red-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
+                    <span
+                      className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-semibold ${
+                        user.status === 'active'
+                          ? 'bg-green-100 text-green-800'
+                          : user.status === 'invited'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : user.status === 'suspended'
+                              ? 'bg-red-100 text-red-800'
+                              : 'bg-gray-100 text-gray-800'
+                      }`}
+                    >
                       {user.status}
                     </span>
                   </p>

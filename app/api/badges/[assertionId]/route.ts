@@ -3,7 +3,7 @@ import { getBadgeByAssertion } from '@/lib/services/certificates'
 
 /**
  * GET /api/badges/[assertionId]
- * 
+ *
  * Returns Open Badges 2.0 compliant badge assertion JSON-LD
  * This endpoint is public and used for badge verification
  */
@@ -18,20 +18,17 @@ export async function GET(
     const badge = await getBadgeByAssertion(assertionId)
 
     if (!badge) {
-      return NextResponse.json(
-        { error: 'Badge not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Badge not found' }, { status: 404 })
     }
 
     // Check if badge is revoked
     if (badge.status === 'revoked') {
       return NextResponse.json(
-        { 
+        {
           error: 'Badge has been revoked',
           revoked: true,
           revokedAt: badge.revoked_at,
-          reason: badge.revocation_reason
+          reason: badge.revocation_reason,
         },
         { status: 410 } // Gone
       )
@@ -40,10 +37,10 @@ export async function GET(
     // Check if badge is expired
     if (badge.status === 'expired') {
       return NextResponse.json(
-        { 
+        {
           error: 'Badge has expired',
           expired: true,
-          expiresOn: badge.expires_on
+          expiresOn: badge.expires_on,
         },
         { status: 410 } // Gone
       )
@@ -56,20 +53,17 @@ export async function GET(
         'Content-Type': 'application/ld+json',
         'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
         'Access-Control-Allow-Origin': '*', // Allow cross-origin requests for badge verification
-      }
+      },
     })
   } catch (error) {
     console.error('Error fetching badge assertion:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
 /**
  * OPTIONS /api/badges/[assertionId]
- * 
+ *
  * Handle CORS preflight requests
  */
 export async function OPTIONS() {
@@ -78,6 +72,6 @@ export async function OPTIONS() {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type',
-    }
+    },
   })
 }

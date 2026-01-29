@@ -26,9 +26,10 @@ export default function TeamPage() {
 
   if (!user) return null
 
-  const hasPermission = profile?.role === 'admin' || 
-                        profile?.role === 'team_lead' ||
-                        profile?.subscription_tier === 'enterprise'
+  const hasPermission =
+    profile?.role === 'admin' ||
+    profile?.role === 'team_lead' ||
+    profile?.subscription_tier === 'enterprise'
 
   if (!hasPermission) {
     return (
@@ -37,12 +38,8 @@ export default function TeamPage() {
           <div className="container-custom">
             <div className="mx-auto max-w-4xl text-center">
               <Lock className="mx-auto mb-4 h-16 w-16 text-amber-600" />
-              <h1 className="mb-4 text-4xl font-bold text-gray-900">
-                Team Management
-              </h1>
-              <p className="mb-2 text-xl text-gray-600">
-                Enterprise Feature
-              </p>
+              <h1 className="mb-4 text-4xl font-bold text-gray-900">Team Management</h1>
+              <p className="mb-2 text-xl text-gray-600">Enterprise Feature</p>
               <p className="mb-8 text-gray-500">
                 Upgrade to Enterprise to unlock powerful team collaboration tools
               </p>
@@ -58,9 +55,7 @@ export default function TeamPage() {
           <div className="container-custom">
             <div className="mx-auto max-w-4xl">
               <div className="rounded-2xl bg-white p-8 shadow-lg">
-                <h2 className="mb-6 text-2xl font-bold text-gray-900">
-                  Enterprise Features
-                </h2>
+                <h2 className="mb-6 text-2xl font-bold text-gray-900">Enterprise Features</h2>
                 <div className="space-y-4">
                   <FeatureItem text="Unlimited team members" />
                   <FeatureItem text="Role-based permissions" />

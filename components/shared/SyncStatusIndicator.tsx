@@ -27,7 +27,7 @@ export default function SyncStatusIndicator({
 
   useEffect(() => {
     loadPendingItems()
-    
+
     const interval = setInterval(loadPendingItems, 5000)
     return () => clearInterval(interval)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -78,7 +78,7 @@ export default function SyncStatusIndicator({
           await (registration as any).sync.register('sync-quiz-attempts')
           await (registration as any).sync.register('sync-course-progress')
         }
-        
+
         setTimeout(() => {
           setLastSyncTime(Date.now())
           loadPendingItems()
@@ -104,7 +104,7 @@ export default function SyncStatusIndicator({
       const transaction = db.transaction([storeName], 'readonly')
       const store = transaction.objectStore(storeName)
       const request = store.getAll()
-      
+
       request.onerror = () => reject(request.error)
       request.onsuccess = () => resolve(request.result)
     })
@@ -138,24 +138,24 @@ export default function SyncStatusIndicator({
 
   return (
     <div className={`fixed ${positionClasses[position]} z-50`}>
-      <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden max-w-sm">
+      <div className="max-w-sm overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg">
         {/* Header */}
         <button
           onClick={() => setShowDetails(!showDetails)}
-          className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors"
+          className="flex w-full items-center justify-between px-4 py-3 transition-colors hover:bg-gray-50"
         >
           <div className="flex items-center gap-3">
             {isOnline ? (
               isSyncing ? (
-                <RefreshCw className="w-5 h-5 text-blue-600 animate-spin" />
+                <RefreshCw className="h-5 w-5 animate-spin text-blue-600" />
               ) : (
-                <Cloud className="w-5 h-5 text-green-600" />
+                <Cloud className="h-5 w-5 text-green-600" />
               )
             ) : (
-              <CloudOff className="w-5 h-5 text-gray-400" />
+              <CloudOff className="h-5 w-5 text-gray-400" />
             )}
             <div className="text-left">
-              <div className="font-medium text-gray-900 text-sm">
+              <div className="text-sm font-medium text-gray-900">
                 {isSyncing ? 'Syncing...' : isOnline ? 'Synced' : 'Offline'}
               </div>
               {pendingItems.length > 0 && (
@@ -168,9 +168,11 @@ export default function SyncStatusIndicator({
 
           {/* Status Badge */}
           {pendingItems.length > 0 && (
-            <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-              isOnline ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'
-            }`}>
+            <div
+              className={`rounded-full px-2 py-1 text-xs font-medium ${
+                isOnline ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'
+              }`}
+            >
               {pendingItems.length}
             </div>
           )}
@@ -182,24 +184,21 @@ export default function SyncStatusIndicator({
             {pendingItems.length > 0 ? (
               <div className="max-h-64 overflow-y-auto">
                 {pendingItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className="px-4 py-3 border-b border-gray-100 last:border-b-0"
-                  >
+                  <div key={item.id} className="border-b border-gray-100 px-4 py-3 last:border-b-0">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1">
                         <div className="text-sm font-medium text-gray-900">
                           {getTypeLabel(item.type)}
                         </div>
-                        <div className="text-xs text-gray-600 mt-1">
-                          <Clock className="inline w-3 h-3 mr-1" />
+                        <div className="mt-1 text-xs text-gray-600">
+                          <Clock className="mr-1 inline h-3 w-3" />
                           {formatRelativeTime(item.timestamp)}
                         </div>
                       </div>
                       {isOnline ? (
-                        <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                        <CheckCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-600" />
                       ) : (
-                        <Clock className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" />
+                        <Clock className="mt-0.5 h-4 w-4 flex-shrink-0 text-yellow-600" />
                       )}
                     </div>
                   </div>
@@ -207,9 +206,9 @@ export default function SyncStatusIndicator({
               </div>
             ) : (
               <div className="px-4 py-6 text-center">
-                <CheckCircle className="w-8 h-8 text-green-600 mx-auto mb-2" />
+                <CheckCircle className="mx-auto mb-2 h-8 w-8 text-green-600" />
                 <div className="text-sm font-medium text-gray-900">All synced!</div>
-                <div className="text-xs text-gray-600 mt-1">
+                <div className="mt-1 text-xs text-gray-600">
                   {lastSyncTime && `Last sync: ${formatRelativeTime(lastSyncTime)}`}
                 </div>
               </div>
@@ -217,13 +216,13 @@ export default function SyncStatusIndicator({
 
             {/* Manual Sync Button */}
             {isOnline && pendingItems.length > 0 && (
-              <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">
+              <div className="border-t border-gray-200 bg-gray-50 px-4 py-3">
                 <button
                   onClick={handleSync}
                   disabled={isSyncing}
-                  className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
+                  <RefreshCw className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
                   {isSyncing ? 'Syncing...' : 'Sync Now'}
                 </button>
               </div>
@@ -231,9 +230,9 @@ export default function SyncStatusIndicator({
 
             {/* Offline Message */}
             {!isOnline && pendingItems.length > 0 && (
-              <div className="px-4 py-3 bg-yellow-50 border-t border-yellow-200">
+              <div className="border-t border-yellow-200 bg-yellow-50 px-4 py-3">
                 <div className="flex items-start gap-2">
-                  <AlertTriangle className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" />
+                  <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-yellow-600" />
                   <div className="text-xs text-yellow-800">
                     Changes will sync automatically when you&apos;re back online
                   </div>

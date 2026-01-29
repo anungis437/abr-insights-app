@@ -6,8 +6,8 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 const supabase = createClient(supabaseUrl, supabaseServiceKey, {
   auth: {
     autoRefreshToken: false,
-    persistSession: false
-  }
+    persistSession: false,
+  },
 })
 
 const roleMapping = {
@@ -28,7 +28,7 @@ async function updateProfiles() {
   // Get all test users
   const { data: users, error: usersError } = await supabase.auth.admin.listUsers({
     page: 1,
-    perPage: 100
+    perPage: 100,
   })
 
   if (usersError) {
@@ -36,22 +36,26 @@ async function updateProfiles() {
     return
   }
 
-  const testUsers = users.users.filter(u => u.email && u.email.includes('@abr-insights.com'))
+  const testUsers = users.users.filter((u) => u.email && u.email.includes('@abr-insights.com'))
   console.log(`Found ${testUsers.length} test users\n`)
 
   for (const user of testUsers) {
     const email = user.email!
     const role = roleMapping[email as keyof typeof roleMapping]
-    
+
     if (!role) {
       console.log(`⏭️  ${email} - No role mapping found, skipping`)
       continue
     }
 
     // Extract name from metadata or email
-    const fullName = user.user_metadata?.full_name || 
-                     email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-    
+    const fullName =
+      user.user_metadata?.full_name ||
+      email
+        .split('@')[0]
+        .replace(/[._]/g, ' ')
+        .replace(/\b\w/g, (l) => l.toUpperCase())
+
     const nameParts = fullName.split(' ')
     const firstName = nameParts[0] || ''
     const lastName = nameParts.slice(1).join(' ') || ''
@@ -75,7 +79,7 @@ async function updateProfiles() {
           role,
           status: 'active',
           email_verified: true,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .eq('id', user.id)
 
@@ -86,20 +90,18 @@ async function updateProfiles() {
       }
     } else {
       // Create new profile
-      const { error: insertError } = await supabase
-        .from('profiles')
-        .insert({
-          id: user.id,
-          email,
-          first_name: firstName,
-          last_name: lastName,
-          display_name: fullName,
-          role,
-          status: 'active',
-          email_verified: true,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
+      const { error: insertError } = await supabase.from('profiles').insert({
+        id: user.id,
+        email,
+        first_name: firstName,
+        last_name: lastName,
+        display_name: fullName,
+        role,
+        status: 'active',
+        email_verified: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
 
       if (insertError) {
         console.error(`❌ ${email} - Insert failed: ${insertError.message}`)
@@ -110,10 +112,10 @@ async function updateProfiles() {
   }
 
   console.log('\n✅ Profile update complete!')
-  
+
   // Verify roles
   console.log('\n🔍 Verifying roles...\n')
-  
+
   const { data: profiles, error: profilesError } = await supabase
     .from('profiles')
     .select('email, role, first_name, last_name')
@@ -123,7 +125,7 @@ async function updateProfiles() {
   if (profilesError) {
     console.error('❌ Error fetching profiles:', profilesError)
   } else {
-    profiles?.forEach(profile => {
+    profiles?.forEach((profile) => {
       console.log(`📧 ${profile.email}`)
       console.log(`   Name: ${profile.first_name} ${profile.last_name}`)
       console.log(`   Role: ${profile.role}`)

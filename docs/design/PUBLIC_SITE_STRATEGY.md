@@ -27,6 +27,7 @@ This document defines the visual design strategy, asset sourcing, typography, co
 **Source**: https://fonts.google.com/specimen/Poppins
 
 **Rationale**:
+
 - Modern, geometric sans-serif with excellent readability
 - Supports multiple weights for hierarchy
 - Excellent screen rendering
@@ -40,7 +41,8 @@ This document defines the visual design strategy, asset sourcing, typography, co
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --font-family-primary: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  --font-family-primary:
+    'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
 }
 
 body {
@@ -49,6 +51,7 @@ body {
 ```
 
 **Weight Scale**:
+
 - **300 Light**: Subtle UI elements, captions
 - **400 Regular**: Body text, paragraphs, form labels
 - **500 Medium**: Buttons, navigation items, emphasis
@@ -59,19 +62,20 @@ body {
 
 ```css
 /* Typography Scale */
---text-xs: 0.75rem;    /* 12px - Fine print, labels */
---text-sm: 0.875rem;   /* 14px - Secondary text */
---text-base: 1rem;     /* 16px - Body text */
---text-lg: 1.125rem;   /* 18px - Large body, intro */
---text-xl: 1.25rem;    /* 20px - Small headings */
---text-2xl: 1.5rem;    /* 24px - Section headings */
---text-3xl: 1.875rem;  /* 30px - Page headings */
---text-4xl: 2.25rem;   /* 36px - Hero headings */
---text-5xl: 3rem;      /* 48px - Large hero */
---text-6xl: 3.75rem;   /* 60px - Extra large hero */
+--text-xs: 0.75rem; /* 12px - Fine print, labels */
+--text-sm: 0.875rem; /* 14px - Secondary text */
+--text-base: 1rem; /* 16px - Body text */
+--text-lg: 1.125rem; /* 18px - Large body, intro */
+--text-xl: 1.25rem; /* 20px - Small headings */
+--text-2xl: 1.5rem; /* 24px - Section headings */
+--text-3xl: 1.875rem; /* 30px - Page headings */
+--text-4xl: 2.25rem; /* 36px - Hero headings */
+--text-5xl: 3rem; /* 48px - Large hero */
+--text-6xl: 3.75rem; /* 60px - Extra large hero */
 ```
 
 **Line Height**:
+
 - Body text: 1.6 (26px at 16px base)
 - Headings: 1.2
 - Large hero text: 1.1
@@ -86,16 +90,16 @@ body {
 
 ```css
 /* Primary Colors */
---color-primary-50: #eff6ff;   /* Lightest blue - backgrounds */
---color-primary-100: #dbeafe;  /* Very light blue */
---color-primary-200: #bfdbfe;  /* Light blue - hover states */
---color-primary-300: #93c5fd;  /* Medium light blue */
---color-primary-400: #60a5fa;  /* Medium blue */
---color-primary-500: #3b82f6;  /* Primary blue - main brand color */
---color-primary-600: #2563eb;  /* Dark blue - primary hover */
---color-primary-700: #1d4ed8;  /* Darker blue */
---color-primary-800: #1e40af;  /* Very dark blue */
---color-primary-900: #1e3a8a;  /* Darkest blue */
+--color-primary-50: #eff6ff; /* Lightest blue - backgrounds */
+--color-primary-100: #dbeafe; /* Very light blue */
+--color-primary-200: #bfdbfe; /* Light blue - hover states */
+--color-primary-300: #93c5fd; /* Medium light blue */
+--color-primary-400: #60a5fa; /* Medium blue */
+--color-primary-500: #3b82f6; /* Primary blue - main brand color */
+--color-primary-600: #2563eb; /* Dark blue - primary hover */
+--color-primary-700: #1d4ed8; /* Darker blue */
+--color-primary-800: #1e40af; /* Very dark blue */
+--color-primary-900: #1e3a8a; /* Darkest blue */
 
 /* Secondary Colors (Accent) */
 --color-secondary-50: #fdf4ff;
@@ -103,17 +107,17 @@ body {
 --color-secondary-200: #f5d0fe;
 --color-secondary-300: #f0abfc;
 --color-secondary-400: #e879f9;
---color-secondary-500: #d946ef;  /* Secondary accent - magenta */
+--color-secondary-500: #d946ef; /* Secondary accent - magenta */
 --color-secondary-600: #c026d3;
 --color-secondary-700: #a21caf;
 --color-secondary-800: #86198f;
 --color-secondary-900: #701a75;
 
 /* Success/Error/Warning */
---color-success: #10b981;      /* Green - success states */
---color-error: #ef4444;        /* Red - errors */
---color-warning: #f59e0b;      /* Amber - warnings */
---color-info: #3b82f6;         /* Blue - info */
+--color-success: #10b981; /* Green - success states */
+--color-error: #ef4444; /* Red - errors */
+--color-warning: #f59e0b; /* Amber - warnings */
+--color-info: #3b82f6; /* Blue - info */
 
 /* Neutral Grays */
 --color-gray-50: #f9fafb;
@@ -165,6 +169,7 @@ body {
    - Focus: Modern, clean imagery
 
 **Image Guidelines**:
+
 - **Diversity & Inclusion**: Prioritize images showing diverse teams, Black professionals, inclusive workplaces
 - **Authenticity**: Avoid overly staged corporate stock photos
 - **Resolution**: Minimum 1920x1080 for hero images, 800x600 for content images
@@ -176,6 +181,7 @@ body {
 ### Iconography
 
 **Primary Icon Library**: Heroicons (https://heroicons.com)
+
 - **License**: MIT License (Free for commercial use)
 - **Styles**: Outline (default), Solid (emphasis)
 - **Format**: SVG
@@ -186,11 +192,13 @@ body {
 ### Illustrations
 
 **Primary Source**: unDraw (https://undraw.co)
+
 - **License**: Open-source, free for commercial use
 - **Customization**: Recolor to match brand colors
 - **Usage**: Hero sections, empty states, feature explanations
 
 **Alternative Sources**:
+
 - **Storyset** (https://storyset.com) - Free with attribution
 - **DrawKit** (https://drawkit.com) - Free & paid options
 - **Blush** (https://blush.design) - Free & paid collections
@@ -240,23 +248,25 @@ Public Site (marketing.abrinsights.ca or abrinsights.ca)
 **Layout**: Full-width, centered content with background image/gradient
 
 **Components**:
+
 - **Headline**: Display text (text-5xl, font-bold)
 - **Subheadline**: Intro text (text-xl, font-regular)
 - **CTA Buttons**: Primary + Secondary actions
 - **Hero Image**: Right-aligned illustration or photo (unDraw or Unsplash)
 
 **Example**:
+
 ```html
 <section class="hero bg-gradient-to-br from-primary-50 to-primary-100 py-20">
   <div class="container mx-auto px-6">
-    <div class="grid lg:grid-cols-2 gap-12 items-center">
+    <div class="grid items-center gap-12 lg:grid-cols-2">
       <div>
-        <h1 class="text-5xl font-bold text-gray-900 mb-6">
+        <h1 class="mb-6 text-5xl font-bold text-gray-900">
           Empower Your Organization with Anti-Black Racism Insights
         </h1>
-        <p class="text-xl text-gray-600 mb-8">
-          Comprehensive training, case law analysis, and AI-powered coaching 
-          to build more equitable workplaces across Canada.
+        <p class="mb-8 text-xl text-gray-600">
+          Comprehensive training, case law analysis, and AI-powered coaching to build more equitable
+          workplaces across Canada.
         </p>
         <div class="flex gap-4">
           <button class="btn-primary">Start Free Trial</button>
@@ -276,24 +286,28 @@ Public Site (marketing.abrinsights.ca or abrinsights.ca)
 **Layout**: Grid (3 columns desktop, 1 column mobile)
 
 **Components**:
+
 - **Icon**: Heroicon (outline, 48px)
 - **Title**: Heading (text-2xl, font-semibold)
 - **Description**: Body text (text-base)
 - **Link**: "Learn more →"
 
 **Styling**:
+
 ```css
 .feature-card {
   padding: 2rem;
   background: white;
   border-radius: 1rem;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 
 .feature-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 ```
 
@@ -302,12 +316,14 @@ Public Site (marketing.abrinsights.ca or abrinsights.ca)
 **Layout**: Grid (3 columns, equal height)
 
 **Components per card**:
+
 - **Tier Name**: (e.g., "Professional")
 - **Price**: Large text with currency (CAD $49/mo)
 - **Feature List**: Checkmarks + text
 - **CTA Button**: Different styles per tier
 
 **Styling**:
+
 - Free: Border + outline button
 - Professional: Elevated shadow + primary button (recommended badge)
 - Enterprise: Gradient border + dark button
@@ -317,6 +333,7 @@ Public Site (marketing.abrinsights.ca or abrinsights.ca)
 **Layout**: Carousel or static grid
 
 **Components**:
+
 - **Quote**: Text (italic, text-lg)
 - **Author Photo**: Circle, 64px (Unsplash)
 - **Author Name + Title**: (text-base, font-medium)
@@ -327,16 +344,18 @@ Public Site (marketing.abrinsights.ca or abrinsights.ca)
 **Layout**: Full-width, centered, accent background
 
 **Components**:
+
 - **Headline**: (text-4xl, font-bold)
 - **Subtext**: (text-xl)
 - **Button**: Primary CTA
 
 **Example**:
+
 ```html
-<section class="cta-section bg-primary-600 text-white py-16">
+<section class="cta-section bg-primary-600 py-16 text-white">
   <div class="container mx-auto px-6 text-center">
-    <h2 class="text-4xl font-bold mb-4">Ready to Transform Your Workplace?</h2>
-    <p class="text-xl mb-8">Join 500+ organizations building more equitable futures.</p>
+    <h2 class="mb-4 text-4xl font-bold">Ready to Transform Your Workplace?</h2>
+    <p class="mb-8 text-xl">Join 500+ organizations building more equitable futures.</p>
     <button class="btn-white">Get Started Today</button>
   </div>
 </section>
@@ -351,24 +370,24 @@ Public Site (marketing.abrinsights.ca or abrinsights.ca)
 ```css
 /* Primary Button */
 .btn-primary {
-  @apply px-8 py-3 bg-primary-600 text-white font-medium rounded-lg 
-         hover:bg-primary-700 focus:outline-none focus:ring-4 
-         focus:ring-primary-300 transition-all duration-200;
+  @apply rounded-lg bg-primary-600 px-8 py-3 font-medium text-white 
+         transition-all duration-200 hover:bg-primary-700 
+         focus:outline-none focus:ring-4 focus:ring-primary-300;
 }
 
 /* Secondary Button */
 .btn-secondary {
-  @apply px-8 py-3 bg-white text-primary-600 font-medium rounded-lg 
-         border-2 border-primary-600 hover:bg-primary-50 
-         focus:outline-none focus:ring-4 focus:ring-primary-300 
-         transition-all duration-200;
+  @apply rounded-lg border-2 border-primary-600 bg-white px-8 py-3 
+         font-medium text-primary-600 transition-all 
+         duration-200 hover:bg-primary-50 focus:outline-none 
+         focus:ring-4 focus:ring-primary-300;
 }
 
 /* White Button (for dark backgrounds) */
 .btn-white {
-  @apply px-8 py-3 bg-white text-primary-600 font-medium rounded-lg 
-         hover:bg-gray-100 focus:outline-none focus:ring-4 
-         focus:ring-white/30 transition-all duration-200;
+  @apply rounded-lg bg-white px-8 py-3 font-medium text-primary-600 
+         transition-all duration-200 hover:bg-gray-100 
+         focus:outline-none focus:ring-4 focus:ring-white/30;
 }
 ```
 
@@ -376,12 +395,12 @@ Public Site (marketing.abrinsights.ca or abrinsights.ca)
 
 ```css
 .card {
-  @apply bg-white rounded-xl shadow-md p-6 hover:shadow-xl 
-         transition-shadow duration-300;
+  @apply rounded-xl bg-white p-6 shadow-md transition-shadow 
+         duration-300 hover:shadow-xl;
 }
 
 .card-elevated {
-  @apply bg-white rounded-xl shadow-lg p-8 border-2 border-primary-200;
+  @apply rounded-xl border-2 border-primary-200 bg-white p-8 shadow-lg;
 }
 ```
 
@@ -399,6 +418,7 @@ xl: 1280px  /* Extra large devices */
 ```
 
 **Mobile-First Approach**:
+
 - Design for mobile (375px) first
 - Scale up to tablet (768px)
 - Optimize for desktop (1280px+)
@@ -424,7 +444,9 @@ xl: 1280px  /* Extra large devices */
 .fade-in-up {
   opacity: 0;
   transform: translateY(20px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease;
 }
 
 .fade-in-up.visible {
@@ -436,6 +458,7 @@ xl: 1280px  /* Extra large devices */
 ### Scroll Animations
 
 **Library**: AOS (Animate On Scroll) - https://michalsnik.github.io/aos/
+
 - **License**: MIT
 - **Usage**: Fade-in, slide-in effects for content sections
 
@@ -447,15 +470,15 @@ xl: 1280px  /* Extra large devices */
 
 ```javascript
 // Next.js Image Component Configuration
-import Image from 'next/image';
+import Image from 'next/image'
 
-<Image
+;<Image
   src="/images/hero.jpg"
   alt="Description"
   width={1920}
   height={1080}
-  priority={true}  // For above-fold images
-  quality={85}     // Balance quality vs size
+  priority={true} // For above-fold images
+  quality={85} // Balance quality vs size
   placeholder="blur"
 />
 ```
@@ -464,11 +487,14 @@ import Image from 'next/image';
 
 ```html
 <!-- Preconnect to Google Fonts -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
 <!-- Load Poppins with display=swap -->
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link
+  href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+  rel="stylesheet"
+/>
 ```
 
 ### CSS Optimization
@@ -484,6 +510,7 @@ import Image from 'next/image';
 ### Color Contrast
 
 All text meets minimum contrast ratios:
+
 - Normal text: 4.5:1
 - Large text (18pt+ or 14pt bold+): 3:1
 - UI components: 3:1
@@ -528,12 +555,8 @@ All text meets minimum contrast ratios:
 
 ```html
 <div class="language-toggle">
-  <button aria-label="Switch to French" hreflang="fr">
-    FR
-  </button>
-  <button aria-label="Switch to English" hreflang="en" class="active">
-    EN
-  </button>
+  <button aria-label="Switch to French" hreflang="fr">FR</button>
+  <button aria-label="Switch to English" hreflang="en" class="active">EN</button>
 </div>
 ```
 
@@ -551,6 +574,7 @@ All text meets minimum contrast ratios:
 ### Static Site Generator
 
 **Next.js** (https://nextjs.org)
+
 - Static site generation (SSG) for marketing pages
 - Image optimization built-in
 - Fast performance
@@ -561,6 +585,7 @@ All text meets minimum contrast ratios:
 ### Styling
 
 **Tailwind CSS** (https://tailwindcss.com)
+
 - Utility-first CSS framework
 - Poppins integration via config
 - Responsive design system
@@ -569,6 +594,7 @@ All text meets minimum contrast ratios:
 ### Hosting
 
 **Azure Static Web Apps**
+
 - Built-in CDN
 - Free SSL
 - Custom domain support
@@ -583,14 +609,20 @@ All text meets minimum contrast ratios:
 ```html
 <head>
   <title>ABR Insights | Anti-Black Racism Training & Analytics Platform</title>
-  <meta name="description" content="Comprehensive training, case law analysis, and AI-powered coaching for Canadian organizations building equitable workplaces." />
-  
+  <meta
+    name="description"
+    content="Comprehensive training, case law analysis, and AI-powered coaching for Canadian organizations building equitable workplaces."
+  />
+
   <!-- Open Graph -->
   <meta property="og:title" content="ABR Insights" />
-  <meta property="og:description" content="Empower your organization with anti-Black racism insights" />
+  <meta
+    property="og:description"
+    content="Empower your organization with anti-Black racism insights"
+  />
   <meta property="og:image" content="https://abrinsights.ca/og-image.jpg" />
   <meta property="og:url" content="https://abrinsights.ca" />
-  
+
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="ABR Insights" />
@@ -778,25 +810,25 @@ public/
 
 ```jsx
 // components/Hero.jsx
-import Image from 'next/image';
-import Link from 'next/link';
+import Image from 'next/image'
+import Link from 'next/link'
 
 export default function Hero() {
   return (
     <section className="relative bg-gradient-to-br from-primary-50 to-primary-100 py-20 lg:py-32">
       <div className="container mx-auto px-6">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="grid items-center gap-12 lg:grid-cols-2">
           {/* Left Column: Content */}
           <div className="text-center lg:text-left">
-            <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6">
+            <h1 className="mb-6 text-4xl font-bold text-gray-900 lg:text-6xl">
               Empower Your Organization with{' '}
               <span className="text-primary-600">Anti-Black Racism</span> Insights
             </h1>
-            <p className="text-lg lg:text-xl text-gray-600 mb-8 max-w-2xl">
-              Comprehensive training, case law analysis, and AI-powered coaching 
-              to build more equitable workplaces across Canada.
+            <p className="mb-8 max-w-2xl text-lg text-gray-600 lg:text-xl">
+              Comprehensive training, case law analysis, and AI-powered coaching to build more
+              equitable workplaces across Canada.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+            <div className="flex flex-col justify-center gap-4 sm:flex-row lg:justify-start">
               <Link href="/signup" className="btn-primary">
                 Start Free Trial
               </Link>
@@ -805,16 +837,24 @@ export default function Hero() {
               </Link>
             </div>
             {/* Trust Indicators */}
-            <div className="mt-12 flex items-center justify-center lg:justify-start gap-4 text-sm text-gray-600">
+            <div className="mt-12 flex items-center justify-center gap-4 text-sm text-gray-600 lg:justify-start">
               <div className="flex items-center gap-2">
-                <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                <svg className="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
                 </svg>
                 <span>500+ Organizations</span>
               </div>
               <div className="flex items-center gap-2">
-                <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                <svg className="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
                 </svg>
                 <span>WCAG 2.1 AA Compliant</span>
               </div>
@@ -829,13 +869,13 @@ export default function Hero() {
               width={600}
               height={500}
               priority
-              className="w-full h-auto"
+              className="h-auto w-full"
             />
           </div>
         </div>
       </div>
     </section>
-  );
+  )
 }
 ```
 
@@ -846,26 +886,25 @@ export default function Hero() {
 export default function FeatureCard({ icon, title, description, link }) {
   return (
     <div className="feature-card group">
-      <div className="w-12 h-12 mb-4 text-primary-600">
-        {icon}
-      </div>
-      <h3 className="text-xl font-semibold text-gray-900 mb-3">
-        {title}
-      </h3>
-      <p className="text-gray-600 mb-4">
-        {description}
-      </p>
-      <a 
-        href={link} 
-        className="inline-flex items-center text-primary-600 font-medium hover:text-primary-700 transition-colors"
+      <div className="mb-4 h-12 w-12 text-primary-600">{icon}</div>
+      <h3 className="mb-3 text-xl font-semibold text-gray-900">{title}</h3>
+      <p className="mb-4 text-gray-600">{description}</p>
+      <a
+        href={link}
+        className="inline-flex items-center font-medium text-primary-600 transition-colors hover:text-primary-700"
       >
-        Learn more 
-        <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        Learn more
+        <svg
+          className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
         </svg>
       </a>
     </div>
-  );
+  )
 }
 ```
 

@@ -13,10 +13,11 @@ const supabase = createClient(
 
 // Helper to create module
 async function createModule(courseId, moduleData) {
-  const slug = moduleData.title.toLowerCase()
+  const slug = moduleData.title
+    .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '')
-  
+
   const { data, error } = await supabase
     .from('course_modules')
     .insert({
@@ -26,7 +27,7 @@ async function createModule(courseId, moduleData) {
       description: moduleData.description,
       module_number: moduleData.sort_order,
       sort_order: moduleData.sort_order,
-      is_published: true
+      is_published: true,
     })
     .select()
     .single()
@@ -54,7 +55,7 @@ async function createLesson(courseId, moduleId, lessonData) {
       lesson_number: lessonData.lesson_number,
       sort_order: lessonData.sort_order,
       is_published: true,
-      is_preview: lessonData.is_preview || false
+      is_preview: lessonData.is_preview || false,
     })
     .select()
     .single()
@@ -66,7 +67,7 @@ async function createLesson(courseId, moduleId, lessonData) {
 // Course 1: Introduction to Anti-Black Racism
 async function populateIntroToABR() {
   console.log('\n📚 Populating: Introduction to Anti-Black Racism')
-  
+
   const { data: course } = await supabase
     .from('courses')
     .select('id')
@@ -81,21 +82,23 @@ async function populateIntroToABR() {
   // Module 1: Foundations
   const module1 = await createModule(course.id, {
     title: 'Understanding Anti-Black Racism: Foundations',
-    description: 'Explore the historical context and fundamental concepts of anti-Black racism in Canada.',
-    sort_order: 1
+    description:
+      'Explore the historical context and fundamental concepts of anti-Black racism in Canada.',
+    sort_order: 1,
   })
 
   await createLesson(course.id, module1.id, {
     title: 'What is Anti-Black Racism?',
     slug: 'what-is-anti-black-racism',
-    description: 'Define anti-Black racism and distinguish it from general racism and discrimination.',
+    description:
+      'Define anti-Black racism and distinguish it from general racism and discrimination.',
     content_type: 'video',
     content_url: 'https://example.com/videos/abr-definition.mp4',
     video_duration_seconds: 720,
     module_number: 1,
     lesson_number: 1,
     sort_order: 1,
-    is_preview: true
+    is_preview: true,
   })
 
   await createLesson(course.id, module1.id, {
@@ -158,7 +161,7 @@ Understanding this history is essential to recognizing that anti-Black racism in
 3. What role does Canadian mythology about being "better than the US" play in denying our own racism?`,
     module_number: 1,
     lesson_number: 2,
-    sort_order: 2
+    sort_order: 2,
   })
 
   await createLesson(course.id, module1.id, {
@@ -170,7 +173,7 @@ Understanding this history is essential to recognizing that anti-Black racism in
     video_duration_seconds: 540,
     module_number: 1,
     lesson_number: 3,
-    sort_order: 3
+    sort_order: 3,
   })
 
   await createLesson(course.id, module1.id, {
@@ -186,16 +189,18 @@ Understanding this history is essential to recognizing that anti-Black racism in
             'Any form of discrimination based on skin color',
             'Prejudice, attitudes, and stereotypes specifically directed at people of Black/African descent',
             'Historical events that happened only in the United States',
-            'Individual acts of meanness'
+            'Individual acts of meanness',
           ],
           correct_answer: 1,
-          explanation: 'Anti-Black racism is the specific prejudice, attitudes, beliefs, stereotyping, and discrimination directed at people of African descent, rooted in their unique history and experience.'
+          explanation:
+            'Anti-Black racism is the specific prejudice, attitudes, beliefs, stereotyping, and discrimination directed at people of African descent, rooted in their unique history and experience.',
         },
         {
           question: 'Slavery in Canada was abolished in:',
           options: ['1776', '1807', '1834', '1865'],
           correct_answer: 2,
-          explanation: 'Slavery was abolished throughout the British Empire, including Canada, in 1834. However, this was not the end of anti-Black discrimination.'
+          explanation:
+            'Slavery was abolished throughout the British Empire, including Canada, in 1834. However, this was not the end of anti-Black discrimination.',
         },
         {
           question: 'Systemic racism differs from individual racism because it:',
@@ -203,16 +208,18 @@ Understanding this history is essential to recognizing that anti-Black racism in
             'Is more harmful',
             'Is embedded in policies, practices, and institutions',
             'Only affects Black people',
-            'Is easier to identify'
+            'Is easier to identify',
           ],
           correct_answer: 1,
-          explanation: 'Systemic racism is embedded in the policies, practices, and procedures of institutions and systems, creating barriers for racialized groups regardless of individual intentions.'
+          explanation:
+            'Systemic racism is embedded in the policies, practices, and procedures of institutions and systems, creating barriers for racialized groups regardless of individual intentions.',
         },
         {
           question: 'Which Canadian province had legally segregated schools until 1965?',
           options: ['Ontario', 'Quebec', 'Nova Scotia', 'British Columbia'],
           correct_answer: 2,
-          explanation: 'Nova Scotia maintained legally segregated schools for Black students until 1965, demonstrating the persistence of formal discrimination in Canada.'
+          explanation:
+            'Nova Scotia maintained legally segregated schools for Black students until 1965, demonstrating the persistence of formal discrimination in Canada.',
         },
         {
           question: 'The concept of "Canadian exceptionalism" regarding racism refers to:',
@@ -220,18 +227,19 @@ Understanding this history is essential to recognizing that anti-Black racism in
             'Canada being exceptionally anti-racist',
             'The false belief that Canada does not have a history of racism',
             'Canada having better diversity policies than other countries',
-            'Black excellence in Canada'
+            'Black excellence in Canada',
           ],
           correct_answer: 1,
-          explanation: 'Canadian exceptionalism is the myth that Canada is inherently more tolerant than other countries (especially the US), which obscures our own history and present reality of anti-Black racism.'
-        }
+          explanation:
+            'Canadian exceptionalism is the myth that Canada is inherently more tolerant than other countries (especially the US), which obscures our own history and present reality of anti-Black racism.',
+        },
       ],
       passing_score: 80,
-      time_limit_minutes: 15
+      time_limit_minutes: 15,
     },
     module_number: 1,
     lesson_number: 4,
-    sort_order: 4
+    sort_order: 4,
   })
 
   console.log(`✅ Module 1: ${module1.title} - 4 lessons`)
@@ -240,19 +248,20 @@ Understanding this history is essential to recognizing that anti-Black racism in
   const module2 = await createModule(course.id, {
     title: 'Contemporary Manifestations of Anti-Black Racism',
     description: 'Identify how anti-Black racism appears in modern Canadian society.',
-    sort_order: 2
+    sort_order: 2,
   })
 
   await createLesson(course.id, module2.id, {
     title: 'Anti-Black Racism in Employment',
     slug: 'employment-discrimination',
-    description: 'Examine barriers Black Canadians face in hiring, promotion, and workplace culture.',
+    description:
+      'Examine barriers Black Canadians face in hiring, promotion, and workplace culture.',
     content_type: 'video',
     content_url: 'https://example.com/videos/employment-discrimination.mp4',
     video_duration_seconds: 660,
     module_number: 2,
     lesson_number: 1,
-    sort_order: 1
+    sort_order: 1,
   })
 
   await createLesson(course.id, module2.id, {
@@ -336,7 +345,7 @@ Educational streaming and discipline disparities lead to:
 3. What steps can schools take to close these gaps?`,
     module_number: 2,
     lesson_number: 2,
-    sort_order: 2
+    sort_order: 2,
   })
 
   await createLesson(course.id, module2.id, {
@@ -348,7 +357,7 @@ Educational streaming and discipline disparities lead to:
     video_duration_seconds: 780,
     module_number: 2,
     lesson_number: 3,
-    sort_order: 3
+    sort_order: 3,
   })
 
   await createLesson(course.id, module2.id, {
@@ -364,10 +373,11 @@ Educational streaming and discipline disparities lead to:
             'Providing specialized education',
             'Placing them in lower academic tracks, limiting opportunities',
             'Helping them graduate faster',
-            'Giving them more teacher attention'
+            'Giving them more teacher attention',
           ],
           correct_answer: 1,
-          explanation: 'Streaming places Black students disproportionately in applied or basic level courses, limiting access to university and career opportunities despite ability.'
+          explanation:
+            'Streaming places Black students disproportionately in applied or basic level courses, limiting access to university and career opportunities despite ability.',
         },
         {
           question: 'The term "carding" refers to:',
@@ -375,24 +385,27 @@ Educational streaming and discipline disparities lead to:
             'Checking identification at clubs',
             'Police randomly stopping and documenting individuals',
             'Credit card fraud',
-            'School identification systems'
+            'School identification systems',
           ],
           correct_answer: 1,
-          explanation: 'Carding (or street checks) is the practice of police arbitrarily stopping, questioning, and documenting individuals. Data shows Black people are disproportionately carded.'
+          explanation:
+            'Carding (or street checks) is the practice of police arbitrarily stopping, questioning, and documenting individuals. Data shows Black people are disproportionately carded.',
         },
         {
-          question: 'Black students in Ontario are approximately how many times more likely to be suspended than white students?',
+          question:
+            'Black students in Ontario are approximately how many times more likely to be suspended than white students?',
           options: ['Same rate', '1.5 times', '3 times', '5 times'],
           correct_answer: 2,
-          explanation: 'Research shows Black students in Ontario are approximately 3 times more likely to be suspended, even for similar behaviors, indicating bias in discipline.'
-        }
+          explanation:
+            'Research shows Black students in Ontario are approximately 3 times more likely to be suspended, even for similar behaviors, indicating bias in discipline.',
+        },
       ],
       passing_score: 75,
-      time_limit_minutes: 10
+      time_limit_minutes: 10,
     },
     module_number: 2,
     lesson_number: 4,
-    sort_order: 4
+    sort_order: 4,
   })
 
   console.log(`✅ Module 2: ${module2.title} - 4 lessons`)
@@ -401,7 +414,7 @@ Educational streaming and discipline disparities lead to:
   const module3 = await createModule(course.id, {
     title: 'Personal Reflection and Taking Action',
     description: 'Examine your own biases and learn concrete steps to combat anti-Black racism.',
-    sort_order: 3
+    sort_order: 3,
   })
 
   await createLesson(course.id, module3.id, {
@@ -510,7 +523,7 @@ Track your behavior for one week:
 3. What's one concrete action you'll take this week to address your biases?`,
     module_number: 3,
     lesson_number: 1,
-    sort_order: 1
+    sort_order: 1,
   })
 
   await createLesson(course.id, module3.id, {
@@ -522,7 +535,7 @@ Track your behavior for one week:
     video_duration_seconds: 600,
     module_number: 3,
     lesson_number: 2,
-    sort_order: 2
+    sort_order: 2,
   })
 
   await createLesson(course.id, module3.id, {
@@ -534,7 +547,7 @@ Track your behavior for one week:
     video_duration_seconds: 540,
     module_number: 3,
     lesson_number: 3,
-    sort_order: 3
+    sort_order: 3,
   })
 
   await createLesson(course.id, module3.id, {
@@ -550,10 +563,11 @@ Track your behavior for one week:
             'Only affects racist people',
             'Can be completely eliminated with training',
             'Exists in everyone and requires ongoing work to address',
-            'Is not relevant to anti-Black racism'
+            'Is not relevant to anti-Black racism',
           ],
           correct_answer: 2,
-          explanation: 'Unconscious bias affects everyone due to societal conditioning. Recognizing and actively working to counter these biases is an ongoing process.'
+          explanation:
+            'Unconscious bias affects everyone due to societal conditioning. Recognizing and actively working to counter these biases is an ongoing process.',
         },
         {
           question: 'When witnessing anti-Black racism, the most important consideration is:',
@@ -561,10 +575,11 @@ Track your behavior for one week:
             'Your own comfort',
             'The safety and wishes of the person experiencing racism',
             'Not making a scene',
-            'Proving you are not racist'
+            'Proving you are not racist',
           ],
           correct_answer: 1,
-          explanation: 'The safety and preferences of the person experiencing racism should guide your intervention. Sometimes direct intervention can escalate harm.'
+          explanation:
+            'The safety and preferences of the person experiencing racism should guide your intervention. Sometimes direct intervention can escalate harm.',
         },
         {
           question: 'Which statement reflects accountability after making a racist mistake?',
@@ -572,10 +587,11 @@ Track your behavior for one week:
             '"I\'m not racist, I have Black friends"',
             '"I\'m sorry you felt that way"',
             '"I apologize for the harm I caused. I will educate myself and do better"',
-            '"You\'re too sensitive"'
+            '"You\'re too sensitive"',
           ],
           correct_answer: 2,
-          explanation: 'True accountability involves acknowledging harm without defensiveness, taking responsibility, and committing to change without burdening the harmed person with your education.'
+          explanation:
+            'True accountability involves acknowledging harm without defensiveness, taking responsibility, and committing to change without burdening the harmed person with your education.',
         },
         {
           question: 'Anti-racism work is:',
@@ -583,18 +599,19 @@ Track your behavior for one week:
             'A one-time training',
             'Only for Black people to do',
             'A lifelong commitment requiring continuous learning and action',
-            'Complete once you understand the issues'
+            'Complete once you understand the issues',
           ],
           correct_answer: 2,
-          explanation: 'Anti-racism is ongoing work that requires continuous learning, unlearning, and action. It is never "complete" because society and we ourselves are always evolving.'
-        }
+          explanation:
+            'Anti-racism is ongoing work that requires continuous learning, unlearning, and action. It is never "complete" because society and we ourselves are always evolving.',
+        },
       ],
       passing_score: 85,
-      time_limit_minutes: 20
+      time_limit_minutes: 20,
     },
     module_number: 3,
     lesson_number: 4,
-    sort_order: 4
+    sort_order: 4,
   })
 
   console.log(`✅ Module 3: ${module3.title} - 4 lessons`)
@@ -608,7 +625,7 @@ async function main() {
 
   try {
     await populateIntroToABR()
-    
+
     console.log('\n✅ Part 1 Complete - Course 1 populated')
     console.log('Run the next script for remaining courses...')
   } catch (error) {
@@ -617,7 +634,9 @@ async function main() {
   }
 }
 
-main().then(() => process.exit(0)).catch(err => {
-  console.error(err)
-  process.exit(1)
-})
+main()
+  .then(() => process.exit(0))
+  .catch((err) => {
+    console.error(err)
+    process.exit(1)
+  })

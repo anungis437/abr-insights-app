@@ -3,14 +3,14 @@
 /**
  * SSO Configuration Admin Page
  * Route: /admin/sso-config
- * 
+ *
  * Features:
  * - SSO provider CRUD (Azure AD B2C, SAML 2.0)
  * - Test connection UI
  * - Domain restrictions
  * - Attribute mapping editor
  * - Provider status management
- * 
+ *
  * Uses new enterprise_sso_auth migration tables
  */
 
@@ -34,7 +34,7 @@ import {
   ExternalLink,
   Copy,
   Eye,
-  EyeOff
+  EyeOff,
 } from 'lucide-react'
 
 interface SSOProvider {
@@ -73,9 +73,11 @@ interface SSOProvider {
 
 export default function SSOConfigPage() {
   const supabase = createClient()
-  
+
   const [providers, setProviders] = useState<SSOProvider[]>([])
-  const [organizations, setOrganizations] = useState<{ id: string; name: string; slug: string }[]>([])
+  const [organizations, setOrganizations] = useState<{ id: string; name: string; slug: string }[]>(
+    []
+  )
   const [loading, setLoading] = useState(true)
   const [showAddModal, setShowAddModal] = useState(false)
   const [selectedProvider, setSelectedProvider] = useState<SSOProvider | null>(null)
@@ -107,13 +109,16 @@ export default function SSOConfigPage() {
     setLoading(true)
     try {
       // Get current user's organization
-      const { data: { user }, error: userError } = await supabase.auth.getUser()
-      
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser()
+
       if (userError) {
         console.error('Error getting user:', userError)
         throw userError
       }
-      
+
       if (!user) {
         console.warn('No authenticated user found')
         throw new Error('Not authenticated')
@@ -145,7 +150,7 @@ export default function SSOConfigPage() {
           message: orgsError.message,
           details: orgsError.details,
           hint: orgsError.hint,
-          code: orgsError.code
+          code: orgsError.code,
         })
       } else {
         console.log('Organizations loaded:', orgs?.length || 0)
@@ -157,40 +162,49 @@ export default function SSOConfigPage() {
       console.log('Attempting to load SSO providers...')
       const { data: ssoData, error: ssoError } = await supabase
         .from('sso_providers')
-        .select(`
+        .select(
+          `
           *,
           organizations (
             slug
           )
-        `)
+        `
+        )
         .order('created_at', { ascending: false })
 
       if (ssoError) {
         // Log the full error object to see its structure
         console.error('Error loading SSO providers (full object):', ssoError)
-        console.error('Error loading SSO providers (stringified):', JSON.stringify(ssoError, null, 2))
+        console.error(
+          'Error loading SSO providers (stringified):',
+          JSON.stringify(ssoError, null, 2)
+        )
         console.error('Error loading SSO providers (structured):', {
           message: ssoError.message,
           details: ssoError.details,
           hint: ssoError.hint,
           code: ssoError.code,
           statusCode: (ssoError as any).statusCode,
-          status: (ssoError as any).status
+          status: (ssoError as any).status,
         })
-        
+
         // Log all enumerable properties
         console.error('Error keys:', Object.keys(ssoError))
         console.error('Error entries:', Object.entries(ssoError))
-        
+
         // If it's a permission error, show helpful message
-        if (ssoError.code === 'PGRST116' || ssoError.message?.includes('permission') || ssoError.message?.includes('policy')) {
+        if (
+          ssoError.code === 'PGRST116' ||
+          ssoError.message?.includes('permission') ||
+          ssoError.message?.includes('policy')
+        ) {
           console.warn('⚠️  Permission denied accessing SSO providers.')
           console.warn('This user may need:')
           console.warn('  - An admin or super_admin role')
           console.warn('  - To be assigned to an organization')
           console.warn('  - Proper RLS policies to be enabled')
         }
-        
+
         // Don't throw, just log and continue with empty array
         setProviders([])
         setLoading(false)
@@ -211,13 +225,13 @@ export default function SSOConfigPage() {
       const errorDetails = (error as any)?.details
       const errorCode = (error as any)?.code
       const errorHint = (error as any)?.hint
-      
+
       console.error('Error loading data:', {
         message: errorMessage,
         code: errorCode,
         details: errorDetails,
         hint: errorHint,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       })
     } finally {
       setLoading(false)
@@ -295,7 +309,8 @@ export default function SSOConfigPage() {
           insertData.saml_sso_url = formData.saml_sso_url
           insertData.saml_slo_url = formData.saml_slo_url
           insertData.saml_certificate = formData.saml_certificate
-          insertData.saml_name_id_format = formData.saml_name_id_format || 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress'
+          insertData.saml_name_id_format =
+            formData.saml_name_id_format || 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress'
         } else if (formData.provider_type?.startsWith('oidc')) {
           insertData.oidc_issuer_url = formData.oidc_issuer_url
           insertData.oidc_client_id = formData.oidc_client_id
@@ -337,13 +352,14 @@ export default function SSOConfigPage() {
     try {
       // Generate test login URL
       const baseUrl = window.location.origin
-      const loginUrl = provider.provider_type === 'azure_ad_b2c'
-        ? `${baseUrl}/api/auth/azure/login?org=${provider.organization_slug}`
-        : `${baseUrl}/api/auth/saml/login?org=${provider.organization_slug}`
+      const loginUrl =
+        provider.provider_type === 'azure_ad_b2c'
+          ? `${baseUrl}/api/auth/azure/login?org=${provider.organization_slug}`
+          : `${baseUrl}/api/auth/saml/login?org=${provider.organization_slug}`
 
       // Open in new window
       window.open(loginUrl, '_blank', 'width=800,height=600')
-      
+
       setTimeout(() => setTestingProvider(null), 2000)
     } catch (error) {
       console.error('Error testing provider:', error)
@@ -393,14 +409,14 @@ export default function SSOConfigPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
       </div>
     )
   }
 
   return (
-    <div className="container-custom pt-20 pb-8">
+    <div className="container-custom pb-8 pt-20">
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">SSO Configuration</h1>
@@ -424,10 +440,10 @@ export default function SSOConfigPage() {
       {/* Providers List */}
       <div className="space-y-4">
         {providers.length === 0 ? (
-          <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-            <Shield className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No SSO Providers</h3>
-            <p className="text-gray-600 mb-4">Get started by adding your first SSO provider</p>
+          <div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 py-12 text-center">
+            <Shield className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+            <h3 className="mb-2 text-lg font-medium text-gray-900">No SSO Providers</h3>
+            <p className="mb-4 text-gray-600">Get started by adding your first SSO provider</p>
             <button
               onClick={() => {
                 resetForm()
@@ -440,19 +456,19 @@ export default function SSOConfigPage() {
           </div>
         ) : (
           providers.map((provider) => (
-            <div key={provider.id} className="bg-white rounded-lg border border-gray-200 p-6">
+            <div key={provider.id} className="rounded-lg border border-gray-200 bg-white p-6">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
+                  <div className="mb-2 flex items-center gap-3">
                     <Shield className="h-6 w-6 text-blue-600" />
                     <h3 className="text-lg font-semibold text-gray-900">{provider.name}</h3>
                     {provider.is_default && (
-                      <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded">
+                      <span className="rounded bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700">
                         Default
                       </span>
                     )}
                     <span
-                      className={`px-2 py-1 text-xs font-medium rounded ${
+                      className={`rounded px-2 py-1 text-xs font-medium ${
                         provider.status === 'active'
                           ? 'bg-green-100 text-green-700'
                           : provider.status === 'draft'
@@ -465,28 +481,33 @@ export default function SSOConfigPage() {
                       {provider.status}
                     </span>
                   </div>
-                  
-                  <div className="grid grid-cols-2 gap-4 mt-4 text-sm">
+
+                  <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <span className="text-gray-500">Type:</span>
                       <span className="ml-2 font-medium text-gray-900">
-                        {provider.provider_type === 'azure_ad_b2c' ? 'Azure AD B2C' : 
-                         provider.provider_type === 'saml' ? 'SAML 2.0' :
-                         provider.provider_type === 'oidc' ? 'OpenID Connect' :
-                         provider.provider_type}
+                        {provider.provider_type === 'azure_ad_b2c'
+                          ? 'Azure AD B2C'
+                          : provider.provider_type === 'saml'
+                            ? 'SAML 2.0'
+                            : provider.provider_type === 'oidc'
+                              ? 'OpenID Connect'
+                              : provider.provider_type}
                       </span>
                     </div>
                     <div>
                       <span className="text-gray-500">Organization:</span>
-                      <span className="ml-2 font-medium text-gray-900">{provider.organization_slug}</span>
+                      <span className="ml-2 font-medium text-gray-900">
+                        {provider.organization_slug}
+                      </span>
                     </div>
                     <div>
                       <span className="text-gray-500">Auto-provision:</span>
                       <span className="ml-2">
                         {provider.auto_provision_users ? (
-                          <CheckCircle className="h-4 w-4 text-green-600 inline" />
+                          <CheckCircle className="inline h-4 w-4 text-green-600" />
                         ) : (
-                          <XCircle className="h-4 w-4 text-gray-400 inline" />
+                          <XCircle className="inline h-4 w-4 text-gray-400" />
                         )}
                       </span>
                     </div>
@@ -501,29 +522,30 @@ export default function SSOConfigPage() {
                   </div>
 
                   {provider.provider_type === 'azure_ad_b2c' && (
-                    <div className="mt-4 p-3 bg-gray-50 rounded text-sm">
-                      <div className="text-gray-500 mb-1">Redirect URI:</div>
-                      <code className="text-gray-900 text-xs">
+                    <div className="mt-4 rounded bg-gray-50 p-3 text-sm">
+                      <div className="mb-1 text-gray-500">Redirect URI:</div>
+                      <code className="text-xs text-gray-900">
                         {window.location.origin}/api/auth/azure/callback
                       </code>
                     </div>
                   )}
 
                   {provider.provider_type === 'saml' && (
-                    <div className="mt-4 p-3 bg-gray-50 rounded text-sm">
-                      <div className="text-gray-500 mb-1">Metadata URL:</div>
-                      <code className="text-gray-900 text-xs">
-                        {window.location.origin}/api/auth/saml/metadata?org={provider.organization_slug}
+                    <div className="mt-4 rounded bg-gray-50 p-3 text-sm">
+                      <div className="mb-1 text-gray-500">Metadata URL:</div>
+                      <code className="text-xs text-gray-900">
+                        {window.location.origin}/api/auth/saml/metadata?org=
+                        {provider.organization_slug}
                       </code>
                     </div>
                   )}
                 </div>
 
-                <div className="flex items-center gap-2 ml-4">
+                <div className="ml-4 flex items-center gap-2">
                   <button
                     onClick={() => handleTest(provider)}
                     disabled={testingProvider === provider.id}
-                    className="p-2 text-blue-600 hover:bg-blue-50 rounded transition"
+                    className="rounded p-2 text-blue-600 transition hover:bg-blue-50"
                     title="Test Connection"
                   >
                     {testingProvider === provider.id ? (
@@ -538,14 +560,14 @@ export default function SSOConfigPage() {
                       setFormData(provider)
                       setShowAddModal(true)
                     }}
-                    className="p-2 text-gray-600 hover:bg-gray-100 rounded transition"
+                    className="rounded p-2 text-gray-600 transition hover:bg-gray-100"
                     title="Edit"
                   >
                     <Edit className="h-5 w-5" />
                   </button>
                   <button
                     onClick={() => handleDelete(provider.id)}
-                    className="p-2 text-red-600 hover:bg-red-50 rounded transition"
+                    className="rounded p-2 text-red-600 transition hover:bg-red-50"
                     title="Delete"
                   >
                     <Trash2 className="h-5 w-5" />
@@ -559,28 +581,39 @@ export default function SSOConfigPage() {
 
       {/* Add/Edit Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white">
+            <div className="border-b border-gray-200 p-6">
               <h2 className="text-2xl font-bold text-gray-900">
                 {selectedProvider ? 'Edit SSO Provider' : 'Add SSO Provider'}
               </h2>
             </div>
 
-            <div className="p-6 space-y-4">
+            <div className="space-y-4 p-6">
               {/* Provider Type */}
               {!selectedProvider && (
                 <div>
-                  <label htmlFor="provider-type" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label
+                    htmlFor="provider-type"
+                    className="mb-2 block text-sm font-medium text-gray-700"
+                  >
                     Provider Type
                   </label>
                   <select
                     id="provider-type"
                     value={formData.provider_type}
                     onChange={(e) =>
-                      setFormData({ ...formData, provider_type: e.target.value as 'azure_ad_b2c' | 'saml' | 'oidc' | 'okta' | 'auth0' })
+                      setFormData({
+                        ...formData,
+                        provider_type: e.target.value as
+                          | 'azure_ad_b2c'
+                          | 'saml'
+                          | 'oidc'
+                          | 'okta'
+                          | 'auth0',
+                      })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="azure_ad_b2c">Azure AD B2C</option>
                     <option value="saml">SAML 2.0</option>
@@ -594,14 +627,17 @@ export default function SSOConfigPage() {
               {/* Organization */}
               {!selectedProvider && (
                 <div>
-                  <label htmlFor="organization" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label
+                    htmlFor="organization"
+                    className="mb-2 block text-sm font-medium text-gray-700"
+                  >
                     Organization
                   </label>
                   <select
                     id="organization"
                     value={formData.organization_id}
                     onChange={(e) => setFormData({ ...formData, organization_id: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                     required
                   >
                     <option value="">Select organization...</option>
@@ -616,14 +652,14 @@ export default function SSOConfigPage() {
 
               {/* Provider Name */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="mb-2 block text-sm font-medium text-gray-700">
                   Provider Name
                 </label>
                 <input
                   type="text"
                   value={formData.name || ''}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                   placeholder="e.g., Toronto Police Azure AD"
                   required
                 />
@@ -631,14 +667,14 @@ export default function SSOConfigPage() {
 
               {/* Provider Slug */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="mb-2 block text-sm font-medium text-gray-700">
                   Provider Slug
                 </label>
                 <input
                   type="text"
                   value={formData.slug || ''}
                   onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                   placeholder="e.g., toronto-police-azure"
                   required
                 />
@@ -648,14 +684,16 @@ export default function SSOConfigPage() {
               {formData.provider_type === 'azure_ad_b2c' && (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="mb-2 block text-sm font-medium text-gray-700">
                       Client ID / Application ID
                     </label>
                     <input
                       type="text"
                       value={formData.azure_client_id || ''}
-                      onChange={(e) => setFormData({ ...formData, azure_client_id: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      onChange={(e) =>
+                        setFormData({ ...formData, azure_client_id: e.target.value })
+                      }
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                       placeholder="00000000-0000-0000-0000-000000000000"
                       required
                     />
@@ -663,15 +701,17 @@ export default function SSOConfigPage() {
 
                   {!selectedProvider && (
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="mb-2 block text-sm font-medium text-gray-700">
                         Client Secret
                       </label>
                       <div className="relative">
                         <input
                           type={showSecret[formData.name || 'new'] ? 'text' : 'password'}
                           value={formData.azure_client_secret || ''}
-                          onChange={(e) => setFormData({ ...formData, azure_client_secret: e.target.value })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          onChange={(e) =>
+                            setFormData({ ...formData, azure_client_secret: e.target.value })
+                          }
+                          className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                           placeholder="Client secret value"
                           required
                         />
@@ -696,28 +736,32 @@ export default function SSOConfigPage() {
                   )}
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="mb-2 block text-sm font-medium text-gray-700">
                       Tenant ID
                     </label>
                     <input
                       type="text"
                       value={formData.azure_tenant_id || ''}
-                      onChange={(e) => setFormData({ ...formData, azure_tenant_id: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      onChange={(e) =>
+                        setFormData({ ...formData, azure_tenant_id: e.target.value })
+                      }
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                       placeholder="contoso.onmicrosoft.com"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="mb-2 block text-sm font-medium text-gray-700">
                       Policy Name (User Flow)
                     </label>
                     <input
                       type="text"
                       value={formData.azure_policy_name || ''}
-                      onChange={(e) => setFormData({ ...formData, azure_policy_name: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      onChange={(e) =>
+                        setFormData({ ...formData, azure_policy_name: e.target.value })
+                      }
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                       placeholder="B2C_1_signupsignin"
                     />
                   </div>
@@ -728,41 +772,43 @@ export default function SSOConfigPage() {
               {formData.provider_type === 'saml' && (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="mb-2 block text-sm font-medium text-gray-700">
                       Entity ID (SP)
                     </label>
                     <input
                       type="text"
                       value={formData.saml_entity_id}
                       onChange={(e) => setFormData({ ...formData, saml_entity_id: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                       placeholder="https://abr-insights.com/saml"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="mb-2 block text-sm font-medium text-gray-700">
                       SSO URL (IdP)
                     </label>
                     <input
                       type="url"
                       value={formData.saml_sso_url}
                       onChange={(e) => setFormData({ ...formData, saml_sso_url: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                       placeholder="https://idp.example.com/sso"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="mb-2 block text-sm font-medium text-gray-700">
                       X.509 Certificate (IdP)
                     </label>
                     <textarea
                       value={formData.saml_certificate}
-                      onChange={(e) => setFormData({ ...formData, saml_certificate: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-xs"
+                      onChange={(e) =>
+                        setFormData({ ...formData, saml_certificate: e.target.value })
+                      }
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2 font-mono text-xs focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                       rows={6}
                       placeholder="-----BEGIN CERTIFICATE-----&#10;...&#10;-----END CERTIFICATE-----"
                       required
@@ -773,22 +819,22 @@ export default function SSOConfigPage() {
 
               {/* Allowed Domains */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="mb-2 block text-sm font-medium text-gray-700">
                   Allowed Email Domains (optional)
                 </label>
-                <div className="flex gap-2 mb-2">
+                <div className="mb-2 flex gap-2">
                   <input
                     type="text"
                     value={domainInput}
                     onChange={(e) => setDomainInput(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddDomain())}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="flex-1 rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                     placeholder="example.com"
                   />
                   <button
                     type="button"
                     onClick={handleAddDomain}
-                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
+                    className="rounded-lg bg-gray-100 px-4 py-2 text-gray-700 hover:bg-gray-200"
                   >
                     Add
                   </button>
@@ -797,7 +843,7 @@ export default function SSOConfigPage() {
                   {formData.allowed_domains?.map((domain) => (
                     <span
                       key={domain}
-                      className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm"
+                      className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-700"
                     >
                       {domain}
                       <button
@@ -846,14 +892,22 @@ export default function SSOConfigPage() {
 
               {/* Status */}
               <div>
-                <label htmlFor="sso-status" className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                <label
+                  htmlFor="sso-status"
+                  className="mb-2 block text-sm font-medium text-gray-700"
+                >
+                  Status
+                </label>
                 <select
                   id="sso-status"
                   value={formData.status}
                   onChange={(e) =>
-                    setFormData({ ...formData, status: e.target.value as 'draft' | 'active' | 'inactive' | 'error' })
+                    setFormData({
+                      ...formData,
+                      status: e.target.value as 'draft' | 'active' | 'inactive' | 'error',
+                    })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="draft">Draft</option>
                   <option value="active">Active</option>
@@ -863,21 +917,21 @@ export default function SSOConfigPage() {
               </div>
             </div>
 
-            <div className="p-6 border-t border-gray-200 flex justify-end gap-3">
+            <div className="flex justify-end gap-3 border-t border-gray-200 p-6">
               <button
                 onClick={() => {
                   setShowAddModal(false)
                   setSelectedProvider(null)
                   resetForm()
                 }}
-                className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition"
+                className="rounded-lg px-4 py-2 text-gray-700 transition hover:bg-gray-100"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
                 disabled={!formData.name || !formData.azure_client_id}
-                className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-primary disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {selectedProvider ? 'Save Changes' : 'Add Provider'}
               </button>

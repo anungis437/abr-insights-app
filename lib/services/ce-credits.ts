@@ -1,6 +1,6 @@
 /**
  * CE Credit Tracking Service
- * 
+ *
  * Provides functions for tracking and managing Continuing Education credits:
  * - Dashboard data aggregation
  * - Credit history retrieval
@@ -113,7 +113,7 @@ export async function getUserCEDashboard(userId: string): Promise<CEDashboardDat
 
   try {
     const { data, error } = await supabase.rpc('get_user_ce_dashboard', {
-      p_user_id: userId
+      p_user_id: userId,
     })
 
     if (error) {
@@ -142,7 +142,7 @@ export async function getCECreditHistory(
     const { data, error } = await supabase.rpc('get_ce_credit_history', {
       p_user_id: userId,
       p_regulatory_body: regulatoryBody || null,
-      p_limit: limit
+      p_limit: limit,
     })
 
     if (error) {
@@ -173,7 +173,7 @@ export async function calculateCERequirements(
       p_user_id: userId,
       p_regulatory_body: regulatoryBody,
       p_cycle_start_date: cycleStartDate || null,
-      p_cycle_end_date: cycleEndDate || null
+      p_cycle_end_date: cycleEndDate || null,
     })
 
     if (error) {
@@ -221,24 +221,20 @@ export async function getCECreditSummaryByBody(userId: string) {
 /**
  * Get active CE credits for a user
  */
-export async function getActiveCECredits(
-  userId: string,
-  regulatoryBody?: string
-) {
+export async function getActiveCECredits(userId: string, regulatoryBody?: string) {
   const supabase = await createClient()
 
   try {
-    let query = supabase
-      .from('active_ce_credits')
-      .select('*')
-      .eq('user_id', userId)
+    let query = supabase.from('active_ce_credits').select('*').eq('user_id', userId)
 
     if (regulatoryBody) {
       query = query.eq('regulatory_body', regulatoryBody)
     }
 
-    const { data, error } = await query
-      .order('days_until_expiry', { ascending: true, nullsFirst: false })
+    const { data, error } = await query.order('days_until_expiry', {
+      ascending: true,
+      nullsFirst: false,
+    })
 
     if (error) {
       console.error('Error fetching active CE credits:', error)
@@ -280,10 +276,7 @@ export async function getCERenewalAlerts(userId: string) {
 /**
  * Get certificates expiring within a time period
  */
-export async function getExpiringCertificates(
-  userId: string,
-  daysAhead: number = 90
-) {
+export async function getExpiringCertificates(userId: string, daysAhead: number = 90) {
   const supabase = await createClient()
 
   try {
@@ -294,7 +287,8 @@ export async function getExpiringCertificates(
 
     const { data, error } = await supabase
       .from('certificates')
-      .select(`
+      .select(
+        `
         id,
         certificate_number,
         title,
@@ -306,7 +300,8 @@ export async function getExpiringCertificates(
         credit_category,
         status,
         course:courses(title)
-      `)
+      `
+      )
       .eq('user_id', userId)
       .eq('status', 'active')
       .gt('ce_credits', 0)
@@ -353,7 +348,7 @@ export async function getUserRegulatoryBodies(userId: string): Promise<string[]>
     }
 
     // Get unique regulatory bodies
-    const bodies = [...new Set(data.map(d => d.regulatory_body).filter(Boolean))]
+    const bodies = [...new Set(data.map((d) => d.regulatory_body).filter(Boolean))]
     return bodies as string[]
   } catch (error) {
     console.error('Error in getUserRegulatoryBodies:', error)

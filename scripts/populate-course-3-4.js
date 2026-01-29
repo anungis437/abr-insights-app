@@ -3,21 +3,43 @@
  */
 
 const { createClient } = require('@supabase/supabase-js')
-const supabase = createClient('***REMOVED***', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.***REMOVED***.iN8EyRCE9cu5x3mpeC-nDeocv26k6yYFEZi1WHNJeyI')
+const supabase = createClient(
+  '***REMOVED***',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.***REMOVED***.iN8EyRCE9cu5x3mpeC-nDeocv26k6yYFEZi1WHNJeyI'
+)
 
 async function createModule(courseId, data) {
-  const { data: module, error } = await supabase.from('course_modules').insert({
-    course_id: courseId, title: data.title, slug: data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
-    description: data.description, module_number: data.sort_order, sort_order: data.sort_order, is_published: true
-  }).select().single()
+  const { data: module, error } = await supabase
+    .from('course_modules')
+    .insert({
+      course_id: courseId,
+      title: data.title,
+      slug: data.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, ''),
+      description: data.description,
+      module_number: data.sort_order,
+      sort_order: data.sort_order,
+      is_published: true,
+    })
+    .select()
+    .single()
   if (error) throw error
   return module
 }
 
 async function createLesson(courseId, moduleId, data) {
-  const { data: lesson, error } = await supabase.from('lessons').insert({
-    course_id: courseId, module_id: moduleId, ...data, is_published: true
-  }).select().single()
+  const { data: lesson, error } = await supabase
+    .from('lessons')
+    .insert({
+      course_id: courseId,
+      module_id: moduleId,
+      ...data,
+      is_published: true,
+    })
+    .select()
+    .single()
   if (error) throw error
   return lesson
 }
@@ -25,20 +47,41 @@ async function createLesson(courseId, moduleId, data) {
 // COURSE 3: Microaggressions
 async function populateMicroaggressions() {
   console.log('\n📚 Course 3: Recognizing and Addressing Microaggressions')
-  const { data: course } = await supabase.from('courses').select('id').eq('slug', 'microaggressions-workplace').single()
-  if (!course) { console.log('❌ Not found'); return }
+  const { data: course } = await supabase
+    .from('courses')
+    .select('id')
+    .eq('slug', 'microaggressions-workplace')
+    .single()
+  if (!course) {
+    console.log('❌ Not found')
+    return
+  }
 
-  const m1 = await createModule(course.id, { title: 'Understanding Microaggressions', description: 'What are microaggressions and why do they matter?', sort_order: 1 })
-  
-  await createLesson(course.id, m1.id, {
-    title: 'What Are Microaggressions?', slug: 'what-are-microaggressions', description: 'Define microaggressions and understand their impact.',
-    content_type: 'video', content_url: 'https://example.com/videos/microaggressions-intro.mp4', video_duration_seconds: 600,
-    module_number: 1, lesson_number: 1, sort_order: 1, is_preview: true
+  const m1 = await createModule(course.id, {
+    title: 'Understanding Microaggressions',
+    description: 'What are microaggressions and why do they matter?',
+    sort_order: 1,
   })
 
   await createLesson(course.id, m1.id, {
-    title: 'Types of Microaggressions', slug: 'types-microaggressions', description: 'Microassaults, microinsults, and microinvalidations explained.',
-    content_type: 'article', article_body: `# Types of Microaggressions
+    title: 'What Are Microaggressions?',
+    slug: 'what-are-microaggressions',
+    description: 'Define microaggressions and understand their impact.',
+    content_type: 'video',
+    content_url: 'https://example.com/videos/microaggressions-intro.mp4',
+    video_duration_seconds: 600,
+    module_number: 1,
+    lesson_number: 1,
+    sort_order: 1,
+    is_preview: true,
+  })
+
+  await createLesson(course.id, m1.id, {
+    title: 'Types of Microaggressions',
+    slug: 'types-microaggressions',
+    description: 'Microassaults, microinsults, and microinvalidations explained.',
+    content_type: 'article',
+    article_body: `# Types of Microaggressions
 
 ## Three Categories
 
@@ -161,28 +204,49 @@ Some scholars prefer "everyday racism" because:
 1. Have you ever said or done something that might be a microaggression?
 2. How might microaggressions affect someone's daily experience?
 3. Why is it important to address even "small" incidents?`,
-    module_number: 1, lesson_number: 2, sort_order: 2
+    module_number: 1,
+    lesson_number: 2,
+    sort_order: 2,
   })
 
   await createLesson(course.id, m1.id, {
-    title: 'The Cumulative Impact', slug: 'cumulative-impact', description: 'Understanding the psychological toll of repeated microaggressions.',
-    content_type: 'video', content_url: 'https://example.com/videos/cumulative-impact.mp4', video_duration_seconds: 540,
-    module_number: 1, lesson_number: 3, sort_order: 3
+    title: 'The Cumulative Impact',
+    slug: 'cumulative-impact',
+    description: 'Understanding the psychological toll of repeated microaggressions.',
+    content_type: 'video',
+    content_url: 'https://example.com/videos/cumulative-impact.mp4',
+    video_duration_seconds: 540,
+    module_number: 1,
+    lesson_number: 3,
+    sort_order: 3,
   })
 
   console.log(`✅ Module 1: 3 lessons`)
 
-  const m2 = await createModule(course.id, { title: 'Responding to Microaggressions', description: 'Strategies for targets, perpetrators, and bystanders.', sort_order: 2 })
-
-  await createLesson(course.id, m2.id, {
-    title: 'When You\'re the Target', slug: 'when-youre-target', description: 'Self-care and response strategies if you experience microaggressions.',
-    content_type: 'video', content_url: 'https://example.com/videos/target-response.mp4', video_duration_seconds: 660,
-    module_number: 2, lesson_number: 1, sort_order: 1
+  const m2 = await createModule(course.id, {
+    title: 'Responding to Microaggressions',
+    description: 'Strategies for targets, perpetrators, and bystanders.',
+    sort_order: 2,
   })
 
   await createLesson(course.id, m2.id, {
-    title: 'When You\'re the Perpetrator', slug: 'when-youre-perpetrator', description: 'How to respond if someone points out your microaggression.',
-    content_type: 'article', article_body: `# When You've Committed a Microaggression
+    title: "When You're the Target",
+    slug: 'when-youre-target',
+    description: 'Self-care and response strategies if you experience microaggressions.',
+    content_type: 'video',
+    content_url: 'https://example.com/videos/target-response.mp4',
+    video_duration_seconds: 660,
+    module_number: 2,
+    lesson_number: 1,
+    sort_order: 1,
+  })
+
+  await createLesson(course.id, m2.id, {
+    title: "When You're the Perpetrator",
+    slug: 'when-youre-perpetrator',
+    description: 'How to respond if someone points out your microaggression.',
+    content_type: 'article',
+    article_body: `# When You've Committed a Microaggression
 
 ## First: Breathe and Accept Reality
 
@@ -310,29 +374,73 @@ It's normal to feel:
 1. What's your typical first reaction when someone corrects you? Why?
 2. How can you prepare yourself to respond better in the moment?
 3. What support systems can you put in place to process your feelings appropriately?`,
-    module_number: 2, lesson_number: 2, sort_order: 2
+    module_number: 2,
+    lesson_number: 2,
+    sort_order: 2,
   })
 
   await createLesson(course.id, m2.id, {
-    title: 'Bystander Intervention', slug: 'bystander-intervention', description: 'How to intervene when you witness microaggressions.',
-    content_type: 'video', content_url: 'https://example.com/videos/bystander-micro.mp4', video_duration_seconds: 600,
-    module_number: 2, lesson_number: 3, sort_order: 3
+    title: 'Bystander Intervention',
+    slug: 'bystander-intervention',
+    description: 'How to intervene when you witness microaggressions.',
+    content_type: 'video',
+    content_url: 'https://example.com/videos/bystander-micro.mp4',
+    video_duration_seconds: 600,
+    module_number: 2,
+    lesson_number: 3,
+    sort_order: 3,
   })
 
   await createLesson(course.id, m2.id, {
-    title: 'Quiz: Microaggressions', slug: 'quiz-microaggressions', description: 'Test your understanding.',
-    content_type: 'quiz', content_data: {
+    title: 'Quiz: Microaggressions',
+    slug: 'quiz-microaggressions',
+    description: 'Test your understanding.',
+    content_type: 'quiz',
+    content_data: {
       questions: [
-        { question: 'Which statement is a microaggression?', options: ['Black Lives Matter', 'I don\'t see color', 'Systemic racism exists', 'Let me educate myself'],
-          correct_answer: 1, explanation: '"I don\'t see color" invalidates the lived experience of racism and suggests being Black is something to be overlooked rather than respected.' },
-        { question: 'If someone says you committed a microaggression, the best first response is:', 
-          options: ['Explain what you actually meant', 'Thank them and apologize', 'Ask them not to be so sensitive', 'Get defensive about your intent'],
-          correct_answer: 1, explanation: 'Thank the person for telling you and apologize for the harm caused. Intent doesn\'t negate impact.' },
-        { question: 'Microaggressions are called "micro" because:', 
-          options: ['They are minor and don\'t really matter', 'They are small individual incidents that accumulate', 'Only micromanagers do them', 'They are easy to fix'],
-          correct_answer: 1, explanation: 'The "micro" refers to individual incidents, but the cumulative effect is significant. Many prefer the term "everyday racism."' }
-      ], passing_score: 75, time_limit_minutes: 10
-    }, module_number: 2, lesson_number: 4, sort_order: 4
+        {
+          question: 'Which statement is a microaggression?',
+          options: [
+            'Black Lives Matter',
+            "I don't see color",
+            'Systemic racism exists',
+            'Let me educate myself',
+          ],
+          correct_answer: 1,
+          explanation:
+            '"I don\'t see color" invalidates the lived experience of racism and suggests being Black is something to be overlooked rather than respected.',
+        },
+        {
+          question: 'If someone says you committed a microaggression, the best first response is:',
+          options: [
+            'Explain what you actually meant',
+            'Thank them and apologize',
+            'Ask them not to be so sensitive',
+            'Get defensive about your intent',
+          ],
+          correct_answer: 1,
+          explanation:
+            "Thank the person for telling you and apologize for the harm caused. Intent doesn't negate impact.",
+        },
+        {
+          question: 'Microaggressions are called "micro" because:',
+          options: [
+            "They are minor and don't really matter",
+            'They are small individual incidents that accumulate',
+            'Only micromanagers do them',
+            'They are easy to fix',
+          ],
+          correct_answer: 1,
+          explanation:
+            'The "micro" refers to individual incidents, but the cumulative effect is significant. Many prefer the term "everyday racism."',
+        },
+      ],
+      passing_score: 75,
+      time_limit_minutes: 10,
+    },
+    module_number: 2,
+    lesson_number: 4,
+    sort_order: 4,
   })
 
   console.log(`✅ Module 2: 4 lessons`)
@@ -342,20 +450,41 @@ It's normal to feel:
 // COURSE 4: Effective Allyship
 async function populateAllyship() {
   console.log('\n📚 Course 4: Being an Effective Anti-Racist Ally')
-  const { data: course } = await supabase.from('courses').select('id').eq('slug', 'effective-allyship').single()
-  if (!course) { console.log('❌ Not found'); return }
+  const { data: course } = await supabase
+    .from('courses')
+    .select('id')
+    .eq('slug', 'effective-allyship')
+    .single()
+  if (!course) {
+    console.log('❌ Not found')
+    return
+  }
 
-  const m1 = await createModule(course.id, { title: 'Understanding Allyship', description: 'What does it mean to be an anti-racist ally?', sort_order: 1 })
-
-  await createLesson(course.id, m1.id, {
-    title: 'What is Allyship?', slug: 'what-is-allyship', description: 'Defining allyship and understanding its responsibilities.',
-    content_type: 'video', content_url: 'https://example.com/videos/allyship-intro.mp4', video_duration_seconds: 720,
-    module_number: 1, lesson_number: 1, sort_order: 1, is_preview: true
+  const m1 = await createModule(course.id, {
+    title: 'Understanding Allyship',
+    description: 'What does it mean to be an anti-racist ally?',
+    sort_order: 1,
   })
 
   await createLesson(course.id, m1.id, {
-    title: 'Ally vs. Accomplice vs. Co-Conspirator', slug: 'ally-accomplice-coconspirator', description: 'Understanding different levels of anti-racist action.',
-    content_type: 'article', article_body: `# Ally, Accomplice, Co-Conspirator: Understanding the Spectrum
+    title: 'What is Allyship?',
+    slug: 'what-is-allyship',
+    description: 'Defining allyship and understanding its responsibilities.',
+    content_type: 'video',
+    content_url: 'https://example.com/videos/allyship-intro.mp4',
+    video_duration_seconds: 720,
+    module_number: 1,
+    lesson_number: 1,
+    sort_order: 1,
+    is_preview: true,
+  })
+
+  await createLesson(course.id, m1.id, {
+    title: 'Ally vs. Accomplice vs. Co-Conspirator',
+    slug: 'ally-accomplice-coconspirator',
+    description: 'Understanding different levels of anti-racist action.',
+    content_type: 'article',
+    article_body: `# Ally, Accomplice, Co-Conspirator: Understanding the Spectrum
 
 ## The Evolution of Language
 
@@ -521,28 +650,49 @@ Allyship isn't a trend. It's a lifetime commitment.
 2. What would it take for you to move to the next level?
 3. What risks are you willing to take? What's holding you back?
 4. Who are you accountable to in this work?`,
-    module_number: 1, lesson_number: 2, sort_order: 2
+    module_number: 1,
+    lesson_number: 2,
+    sort_order: 2,
   })
 
   await createLesson(course.id, m1.id, {
-    title: 'Understanding Privilege', slug: 'understanding-privilege', description: 'Examining your privilege and using it strategically.',
-    content_type: 'video', content_url: 'https://example.com/videos/privilege.mp4', video_duration_seconds: 600,
-    module_number: 1, lesson_number: 3, sort_order: 3
+    title: 'Understanding Privilege',
+    slug: 'understanding-privilege',
+    description: 'Examining your privilege and using it strategically.',
+    content_type: 'video',
+    content_url: 'https://example.com/videos/privilege.mp4',
+    video_duration_seconds: 600,
+    module_number: 1,
+    lesson_number: 3,
+    sort_order: 3,
   })
 
   console.log(`✅ Module 1: 3 lessons`)
 
-  const m2 = await createModule(course.id, { title: 'Allyship in Action', description: 'Practical strategies for effective allyship.', sort_order: 2 })
-
-  await createLesson(course.id, m2.id, {
-    title: 'Speaking Up and Speaking Out', slug: 'speaking-up', description: 'When and how to use your voice for anti-racism.',
-    content_type: 'video', content_url: 'https://example.com/videos/speaking-up.mp4', video_duration_seconds: 660,
-    module_number: 2, lesson_number: 1, sort_order: 1
+  const m2 = await createModule(course.id, {
+    title: 'Allyship in Action',
+    description: 'Practical strategies for effective allyship.',
+    sort_order: 2,
   })
 
   await createLesson(course.id, m2.id, {
-    title: 'Amplifying Black Voices', slug: 'amplifying-voices', description: 'Strategies to center Black voices and expertise.',
-    content_type: 'article', article_body: `# Amplifying Black Voices
+    title: 'Speaking Up and Speaking Out',
+    slug: 'speaking-up',
+    description: 'When and how to use your voice for anti-racism.',
+    content_type: 'video',
+    content_url: 'https://example.com/videos/speaking-up.mp4',
+    video_duration_seconds: 660,
+    module_number: 2,
+    lesson_number: 1,
+    sort_order: 1,
+  })
+
+  await createLesson(course.id, m2.id, {
+    title: 'Amplifying Black Voices',
+    slug: 'amplifying-voices',
+    description: 'Strategies to center Black voices and expertise.',
+    content_type: 'article',
+    article_body: `# Amplifying Black Voices
 
 ## Why Amplification Matters
 
@@ -681,24 +831,61 @@ Amplification is about using your privilege to ensure Black voices are heard, cr
 2. When was the last time you amplified a Black colleague? How?
 3. What opportunities do you have access to that you could share?
 4. Are you centering Black voices or centering your allyship?`,
-    module_number: 2, lesson_number: 2, sort_order: 2
+    module_number: 2,
+    lesson_number: 2,
+    sort_order: 2,
   })
 
   await createLesson(course.id, m2.id, {
-    title: 'Final Assessment', slug: 'final-assessment', description: 'Comprehensive assessment of allyship principles.',
-    content_type: 'quiz', content_data: {
+    title: 'Final Assessment',
+    slug: 'final-assessment',
+    description: 'Comprehensive assessment of allyship principles.',
+    content_type: 'quiz',
+    content_data: {
       questions: [
-        { question: 'The difference between an ally and an accomplice is:', 
-          options: ['Nothing, they are the same', 'Accomplices take risks and give up comfort/power', 'Allies are better than accomplices', 'Accomplices only do illegal things'],
-          correct_answer: 1, explanation: 'Accomplices go beyond comfortable support to take risks, make sacrifices, and work in solidarity with Black communities.' },
-        { question: 'When amplifying Black voices, you should:', 
-          options: ['Repeat their ideas as your own for more reach', 'Explicitly credit them and direct people to them', 'Add your own perspective to improve the message', 'Summarize so others understand better'],
-          correct_answer: 1, explanation: 'Always explicitly credit Black voices and direct people to learn directly from them, not through you.' },
-        { question: 'If you make a mistake in your allyship work, you should:', 
-          options: ['Give up because you are not cut out for this', 'Apologize, learn, and continue the work', 'Explain your intent repeatedly', 'Stop so you don\'t cause more harm'],
-          correct_answer: 1, explanation: 'Mistakes are inevitable. Acknowledge harm, learn from it, and continue doing better. Growth requires staying engaged even when it\'s hard.' }
-      ], passing_score: 80, time_limit_minutes: 15
-    }, module_number: 2, lesson_number: 3, sort_order: 3
+        {
+          question: 'The difference between an ally and an accomplice is:',
+          options: [
+            'Nothing, they are the same',
+            'Accomplices take risks and give up comfort/power',
+            'Allies are better than accomplices',
+            'Accomplices only do illegal things',
+          ],
+          correct_answer: 1,
+          explanation:
+            'Accomplices go beyond comfortable support to take risks, make sacrifices, and work in solidarity with Black communities.',
+        },
+        {
+          question: 'When amplifying Black voices, you should:',
+          options: [
+            'Repeat their ideas as your own for more reach',
+            'Explicitly credit them and direct people to them',
+            'Add your own perspective to improve the message',
+            'Summarize so others understand better',
+          ],
+          correct_answer: 1,
+          explanation:
+            'Always explicitly credit Black voices and direct people to learn directly from them, not through you.',
+        },
+        {
+          question: 'If you make a mistake in your allyship work, you should:',
+          options: [
+            'Give up because you are not cut out for this',
+            'Apologize, learn, and continue the work',
+            'Explain your intent repeatedly',
+            "Stop so you don't cause more harm",
+          ],
+          correct_answer: 1,
+          explanation:
+            "Mistakes are inevitable. Acknowledge harm, learn from it, and continue doing better. Growth requires staying engaged even when it's hard.",
+        },
+      ],
+      passing_score: 80,
+      time_limit_minutes: 15,
+    },
+    module_number: 2,
+    lesson_number: 3,
+    sort_order: 3,
   })
 
   console.log(`✅ Module 2: 3 lessons`)
@@ -717,4 +904,9 @@ async function main() {
   }
 }
 
-main().then(() => process.exit(0)).catch(err => { console.error(err); process.exit(1) })
+main()
+  .then(() => process.exit(0))
+  .catch((err) => {
+    console.error(err)
+    process.exit(1)
+  })

@@ -1,4 +1,13 @@
-import { BookOpen, GraduationCap, Award, Users, CheckCircle, ArrowRight, Clock, Target } from 'lucide-react'
+import {
+  BookOpen,
+  GraduationCap,
+  Award,
+  Users,
+  CheckCircle,
+  ArrowRight,
+  Clock,
+  Target,
+} from 'lucide-react'
 import Link from 'next/link'
 
 export default function CoursesPage() {
@@ -15,14 +24,21 @@ export default function CoursesPage() {
               Expert-Led Anti-Black Racism Training
             </h1>
             <p className="mb-8 text-xl text-blue-100">
-              Comprehensive courses designed by leading experts to build workplace equity and combat systemic racism
+              Comprehensive courses designed by leading experts to build workplace equity and combat
+              systemic racism
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
-              <Link href="/auth/login" className="btn-primary bg-white text-primary-600 hover:bg-gray-100">
+              <Link
+                href="/auth/login"
+                className="btn-primary bg-white text-primary-600 hover:bg-gray-100"
+              >
                 <BookOpen className="mr-2 h-5 w-5" />
                 Browse Course Catalog
               </Link>
-              <Link href="/auth/signup" className="btn-secondary border-white text-white hover:bg-white/10">
+              <Link
+                href="/auth/signup"
+                className="btn-secondary border-white text-white hover:bg-white/10"
+              >
                 Start Free Trial
               </Link>
             </div>
@@ -32,7 +48,7 @@ export default function CoursesPage() {
         {/* Decorative Elements */}
         <div className="absolute left-0 top-0 -z-10 h-full w-full opacity-10">
           <div className="absolute right-1/4 top-1/4 h-80 w-80 rounded-full bg-white blur-3xl" />
-          <div className="absolute left-1/3 bottom-1/3 h-96 w-96 rounded-full bg-yellow-300 blur-3xl" />
+          <div className="absolute bottom-1/3 left-1/3 h-96 w-96 rounded-full bg-yellow-300 blur-3xl" />
         </div>
       </section>
 
@@ -71,68 +87,77 @@ export default function CoursesPage() {
                 What You&apos;ll Learn
               </h2>
               <p className="text-xl text-gray-600">
-                Comprehensive training covering all aspects of anti-Black racism and workplace equity
+                Comprehensive training covering all aspects of anti-Black racism and workplace
+                equity
               </p>
             </div>
 
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-              <div className="card hover:shadow-xl transition-shadow">
+              <div className="card transition-shadow hover:shadow-xl">
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary-100">
                   <Target className="h-6 w-6 text-primary-600" />
                 </div>
-                <h3 className="mb-2 text-xl font-bold text-gray-900">Understanding Systemic Racism</h3>
+                <h3 className="mb-2 text-xl font-bold text-gray-900">
+                  Understanding Systemic Racism
+                </h3>
                 <p className="text-gray-600">
-                  Learn about the historical context and current manifestations of anti-Black racism in Canadian institutions
+                  Learn about the historical context and current manifestations of anti-Black racism
+                  in Canadian institutions
                 </p>
               </div>
 
-              <div className="card hover:shadow-xl transition-shadow">
+              <div className="card transition-shadow hover:shadow-xl">
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary-100">
                   <Users className="h-6 w-6 text-primary-600" />
                 </div>
                 <h3 className="mb-2 text-xl font-bold text-gray-900">Inclusive Leadership</h3>
                 <p className="text-gray-600">
-                  Develop skills to create equitable workplace cultures and lead diverse teams effectively
+                  Develop skills to create equitable workplace cultures and lead diverse teams
+                  effectively
                 </p>
               </div>
 
-              <div className="card hover:shadow-xl transition-shadow">
+              <div className="card transition-shadow hover:shadow-xl">
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary-100">
                   <BookOpen className="h-6 w-6 text-primary-600" />
                 </div>
                 <h3 className="mb-2 text-xl font-bold text-gray-900">Legal Frameworks</h3>
                 <p className="text-gray-600">
-                  Understand human rights legislation, tribunal decisions, and compliance requirements
+                  Understand human rights legislation, tribunal decisions, and compliance
+                  requirements
                 </p>
               </div>
 
-              <div className="card hover:shadow-xl transition-shadow">
+              <div className="card transition-shadow hover:shadow-xl">
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary-100">
                   <CheckCircle className="h-6 w-6 text-primary-600" />
                 </div>
                 <h3 className="mb-2 text-xl font-bold text-gray-900">Practical Strategies</h3>
                 <p className="text-gray-600">
-                  Implement evidence-based interventions to address bias and discrimination in real-world scenarios
+                  Implement evidence-based interventions to address bias and discrimination in
+                  real-world scenarios
                 </p>
               </div>
 
-              <div className="card hover:shadow-xl transition-shadow">
+              <div className="card transition-shadow hover:shadow-xl">
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary-100">
                   <Clock className="h-6 w-6 text-primary-600" />
                 </div>
                 <h3 className="mb-2 text-xl font-bold text-gray-900">Self-Paced Learning</h3>
                 <p className="text-gray-600">
-                  Study at your own pace with flexible access to video lessons, case studies, and interactive content
+                  Study at your own pace with flexible access to video lessons, case studies, and
+                  interactive content
                 </p>
               </div>
 
-              <div className="card hover:shadow-xl transition-shadow">
+              <div className="card transition-shadow hover:shadow-xl">
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary-100">
                   <Award className="h-6 w-6 text-primary-600" />
                 </div>
                 <h3 className="mb-2 text-xl font-bold text-gray-900">Professional Certification</h3>
                 <p className="text-gray-600">
-                  Earn certificates and continuing education credits recognized by professional bodies
+                  Earn certificates and continuing education credits recognized by professional
+                  bodies
                 </p>
               </div>
             </div>
@@ -154,10 +179,11 @@ export default function CoursesPage() {
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">
-              <div className="rounded-xl border-2 border-gray-200 p-6 hover:border-primary-500 hover:shadow-lg transition-all">
+              <div className="rounded-xl border-2 border-gray-200 p-6 transition-all hover:border-primary-500 hover:shadow-lg">
                 <h3 className="mb-3 text-xl font-bold text-gray-900">Foundational Training</h3>
                 <p className="mb-4 text-gray-600">
-                  Essential courses covering the basics of anti-Black racism, microaggressions, and unconscious bias
+                  Essential courses covering the basics of anti-Black racism, microaggressions, and
+                  unconscious bias
                 </p>
                 <ul className="space-y-2">
                   <li className="flex items-start">
@@ -175,10 +201,11 @@ export default function CoursesPage() {
                 </ul>
               </div>
 
-              <div className="rounded-xl border-2 border-gray-200 p-6 hover:border-primary-500 hover:shadow-lg transition-all">
+              <div className="rounded-xl border-2 border-gray-200 p-6 transition-all hover:border-primary-500 hover:shadow-lg">
                 <h3 className="mb-3 text-xl font-bold text-gray-900">Legal & Compliance</h3>
                 <p className="mb-4 text-gray-600">
-                  In-depth analysis of human rights law, tribunal cases, and organizational obligations
+                  In-depth analysis of human rights law, tribunal cases, and organizational
+                  obligations
                 </p>
                 <ul className="space-y-2">
                   <li className="flex items-start">
@@ -196,10 +223,11 @@ export default function CoursesPage() {
                 </ul>
               </div>
 
-              <div className="rounded-xl border-2 border-gray-200 p-6 hover:border-primary-500 hover:shadow-lg transition-all">
+              <div className="rounded-xl border-2 border-gray-200 p-6 transition-all hover:border-primary-500 hover:shadow-lg">
                 <h3 className="mb-3 text-xl font-bold text-gray-900">Leadership & Management</h3>
                 <p className="mb-4 text-gray-600">
-                  Advanced training for leaders creating inclusive workplace cultures and driving change
+                  Advanced training for leaders creating inclusive workplace cultures and driving
+                  change
                 </p>
                 <ul className="space-y-2">
                   <li className="flex items-start">
@@ -217,10 +245,11 @@ export default function CoursesPage() {
                 </ul>
               </div>
 
-              <div className="rounded-xl border-2 border-gray-200 p-6 hover:border-primary-500 hover:shadow-lg transition-all">
+              <div className="rounded-xl border-2 border-gray-200 p-6 transition-all hover:border-primary-500 hover:shadow-lg">
                 <h3 className="mb-3 text-xl font-bold text-gray-900">Specialized Topics</h3>
                 <p className="mb-4 text-gray-600">
-                  Sector-specific training for law enforcement, healthcare, education, and public service
+                  Sector-specific training for law enforcement, healthcare, education, and public
+                  service
                 </p>
                 <ul className="space-y-2">
                   <li className="flex items-start">
@@ -233,7 +262,9 @@ export default function CoursesPage() {
                   </li>
                   <li className="flex items-start">
                     <CheckCircle className="mr-2 h-5 w-5 flex-shrink-0 text-green-500" />
-                    <span className="text-sm text-gray-700">Educational Institution Frameworks</span>
+                    <span className="text-sm text-gray-700">
+                      Educational Institution Frameworks
+                    </span>
                   </li>
                 </ul>
               </div>
@@ -246,18 +277,22 @@ export default function CoursesPage() {
       <section className="px-4 py-16">
         <div className="container-custom">
           <div className="mx-auto max-w-4xl rounded-2xl bg-gradient-to-r from-primary-600 to-secondary-600 p-12 text-center text-white shadow-2xl">
-            <h2 className="mb-4 text-3xl font-bold md:text-4xl">
-              Ready to Start Learning?
-            </h2>
+            <h2 className="mb-4 text-3xl font-bold md:text-4xl">Ready to Start Learning?</h2>
             <p className="mb-8 text-xl text-blue-100">
               Join thousands of professionals building more equitable workplaces
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
-              <Link href="/auth/signup" className="btn-primary bg-white text-primary-600 hover:bg-gray-100">
+              <Link
+                href="/auth/signup"
+                className="btn-primary bg-white text-primary-600 hover:bg-gray-100"
+              >
                 Create Free Account
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
-              <Link href="/contact" className="btn-secondary border-white text-white hover:bg-white/10">
+              <Link
+                href="/contact"
+                className="btn-secondary border-white text-white hover:bg-white/10"
+              >
                 Contact Sales
               </Link>
             </div>

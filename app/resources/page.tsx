@@ -2,13 +2,13 @@ import { BookOpen, Download, ExternalLink, FileText, Video } from 'lucide-react'
 
 export default function ResourcesPage() {
   return (
-    <div className="min-h-screen bg-white">      {/* Hero Section */}
+    <div className="min-h-screen bg-white">
+      {' '}
+      {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary-600 to-secondary-600 py-20 text-white">
         <div className="container-custom">
           <div className="mx-auto max-w-3xl text-center">
-            <h1 className="mb-6 text-4xl font-bold md:text-5xl lg:text-6xl">
-              Resources & Tools
-            </h1>
+            <h1 className="mb-6 text-4xl font-bold md:text-5xl lg:text-6xl">Resources & Tools</h1>
             <p className="text-lg text-primary-50 md:text-xl">
               Free guides, templates, and resources to help you build more equitable workplaces.
             </p>
@@ -18,17 +18,17 @@ export default function ResourcesPage() {
         {/* Decorative Blurs */}
         <div className="absolute left-0 top-0 -z-10 h-full w-full opacity-10">
           <div className="absolute left-1/4 top-1/3 h-80 w-80 rounded-full bg-white blur-3xl" />
-          <div className="absolute right-1/3 bottom-1/4 h-96 w-96 rounded-full bg-yellow-300 blur-3xl" />
+          <div className="absolute bottom-1/4 right-1/3 h-96 w-96 rounded-full bg-yellow-300 blur-3xl" />
         </div>
       </section>
-
       {/* Featured Resources */}
       <section className="py-20">
         <div className="container-custom">
           <div className="mb-12">
             <h2 className="mb-4 text-3xl font-bold text-gray-900">Featured Resources</h2>
             <p className="text-lg text-gray-600">
-              Start with these comprehensive guides to understanding anti-Black racism in the workplace.
+              Start with these comprehensive guides to understanding anti-Black racism in the
+              workplace.
             </p>
           </div>
 
@@ -50,7 +50,6 @@ export default function ResourcesPage() {
           </div>
         </div>
       </section>
-
       {/* Resource Categories */}
       <section className="relative bg-gray-50 py-20">
         <div className="container-custom">
@@ -66,26 +65,14 @@ export default function ResourcesPage() {
                 Guides & Whitepapers
               </h3>
               <div className="space-y-4">
-                <ResourceItem
-                  title="Understanding Systemic Racism"
-                  type="PDF"
-                  size="1.2 MB"
-                />
+                <ResourceItem title="Understanding Systemic Racism" type="PDF" size="1.2 MB" />
                 <ResourceItem
                   title="Building Inclusive Hiring Practices"
                   type="PDF"
                   size="890 KB"
                 />
-                <ResourceItem
-                  title="EDI Policy Template"
-                  type="DOCX"
-                  size="156 KB"
-                />
-                <ResourceItem
-                  title="Microaggressions: A Field Guide"
-                  type="PDF"
-                  size="2.1 MB"
-                />
+                <ResourceItem title="EDI Policy Template" type="DOCX" size="156 KB" />
+                <ResourceItem title="Microaggressions: A Field Guide" type="PDF" size="2.1 MB" />
               </div>
             </div>
 
@@ -96,26 +83,10 @@ export default function ResourcesPage() {
                 Templates & Checklists
               </h3>
               <div className="space-y-4">
-                <ResourceItem
-                  title="Equity Audit Checklist"
-                  type="PDF"
-                  size="345 KB"
-                />
-                <ResourceItem
-                  title="Inclusive Meeting Framework"
-                  type="DOCX"
-                  size="124 KB"
-                />
-                <ResourceItem
-                  title="Complaint Response Template"
-                  type="DOCX"
-                  size="98 KB"
-                />
-                <ResourceItem
-                  title="Annual EDI Report Template"
-                  type="XLSX"
-                  size="267 KB"
-                />
+                <ResourceItem title="Equity Audit Checklist" type="PDF" size="345 KB" />
+                <ResourceItem title="Inclusive Meeting Framework" type="DOCX" size="124 KB" />
+                <ResourceItem title="Complaint Response Template" type="DOCX" size="98 KB" />
+                <ResourceItem title="Annual EDI Report Template" type="XLSX" size="267 KB" />
               </div>
             </div>
 
@@ -126,26 +97,10 @@ export default function ResourcesPage() {
                 Videos & Webinars
               </h3>
               <div className="space-y-4">
-                <ResourceItem
-                  title="Introduction to ABR Insights"
-                  type="Video"
-                  size="5 min"
-                />
-                <ResourceItem
-                  title="Using AI for Case Analysis"
-                  type="Webinar"
-                  size="45 min"
-                />
-                <ResourceItem
-                  title="Building Allyship in Teams"
-                  type="Video"
-                  size="12 min"
-                />
-                <ResourceItem
-                  title="Monthly EDI Roundtable"
-                  type="Webinar"
-                  size="60 min"
-                />
+                <ResourceItem title="Introduction to ABR Insights" type="Video" size="5 min" />
+                <ResourceItem title="Using AI for Case Analysis" type="Webinar" size="45 min" />
+                <ResourceItem title="Building Allyship in Teams" type="Video" size="12 min" />
+                <ResourceItem title="Monthly EDI Roundtable" type="Webinar" size="60 min" />
               </div>
             </div>
           </div>
@@ -154,10 +109,9 @@ export default function ResourcesPage() {
         {/* Decorative Blurs */}
         <div className="absolute left-0 top-0 -z-10 h-full w-full opacity-5">
           <div className="absolute left-1/3 top-1/4 h-72 w-72 rounded-full bg-primary-600 blur-3xl" />
-          <div className="absolute right-1/4 bottom-1/3 h-80 w-80 rounded-full bg-secondary-600 blur-3xl" />
+          <div className="absolute bottom-1/3 right-1/4 h-80 w-80 rounded-full bg-secondary-600 blur-3xl" />
         </div>
       </section>
-
       {/* Legal & Compliance Resources */}
       <section className="relative py-20">
         <div className="container-custom">
@@ -196,7 +150,6 @@ export default function ResourcesPage() {
           </div>
         </div>
       </section>
-
       {/* External Resources */}
       <section className="relative bg-gray-50 py-20">
         <div className="container-custom">
@@ -244,17 +197,14 @@ export default function ResourcesPage() {
         {/* Decorative Blurs */}
         <div className="absolute left-0 top-0 -z-10 h-full w-full opacity-5">
           <div className="absolute right-1/4 top-1/3 h-72 w-72 rounded-full bg-primary-600 blur-3xl" />
-          <div className="absolute left-1/3 bottom-1/4 h-80 w-80 rounded-full bg-secondary-600 blur-3xl" />
+          <div className="absolute bottom-1/4 left-1/3 h-80 w-80 rounded-full bg-secondary-600 blur-3xl" />
         </div>
       </section>
-
       {/* Newsletter Signup CTA */}
       <section className="bg-gradient-to-br from-primary-600 to-secondary-600 py-20 text-white">
         <div className="container-custom">
           <div className="mx-auto max-w-3xl text-center">
-            <h2 className="mb-6 text-3xl font-bold md:text-4xl">
-              Stay Updated
-            </h2>
+            <h2 className="mb-6 text-3xl font-bold md:text-4xl">Stay Updated</h2>
             <p className="mb-8 text-lg text-primary-50">
               Subscribe to our newsletter for monthly resources, case updates, and best practices.
             </p>
@@ -264,13 +214,17 @@ export default function ResourcesPage() {
                 placeholder="Enter your email"
                 className="flex-1 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-white"
               />
-              <button type="submit" className="btn-primary bg-white text-primary-600 hover:bg-gray-100">
+              <button
+                type="submit"
+                className="btn-primary bg-white text-primary-600 hover:bg-gray-100"
+              >
                 Subscribe
               </button>
             </form>
           </div>
         </div>
-      </section>    </div>
+      </section>{' '}
+    </div>
   )
 }
 
@@ -361,7 +315,15 @@ function LegalResourceCard({
   )
 }
 
-function ExternalLinkCard({ title, description, url }: { title: string; description: string; url: string }) {
+function ExternalLinkCard({
+  title,
+  description,
+  url,
+}: {
+  title: string
+  description: string
+  url: string
+}) {
   return (
     <a
       href={url}

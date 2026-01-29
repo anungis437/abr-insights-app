@@ -23,7 +23,7 @@ import {
   Clock,
   ArrowRight,
   Database,
-  Zap
+  Zap,
 } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
 
@@ -47,7 +47,7 @@ interface RecentActivity {
 export default function AdminDashboard() {
   const router = useRouter()
   const supabase = createClient()
-  
+
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -57,14 +57,16 @@ export default function AdminDashboard() {
     totalCourses: 0,
     totalCases: 0,
     totalEnrollments: 0,
-    completionRate: 0
+    completionRate: 0,
   })
   const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([])
 
   useEffect(() => {
     const loadUserAndCheckAdmin = async () => {
-      const { data: { user: currentUser } } = await supabase.auth.getUser()
-      
+      const {
+        data: { user: currentUser },
+      } = await supabase.auth.getUser()
+
       if (!currentUser) {
         router.push('/auth/login')
         return
@@ -87,7 +89,7 @@ export default function AdminDashboard() {
       setProfile(profileData)
 
       // Check if user has admin role
-      const isAdmin = 
+      const isAdmin =
         profileData.role === 'super_admin' ||
         profileData.role === 'org_admin' ||
         profileData.role === 'compliance_officer' ||
@@ -108,7 +110,7 @@ export default function AdminDashboard() {
 
         const thirtyDaysAgo = new Date()
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-        
+
         const { count: activeUsers } = await supabase
           .from('profiles')
           .select('*', { count: 'exact', head: true })
@@ -131,9 +133,10 @@ export default function AdminDashboard() {
           .select('*', { count: 'exact', head: true })
           .eq('status', 'completed')
 
-        const completionRate = totalEnrollments && totalEnrollments > 0
-          ? Math.round((completedEnrollments || 0) / totalEnrollments * 100)
-          : 0
+        const completionRate =
+          totalEnrollments && totalEnrollments > 0
+            ? Math.round(((completedEnrollments || 0) / totalEnrollments) * 100)
+            : 0
 
         setStats({
           totalUsers: totalUsers || 0,
@@ -141,7 +144,7 @@ export default function AdminDashboard() {
           totalCourses: totalCourses || 0,
           totalCases: totalCases || 0,
           totalEnrollments: totalEnrollments || 0,
-          completionRate
+          completionRate,
         })
       } catch (error) {
         console.error('Error loading stats:', error)
@@ -151,12 +154,14 @@ export default function AdminDashboard() {
       try {
         const { data: enrollments } = await supabase
           .from('enrollments')
-          .select(`
+          .select(
+            `
             id,
             created_at,
             courses(title),
             profiles(display_name, email)
-          `)
+          `
+          )
           .order('created_at', { ascending: false })
           .limit(5)
 
@@ -165,7 +170,7 @@ export default function AdminDashboard() {
           type: 'enrollment',
           description: `New enrollment in "${enrollment.courses?.title || 'Unknown Course'}"`,
           timestamp: enrollment.created_at,
-          user: enrollment.profiles?.display_name || enrollment.profiles?.email || 'Unknown User'
+          user: enrollment.profiles?.display_name || enrollment.profiles?.email || 'Unknown User',
         }))
 
         setRecentActivity(activities)
@@ -179,22 +184,22 @@ export default function AdminDashboard() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center pt-16">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 pt-16">
+        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-purple-600"></div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">      
+    <div className="flex min-h-screen flex-col bg-gray-50">
       <main className="flex-1 pt-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+        <div className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <Shield className="w-7 h-7 text-white" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-blue-600 shadow-lg">
+                  <Shield className="h-7 w-7 text-white" />
                 </div>
                 <div>
                   <h1 className="text-4xl font-bold text-gray-900">Admin Dashboard</h1>
@@ -202,7 +207,7 @@ export default function AdminDashboard() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
+                <span className="rounded-full bg-purple-100 px-3 py-1 text-sm font-medium text-purple-700">
                   {profile?.role || 'Admin'}
                 </span>
               </div>
@@ -210,154 +215,146 @@ export default function AdminDashboard() {
           </div>
 
           {/* Quick Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white rounded-lg p-6 border-2 border-blue-200 shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Users className="w-6 h-6 text-blue-600" />
+          <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-lg border-2 border-blue-200 bg-white p-6 shadow-sm">
+              <div className="mb-4 flex items-center justify-between">
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
+                  <Users className="h-6 w-6 text-blue-600" />
                 </div>
-                <TrendingUp className="w-5 h-5 text-green-500" />
+                <TrendingUp className="h-5 w-5 text-green-500" />
               </div>
               <div className="text-3xl font-bold text-gray-900">{stats.totalUsers}</div>
-              <div className="text-sm text-gray-600 mt-1">Total Users</div>
-              <div className="text-xs text-green-600 mt-2">
-                {stats.activeUsers} active (30d)
-              </div>
+              <div className="mt-1 text-sm text-gray-600">Total Users</div>
+              <div className="mt-2 text-xs text-green-600">{stats.activeUsers} active (30d)</div>
             </div>
 
-            <div className="bg-white rounded-lg p-6 border-2 border-purple-200 shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <BookOpen className="w-6 h-6 text-purple-600" />
+            <div className="rounded-lg border-2 border-purple-200 bg-white p-6 shadow-sm">
+              <div className="mb-4 flex items-center justify-between">
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100">
+                  <BookOpen className="h-6 w-6 text-purple-600" />
                 </div>
-                <TrendingUp className="w-5 h-5 text-green-500" />
+                <TrendingUp className="h-5 w-5 text-green-500" />
               </div>
               <div className="text-3xl font-bold text-gray-900">{stats.totalCourses}</div>
-              <div className="text-sm text-gray-600 mt-1">Total Courses</div>
-              <div className="text-xs text-gray-500 mt-2">
-                {stats.totalEnrollments} enrollments
-              </div>
+              <div className="mt-1 text-sm text-gray-600">Total Courses</div>
+              <div className="mt-2 text-xs text-gray-500">{stats.totalEnrollments} enrollments</div>
             </div>
 
-            <div className="bg-white rounded-lg p-6 border-2 border-teal-200 shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center">
-                  <FileText className="w-6 h-6 text-teal-600" />
+            <div className="rounded-lg border-2 border-teal-200 bg-white p-6 shadow-sm">
+              <div className="mb-4 flex items-center justify-between">
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-teal-100">
+                  <FileText className="h-6 w-6 text-teal-600" />
                 </div>
-                <Database className="w-5 h-5 text-gray-400" />
+                <Database className="h-5 w-5 text-gray-400" />
               </div>
               <div className="text-3xl font-bold text-gray-900">{stats.totalCases}</div>
-              <div className="text-sm text-gray-600 mt-1">Total Cases</div>
-              <div className="text-xs text-gray-500 mt-2">
-                Legal database
-              </div>
+              <div className="mt-1 text-sm text-gray-600">Total Cases</div>
+              <div className="mt-2 text-xs text-gray-500">Legal database</div>
             </div>
 
-            <div className="bg-white rounded-lg p-6 border-2 border-green-200 shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                  <BarChart3 className="w-6 h-6 text-green-600" />
+            <div className="rounded-lg border-2 border-green-200 bg-white p-6 shadow-sm">
+              <div className="mb-4 flex items-center justify-between">
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
+                  <BarChart3 className="h-6 w-6 text-green-600" />
                 </div>
-                <CheckCircle className="w-5 h-5 text-green-500" />
+                <CheckCircle className="h-5 w-5 text-green-500" />
               </div>
               <div className="text-3xl font-bold text-gray-900">{stats.completionRate}%</div>
-              <div className="text-sm text-gray-600 mt-1">Completion Rate</div>
-              <div className="text-xs text-gray-500 mt-2">
-                Course completions
-              </div>
+              <div className="mt-1 text-sm text-gray-600">Completion Rate</div>
+              <div className="mt-2 text-xs text-gray-500">Course completions</div>
             </div>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-8">
+          <div className="grid gap-8 lg:grid-cols-3">
             {/* Quick Actions */}
-            <div className="lg:col-span-2 space-y-6">
-              <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
-                <div className="p-6 border-b">
-                  <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                    <Zap className="w-6 h-6 text-yellow-600" />
+            <div className="space-y-6 lg:col-span-2">
+              <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
+                <div className="border-b p-6">
+                  <h2 className="flex items-center gap-2 text-xl font-bold text-gray-900">
+                    <Zap className="h-6 w-6 text-yellow-600" />
                     Quick Actions
                   </h2>
                 </div>
-                <div className="p-6 grid md:grid-cols-2 gap-4">
+                <div className="grid gap-4 p-6 md:grid-cols-2">
                   <button
                     onClick={() => router.push('/admin/courses')}
-                    className="p-4 border-2 border-purple-200 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition-all text-left group"
+                    className="group rounded-lg border-2 border-purple-200 p-4 text-left transition-all hover:border-purple-400 hover:bg-purple-50"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-all">
-                          <BookOpen className="w-5 h-5 text-purple-600" />
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 transition-all group-hover:bg-purple-200">
+                          <BookOpen className="h-5 w-5 text-purple-600" />
                         </div>
                         <div>
                           <div className="font-semibold text-gray-900">Manage Courses</div>
                           <div className="text-sm text-gray-600">Create & edit</div>
                         </div>
                       </div>
-                      <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-purple-600 transition-all" />
+                      <ArrowRight className="h-5 w-5 text-gray-400 transition-all group-hover:text-purple-600" />
                     </div>
                   </button>
 
                   <button
                     onClick={() => router.push('/admin/cases')}
-                    className="p-4 border-2 border-teal-200 rounded-lg hover:border-teal-400 hover:bg-teal-50 transition-all text-left group"
+                    className="group rounded-lg border-2 border-teal-200 p-4 text-left transition-all hover:border-teal-400 hover:bg-teal-50"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center group-hover:bg-teal-200 transition-all">
-                          <FileText className="w-5 h-5 text-teal-600" />
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-teal-100 transition-all group-hover:bg-teal-200">
+                          <FileText className="h-5 w-5 text-teal-600" />
                         </div>
                         <div>
                           <div className="font-semibold text-gray-900">Manage Cases</div>
                           <div className="text-sm text-gray-600">Case library</div>
                         </div>
                       </div>
-                      <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-teal-600 transition-all" />
+                      <ArrowRight className="h-5 w-5 text-gray-400 transition-all group-hover:text-teal-600" />
                     </div>
                   </button>
 
                   <button
                     onClick={() => router.push('/admin/users')}
-                    className="p-4 border-2 border-blue-200 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-all text-left group"
+                    className="group rounded-lg border-2 border-blue-200 p-4 text-left transition-all hover:border-blue-400 hover:bg-blue-50"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-all">
-                          <Users className="w-5 h-5 text-blue-600" />
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 transition-all group-hover:bg-blue-200">
+                          <Users className="h-5 w-5 text-blue-600" />
                         </div>
                         <div>
                           <div className="font-semibold text-gray-900">Manage Users</div>
                           <div className="text-sm text-gray-600">Roles & access</div>
                         </div>
                       </div>
-                      <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-all" />
+                      <ArrowRight className="h-5 w-5 text-gray-400 transition-all group-hover:text-blue-600" />
                     </div>
                   </button>
 
                   <button
                     onClick={() => router.push('/admin/analytics')}
-                    className="p-4 border-2 border-green-200 rounded-lg hover:border-green-400 hover:bg-green-50 transition-all text-left group"
+                    className="group rounded-lg border-2 border-green-200 p-4 text-left transition-all hover:border-green-400 hover:bg-green-50"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-all">
-                          <BarChart3 className="w-5 h-5 text-green-600" />
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100 transition-all group-hover:bg-green-200">
+                          <BarChart3 className="h-5 w-5 text-green-600" />
                         </div>
                         <div>
                           <div className="font-semibold text-gray-900">View Analytics</div>
                           <div className="text-sm text-gray-600">Reports & insights</div>
                         </div>
                       </div>
-                      <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-green-600 transition-all" />
+                      <ArrowRight className="h-5 w-5 text-gray-400 transition-all group-hover:text-green-600" />
                     </div>
                   </button>
                 </div>
               </div>
 
               {/* Recent Activity */}
-              <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
-                <div className="p-6 border-b">
-                  <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                    <Clock className="w-6 h-6 text-gray-600" />
+              <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
+                <div className="border-b p-6">
+                  <h2 className="flex items-center gap-2 text-xl font-bold text-gray-900">
+                    <Clock className="h-6 w-6 text-gray-600" />
                     Recent Activity
                   </h2>
                 </div>
@@ -365,16 +362,19 @@ export default function AdminDashboard() {
                   {recentActivity.length > 0 ? (
                     <div className="space-y-4">
                       {recentActivity.map((activity) => (
-                        <div key={activity.id} className="flex items-start gap-3 pb-4 border-b last:border-b-0">
-                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                            <BookOpen className="w-4 h-4 text-blue-600" />
+                        <div
+                          key={activity.id}
+                          className="flex items-start gap-3 border-b pb-4 last:border-b-0"
+                        >
+                          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-100">
+                            <BookOpen className="h-4 w-4 text-blue-600" />
                           </div>
                           <div className="flex-1">
                             <p className="text-sm text-gray-900">{activity.description}</p>
                             {activity.user && (
-                              <p className="text-xs text-gray-600 mt-1">{activity.user}</p>
+                              <p className="mt-1 text-xs text-gray-600">{activity.user}</p>
                             )}
-                            <p className="text-xs text-gray-500 mt-1">
+                            <p className="mt-1 text-xs text-gray-500">
                               {new Date(activity.timestamp).toLocaleString()}
                             </p>
                           </div>
@@ -382,8 +382,8 @@ export default function AdminDashboard() {
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-8 text-gray-500">
-                      <Clock className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                    <div className="py-8 text-center text-gray-500">
+                      <Clock className="mx-auto mb-3 h-12 w-12 text-gray-300" />
                       <p>No recent activity</p>
                     </div>
                   )}
@@ -394,29 +394,29 @@ export default function AdminDashboard() {
             {/* Sidebar */}
             <div className="space-y-6">
               {/* System Status */}
-              <div className="bg-gradient-to-br from-green-50 to-white rounded-lg border border-green-200 shadow-sm">
-                <div className="p-6 border-b border-green-100">
-                  <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                    <CheckCircle className="w-5 h-5 text-green-600" />
+              <div className="rounded-lg border border-green-200 bg-gradient-to-br from-green-50 to-white shadow-sm">
+                <div className="border-b border-green-100 p-6">
+                  <h3 className="flex items-center gap-2 text-lg font-bold text-gray-900">
+                    <CheckCircle className="h-5 w-5 text-green-600" />
                     System Status
                   </h3>
                 </div>
-                <div className="p-6 space-y-3">
+                <div className="space-y-3 p-6">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-700">Database</span>
-                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">
+                    <span className="rounded bg-green-100 px-2 py-1 text-xs font-medium text-green-700">
                       Operational
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-700">API Services</span>
-                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">
+                    <span className="rounded bg-green-100 px-2 py-1 text-xs font-medium text-green-700">
                       Operational
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-700">AI Services</span>
-                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">
+                    <span className="rounded bg-green-100 px-2 py-1 text-xs font-medium text-green-700">
                       Operational
                     </span>
                   </div>
@@ -424,29 +424,29 @@ export default function AdminDashboard() {
               </div>
 
               {/* Admin Tools */}
-              <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
-                <div className="p-6 border-b">
-                  <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                    <Settings className="w-5 h-5 text-gray-600" />
+              <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
+                <div className="border-b p-6">
+                  <h3 className="flex items-center gap-2 text-lg font-bold text-gray-900">
+                    <Settings className="h-5 w-5 text-gray-600" />
                     Admin Tools
                   </h3>
                 </div>
-                <div className="p-6 space-y-2">
+                <div className="space-y-2 p-6">
                   <button
                     onClick={() => router.push('/admin/settings')}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-all text-left"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 text-left text-sm font-medium transition-all hover:bg-gray-50"
                   >
                     Platform Settings
                   </button>
                   <button
                     onClick={() => router.push('/admin/audit')}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-all text-left"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 text-left text-sm font-medium transition-all hover:bg-gray-50"
                   >
                     Audit Logs
                   </button>
                   <button
                     onClick={() => router.push('/admin/integrations')}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-all text-left"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 text-left text-sm font-medium transition-all hover:bg-gray-50"
                   >
                     Integrations
                   </button>
@@ -454,14 +454,14 @@ export default function AdminDashboard() {
               </div>
 
               {/* Quick Tips */}
-              <div className="bg-gradient-to-br from-yellow-50 to-white rounded-lg border border-yellow-200 shadow-sm">
-                <div className="p-6 border-b border-yellow-100">
-                  <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                    <AlertCircle className="w-5 h-5 text-yellow-600" />
+              <div className="rounded-lg border border-yellow-200 bg-gradient-to-br from-yellow-50 to-white shadow-sm">
+                <div className="border-b border-yellow-100 p-6">
+                  <h3 className="flex items-center gap-2 text-lg font-bold text-gray-900">
+                    <AlertCircle className="h-5 w-5 text-yellow-600" />
                     Quick Tips
                   </h3>
                 </div>
-                <div className="p-6 space-y-3 text-sm text-gray-700">
+                <div className="space-y-3 p-6 text-sm text-gray-700">
                   <p>💡 Review pending user registrations regularly</p>
                   <p>📊 Check analytics weekly for trends</p>
                   <p>🔒 Audit access logs monthly</p>
@@ -471,6 +471,7 @@ export default function AdminDashboard() {
             </div>
           </div>
         </div>
-      </main>    </div>
+      </main>{' '}
+    </div>
   )
 }

@@ -1,9 +1,9 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+)
 
 const sql = `
 CREATE TABLE IF NOT EXISTS cases (
@@ -45,19 +45,19 @@ CREATE POLICY "Allow authenticated read access" ON cases
     FOR SELECT
     TO authenticated
     USING (true);
-`;
+`
 
 async function createTable() {
-  console.log('Creating cases table...\n');
-  
+  console.log('Creating cases table...\n')
+
   // Note: Supabase client doesn't support raw SQL execution
   // You need to run this in the Supabase SQL Editor instead
-  
-  console.log('⚠️  Please run the following SQL in your Supabase SQL Editor:\n');
-  console.log('=' .repeat(60));
-  console.log(sql);
-  console.log('='.repeat(60));
-  console.log('\nGo to: https://supabase.com/dashboard/project/YOUR_PROJECT/sql/new');
+
+  console.log('⚠️  Please run the following SQL in your Supabase SQL Editor:\n')
+  console.log('='.repeat(60))
+  console.log(sql)
+  console.log('='.repeat(60))
+  console.log('\nGo to: https://supabase.com/dashboard/project/YOUR_PROJECT/sql/new')
 }
 
-createTable();
+createTable()

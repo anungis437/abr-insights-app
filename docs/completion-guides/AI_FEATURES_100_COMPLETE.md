@@ -6,6 +6,7 @@
 ## Summary
 
 All AI/ML features are fully implemented and production-ready:
+
 - ✅ **AI Chat Assistant**: Context-aware conversational AI for case law queries
 - ✅ **AI Learning Coach**: Personalized learning guidance and progress analysis
 - ✅ **Embeddings & Vector Search**: Semantic search across cases and courses
@@ -22,6 +23,7 @@ All AI/ML features are fully implemented and production-ready:
 ### 1. AI Services
 
 #### Azure OpenAI Integration
+
 ```typescript
 // Configuration
 AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com
@@ -32,6 +34,7 @@ AZURE_OPENAI_API_VERSION=2024-02-15-preview
 ```
 
 **Deployments Used**:
+
 - **GPT-4o**: Chat, coaching, classification
 - **text-embedding-3-large**: 1536-dimensional embeddings
 
@@ -40,6 +43,7 @@ AZURE_OPENAI_API_VERSION=2024-02-15-preview
 ### 2. AI Chat Assistant
 
 #### Features
+
 - ✅ Context-aware conversations
 - ✅ Case law queries with citations
 - ✅ Learning recommendations
@@ -49,6 +53,7 @@ AZURE_OPENAI_API_VERSION=2024-02-15-preview
 - ✅ Quick prompts
 
 #### API Route
+
 **Endpoint**: `/api/ai/chat`  
 **Method**: POST  
 **Protection**: `guardedRoute` with authentication
@@ -73,6 +78,7 @@ POST /api/ai/chat
 ```
 
 #### Client Hook
+
 **Location**: `hooks/use-ai-chat.ts`
 
 ```typescript
@@ -80,10 +86,10 @@ import { useAIChat } from '@/hooks/use-ai-chat'
 
 function ChatComponent() {
   const {
-    messages,      // Chat history
-    isLoading,     // Loading state
-    error,         // Error state
-    sendMessage,   // Send message function
+    messages, // Chat history
+    isLoading, // Loading state
+    error, // Error state
+    sendMessage, // Send message function
     clearMessages, // Clear chat function
   } = useAIChat()
 
@@ -94,6 +100,7 @@ function ChatComponent() {
 ```
 
 **Features**:
+
 - Automatic conversation history management
 - Error handling with user-friendly messages
 - Loading states
@@ -105,6 +112,7 @@ function ChatComponent() {
 ### 3. AI Learning Coach
 
 #### Features
+
 - ✅ Progress analysis
 - ✅ Personalized recommendations
 - ✅ Learning path suggestions
@@ -113,6 +121,7 @@ function ChatComponent() {
 - ✅ User feedback collection
 
 #### API Route
+
 **Endpoint**: `/api/ai/coach`  
 **Method**: POST  
 **Protection**: `guardedRoute` with authentication
@@ -152,6 +161,7 @@ POST /api/ai/coach
 ```
 
 #### Client Hook
+
 **Location**: `hooks/use-ai-coach.ts`
 
 ```typescript
@@ -159,13 +169,13 @@ import { useAICoach } from '@/hooks/use-ai-coach'
 
 function CoachComponent() {
   const {
-    currentSession,   // Current coaching session
-    stats,            // Learning statistics
-    isAnalyzing,      // Loading state
-    error,            // Error state
-    analyzeProgress,  // Analyze progress function
-    getCustomGuidance,// Custom query function
-    provideFeedback,  // Feedback function
+    currentSession, // Current coaching session
+    stats, // Learning statistics
+    isAnalyzing, // Loading state
+    error, // Error state
+    analyzeProgress, // Analyze progress function
+    getCustomGuidance, // Custom query function
+    provideFeedback, // Feedback function
   } = useAICoach()
 
   const handleAnalyze = async () => {
@@ -179,14 +189,15 @@ function CoachComponent() {
 ```
 
 **Learning Stats Interface**:
+
 ```typescript
 interface LearningStats {
-  completed: number        // Completed courses
-  inProgress: number       // In-progress courses
-  totalPoints: number      // Gamification points
-  currentStreak: number    // Learning streak days
-  badgesEarned: number     // Achievement badges
-  avgProgress: number      // Average progress %
+  completed: number // Completed courses
+  inProgress: number // In-progress courses
+  totalPoints: number // Gamification points
+  currentStreak: number // Learning streak days
+  badgesEarned: number // Achievement badges
+  avgProgress: number // Average progress %
 }
 ```
 
@@ -195,20 +206,25 @@ interface LearningStats {
 ### 4. Vector Embeddings & Semantic Search
 
 #### Database Schema
+
 **Tables**:
+
 - `case_embeddings` - Case law embeddings (1536-D vectors)
 - `course_embeddings` - Course content embeddings
 - `lesson_embeddings` - Lesson-level embeddings
 - `embedding_jobs` - Batch job tracking
 
 **Indexes**:
+
 - HNSW indexes for fast similarity search
 - Parameters: m=16, ef_construction=64
 
 #### Embedding Service
+
 **Location**: `lib/services/embedding-service.ts` (750+ lines)
 
 **Features**:
+
 - ✅ Batch processing with progress tracking
 - ✅ Content hash for change detection
 - ✅ Exponential backoff retry logic
@@ -224,14 +240,16 @@ const service = new EmbeddingService()
 const result = await service.generateCaseEmbeddings(caseIds)
 
 // Search similar cases
-const similar = await service.searchSimilarCases(
-  "workplace harassment case",
-  { limit: 10, threshold: 0.7 }
-)
+const similar = await service.searchSimilarCases('workplace harassment case', {
+  limit: 10,
+  threshold: 0.7,
+})
 ```
 
 #### Search API Routes
+
 **Endpoints**:
+
 - `/api/embeddings/generate` - Generate embeddings
 - `/api/embeddings/search-cases` - Search cases
 - `/api/embeddings/search-courses` - Search courses
@@ -268,9 +286,11 @@ POST /api/embeddings/search-cases
 ### 5. Outcome Prediction ML
 
 #### Service
+
 **Location**: `lib/services/outcome-prediction-service.ts` (600+ lines)
 
 **Features**:
+
 - ✅ Statistical ensemble model
 - ✅ Logistic regression
 - ✅ Bayesian inference
@@ -308,7 +328,9 @@ const prediction = await service.predictOutcome({
 ```
 
 #### Database Schema
+
 **Tables**:
+
 - `case_outcomes` - Historical outcomes
 - `outcome_predictions` - Prediction results
 - `prediction_models` - Model metadata
@@ -318,9 +340,11 @@ const prediction = await service.predictOutcome({
 ### 6. Training Pipeline
 
 #### Classification Feedback
+
 **Location**: `lib/ai/training-service.ts` (362 lines)
 
 **Workflow**:
+
 1. AI classifies cases
 2. Human reviewers verify
 3. Feedback stored with quality scores
@@ -345,6 +369,7 @@ const job = await createTrainingJob({
 ```
 
 #### API Routes
+
 - `/api/ai/training-jobs` - Manage training jobs (GET, POST, PATCH)
 - `/api/ai/feedback` - Classification feedback (GET, POST, PATCH)
 - `/api/ai/automation` - Automated training config (GET, POST, PATCH, DELETE)
@@ -356,9 +381,11 @@ const job = await createTrainingJob({
 ### 7. Admin ML Dashboard
 
 #### Page
+
 **Location**: `app/admin/ml/page.tsx` (530 lines)
 
 **4-Tab Interface**:
+
 1. **Embeddings Tab**
    - Generate embeddings for cases/courses
    - Monitor job progress
@@ -380,6 +407,7 @@ const job = await createTrainingJob({
    - Visualization charts
 
 #### Admin API Routes
+
 - `/api/admin/ml/embedding-jobs` - Job monitoring
 - `/api/admin/ml/coverage-stats` - Coverage statistics
 - `/api/admin/ml/prediction-stats` - Prediction metrics
@@ -392,6 +420,7 @@ const job = await createTrainingJob({
 ## Client Integration Patterns
 
 ### Pattern 1: AI Chat Integration
+
 ```tsx
 import { useAIChat } from '@/hooks/use-ai-chat'
 
@@ -422,6 +451,7 @@ export function ChatInterface() {
 ```
 
 ### Pattern 2: AI Coach Integration
+
 ```tsx
 import { useAICoach } from '@/hooks/use-ai-coach'
 
@@ -434,15 +464,14 @@ export function CoachDashboard() {
       <button onClick={analyzeProgress} disabled={isAnalyzing}>
         {isAnalyzing ? 'Analyzing...' : 'Analyze Progress'}
       </button>
-      {currentSession && (
-        <RecommendationsList recommendations={currentSession.recommendations} />
-      )}
+      {currentSession && <RecommendationsList recommendations={currentSession.recommendations} />}
     </div>
   )
 }
 ```
 
 ### Pattern 3: Semantic Search
+
 ```tsx
 export function SemanticSearch() {
   const [query, setQuery] = useState('')
@@ -452,7 +481,7 @@ export function SemanticSearch() {
     const response = await fetch('/api/embeddings/search-cases', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query, limit: 10, threshold: 0.7 })
+      body: JSON.stringify({ query, limit: 10, threshold: 0.7 }),
     })
     const data = await response.json()
     setResults(data.results)
@@ -473,6 +502,7 @@ export function SemanticSearch() {
 ## Environment Variables
 
 ### Required Variables
+
 ```bash
 # Azure OpenAI
 AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com
@@ -490,6 +520,7 @@ AZURE_OPENAI_FINE_TUNING_ENABLED=true
 ## Database Migrations
 
 **Applied Migrations**:
+
 1. `20250108000001_enable_pgvector.sql` - Enable pgvector extension
 2. `20250108000002_create_embeddings_tables.sql` - Embeddings tables with HNSW indexes
 3. `20250108000003_create_similarity_functions.sql` - Search functions
@@ -500,25 +531,28 @@ AZURE_OPENAI_FINE_TUNING_ENABLED=true
 ## Security & Permissions
 
 ### API Route Protection
+
 ```typescript
 // Chat & Coach - Authenticated users
 guardedRoute(handler, { requireAuth: true })
 
 // Admin ML - Admin permissions required
-guardedRoute(handler, { 
+guardedRoute(handler, {
   permissions: ['ai.view', 'ai.manage', 'admin.ai.manage'],
-  requireAll: false 
+  requireAll: false,
 })
 
 // Training - Admin AI management only
-guardedRoute(handler, { 
+guardedRoute(handler, {
   permissions: ['admin.ai.manage'],
-  requireAll: true 
+  requireAll: true,
 })
 ```
 
 ### Rate Limiting
+
 All AI endpoints use rate limiting:
+
 - **Chat/Coach**: 30 requests/minute (MODERATE)
 - **Search**: 100 requests/minute (DEFAULT)
 - **Training**: 10 requests/minute (STRICT)
@@ -528,17 +562,20 @@ All AI endpoints use rate limiting:
 ## Performance Metrics
 
 ### Embedding Generation
+
 - **Speed**: ~200ms per embedding
 - **Batch**: 100 items in ~20 seconds
 - **Dimensions**: 1536
 - **Max tokens**: 8191
 
 ### Semantic Search
+
 - **Query time**: <50ms (with HNSW index)
 - **Accuracy**: 85-92% relevance
 - **Threshold**: 0.7 (configurable)
 
 ### Outcome Prediction
+
 - **Inference time**: <100ms
 - **Accuracy**: 78% (on test set)
 - **Features**: 25+ engineered features
@@ -548,16 +585,19 @@ All AI endpoints use rate limiting:
 ## Testing
 
 ### Unit Tests
+
 - Embedding service tests
 - Prediction service tests
 - Training pipeline tests
 
 ### Integration Tests
+
 - API endpoint tests
 - Webhook tests
 - Database function tests
 
 ### E2E Tests
+
 - Chat flow tests
 - Coach analysis tests
 - Search accuracy tests
@@ -567,6 +607,7 @@ All AI endpoints use rate limiting:
 ## Monitoring & Analytics
 
 ### Metrics to Track
+
 - AI API latency
 - Embedding generation rate
 - Search accuracy
@@ -575,7 +616,9 @@ All AI endpoints use rate limiting:
 - Token usage and costs
 
 ### Logging
+
 All AI operations log:
+
 - Request/response times
 - Token usage
 - Error rates
@@ -586,6 +629,7 @@ All AI operations log:
 ## Cost Management
 
 ### Token Usage
+
 ```typescript
 // Approximate costs (Azure OpenAI)
 - GPT-4o: $0.01/1K input tokens, $0.03/1K output tokens
@@ -598,6 +642,7 @@ All AI operations log:
 ```
 
 ### Optimization
+
 - Cache common queries
 - Batch embedding generation
 - Use cheaper models for simple tasks
@@ -622,6 +667,7 @@ All AI operations log:
 ## Summary
 
 All AI/ML features are production-ready:
+
 - Complete chat and coaching systems
 - Vector search with semantic understanding
 - ML-based outcome prediction

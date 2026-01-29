@@ -34,8 +34,8 @@ export default function Testimonials({ testimonials }: TestimonialsProps) {
             Trusted by Leading Organizations
           </h2>
           <p className="mx-auto max-w-2xl text-lg text-gray-600">
-            Hear from HR leaders, diversity officers, and executives who are using ABR Insights
-            to build more equitable workplaces.
+            Hear from HR leaders, diversity officers, and executives who are using ABR Insights to
+            build more equitable workplaces.
           </p>
         </div>
 
@@ -63,16 +63,14 @@ function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
           <Star
             key={i}
             className={`h-5 w-5 ${
-              i < testimonial.rating
-                ? 'fill-yellow-400 text-yellow-400'
-                : 'text-gray-300'
+              i < testimonial.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
             }`}
           />
         ))}
       </div>
 
       {/* Content */}
-      <blockquote className="relative z-10 mb-6 text-gray-700 leading-relaxed">
+      <blockquote className="relative z-10 mb-6 leading-relaxed text-gray-700">
         &ldquo;{testimonial.content}&rdquo;
       </blockquote>
 
@@ -89,7 +87,7 @@ function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
             />
           </div>
         ) : (
-          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-primary-100 text-primary-700 font-semibold">
+          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-primary-100 font-semibold text-primary-700">
             {testimonial.name.charAt(0)}
           </div>
         )}

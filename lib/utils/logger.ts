@@ -1,21 +1,21 @@
 /**
  * Environment-aware logging utility
- * 
+ *
  * Provides structured logging with different levels and automatic
  * suppression in production environments.
  */
 
-type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+type LogLevel = 'debug' | 'info' | 'warn' | 'error'
 
 interface LogContext {
-  [key: string]: unknown;
+  [key: string]: unknown
 }
 
 class Logger {
-  private isDevelopment: boolean;
+  private isDevelopment: boolean
 
   constructor() {
-    this.isDevelopment = process.env.NODE_ENV === 'development';
+    this.isDevelopment = process.env.NODE_ENV === 'development'
   }
 
   /**
@@ -23,7 +23,7 @@ class Logger {
    */
   debug(message: string, context?: LogContext): void {
     if (this.isDevelopment) {
-      console.debug(`[DEBUG] ${message}`, context || '');
+      console.debug(`[DEBUG] ${message}`, context || '')
     }
   }
 
@@ -32,7 +32,7 @@ class Logger {
    */
   info(message: string, context?: LogContext): void {
     if (this.isDevelopment) {
-      console.info(`[INFO] ${message}`, context || '');
+      console.info(`[INFO] ${message}`, context || '')
     }
   }
 
@@ -40,14 +40,14 @@ class Logger {
    * Log warnings (all environments)
    */
   warn(message: string, context?: LogContext): void {
-    console.warn(`[WARN] ${message}`, context || '');
+    console.warn(`[WARN] ${message}`, context || '')
   }
 
   /**
    * Log errors (all environments)
    */
   error(message: string, error?: Error | unknown, context?: LogContext): void {
-    console.error(`[ERROR] ${message}`, error, context || '');
+    console.error(`[ERROR] ${message}`, error, context || '')
   }
 
   /**
@@ -55,7 +55,7 @@ class Logger {
    */
   performance(label: string, duration: number, context?: LogContext): void {
     if (this.isDevelopment) {
-      console.log(`[PERF] ${label}: ${duration.toFixed(2)}ms`, context || '');
+      console.log(`[PERF] ${label}: ${duration.toFixed(2)}ms`, context || '')
     }
   }
 
@@ -64,8 +64,8 @@ class Logger {
    */
   api(method: string, url: string, status?: number, context?: LogContext): void {
     if (this.isDevelopment) {
-      const statusText = status ? ` - ${status}` : '';
-      console.log(`[API] ${method} ${url}${statusText}`, context || '');
+      const statusText = status ? ` - ${status}` : ''
+      console.log(`[API] ${method} ${url}${statusText}`, context || '')
     }
   }
 
@@ -74,7 +74,7 @@ class Logger {
    */
   auth(event: string, context?: LogContext): void {
     if (this.isDevelopment) {
-      console.log(`[AUTH] ${event}`, context || '');
+      console.log(`[AUTH] ${event}`, context || '')
     }
   }
 
@@ -83,13 +83,13 @@ class Logger {
    */
   db(operation: string, table: string, context?: LogContext): void {
     if (this.isDevelopment) {
-      console.log(`[DB] ${operation} on ${table}`, context || '');
+      console.log(`[DB] ${operation} on ${table}`, context || '')
     }
   }
 }
 
 // Export singleton instance
-export const logger = new Logger();
+export const logger = new Logger()
 
 // Export type for external use
-export type { LogLevel, LogContext };
+export type { LogLevel, LogContext }

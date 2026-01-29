@@ -28,7 +28,7 @@ ABR Insights combines cutting-edge AI technology with comprehensive legal data t
 
 ### Getting Started as a User
 
-1. **Visit** [abrinsights.ca](https://abrinsights.ca) 
+1. **Visit** [abrinsights.ca](https://abrinsights.ca)
 2. **Create an account** - Sign up with your organization email
 3. **Explore the platform** - Browse tribunal cases, courses, and resources
 4. **Start learning** - Enroll in courses or explore case database
@@ -38,6 +38,7 @@ ABR Insights combines cutting-edge AI technology with comprehensive legal data t
 ### Key Features
 
 #### For HR & EDI Professionals
+
 - ✅ Access 10,000+ tribunal cases with advanced search and filtering
 - ✅ AI-powered case classification and trend analysis
 - ✅ Comprehensive training courses on anti-Black racism
@@ -45,6 +46,7 @@ ABR Insights combines cutting-edge AI technology with comprehensive legal data t
 - ✅ Track team progress and completion rates
 
 #### For Trainers & Instructors
+
 - ✅ Create and manage custom training courses
 - ✅ Monitor learner engagement and outcomes
 - ✅ Leverage tribunal cases as teaching materials
@@ -52,6 +54,7 @@ ABR Insights combines cutting-edge AI technology with comprehensive legal data t
 - ✅ CE credit tracking and certificates
 
 #### For Organizations
+
 - ✅ Multi-tenant support for team management
 - ✅ Custom branding and organizational dashboards
 - ✅ Advanced analytics on equity initiatives
@@ -75,14 +78,14 @@ Below you'll find technical documentation for developers, contributors, and syst
 
 ## 🎯 Production Status: 100% Ready
 
-| System | Status | Details |
-|--------|--------|---------|
-| Permission System | ✅ 100% | 106 permissions, 48 API routes secured |
-| API Protection | ✅ 100% | All endpoints authenticated & authorized |
+| System             | Status  | Details                                   |
+| ------------------ | ------- | ----------------------------------------- |
+| Permission System  | ✅ 100% | 106 permissions, 48 API routes secured    |
+| API Protection     | ✅ 100% | All endpoints authenticated & authorized  |
 | Stripe Integration | ✅ 100% | Checkout, portal, webhooks, subscriptions |
-| AI Features | ✅ 100% | Chat, coach, embeddings, predictions |
-| Testing System | ✅ 100% | 198+ automated tests, CI/CD pipeline |
-| **Build System** | ✅ 100% | **Docker solution for exFAT drives** |
+| AI Features        | ✅ 100% | Chat, coach, embeddings, predictions      |
+| Testing System     | ✅ 100% | 198+ automated tests, CI/CD pipeline      |
+| **Build System**   | ✅ 100% | **Docker solution for exFAT drives**      |
 
 > **⚠️ Windows Users on exFAT drives**: Use Docker build method - see [DOCKER_QUICK_START.md](DOCKER_QUICK_START.md)
 
@@ -207,6 +210,7 @@ If you encounter `EISDIR` webpack errors on external drives:
 ## Documentation
 
 ### 🚀 Complete System Documentation (100%)
+
 - **[Documentation Index](docs/INDEX.md)** - Master index with all guides
 - **[Permission System 100%](PERMISSION_SYSTEM_100_COMPLETE.md)** - Complete RBAC implementation
 - **[API Protection 100%](API_PROTECTION_100_COMPLETE.md)** - All 48 endpoints secured
@@ -215,12 +219,14 @@ If you encounter `EISDIR` webpack errors on external drives:
 - **[Testing System 100%](TESTING_100_COMPLETE.md)** - 198+ tests, CI/CD pipeline
 
 ### 📚 Setup & Configuration
+
 - [Setup Complete Guide](SETUP_COMPLETE.md)
 - [Authentication Setup](AUTH_SETUP_GUIDE.md)
 - [Stripe Setup](STRIPE_SETUP.md)
 - [Security Status](PRODUCTION_SECURITY_STATUS.md)
 
 ### 🗂️ Additional Resources
+
 - [Migration Guide](MANUAL_MIGRATION_GUIDE.md)
 - [RBAC Documentation](docs/RBAC_DOCUMENTATION.md)
 - [Architecture Docs](docs/architecture/)

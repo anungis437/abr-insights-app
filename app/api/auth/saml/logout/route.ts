@@ -1,19 +1,19 @@
 /**
  * SAML SSO Logout Endpoint
- * 
+ *
  * Handles Single Logout (SLO) for SAML sessions
- * 
+ *
  * Flow:
  * 1. Get user ID from session
  * 2. Revoke all SSO sessions for user
  * 3. Sign out from Supabase auth
  * 4. Optionally initiate IdP logout (SLO)
  * 5. Redirect to login page
- * 
+ *
  * Supports:
  * - POST with optional single_logout parameter
  * - GET for direct navigation
- * 
+ *
  * @route /api/auth/saml/logout
  */
 

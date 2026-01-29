@@ -1,13 +1,13 @@
 /**
  * CanLII Scraper - Unit Tests
- * 
+ *
  * Tests for the CanLII scraper implementation with mocked HTTP requests.
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import axios from 'axios';
-import { CanLIIScraper } from '../src/scrapers/canlii';
-import type { DecisionLink } from '../src/types';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import axios from 'axios'
+import { CanLIIScraper } from '../src/scrapers/canlii'
+import type { DecisionLink } from '../src/types'
 
 // Create mock axios instance
 const mockAxiosInstance = {
@@ -21,7 +21,7 @@ const mockAxiosInstance = {
       common: {},
     },
   },
-};
+}
 
 // Mock axios.create to return our mock instance
 vi.mock('axios', () => {
@@ -31,31 +31,31 @@ vi.mock('axios', () => {
       get: vi.fn(),
       post: vi.fn(),
     },
-  };
-});
+  }
+})
 
 describe('CanLIIScraper', () => {
-  let scraper: CanLIIScraper;
+  let scraper: CanLIIScraper
 
   beforeEach(() => {
-    vi.clearAllMocks();
-    scraper = new CanLIIScraper('canlii_hrto');
-  });
+    vi.clearAllMocks()
+    scraper = new CanLIIScraper('canlii_hrto')
+  })
 
   afterEach(() => {
-    vi.restoreAllMocks();
-  });
+    vi.restoreAllMocks()
+  })
 
   describe('constructor', () => {
     it('should initialize with HRTO source system', () => {
-      expect(scraper).toBeInstanceOf(CanLIIScraper);
-    });
+      expect(scraper).toBeInstanceOf(CanLIIScraper)
+    })
 
     it('should initialize with CHRT source system', () => {
-      const chrtScraper = new CanLIIScraper('canlii_chrt');
-      expect(chrtScraper).toBeInstanceOf(CanLIIScraper);
-    });
-  });
+      const chrtScraper = new CanLIIScraper('canlii_chrt')
+      expect(chrtScraper).toBeInstanceOf(CanLIIScraper)
+    })
+  })
 
   describe('discoverDecisions', () => {
     it('should discover decisions from HTML listing page', async () => {
@@ -79,20 +79,20 @@ describe('CanLIIScraper', () => {
             </div>
           </body>
         </html>
-      `;
+      `
 
-      const mockEmptyPage = `<html><body><div class="resultCount">Showing 0 of 0 results</div></body></html>`;
+      const mockEmptyPage = `<html><body><div class="resultCount">Showing 0 of 0 results</div></body></html>`
 
       mockAxiosInstance.get
         .mockResolvedValueOnce({ data: mockHtmlPage1, status: 200 })
-        .mockResolvedValue({ data: mockEmptyPage, status: 200 });
+        .mockResolvedValue({ data: mockEmptyPage, status: 200 })
 
-      const decisions = await scraper.discoverDecisions(10);
+      const decisions = await scraper.discoverDecisions(10)
 
-      expect(decisions.length).toBeGreaterThan(0);
-      expect(decisions[0]).toHaveProperty('url');
-      expect(decisions[0]).toHaveProperty('title');
-    });
+      expect(decisions.length).toBeGreaterThan(0)
+      expect(decisions[0]).toHaveProperty('url')
+      expect(decisions[0]).toHaveProperty('title')
+    })
 
     it('should respect maxCases limit', async () => {
       const mockHtml = `
@@ -100,29 +100,32 @@ describe('CanLIIScraper', () => {
           <body>
             <div class="resultCount">Showing 1-50 of 50 results</div>
             <div class="results">
-              ${Array.from({ length: 50 }, (_, i) => `
+              ${Array.from(
+                { length: 50 },
+                (_, i) => `
                 <div class="result-title">
                   <a href="/en/on/onhrt/doc/2024/2024hrto${i}/2024hrto${i}.html">
                     Case ${i}, 2024 HRTO ${i}
                   </a>
                   <span class="resultDate">2024-01-${String(i + 1).padStart(2, '0')}</span>
                 </div>
-              `).join('')}
+              `
+              ).join('')}
             </div>
           </body>
         </html>
-      `;
+      `
 
-      const mockEmptyPage = `<html><body><div class="resultCount">Showing 0 of 0 results</div></body></html>`;
+      const mockEmptyPage = `<html><body><div class="resultCount">Showing 0 of 0 results</div></body></html>`
 
       mockAxiosInstance.get
         .mockResolvedValueOnce({ data: mockHtml, status: 200 })
-        .mockResolvedValue({ data: mockEmptyPage, status: 200 });
+        .mockResolvedValue({ data: mockEmptyPage, status: 200 })
 
-      const decisions = await scraper.discoverDecisions(10);
+      const decisions = await scraper.discoverDecisions(10)
 
-      expect(decisions.length).toBeLessThanOrEqual(10);
-    });
+      expect(decisions.length).toBeLessThanOrEqual(10)
+    })
 
     it('should return empty array when no decisions found', async () => {
       const mockHtml = `
@@ -131,14 +134,14 @@ describe('CanLIIScraper', () => {
             <div class="results"></div>
           </body>
         </html>
-      `;
+      `
 
-      mockAxiosInstance.get.mockResolvedValue({ data: mockHtml, status: 200 });
+      mockAxiosInstance.get.mockResolvedValue({ data: mockHtml, status: 200 })
 
-      const decisions = await scraper.discoverDecisions(10);
+      const decisions = await scraper.discoverDecisions(10)
 
-      expect(decisions).toEqual([]);
-    });
+      expect(decisions).toEqual([])
+    })
 
     it('should handle pagination with startPage parameter', async () => {
       const mockHtml = `
@@ -153,40 +156,38 @@ describe('CanLIIScraper', () => {
             </div>
           </body>
         </html>
-      `;
+      `
 
-      const mockEmptyPage = `<html><body><div class="results"></div></body></html>`;
+      const mockEmptyPage = `<html><body><div class="results"></div></body></html>`
 
       mockAxiosInstance.get
         .mockResolvedValueOnce({ data: mockHtml, status: 200 })
-        .mockResolvedValue({ data: mockEmptyPage, status: 200 });
+        .mockResolvedValue({ data: mockEmptyPage, status: 200 })
 
-      const decisions = await scraper.discoverDecisions(10, 2);
+      const decisions = await scraper.discoverDecisions(10, 2)
 
-      expect(mockAxiosInstance.get).toHaveBeenCalledWith(
-        expect.stringContaining('page=2')
-      );
-    });
+      expect(mockAxiosInstance.get).toHaveBeenCalledWith(expect.stringContaining('page=2'))
+    })
 
     it('should retry on network failure', async () => {
-      const mockHtml = `<html><body><div class="results"><div class="result-title"><a href="/test">Test</a></div></div></body></html>`;
-      const mockEmptyPage = `<html><body><div class="results"></div></body></html>`;
+      const mockHtml = `<html><body><div class="results"><div class="result-title"><a href="/test">Test</a></div></div></body></html>`
+      const mockEmptyPage = `<html><body><div class="results"></div></body></html>`
 
       mockAxiosInstance.get
         .mockRejectedValueOnce(new Error('Network error'))
         .mockResolvedValueOnce({ data: mockHtml, status: 200 })
-        .mockResolvedValue({ data: mockEmptyPage, status: 200 });
+        .mockResolvedValue({ data: mockEmptyPage, status: 200 })
 
-      const decisions = await scraper.discoverDecisions(10);
+      const decisions = await scraper.discoverDecisions(10)
 
       // Should call 3 times: page 1 (error), page 2 (success with 1 result), page 3 (empty)
-      expect(mockAxiosInstance.get).toHaveBeenCalledTimes(3);
-    });
-  });
+      expect(mockAxiosInstance.get).toHaveBeenCalledTimes(3)
+    })
+  })
 
   describe('fetchDecisionContent', () => {
     it('should extract decision content from HTML', async () => {
-      const longContent = 'This is the decision content discussing discrimination. '.repeat(10);
+      const longContent = 'This is the decision content discussing discrimination. '.repeat(10)
       const mockHtml = `
         <html>
           <head>
@@ -203,21 +204,21 @@ describe('CanLIIScraper', () => {
             </div>
           </body>
         </html>
-      `;
+      `
 
-      mockAxiosInstance.get.mockResolvedValueOnce({ data: mockHtml, status: 200 });
+      mockAxiosInstance.get.mockResolvedValueOnce({ data: mockHtml, status: 200 })
 
       const content = await scraper.fetchDecisionContent(
         'https://www.canlii.org/en/on/onhrt/doc/2024/2024hrto123/2024hrto123.html'
-      );
+      )
 
-      expect(content.caseTitle).toContain('Smith v. Company A');
-      expect(content.fullText).toContain('discrimination');
-      expect(content.url).toContain('2024hrto123');
-    });
+      expect(content.caseTitle).toContain('Smith v. Company A')
+      expect(content.fullText).toContain('discrimination')
+      expect(content.url).toContain('2024hrto123')
+    })
 
     it('should handle missing optional fields', async () => {
-      const minimalContent = 'Minimal content about employment discrimination case. '.repeat(10);
+      const minimalContent = 'Minimal content about employment discrimination case. '.repeat(10)
       const mockHtml = `
         <html>
           <head><title>Minimal Case</title></head>
@@ -227,54 +228,57 @@ describe('CanLIIScraper', () => {
             </div>
           </body>
         </html>
-      `;
+      `
 
-      mockAxiosInstance.get.mockResolvedValueOnce({ data: mockHtml, status: 200 });
+      mockAxiosInstance.get.mockResolvedValueOnce({ data: mockHtml, status: 200 })
 
       const content = await scraper.fetchDecisionContent(
         'https://www.canlii.org/en/on/onhrt/doc/2024/2024hrto000/2024hrto000.html'
-      );
+      )
 
-      expect(content.url).toBeTruthy();
-      expect(content.fullText).toBeTruthy();
-    });
+      expect(content.url).toBeTruthy()
+      expect(content.fullText).toBeTruthy()
+    })
 
     it('should validate content length', async () => {
-      const validContent = 'This is valid decision content about discrimination and human rights violations in the workplace. '.repeat(6);
-      const mockHtml = `<html><head><title>Valid</title></head><body><div class="documentcontent">${validContent}</div></body></html>`;
+      const validContent =
+        'This is valid decision content about discrimination and human rights violations in the workplace. '.repeat(
+          6
+        )
+      const mockHtml = `<html><head><title>Valid</title></head><body><div class="documentcontent">${validContent}</div></body></html>`
 
-      mockAxiosInstance.get.mockResolvedValueOnce({ data: mockHtml, status: 200 });
+      mockAxiosInstance.get.mockResolvedValueOnce({ data: mockHtml, status: 200 })
 
-      const content = await scraper.fetchDecisionContent('https://test.com');
+      const content = await scraper.fetchDecisionContent('https://test.com')
 
       // Content should be extracted when it meets minimum length
-      expect(content.fullText.length).toBeGreaterThan(500);
-    });
+      expect(content.fullText.length).toBeGreaterThan(500)
+    })
 
     it('should retry on network failure', async () => {
-      const retryContent = 'Content from tribunal decision on workplace discrimination. '.repeat(10);
-      const mockHtml = `<html><head><title>Test</title></head><body><div class="documentcontent">${retryContent}</div></body></html>`;
+      const retryContent = 'Content from tribunal decision on workplace discrimination. '.repeat(10)
+      const mockHtml = `<html><head><title>Test</title></head><body><div class="documentcontent">${retryContent}</div></body></html>`
 
-      const etimedoutError = new Error('Request failed with ETIMEDOUT');
+      const etimedoutError = new Error('Request failed with ETIMEDOUT')
       mockAxiosInstance.get
         .mockRejectedValueOnce(etimedoutError)
-        .mockResolvedValueOnce({ data: mockHtml, status: 200 });
+        .mockResolvedValueOnce({ data: mockHtml, status: 200 })
 
-      const content = await scraper.fetchDecisionContent('https://test.com/retry');
+      const content = await scraper.fetchDecisionContent('https://test.com/retry')
 
-      expect(mockAxiosInstance.get).toHaveBeenCalledTimes(2);
-      expect(content.fullText).toContain('Content');
-    });
-  });
+      expect(mockAxiosInstance.get).toHaveBeenCalledTimes(2)
+      expect(content.fullText).toContain('Content')
+    })
+  })
 
   describe('reset', () => {
     it('should clear internal state', () => {
-      scraper.reset();
+      scraper.reset()
       // Test passes if no error thrown
-      expect(true).toBe(true);
-    });
-  });
-});
+      expect(true).toBe(true)
+    })
+  })
+})
 
 // ============================================================================
 // INTEGRATION TEST PLACEHOLDER
@@ -283,16 +287,16 @@ describe('CanLIIScraper', () => {
 describe('CanLIIScraper - Integration Tests', () => {
   // These tests would run against real CanLII pages in a controlled manner
   // Skipped by default to avoid hitting real servers during development
-  
+
   it.skip('should fetch real HRTO listing page', async () => {
-    const scraper = new CanLIIScraper('canlii_hrto');
-    const decisions = await scraper.discoverDecisions(5);
-    expect(decisions.length).toBeGreaterThan(0);
-  });
+    const scraper = new CanLIIScraper('canlii_hrto')
+    const decisions = await scraper.discoverDecisions(5)
+    expect(decisions.length).toBeGreaterThan(0)
+  })
 
   it.skip('should fetch real decision content', async () => {
-    const scraper = new CanLIIScraper('canlii_hrto');
+    const scraper = new CanLIIScraper('canlii_hrto')
     // Would use a known stable decision URL
-    expect(true).toBe(true);
-  });
-});
+    expect(true).toBe(true)
+  })
+})

@@ -6,11 +6,13 @@
 ## ✅ Completed
 
 ### Migration 020: Comprehensive Permissions Seed
+
 **Status:** ✅ APPLIED SUCCESSFULLY
 
 Applied via direct PostgreSQL connection on January 13, 2026
 
 **Results:**
+
 ```
 INSERT 0 11   (AI permissions)
 INSERT 0 6    (Embeddings)
@@ -33,6 +35,7 @@ INSERT 0 3    (Role assignments - Guest)
 **Total Permissions:** 106
 
 **Permissions by Resource:**
+
 - achievements: 3
 - admin: 1
 - ai: 10
@@ -61,6 +64,7 @@ INSERT 0 3    (Role assignments - Guest)
 - users: 6
 
 **Verification:**
+
 ```sql
 SELECT COUNT(*) FROM permissions;
 -- Result: 106 permissions (was 21 before)
@@ -69,11 +73,13 @@ SELECT COUNT(*) FROM permissions;
 ## ⚠️ Pending - Requires Manual Application
 
 ### Migration 021: Permission-Based RLS Functions
+
 **Status:** ⏳ REQUIRES SUPABASE DASHBOARD
 
 **Issue:** The pooler connection (`aws-1-ca-central-1.pooler.supabase.com`) does not have permission to create functions in the `auth` schema.
 
 **Error:**
+
 ```
 ERROR: permission denied for schema auth
 ```
@@ -96,13 +102,14 @@ ERROR: permission denied for schema auth
    - Wait for completion (should take 5-10 seconds)
 
 4. **Verify:**
+
    ```sql
-   SELECT routine_name 
-   FROM information_schema.routines 
-   WHERE routine_schema = 'auth' 
+   SELECT routine_name
+   FROM information_schema.routines
+   WHERE routine_schema = 'auth'
    AND routine_name LIKE '%permission%';
    ```
-   
+
    Expected functions:
    - `has_permission`
    - `has_any_permission`
@@ -117,9 +124,11 @@ ERROR: permission denied for schema auth
    - `resource_in_user_org`
 
 ### Migration 022: Critical Table RLS Migration
+
 **Status:** ⏳ PENDING (depends on 021)
 
 **Affected Tables (10):**
+
 - profiles
 - organizations
 - user_roles
@@ -142,6 +151,7 @@ ERROR: permission denied for schema auth
    - Run (takes 15-30 seconds)
 
 3. **Verify:**
+
    ```sql
    SELECT tablename, COUNT(*) as policy_count
    FROM pg_policies
@@ -149,13 +159,15 @@ ERROR: permission denied for schema auth
    AND tablename IN ('profiles', 'courses', 'audit_logs')
    GROUP BY tablename;
    ```
-   
+
    Expected: 5-9 policies per table
 
 ### Migration 023: Feature Table RLS Migration
+
 **Status:** ⏳ PENDING (depends on 021)
 
 **Affected Tables (20):**
+
 - enrollments
 - lesson_progress
 - quiz_attempts
@@ -187,6 +199,7 @@ ERROR: permission denied for schema auth
    - Run (takes 30-60 seconds - largest migration)
 
 3. **Verify:**
+
    ```sql
    SELECT tablename, COUNT(*) as policy_count
    FROM pg_policies
@@ -194,7 +207,7 @@ ERROR: permission denied for schema auth
    AND tablename IN ('enrollments', 'course_achievements', 'learning_paths')
    GROUP BY tablename;
    ```
-   
+
    Expected: 4-7 policies per table
 
 ## 📋 Complete Migration Checklist
@@ -211,9 +224,10 @@ ERROR: permission denied for schema auth
 Once you've applied migrations 021, 022, and 023 via the Supabase Dashboard:
 
 ### 1. Verify Functions Created
+
 ```sql
 -- Check all permission functions exist
-SELECT 
+SELECT
     routine_schema,
     routine_name,
     routine_type
@@ -238,9 +252,10 @@ ORDER BY routine_name;
 Expected: 11 functions
 
 ### 2. Verify Policies Created
+
 ```sql
 -- Count policies by table
-SELECT 
+SELECT
     schemaname,
     tablename,
     COUNT(*) as policy_count
@@ -254,6 +269,7 @@ ORDER BY tablename;
 Expected: 30 tables with 4-9 policies each (~180 total policies)
 
 ### 3. Test Permission Check
+
 ```sql
 -- Test the permission check function
 DO $$
@@ -264,20 +280,21 @@ DECLARE
 BEGIN
     -- Get first user
     SELECT id INTO v_user_id FROM auth.users LIMIT 1;
-    
+
     -- Get their org
-    SELECT organization_id INTO v_org_id 
-    FROM profiles 
+    SELECT organization_id INTO v_org_id
+    FROM profiles
     WHERE id = v_user_id;
-    
+
     -- Test permission check
     v_has_perm := auth.has_permission(v_user_id, v_org_id, 'courses.read');
-    
+
     RAISE NOTICE 'User % in org % has courses.read: %', v_user_id, v_org_id, v_has_perm;
 END $$;
 ```
 
 ### 4. Run Test Suite
+
 ```bash
 npm run test -- tenant-isolation.test.ts
 ```
@@ -285,6 +302,7 @@ npm run test -- tenant-isolation.test.ts
 Expected: 29 tests pass
 
 ### 5. Test Permission Management UI
+
 ```bash
 npm run dev
 ```
@@ -299,16 +317,21 @@ Then visit: http://localhost:3000/admin/permissions-management
 ## 🔧 Troubleshooting
 
 ### Issue: "permission denied for schema auth"
+
 **Solution:** Must use Supabase Dashboard SQL Editor, not pooler connection
 
 ### Issue: "function auth.has_permission does not exist"
+
 **Solution:** Apply Migration 021 first before 022 and 023
 
 ### Issue: "relation does not exist"
+
 **Solution:** Ensure table exists before applying policies
 
 ### Issue: Test failures
-**Solution:** 
+
+**Solution:**
+
 1. Verify all migrations applied
 2. Check RLS is enabled: `SELECT tablename FROM pg_tables WHERE schemaname='public' AND rowsecurity=true;`
 3. Check service role key is correct in `.env.local`
@@ -316,12 +339,14 @@ Then visit: http://localhost:3000/admin/permissions-management
 ## 📊 Migration Impact
 
 **Database Changes:**
+
 - ✅ 106 permissions seeded (vs 21 before)
 - ⏳ 11 permission functions to be created
 - ⏳ ~180 permission-based policies to be created
 - ⏳ 30 tables to be migrated
 
 **When Complete:**
+
 - 100% of critical tables secured with PBAC
 - Fine-grained permission control
 - Tenant isolation guaranteed

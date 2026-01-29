@@ -7,7 +7,7 @@
 import { createClient } from '@/lib/supabase/client'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
-export type NotificationType = 
+export type NotificationType =
   | 'course_update'
   | 'achievement'
   | 'message'
@@ -45,7 +45,10 @@ export class NotificationsService {
    * Get user notifications
    * Replaces: base44.entities.Notification.getUserNotifications()
    */
-  async getUserNotifications(userId: string, options?: { unreadOnly?: boolean; limit?: number; offset?: number }) {
+  async getUserNotifications(
+    userId: string,
+    options?: { unreadOnly?: boolean; limit?: number; offset?: number }
+  ) {
     let query = this.supabase
       .from('notifications')
       .select('*', { count: 'exact' })
@@ -63,7 +66,7 @@ export class NotificationsService {
       query = query.limit(options.limit)
     }
     if (options?.offset) {
-      query = query.range(options.offset, (options.offset + (options.limit || 10)) - 1)
+      query = query.range(options.offset, options.offset + (options.limit || 10) - 1)
     }
 
     const { data, error, count } = await query
@@ -135,10 +138,7 @@ export class NotificationsService {
    * Delete notification
    */
   async delete(id: string) {
-    const { error } = await this.supabase
-      .from('notifications')
-      .delete()
-      .eq('id', id)
+    const { error } = await this.supabase.from('notifications').delete().eq('id', id)
 
     if (error) throw error
   }
@@ -179,7 +179,7 @@ export class NotificationsService {
       priority: options?.priority || 'normal',
       link_url: options?.linkUrl || null,
       metadata: options?.metadata || null,
-      expires_at: options?.expiresAt || null
+      expires_at: options?.expiresAt || null,
     })
   }
 
@@ -187,10 +187,7 @@ export class NotificationsService {
    * Send bulk notifications
    */
   async sendBulk(notifications: NotificationInsert[]) {
-    const { data, error } = await this.supabase
-      .from('notifications')
-      .insert(notifications)
-      .select()
+    const { data, error } = await this.supabase.from('notifications').insert(notifications).select()
 
     if (error) throw error
     return data as Notification[]

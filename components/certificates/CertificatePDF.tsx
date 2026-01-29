@@ -1,20 +1,12 @@
 /**
  * Certificate PDF Template
- * 
+ *
  * Generates professional PDF certificates using @react-pdf/renderer
  * Supports multiple certificate types with customizable templates
  */
 
 import React from 'react'
-import {
-  Document,
-  Page,
-  Text,
-  View,
-  Image,
-  StyleSheet,
-  Font
-} from '@react-pdf/renderer'
+import { Document, Page, Text, View, Image, StyleSheet, Font } from '@react-pdf/renderer'
 import type { Certificate, CertificateTemplate } from '@/lib/services/certificates'
 
 // ============================================================================
@@ -25,68 +17,68 @@ const styles = StyleSheet.create({
   page: {
     padding: 50,
     backgroundColor: '#ffffff',
-    fontFamily: 'Times-Roman'
+    fontFamily: 'Times-Roman',
   },
   pageWithBorder: {
     padding: 50,
     backgroundColor: '#ffffff',
     border: '2px solid #805ad5',
-    fontFamily: 'Times-Roman'
+    fontFamily: 'Times-Roman',
   },
-  
+
   // Header
   header: {
     marginBottom: 30,
-    alignItems: 'center'
+    alignItems: 'center',
   },
   logo: {
     width: 80,
     height: 80,
-    marginBottom: 10
+    marginBottom: 10,
   },
   organizationName: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#1a202c',
-    marginBottom: 5
+    marginBottom: 5,
   },
-  
+
   // Title Section
   titleSection: {
     marginBottom: 30,
     alignItems: 'center',
     borderBottom: '2px solid #805ad5',
-    paddingBottom: 20
+    paddingBottom: 20,
   },
   certificateLabel: {
     fontSize: 14,
     color: '#4a5568',
     marginBottom: 5,
     textTransform: 'uppercase',
-    letterSpacing: 2
+    letterSpacing: 2,
   },
   certificateTitle: {
     fontSize: 32,
     fontWeight: 'bold',
     color: '#805ad5',
-    marginBottom: 10
+    marginBottom: 10,
   },
   certificateNumber: {
     fontSize: 10,
     color: '#718096',
-    marginTop: 10
+    marginTop: 10,
   },
-  
+
   // Body Section
   bodySection: {
     marginBottom: 30,
-    paddingHorizontal: 40
+    paddingHorizontal: 40,
   },
   presentedTo: {
     fontSize: 14,
     color: '#4a5568',
     textAlign: 'center',
-    marginBottom: 10
+    marginBottom: 10,
   },
   recipientName: {
     fontSize: 28,
@@ -95,143 +87,143 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
     borderBottom: '1px solid #cbd5e0',
-    paddingBottom: 10
+    paddingBottom: 10,
   },
   description: {
     fontSize: 12,
     color: '#2d3748',
     textAlign: 'center',
     lineHeight: 1.6,
-    marginBottom: 20
+    marginBottom: 20,
   },
   courseTitle: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#2d3748',
     textAlign: 'center',
-    marginVertical: 10
+    marginVertical: 10,
   },
-  
+
   // Details Section
   detailsSection: {
     marginBottom: 30,
-    paddingHorizontal: 40
+    paddingHorizontal: 40,
   },
   detailsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 10,
-    paddingHorizontal: 20
+    paddingHorizontal: 20,
   },
   detailLabel: {
     fontSize: 10,
     color: '#4a5568',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   detailValue: {
     fontSize: 10,
-    color: '#2d3748'
+    color: '#2d3748',
   },
-  
+
   // CE Credits Section
   ceSection: {
     backgroundColor: '#f7fafc',
     padding: 15,
     borderRadius: 5,
     marginBottom: 20,
-    border: '1px solid #e2e8f0'
+    border: '1px solid #e2e8f0',
   },
   ceTitle: {
     fontSize: 12,
     fontWeight: 'bold',
     color: '#2d3748',
     marginBottom: 8,
-    textAlign: 'center'
+    textAlign: 'center',
   },
   ceDetails: {
     flexDirection: 'row',
-    justifyContent: 'space-around'
+    justifyContent: 'space-around',
   },
   ceItem: {
-    alignItems: 'center'
+    alignItems: 'center',
   },
   ceLabel: {
     fontSize: 9,
     color: '#718096',
-    marginBottom: 3
+    marginBottom: 3,
   },
   ceValue: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#805ad5'
+    color: '#805ad5',
   },
-  
+
   // Signatures Section
   signaturesSection: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginBottom: 30,
-    paddingHorizontal: 40
+    paddingHorizontal: 40,
   },
   signature: {
     alignItems: 'center',
-    width: '40%'
+    width: '40%',
   },
   signatureLine: {
     borderTop: '1px solid #2d3748',
     width: '100%',
-    marginBottom: 5
+    marginBottom: 5,
   },
   signatureName: {
     fontSize: 11,
     fontWeight: 'bold',
     color: '#2d3748',
-    marginBottom: 2
+    marginBottom: 2,
   },
   signatureTitle: {
     fontSize: 9,
-    color: '#718096'
+    color: '#718096',
   },
   signatureImage: {
     width: 100,
     height: 40,
-    marginBottom: 5
+    marginBottom: 5,
   },
-  
+
   // Footer Section
   footerSection: {
     alignItems: 'center',
-    marginTop: 'auto'
+    marginTop: 'auto',
   },
   qrCode: {
     width: 80,
     height: 80,
-    marginBottom: 10
+    marginBottom: 10,
   },
   verificationText: {
     fontSize: 8,
     color: '#718096',
     textAlign: 'center',
-    marginBottom: 3
+    marginBottom: 3,
   },
   verificationUrl: {
     fontSize: 8,
     color: '#805ad5',
-    textAlign: 'center'
+    textAlign: 'center',
   },
-  
+
   // Achievement Badge
   badgeSection: {
     position: 'absolute',
     top: 40,
     right: 40,
     width: 80,
-    height: 80
+    height: 80,
   },
   badgeImage: {
     width: 80,
-    height: 80
-  }
+    height: 80,
+  },
 })
 
 // ============================================================================
@@ -257,19 +249,18 @@ export default function CertificatePDF({
   courseTitle,
   organizationName = 'ABR Insights',
   organizationLogo,
-  badgeImage
+  badgeImage,
 }: CertificatePDFProps) {
-  
   // Format date
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     })
   }
-  
+
   // Get certificate type label
   const getCertificateTypeLabel = () => {
     switch (certificate.certificate_type) {
@@ -287,14 +278,17 @@ export default function CertificatePDF({
         return 'Certificate'
     }
   }
-  
+
   // Determine if we should show border
   const showBorder = template?.styles_json?.border !== false
-  
+
   return (
     <Document>
-      <Page size="LETTER" orientation="landscape" style={showBorder ? styles.pageWithBorder : styles.page}>
-        
+      <Page
+        size="LETTER"
+        orientation="landscape"
+        style={showBorder ? styles.pageWithBorder : styles.page}
+      >
         {/* Badge/Seal (if certification type) */}
         {certificate.certificate_type === 'certification' && badgeImage && (
           <View style={styles.badgeSection}>
@@ -302,7 +296,7 @@ export default function CertificatePDF({
             <Image src={badgeImage} style={styles.badgeImage} />
           </View>
         )}
-        
+
         {/* Header */}
         <View style={styles.header}>
           {organizationLogo && (
@@ -311,7 +305,7 @@ export default function CertificatePDF({
           )}
           <Text style={styles.organizationName}>{organizationName}</Text>
         </View>
-        
+
         {/* Title Section */}
         <View style={styles.titleSection}>
           <Text style={styles.certificateLabel}>
@@ -324,21 +318,19 @@ export default function CertificatePDF({
             Certificate No: {certificate.certificate_number}
           </Text>
         </View>
-        
+
         {/* Body Section */}
         <View style={styles.bodySection}>
           <Text style={styles.presentedTo}>This certificate is proudly presented to</Text>
           <Text style={styles.recipientName}>{certificate.recipient_name}</Text>
-          
+
           {certificate.description && (
             <Text style={styles.description}>{certificate.description}</Text>
           )}
-          
-          {courseTitle && (
-            <Text style={styles.courseTitle}>&quot;{courseTitle}&quot;</Text>
-          )}
+
+          {courseTitle && <Text style={styles.courseTitle}>&quot;{courseTitle}&quot;</Text>}
         </View>
-        
+
         {/* CE Credits Section (if applicable) */}
         {(certificate.ce_credits || certificate.ce_hours) && (
           <View style={styles.bodySection}>
@@ -373,21 +365,21 @@ export default function CertificatePDF({
             </View>
           </View>
         )}
-        
+
         {/* Details Section */}
         <View style={styles.detailsSection}>
           <View style={styles.detailsRow}>
             <Text style={styles.detailLabel}>Issue Date:</Text>
             <Text style={styles.detailValue}>{formatDate(certificate.issue_date)}</Text>
           </View>
-          
+
           {certificate.expiry_date && (
             <View style={styles.detailsRow}>
               <Text style={styles.detailLabel}>Expiry Date:</Text>
               <Text style={styles.detailValue}>{formatDate(certificate.expiry_date)}</Text>
             </View>
           )}
-          
+
           {certificate.metadata?.score && (
             <View style={styles.detailsRow}>
               <Text style={styles.detailLabel}>Score:</Text>
@@ -395,7 +387,7 @@ export default function CertificatePDF({
             </View>
           )}
         </View>
-        
+
         {/* Signatures Section */}
         {certificate.signatures && certificate.signatures.length > 0 && (
           <View style={styles.signaturesSection}>
@@ -412,23 +404,18 @@ export default function CertificatePDF({
             ))}
           </View>
         )}
-        
+
         {/* Footer with QR Code */}
         <View style={styles.footerSection}>
           {certificate.qr_code_data && (
             // eslint-disable-next-line jsx-a11y/alt-text
             <Image src={certificate.qr_code_data} style={styles.qrCode} />
           )}
-          <Text style={styles.verificationText}>
-            Scan to verify this certificate or visit:
-          </Text>
+          <Text style={styles.verificationText}>Scan to verify this certificate or visit:</Text>
           {certificate.verification_url && (
-            <Text style={styles.verificationUrl}>
-              {certificate.verification_url}
-            </Text>
+            <Text style={styles.verificationUrl}>{certificate.verification_url}</Text>
           )}
         </View>
-        
       </Page>
     </Document>
   )
@@ -452,7 +439,7 @@ export async function generateCertificatePDF(
   }
 ): Promise<Blob> {
   const { pdf } = await import('@react-pdf/renderer')
-  
+
   const pdfDocument = (
     <CertificatePDF
       certificate={certificate}
@@ -463,7 +450,7 @@ export async function generateCertificatePDF(
       badgeImage={options?.badgeImage}
     />
   )
-  
+
   return await pdf(pdfDocument).toBlob()
 }
 
@@ -481,7 +468,7 @@ export async function downloadCertificatePDF(
   }
 ): Promise<void> {
   const blob = await generateCertificatePDF(certificate, options)
-  
+
   // Create download link
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')

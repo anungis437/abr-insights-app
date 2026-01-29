@@ -36,122 +36,131 @@ export function useTouchGestures(
   const longPressTimerRef = useRef<NodeJS.Timeout | null>(null)
   const lastTapRef = useRef<number>(0)
 
-  const handleTouchStart = useCallback((e: TouchEvent) => {
-    if (preventScroll) {
-      e.preventDefault()
-    }
-
-    const touch = e.touches[0]
-    touchStartRef.current = {
-      x: touch.clientX,
-      y: touch.clientY,
-      time: Date.now(),
-    }
-    touchEndRef.current = null
-
-    // Handle pinch gesture
-    if (e.touches.length === 2 && handlers.onPinch) {
-      const touch1 = e.touches[0]
-      const touch2 = e.touches[1]
-      const distance = Math.hypot(
-        touch2.clientX - touch1.clientX,
-        touch2.clientY - touch1.clientY
-      )
-      pinchStartRef.current = distance
-    }
-
-    // Handle long press
-    if (handlers.onLongPress) {
-      longPressTimerRef.current = setTimeout(() => {
-        handlers.onLongPress?.()
-      }, longPressDelay)
-    }
-  }, [handlers, longPressDelay, preventScroll])
-
-  const handleTouchMove = useCallback((e: TouchEvent) => {
-    if (preventScroll) {
-      e.preventDefault()
-    }
-
-    // Cancel long press on move
-    if (longPressTimerRef.current) {
-      clearTimeout(longPressTimerRef.current)
-      longPressTimerRef.current = null
-    }
-
-    // Handle pinch gesture
-    if (e.touches.length === 2 && handlers.onPinch && pinchStartRef.current) {
-      const touch1 = e.touches[0]
-      const touch2 = e.touches[1]
-      const distance = Math.hypot(
-        touch2.clientX - touch1.clientX,
-        touch2.clientY - touch1.clientY
-      )
-      const scale = distance / pinchStartRef.current
-      
-      if (Math.abs(scale - 1) > pinchThreshold) {
-        handlers.onPinch(scale)
+  const handleTouchStart = useCallback(
+    (e: TouchEvent) => {
+      if (preventScroll) {
+        e.preventDefault()
       }
-    }
 
-    const touch = e.touches[0]
-    touchEndRef.current = {
-      x: touch.clientX,
-      y: touch.clientY,
-    }
-  }, [handlers, pinchThreshold, preventScroll])
-
-  const handleTouchEnd = useCallback((e: TouchEvent) => {
-    if (preventScroll) {
-      e.preventDefault()
-    }
-
-    // Cancel long press
-    if (longPressTimerRef.current) {
-      clearTimeout(longPressTimerRef.current)
-      longPressTimerRef.current = null
-    }
-
-    // Reset pinch
-    pinchStartRef.current = null
-
-    if (!touchStartRef.current || !touchEndRef.current) {
-      // Check for double tap
-      const now = Date.now()
-      if (now - lastTapRef.current < 300 && handlers.onDoubleTap) {
-        handlers.onDoubleTap()
+      const touch = e.touches[0]
+      touchStartRef.current = {
+        x: touch.clientX,
+        y: touch.clientY,
+        time: Date.now(),
       }
-      lastTapRef.current = now
-      return
-    }
+      touchEndRef.current = null
 
-    const deltaX = touchEndRef.current.x - touchStartRef.current.x
-    const deltaY = touchEndRef.current.y - touchStartRef.current.y
-    const absX = Math.abs(deltaX)
-    const absY = Math.abs(deltaY)
+      // Handle pinch gesture
+      if (e.touches.length === 2 && handlers.onPinch) {
+        const touch1 = e.touches[0]
+        const touch2 = e.touches[1]
+        const distance = Math.hypot(
+          touch2.clientX - touch1.clientX,
+          touch2.clientY - touch1.clientY
+        )
+        pinchStartRef.current = distance
+      }
 
-    // Determine swipe direction
-    if (absX > swipeThreshold || absY > swipeThreshold) {
-      if (absX > absY) {
-        // Horizontal swipe
-        if (deltaX > 0 && handlers.onSwipeRight) {
-          handlers.onSwipeRight()
-        } else if (deltaX < 0 && handlers.onSwipeLeft) {
-          handlers.onSwipeLeft()
-        }
-      } else {
-        // Vertical swipe
-        if (deltaY > 0 && handlers.onSwipeDown) {
-          handlers.onSwipeDown()
-        } else if (deltaY < 0 && handlers.onSwipeUp) {
-          handlers.onSwipeUp()
+      // Handle long press
+      if (handlers.onLongPress) {
+        longPressTimerRef.current = setTimeout(() => {
+          handlers.onLongPress?.()
+        }, longPressDelay)
+      }
+    },
+    [handlers, longPressDelay, preventScroll]
+  )
+
+  const handleTouchMove = useCallback(
+    (e: TouchEvent) => {
+      if (preventScroll) {
+        e.preventDefault()
+      }
+
+      // Cancel long press on move
+      if (longPressTimerRef.current) {
+        clearTimeout(longPressTimerRef.current)
+        longPressTimerRef.current = null
+      }
+
+      // Handle pinch gesture
+      if (e.touches.length === 2 && handlers.onPinch && pinchStartRef.current) {
+        const touch1 = e.touches[0]
+        const touch2 = e.touches[1]
+        const distance = Math.hypot(
+          touch2.clientX - touch1.clientX,
+          touch2.clientY - touch1.clientY
+        )
+        const scale = distance / pinchStartRef.current
+
+        if (Math.abs(scale - 1) > pinchThreshold) {
+          handlers.onPinch(scale)
         }
       }
-    }
 
-    touchStartRef.current = null
-    touchEndRef.current = null
-  }, [handlers, swipeThreshold, preventScroll])
+      const touch = e.touches[0]
+      touchEndRef.current = {
+        x: touch.clientX,
+        y: touch.clientY,
+      }
+    },
+    [handlers, pinchThreshold, preventScroll]
+  )
+
+  const handleTouchEnd = useCallback(
+    (e: TouchEvent) => {
+      if (preventScroll) {
+        e.preventDefault()
+      }
+
+      // Cancel long press
+      if (longPressTimerRef.current) {
+        clearTimeout(longPressTimerRef.current)
+        longPressTimerRef.current = null
+      }
+
+      // Reset pinch
+      pinchStartRef.current = null
+
+      if (!touchStartRef.current || !touchEndRef.current) {
+        // Check for double tap
+        const now = Date.now()
+        if (now - lastTapRef.current < 300 && handlers.onDoubleTap) {
+          handlers.onDoubleTap()
+        }
+        lastTapRef.current = now
+        return
+      }
+
+      const deltaX = touchEndRef.current.x - touchStartRef.current.x
+      const deltaY = touchEndRef.current.y - touchStartRef.current.y
+      const absX = Math.abs(deltaX)
+      const absY = Math.abs(deltaY)
+
+      // Determine swipe direction
+      if (absX > swipeThreshold || absY > swipeThreshold) {
+        if (absX > absY) {
+          // Horizontal swipe
+          if (deltaX > 0 && handlers.onSwipeRight) {
+            handlers.onSwipeRight()
+          } else if (deltaX < 0 && handlers.onSwipeLeft) {
+            handlers.onSwipeLeft()
+          }
+        } else {
+          // Vertical swipe
+          if (deltaY > 0 && handlers.onSwipeDown) {
+            handlers.onSwipeDown()
+          } else if (deltaY < 0 && handlers.onSwipeUp) {
+            handlers.onSwipeUp()
+          }
+        }
+      }
+
+      touchStartRef.current = null
+      touchEndRef.current = null
+    },
+    [handlers, swipeThreshold, preventScroll]
+  )
 
   return {
     onTouchStart: handleTouchStart,
@@ -217,12 +226,12 @@ export function SwipeableContainer({
   return (
     <div ref={containerRef} className={`relative touch-pan-y ${className}`}>
       {children}
-      
+
       {/* Swipe Indicator */}
       {swipeIndicator.direction && (
-        <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
           <div
-            className={`px-6 py-3 rounded-full bg-black/50 text-white font-medium transition-opacity ${
+            className={`rounded-full bg-black/50 px-6 py-3 font-medium text-white transition-opacity ${
               swipeIndicator.progress > 0.5 ? 'opacity-100' : 'opacity-0'
             }`}
           >
@@ -260,12 +269,15 @@ export function PinchZoomImage({
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const imageRef = useRef<HTMLImageElement>(null)
 
-  const handlePinch = useCallback((newScale: number) => {
-    setScale((prev) => {
-      const updatedScale = prev * newScale
-      return Math.max(minScale, Math.min(maxScale, updatedScale))
-    })
-  }, [maxScale, minScale])
+  const handlePinch = useCallback(
+    (newScale: number) => {
+      setScale((prev) => {
+        const updatedScale = prev * newScale
+        return Math.max(minScale, Math.min(maxScale, updatedScale))
+      })
+    },
+    [maxScale, minScale]
+  )
 
   const handleDoubleTap = useCallback(() => {
     setScale((prev) => (prev > 1 ? 1 : 2))
@@ -296,7 +308,7 @@ export function PinchZoomImage({
   }, [gestureHandlers])
 
   return (
-    <div className="relative overflow-hidden touch-none">
+    <div className="relative touch-none overflow-hidden">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         ref={imageRef}
@@ -313,7 +325,7 @@ export function PinchZoomImage({
             setScale(1)
             setPosition({ x: 0, y: 0 })
           }}
-          className="absolute top-4 right-4 px-3 py-1 bg-black/50 text-white text-sm rounded-lg hover:bg-black/70 transition-colors"
+          className="absolute right-4 top-4 rounded-lg bg-black/50 px-3 py-1 text-sm text-white transition-colors hover:bg-black/70"
         >
           Reset Zoom
         </button>

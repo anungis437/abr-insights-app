@@ -1,4 +1,15 @@
-import { HelpCircle, BookOpen, MessageCircle, Mail, Phone, Video, FileText, Search, ArrowRight, CheckCircle } from 'lucide-react'
+import {
+  HelpCircle,
+  BookOpen,
+  MessageCircle,
+  Mail,
+  Phone,
+  Video,
+  FileText,
+  Search,
+  ArrowRight,
+  CheckCircle,
+} from 'lucide-react'
 import Link from 'next/link'
 
 export const metadata = {
@@ -16,9 +27,7 @@ export default function HelpPage() {
             <div className="mb-4 flex justify-center">
               <HelpCircle className="h-16 w-16" />
             </div>
-            <h1 className="mb-6 text-4xl font-bold md:text-5xl">
-              How Can We Help You?
-            </h1>
+            <h1 className="mb-6 text-4xl font-bold md:text-5xl">How Can We Help You?</h1>
             <p className="mb-8 text-xl text-blue-100">
               Find answers, get support, and learn how to make the most of ABR Insights
             </p>
@@ -47,7 +56,7 @@ export default function HelpPage() {
             </h2>
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              <Link href="/help/getting-started" className="card hover:shadow-xl transition-shadow">
+              <Link href="/help/getting-started" className="card transition-shadow hover:shadow-xl">
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
                   <BookOpen className="h-6 w-6 text-blue-600" />
                 </div>
@@ -60,7 +69,7 @@ export default function HelpPage() {
                 </span>
               </Link>
 
-              <Link href="/help/courses" className="card hover:shadow-xl transition-shadow">
+              <Link href="/help/courses" className="card transition-shadow hover:shadow-xl">
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
                   <Video className="h-6 w-6 text-green-600" />
                 </div>
@@ -73,20 +82,18 @@ export default function HelpPage() {
                 </span>
               </Link>
 
-              <Link href="/help/cases" className="card hover:shadow-xl transition-shadow">
+              <Link href="/help/cases" className="card transition-shadow hover:shadow-xl">
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100">
                   <FileText className="h-6 w-6 text-purple-600" />
                 </div>
                 <h3 className="mb-2 text-xl font-bold text-gray-900">Case Database</h3>
-                <p className="mb-4 text-gray-600">
-                  Search, analyze, and export tribunal decisions
-                </p>
+                <p className="mb-4 text-gray-600">Search, analyze, and export tribunal decisions</p>
                 <span className="text-sm font-medium text-primary-600 hover:text-primary-700">
                   View guides →
                 </span>
               </Link>
 
-              <Link href="/help/account" className="card hover:shadow-xl transition-shadow">
+              <Link href="/help/account" className="card transition-shadow hover:shadow-xl">
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-orange-100">
                   <HelpCircle className="h-6 w-6 text-orange-600" />
                 </div>
@@ -99,7 +106,7 @@ export default function HelpPage() {
                 </span>
               </Link>
 
-              <Link href="/help/teams" className="card hover:shadow-xl transition-shadow">
+              <Link href="/help/teams" className="card transition-shadow hover:shadow-xl">
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-pink-100">
                   <MessageCircle className="h-6 w-6 text-pink-600" />
                 </div>
@@ -112,7 +119,7 @@ export default function HelpPage() {
                 </span>
               </Link>
 
-              <Link href="/help/technical" className="card hover:shadow-xl transition-shadow">
+              <Link href="/help/technical" className="card transition-shadow hover:shadow-xl">
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-red-100">
                   <FileText className="h-6 w-6 text-red-600" />
                 </div>
@@ -141,11 +148,11 @@ export default function HelpPage() {
               <details className="group rounded-lg border border-gray-200 p-6 hover:border-primary-300">
                 <summary className="flex cursor-pointer items-start justify-between font-semibold text-gray-900">
                   <span className="flex-1">How do I enroll in a course?</span>
-                  <CheckCircle className="h-5 w-5 flex-shrink-0 text-primary-600 group-open:rotate-180 transition-transform" />
+                  <CheckCircle className="h-5 w-5 flex-shrink-0 text-primary-600 transition-transform group-open:rotate-180" />
                 </summary>
                 <div className="mt-4 text-gray-600">
                   <p>To enroll in a course:</p>
-                  <ol className="mt-2 ml-6 list-decimal space-y-1">
+                  <ol className="ml-6 mt-2 list-decimal space-y-1">
                     <li>Browse the course catalog from your dashboard</li>
                     <li>Click on a course to view details</li>
                     <li>Click &quot;Enroll Now&quot; or &quot;Start Course&quot;</li>
@@ -157,11 +164,11 @@ export default function HelpPage() {
               <details className="group rounded-lg border border-gray-200 p-6 hover:border-primary-300">
                 <summary className="flex cursor-pointer items-start justify-between font-semibold text-gray-900">
                   <span className="flex-1">How do I search for specific tribunal cases?</span>
-                  <CheckCircle className="h-5 w-5 flex-shrink-0 text-primary-600 group-open:rotate-180 transition-transform" />
+                  <CheckCircle className="h-5 w-5 flex-shrink-0 text-primary-600 transition-transform group-open:rotate-180" />
                 </summary>
                 <div className="mt-4 text-gray-600">
                   <p>Use the case database search features:</p>
-                  <ul className="mt-2 ml-6 list-disc space-y-1">
+                  <ul className="ml-6 mt-2 list-disc space-y-1">
                     <li>Navigate to the Cases section from your dashboard</li>
                     <li>Enter keywords, case names, or citations in the search bar</li>
                     <li>Use filters to narrow by tribunal, date, category, or province</li>
@@ -172,47 +179,59 @@ export default function HelpPage() {
 
               <details className="group rounded-lg border border-gray-200 p-6 hover:border-primary-300">
                 <summary className="flex cursor-pointer items-start justify-between font-semibold text-gray-900">
-                  <span className="flex-1">Can I download certificates after completing a course?</span>
-                  <CheckCircle className="h-5 w-5 flex-shrink-0 text-primary-600 group-open:rotate-180 transition-transform" />
+                  <span className="flex-1">
+                    Can I download certificates after completing a course?
+                  </span>
+                  <CheckCircle className="h-5 w-5 flex-shrink-0 text-primary-600 transition-transform group-open:rotate-180" />
                 </summary>
                 <div className="mt-4 text-gray-600">
-                  Yes! Once you complete a course with a passing grade, you can download your certificate from the &quot;My Certificates&quot; section in your dashboard. Certificates include verification codes and can be shared digitally.
+                  Yes! Once you complete a course with a passing grade, you can download your
+                  certificate from the &quot;My Certificates&quot; section in your dashboard.
+                  Certificates include verification codes and can be shared digitally.
                 </div>
               </details>
 
               <details className="group rounded-lg border border-gray-200 p-6 hover:border-primary-300">
                 <summary className="flex cursor-pointer items-start justify-between font-semibold text-gray-900">
-                  <span className="flex-1">How do I add team members to my organization account?</span>
-                  <CheckCircle className="h-5 w-5 flex-shrink-0 text-primary-600 group-open:rotate-180 transition-transform" />
+                  <span className="flex-1">
+                    How do I add team members to my organization account?
+                  </span>
+                  <CheckCircle className="h-5 w-5 flex-shrink-0 text-primary-600 transition-transform group-open:rotate-180" />
                 </summary>
                 <div className="mt-4 text-gray-600">
-                  Organization admins can add team members by navigating to Team Management in the dashboard. Enter email addresses to send invitations, and assign appropriate roles and permissions.
+                  Organization admins can add team members by navigating to Team Management in the
+                  dashboard. Enter email addresses to send invitations, and assign appropriate roles
+                  and permissions.
                 </div>
               </details>
 
               <details className="group rounded-lg border border-gray-200 p-6 hover:border-primary-300">
                 <summary className="flex cursor-pointer items-start justify-between font-semibold text-gray-900">
                   <span className="flex-1">What payment methods do you accept?</span>
-                  <CheckCircle className="h-5 w-5 flex-shrink-0 text-primary-600 group-open:rotate-180 transition-transform" />
+                  <CheckCircle className="h-5 w-5 flex-shrink-0 text-primary-600 transition-transform group-open:rotate-180" />
                 </summary>
                 <div className="mt-4 text-gray-600">
-                  We accept all major credit cards (Visa, Mastercard, American Express) and process payments securely through Stripe. For enterprise accounts, we also offer invoice billing.
+                  We accept all major credit cards (Visa, Mastercard, American Express) and process
+                  payments securely through Stripe. For enterprise accounts, we also offer invoice
+                  billing.
                 </div>
               </details>
 
               <details className="group rounded-lg border border-gray-200 p-6 hover:border-primary-300">
                 <summary className="flex cursor-pointer items-start justify-between font-semibold text-gray-900">
                   <span className="flex-1">How do I cancel my subscription?</span>
-                  <CheckCircle className="h-5 w-5 flex-shrink-0 text-primary-600 group-open:rotate-180 transition-transform" />
+                  <CheckCircle className="h-5 w-5 flex-shrink-0 text-primary-600 transition-transform group-open:rotate-180" />
                 </summary>
                 <div className="mt-4 text-gray-600">
-                  You can cancel your subscription anytime from Account Settings → Billing. Your access will continue until the end of your current billing period. No refunds are provided for partial months.
+                  You can cancel your subscription anytime from Account Settings → Billing. Your
+                  access will continue until the end of your current billing period. No refunds are
+                  provided for partial months.
                 </div>
               </details>
             </div>
 
             <div className="mt-8 text-center">
-              <Link href="/faq" className="text-primary-600 hover:text-primary-700 font-medium">
+              <Link href="/faq" className="font-medium text-primary-600 hover:text-primary-700">
                 View all FAQs →
               </Link>
             </div>
@@ -224,9 +243,7 @@ export default function HelpPage() {
       <section className="px-4 py-16">
         <div className="container-custom">
           <div className="mx-auto max-w-4xl">
-            <h2 className="mb-8 text-center text-3xl font-bold text-gray-900">
-              Still Need Help?
-            </h2>
+            <h2 className="mb-8 text-center text-3xl font-bold text-gray-900">Still Need Help?</h2>
 
             <div className="grid gap-6 md:grid-cols-3">
               <div className="card text-center">
@@ -236,9 +253,7 @@ export default function HelpPage() {
                   </div>
                 </div>
                 <h3 className="mb-2 text-lg font-bold text-gray-900">Email Support</h3>
-                <p className="mb-4 text-sm text-gray-600">
-                  Get help via email within 24 hours
-                </p>
+                <p className="mb-4 text-sm text-gray-600">Get help via email within 24 hours</p>
                 <Link href="/contact" className="btn-secondary text-sm">
                   Send Email
                 </Link>
@@ -251,12 +266,8 @@ export default function HelpPage() {
                   </div>
                 </div>
                 <h3 className="mb-2 text-lg font-bold text-gray-900">Live Chat</h3>
-                <p className="mb-4 text-sm text-gray-600">
-                  Chat with our support team
-                </p>
-                <button className="btn-secondary text-sm">
-                  Start Chat
-                </button>
+                <p className="mb-4 text-sm text-gray-600">Chat with our support team</p>
+                <button className="btn-secondary text-sm">Start Chat</button>
               </div>
 
               <div className="card text-center">
@@ -266,12 +277,8 @@ export default function HelpPage() {
                   </div>
                 </div>
                 <h3 className="mb-2 text-lg font-bold text-gray-900">Phone Support</h3>
-                <p className="mb-4 text-sm text-gray-600">
-                  Enterprise customers only
-                </p>
-                <button className="btn-secondary text-sm">
-                  Request Callback
-                </button>
+                <p className="mb-4 text-sm text-gray-600">Enterprise customers only</p>
+                <button className="btn-secondary text-sm">Request Callback</button>
               </div>
             </div>
           </div>
@@ -285,7 +292,10 @@ export default function HelpPage() {
           <p className="mb-8 text-xl text-blue-100">
             Create a free account and explore our platform
           </p>
-          <Link href="/auth/signup" className="btn-primary bg-white text-primary-600 hover:bg-gray-100">
+          <Link
+            href="/auth/signup"
+            className="btn-primary bg-white text-primary-600 hover:bg-gray-100"
+          >
             Sign Up Free
             <ArrowRight className="ml-2 h-5 w-5" />
           </Link>

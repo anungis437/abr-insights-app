@@ -6,12 +6,14 @@
 ## Completed Work
 
 ### ✅ Migration 020: Comprehensive Permissions Seed (550 lines)
+
 - 100+ granular permissions across 15 categories
 - AI, embeddings, courses, gamification, analytics, audit permissions
 - Role assignments for 7 roles (Super Admin → Guest)
 - **Status:** Created, ready for database application
 
 ### ✅ Migration 021: Permission-Based RLS Functions (450 lines)
+
 - Permission check functions: `has_permission()`, `has_any_permission()`, `has_all_permissions()`
 - Resource-specific: `has_resource_permission()`
 - Backwards-compatible role functions: `has_role()`, `is_admin()`
@@ -21,15 +23,18 @@
 ### ✅ Migration 022: Critical Table RLS Migration (750 lines)
 
 ### ✅ Migration 023: Feature Table RLS Migration (1,156 lines)
+
 **20 Feature Tables Migrated to Permission-Based RLS:**
 
 #### Course Progress (4 tables)
+
 - **enrollments** - Course enrollment tracking with tiered access
 - **lesson_progress** - Lesson completion tracking (own + permission)
 - **quiz_attempts** - Assessment history with review permissions
 - **quiz_responses** - Individual answers (own + grading permission)
 
 #### Gamification (11 tables)
+
 - **course_achievements** - Achievement definitions (public + manage)
 - **user_course_achievements** - Earned badges (own + view_all)
 - **course_achievement_progress** - Progress tracking (own + analytics)
@@ -43,6 +48,7 @@
 - **course_user_follows** - Social following (own + social.view_all)
 
 #### Social & Content (5 tables)
+
 - **course_peer_reviews** - Peer feedback (public + moderate)
 - **course_modules** - Course structure (published + instructor.access)
 - **questions** - Quiz questions (published + quizzes.create)
@@ -52,15 +58,18 @@
 **Total: 140+ permission-based policies**
 
 ### ✅ Permission Management UI (Complete)
+
 **Admin Interface for PBAC System:**
 
 #### Types & Data Models
+
 - **Permission types** - Complete TypeScript interfaces
 - **15 permission categories** - AI, courses, gamification, organization, etc.
 - **Role hierarchy** - Level-based access control (0-70)
 - **Helper functions** - Permission grouping and categorization
 
 #### API Routes (3 endpoints)
+
 1. **`/api/admin/permissions`**
    - GET: List all permissions (with filters)
    - POST: Create new permission (super_admin only)
@@ -77,6 +86,7 @@
    - DELETE: Remove permission from role
 
 #### Interactive Components
+
 1. **PermissionMatrix Component**
    - Interactive permission grid (roles × permissions)
    - Real-time permission toggling
@@ -95,6 +105,7 @@
    - Phase 3 documentation reference
 
 **Features:**
+
 - ✅ Click-to-toggle permission assignments
 - ✅ Real-time updates (no page refresh)
 - ✅ System permission protection
@@ -105,9 +116,11 @@
 - ✅ Accessibility support (ARIA labels)
 
 ### ✅ Migration 022: Critical Table RLS Migration (750 lines)
+
 **10 Core Tables Migrated to Permission-Based RLS:**
 
 #### 1. **profiles** (9 policies)
+
 - Own profile access (always allowed)
 - View with `profiles.view` or `users.read` permission
 - Update own vs update any (with `profiles.update_any`)
@@ -115,18 +128,21 @@
 - **Key Change:** From `role = 'admin'` to `auth.has_permission()`
 
 #### 2. **organizations** (6 policies)
+
 - View own organization (automatic)
 - Configure with `organization.configure` permission
 - Super admin can create/delete orgs
 - **Key Change:** Granular permission checks instead of admin role
 
 #### 3. **user_roles** (5 policies)
+
 - View own roles (always)
 - View with `roles.read` permission
 - Assign/remove with `roles.assign` permission
 - **Key Change:** From role-based to `roles.assign` permission
 
 #### 4. **courses** (6 policies)
+
 - Public published courses (no auth)
 - View with `courses.view` or `courses.read` permission
 - Create with `courses.create` or `instructor.access`
@@ -135,6 +151,7 @@
 - **Key Change:** Instructor permission support
 
 #### 5. **lessons** (6 policies)
+
 - Public published lessons
 - View with course access + permission
 - Create/update with `lessons.create`, `lessons.update`
@@ -142,6 +159,7 @@
 - **Key Change:** Course context + permission checks
 
 #### 6. **tribunal_cases** (5 policies)
+
 - View with `cases.view`, `cases.read`, or `cases.search`
 - Import with `cases.import` permission
 - Annotate with `cases.annotate` permission
@@ -149,6 +167,7 @@
 - **Key Change:** Granular case permissions
 
 #### 7. **quizzes** (6 policies)
+
 - Public published quizzes
 - Take with `quizzes.take` permission
 - Create/update with `quizzes.create`, `quizzes.update`
@@ -156,6 +175,7 @@
 - **Key Change:** Separate take/create/review permissions
 
 #### 8. **certificates** (6 policies)
+
 - View own certificates (always)
 - View all with `certificates.view_all`
 - Issue with `certificates.issue` or `instructor.access`
@@ -163,6 +183,7 @@
 - **Key Change:** Granular issuance control
 
 #### 9. **audit_logs** (7 policies)
+
 - Tiered access: own, team, all
 - `audit_logs.view_own` - See own audit trail
 - `audit_logs.view_team` - See team logs
@@ -171,6 +192,7 @@
 - **Key Change:** Three-tier permission model
 
 #### 10. **ai_usage_logs** (6 policies)
+
 - View own AI usage (always)
 - View with `ai.usage.view` or `admin.ai.manage`
 - Export with `ai.usage.export`
@@ -180,6 +202,7 @@
 ### Policy Patterns Used
 
 **Pattern 1: Own + Permission**
+
 ```sql
 -- Users see own records OR with permission
 USING (
@@ -189,6 +212,7 @@ USING (
 ```
 
 **Pattern 2: Organization Scoped**
+
 ```sql
 -- Must be in same org AND have permission
 USING (
@@ -198,6 +222,7 @@ USING (
 ```
 
 **Pattern 3: Multiple Permission Options (OR)**
+
 ```sql
 -- Any of several permissions work
 USING (
@@ -210,6 +235,7 @@ USING (
 ```
 
 **Pattern 4: Owner Override**
+
 ```sql
 -- Owner can always access OR with permission
 USING (
@@ -221,12 +247,14 @@ USING (
 ## Security Improvements
 
 ### Before Phase 3
+
 - ❌ Hard-coded role checks: `WHERE role = 'admin'`
 - ❌ Limited permission granularity
 - ❌ 10 critical tables with role-based RLS
 - ❌ No tiered access (admin vs user only)
 
 ### After Phase 3 (Current)
+
 - ✅ Permission-based checks: `auth.has_permission()`
 - ✅ 100+ granular permissions
 - ✅ 10 critical tables with permission-based RLS
@@ -236,6 +264,7 @@ USING (
 - ✅ Service role bypass for system operations
 
 ### Benefits
+
 1. **Flexibility:** Change user permissions without code changes
 2. **Granularity:** Separate read/create/update/delete/manage permissions
 3. **Auditable:** Clear permission requirements in RLS policies
@@ -245,6 +274,7 @@ USING (
 ## Files Created (10 total)
 
 ### Database Migrations (3 files)
+
 1. [supabase/migrations/020_comprehensive_permissions_seed.sql](../supabase/migrations/020_comprehensive_permissions_seed.sql) - 550 lines
 2. [supabase/migrations/021_permission_based_rls_functions.sql](../supabase/migrations/021_permission_based_rls_functions.sql) - 450 lines
 3. [supabase/migrations/022_migrate_critical_table_rls.sql](../supabase/migrations/022_migrate_critical_table_rls.sql) - 750 lines
@@ -253,6 +283,7 @@ USING (
 **Migrations Total:** 2,906 lines of SQL (30 tables migrated)
 
 ### Permission Management UI (6 files)
+
 5. [lib/types/permissions.ts](../lib/types/permissions.ts) - Permission types & categories (200 lines)
 6. [app/api/admin/permissions/route.ts](../app/api/admin/permissions/route.ts) - Permissions API (130 lines)
 7. [app/api/admin/roles/route.ts](../app/api/admin/roles/route.ts) - Roles API (120 lines)
@@ -267,6 +298,7 @@ USING (
 ## Remaining Work
 
 ### Phase 3 Next Steps (10% remaining)
+
 1. **Apply Migrations to Database** - Execute 020, 021, 022, 023 (pending connection fix)
 2. **Create Tenant Isolation Tests** - Security test suite (estimated 2-3 hours)
    - Cross-tenant access prevention tests
@@ -275,6 +307,7 @@ USING (
    - Test all 30 migrated tables
 
 ### Phase 4+ (Future)
+
 - Permission caching optimization
 - Org-level permission overrides UI
 - Permission analytics dashboard
@@ -284,17 +317,20 @@ USING (
 ## Testing Requirements
 
 **Permission Tests:**
+
 - ✅ Function creation verified
 - ⏳ Permission check accuracy
 - ⏳ Performance under load (<5ms overhead)
 
 **RLS Tests:**
+
 - ⏳ SELECT policies (own org only)
 - ⏳ INSERT policies (with permissions)
 - ⏳ UPDATE policies (owner + permission)
 - ⏳ DELETE policies (admin + permission)
 
 **Tenant Isolation Tests:**
+
 - ⏳ Cross-org data access prevention
 - ⏳ Org-scoped queries
 - ⏳ Admin boundaries
@@ -317,8 +353,8 @@ psql -h <host> -U postgres -d postgres -c "
 SELECT tablename, COUNT(*) as policy_count
 FROM pg_policies
 WHERE schemaname = 'public'
-AND tablename IN ('profiles', 'organizations', 'user_roles', 'courses', 
-                  'lessons', 'tribunal_cases', 'quizzes', 'certificates', 
+AND tablename IN ('profiles', 'organizations', 'user_roles', 'courses',
+                  'lessons', 'tribunal_cases', 'quizzes', 'certificates',
                   'audit_logs', 'ai_usage_logs')
 GROUP BY tablename
 ORDER BY tablename;
@@ -337,11 +373,13 @@ SELECT auth.has_permission(
 ## Performance Considerations
 
 **Expected Overhead:**
+
 - Permission lookup: ~0.5-1ms per check
 - RLS policy evaluation: ~1-2ms per query
 - Total: ~2-5ms per authenticated request
 
 **Optimization:**
+
 - Indexed permission lookup paths
 - `STABLE` functions for query plan caching
 - Minimal permission checks per policy
@@ -358,6 +396,7 @@ SELECT auth.has_permission(
 ## Conclusion
 
 Phase 3 has successfully created the foundation for permission-based access control:
+
 - **Infrastructure:** Complete permission system with 100+ granular permissions
 - **Functions:** Reusable RLS helper functions for all tables
 - **Critical Tables:** 10 core tables migrated with comprehensive policies

@@ -6,19 +6,19 @@ import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { logger } from '@/lib/utils/logger'
 import { PermissionGate } from '@/components/shared/PermissionGate'
-import { 
-  BookOpen, 
-  Plus, 
-  Search, 
-  Filter, 
-  Edit3, 
-  Trash2, 
-  Eye, 
+import {
+  BookOpen,
+  Plus,
+  Search,
+  Filter,
+  Edit3,
+  Trash2,
+  Eye,
   EyeOff,
   Users,
   TrendingUp,
   Clock,
-  Award
+  Award,
 } from 'lucide-react'
 
 interface Course {
@@ -54,8 +54,10 @@ export default function AdminCoursesPage() {
     const checkAuthAndLoadCourses = async () => {
       const supabase = createClient()
       // Check auth
-      const { data: { user: currentUser } } = await supabase.auth.getUser()
-      
+      const {
+        data: { user: currentUser },
+      } = await supabase.auth.getUser()
+
       logger.auth('Current user check', { userId: currentUser?.id, email: currentUser?.email })
       if (!currentUser) {
         logger.auth('No user found, redirecting to login')
@@ -77,7 +79,7 @@ export default function AdminCoursesPage() {
         logger.error('Profile fetch error', profileError)
       }
 
-      const isAdmin = 
+      const isAdmin =
         profileData?.role === 'super_admin' ||
         profileData?.role === 'org_admin' ||
         profileData?.role === 'educator'
@@ -114,28 +116,29 @@ export default function AdminCoursesPage() {
 
     // Search filter
     if (searchQuery) {
-      filtered = filtered.filter(course => 
-        course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        course.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        course.slug.toLowerCase().includes(searchQuery.toLowerCase())
+      filtered = filtered.filter(
+        (course) =>
+          course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          course.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          course.slug.toLowerCase().includes(searchQuery.toLowerCase())
       )
     }
 
     // Level filter
     if (filterLevel !== 'all') {
-      filtered = filtered.filter(course => course.level === filterLevel)
+      filtered = filtered.filter((course) => course.level === filterLevel)
     }
 
     // Tier filter
     if (filterTier !== 'all') {
-      filtered = filtered.filter(course => course.required_tier === filterTier)
+      filtered = filtered.filter((course) => course.required_tier === filterTier)
     }
 
     // Status filter
     if (filterStatus === 'published') {
-      filtered = filtered.filter(course => course.is_published)
+      filtered = filtered.filter((course) => course.is_published)
     } else if (filterStatus === 'draft') {
-      filtered = filtered.filter(course => !course.is_published)
+      filtered = filtered.filter((course) => !course.is_published)
     }
 
     setFilteredCourses(filtered)
@@ -145,18 +148,16 @@ export default function AdminCoursesPage() {
     const supabase = createClient()
     const { error } = await supabase
       .from('courses')
-      .update({ 
+      .update({
         is_published: !currentStatus,
-        published_at: !currentStatus ? new Date().toISOString() : null
+        published_at: !currentStatus ? new Date().toISOString() : null,
       })
       .eq('id', courseId)
 
     if (!error) {
-      setCourses(courses.map(c => 
-        c.id === courseId 
-          ? { ...c, is_published: !currentStatus }
-          : c
-      ))
+      setCourses(
+        courses.map((c) => (c.id === courseId ? { ...c, is_published: !currentStatus } : c))
+      )
     }
   }
 
@@ -168,34 +169,33 @@ export default function AdminCoursesPage() {
       .eq('id', courseId)
 
     if (!error) {
-      setCourses(courses.map(c => 
-        c.id === courseId 
-          ? { ...c, is_featured: !currentStatus }
-          : c
-      ))
+      setCourses(
+        courses.map((c) => (c.id === courseId ? { ...c, is_featured: !currentStatus } : c))
+      )
     }
   }
 
   const handleDelete = async (courseId: string) => {
-    if (!confirm('Are you sure you want to delete this course? This will also delete all modules and lessons.')) {
+    if (
+      !confirm(
+        'Are you sure you want to delete this course? This will also delete all modules and lessons.'
+      )
+    ) {
       return
     }
 
     const supabase = createClient()
-    const { error } = await supabase
-      .from('courses')
-      .delete()
-      .eq('id', courseId)
+    const { error } = await supabase.from('courses').delete().eq('id', courseId)
 
     if (!error) {
-      setCourses(courses.filter(c => c.id !== courseId))
+      setCourses(courses.filter((c) => c.id !== courseId))
     }
   }
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-purple-600"></div>
       </div>
     )
   }
@@ -203,45 +203,45 @@ export default function AdminCoursesPage() {
   // Calculate stats
   const stats = {
     total: courses.length,
-    published: courses.filter(c => c.is_published).length,
-    draft: courses.filter(c => !c.is_published).length,
-    featured: courses.filter(c => c.is_featured).length,
-    totalEnrollments: courses.reduce((sum, c) => sum + (c.enrollments_count || 0), 0)
+    published: courses.filter((c) => c.is_published).length,
+    draft: courses.filter((c) => !c.is_published).length,
+    featured: courses.filter((c) => c.is_featured).length,
+    totalEnrollments: courses.reduce((sum, c) => sum + (c.enrollments_count || 0), 0),
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">      
+    <div className="flex min-h-screen flex-col bg-gray-50">
       <main className="flex-1 pt-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+        <div className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="mb-8">
-            <div className="flex items-center justify-between mb-6">
+            <div className="mb-6 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <BookOpen className="w-7 h-7 text-white" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-blue-600 shadow-lg">
+                  <BookOpen className="h-7 w-7 text-white" />
                 </div>
                 <div>
                   <h1 className="text-3xl font-bold text-gray-900">Course Management</h1>
-                  <p className="text-gray-600 mt-1">Manage training courses and learning content</p>
+                  <p className="mt-1 text-gray-600">Manage training courses and learning content</p>
                 </div>
               </div>
               <PermissionGate permission={['courses.create', 'courses.manage']} requireAny>
                 <button
                   onClick={() => router.push('/admin/courses/create')}
-                  className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:shadow-lg transition-all flex items-center gap-2"
+                  className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-3 text-white transition-all hover:shadow-lg"
                 >
-                  <Plus className="w-5 h-5" />
+                  <Plus className="h-5 w-5" />
                   Create Course
                 </button>
               </PermissionGate>
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-5 gap-4 mb-6">
-              <div className="bg-white p-4 rounded-xl border border-gray-200">
+            <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-5">
+              <div className="rounded-xl border border-gray-200 bg-white p-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <BookOpen className="w-5 h-5 text-purple-600" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100">
+                    <BookOpen className="h-5 w-5 text-purple-600" />
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
@@ -250,10 +250,10 @@ export default function AdminCoursesPage() {
                 </div>
               </div>
 
-              <div className="bg-white p-4 rounded-xl border border-gray-200">
+              <div className="rounded-xl border border-gray-200 bg-white p-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                    <Eye className="w-5 h-5 text-green-600" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100">
+                    <Eye className="h-5 w-5 text-green-600" />
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-gray-900">{stats.published}</div>
@@ -262,10 +262,10 @@ export default function AdminCoursesPage() {
                 </div>
               </div>
 
-              <div className="bg-white p-4 rounded-xl border border-gray-200">
+              <div className="rounded-xl border border-gray-200 bg-white p-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
-                    <EyeOff className="w-5 h-5 text-yellow-600" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-yellow-100">
+                    <EyeOff className="h-5 w-5 text-yellow-600" />
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-gray-900">{stats.draft}</div>
@@ -274,10 +274,10 @@ export default function AdminCoursesPage() {
                 </div>
               </div>
 
-              <div className="bg-white p-4 rounded-xl border border-gray-200">
+              <div className="rounded-xl border border-gray-200 bg-white p-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <Award className="w-5 h-5 text-blue-600" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
+                    <Award className="h-5 w-5 text-blue-600" />
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-gray-900">{stats.featured}</div>
@@ -286,10 +286,10 @@ export default function AdminCoursesPage() {
                 </div>
               </div>
 
-              <div className="bg-white p-4 rounded-xl border border-gray-200">
+              <div className="rounded-xl border border-gray-200 bg-white p-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-                    <Users className="w-5 h-5 text-indigo-600" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-100">
+                    <Users className="h-5 w-5 text-indigo-600" />
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-gray-900">{stats.totalEnrollments}</div>
@@ -300,18 +300,18 @@ export default function AdminCoursesPage() {
             </div>
 
             {/* Search and Filters */}
-            <div className="bg-white p-4 rounded-xl border border-gray-200">
+            <div className="rounded-xl border border-gray-200 bg-white p-4">
               <div className="flex flex-wrap gap-4">
                 {/* Search */}
-                <div className="flex-1 min-w-[300px]">
+                <div className="min-w-[300px] flex-1">
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                     <input
                       type="text"
                       placeholder="Search courses..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full rounded-lg border border-gray-200 py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-purple-500"
                     />
                   </div>
                 </div>
@@ -320,7 +320,7 @@ export default function AdminCoursesPage() {
                 <select
                   value={filterLevel}
                   onChange={(e) => setFilterLevel(e.target.value)}
-                  className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   aria-label="Filter courses by level"
                 >
                   <option value="all">All Levels</option>
@@ -334,7 +334,7 @@ export default function AdminCoursesPage() {
                 <select
                   value={filterTier}
                   onChange={(e) => setFilterTier(e.target.value)}
-                  className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   aria-label="Filter courses by tier"
                 >
                   <option value="all">All Tiers</option>
@@ -347,7 +347,7 @@ export default function AdminCoursesPage() {
                 <select
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
-                  className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   aria-label="Filter courses by status"
                 >
                   <option value="all">All Status</option>
@@ -361,13 +361,16 @@ export default function AdminCoursesPage() {
           {/* Courses List */}
           <div className="space-y-4">
             {filteredCourses.length === 0 ? (
-              <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
-                <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <div className="rounded-xl border border-gray-200 bg-white p-12 text-center">
+                <BookOpen className="mx-auto mb-4 h-12 w-12 text-gray-400" />
                 <p className="text-gray-600">No courses found</p>
               </div>
             ) : (
               filteredCourses.map((course) => (
-                <div key={course.id} className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                <div
+                  key={course.id}
+                  className="rounded-xl border border-gray-200 bg-white p-6 transition-shadow hover:shadow-md"
+                >
                   <div className="flex gap-6">
                     {/* Thumbnail */}
                     <div className="flex-shrink-0">
@@ -377,49 +380,53 @@ export default function AdminCoursesPage() {
                           alt={course.title}
                           width={128}
                           height={96}
-                          className="w-32 h-24 object-cover rounded-lg"
+                          className="h-24 w-32 rounded-lg object-cover"
                         />
                       ) : (
-                        <div className="w-32 h-24 bg-gray-200 rounded-lg flex items-center justify-center">
-                          <BookOpen className="w-8 h-8 text-gray-400" />
+                        <div className="flex h-24 w-32 items-center justify-center rounded-lg bg-gray-200">
+                          <BookOpen className="h-8 w-8 text-gray-400" />
                         </div>
                       )}
                     </div>
 
                     {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between mb-2">
+                    <div className="min-w-0 flex-1">
+                      <div className="mb-2 flex items-start justify-between">
                         <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
+                          <div className="mb-2 flex items-center gap-3">
                             <h3 className="text-xl font-semibold text-gray-900">{course.title}</h3>
                             {course.is_featured && (
-                              <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full">
+                              <span className="rounded-full bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800">
                                 Featured
                               </span>
                             )}
-                            <span className={`px-2 py-1 ${course.is_published ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'} text-xs font-medium rounded-full`}>
+                            <span
+                              className={`px-2 py-1 ${course.is_published ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'} rounded-full text-xs font-medium`}
+                            >
                               {course.is_published ? 'Published' : 'Draft'}
                             </span>
                           </div>
-                          <p className="text-gray-600 text-sm line-clamp-2">{course.description}</p>
+                          <p className="line-clamp-2 text-sm text-gray-600">{course.description}</p>
                         </div>
                       </div>
 
                       {/* Meta Info */}
-                      <div className="flex items-center gap-6 text-sm text-gray-600 mb-4">
+                      <div className="mb-4 flex items-center gap-6 text-sm text-gray-600">
                         <span className="flex items-center gap-1">
-                          <Clock className="w-4 h-4" />
-                          {course.estimated_duration_minutes ? `${Math.floor(course.estimated_duration_minutes / 60)}h ${course.estimated_duration_minutes % 60}m` : 'N/A'}
+                          <Clock className="h-4 w-4" />
+                          {course.estimated_duration_minutes
+                            ? `${Math.floor(course.estimated_duration_minutes / 60)}h ${course.estimated_duration_minutes % 60}m`
+                            : 'N/A'}
                         </span>
                         <span className="flex items-center gap-1">
-                          <Users className="w-4 h-4" />
+                          <Users className="h-4 w-4" />
                           {course.enrollments_count || 0} enrolled
                         </span>
                         <span className="capitalize">{course.level || 'N/A'}</span>
                         <span className="capitalize">{course.required_tier || 'free'} tier</span>
                         {course.average_rating && (
                           <span className="flex items-center gap-1">
-                            <TrendingUp className="w-4 h-4" />
+                            <TrendingUp className="h-4 w-4" />
                             {course.average_rating.toFixed(1)} rating
                           </span>
                         )}
@@ -427,47 +434,60 @@ export default function AdminCoursesPage() {
 
                       {/* Actions */}
                       <div className="flex items-center gap-3">
-                        <PermissionGate permission={['courses.update', 'courses.manage']} requireAny>
+                        <PermissionGate
+                          permission={['courses.update', 'courses.manage']}
+                          requireAny
+                        >
                           <button
                             onClick={() => router.push(`/admin/courses/${course.id}/edit`)}
-                            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2"
+                            className="flex items-center gap-2 rounded-lg bg-gray-100 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-200"
                           >
-                            <Edit3 className="w-4 h-4" />
+                            <Edit3 className="h-4 w-4" />
                             Edit
                           </button>
                         </PermissionGate>
-                        <PermissionGate permission={['courses.publish', 'courses.manage']} requireAny>
+                        <PermissionGate
+                          permission={['courses.publish', 'courses.manage']}
+                          requireAny
+                        >
                           <button
                             onClick={() => handleTogglePublish(course.id, course.is_published)}
-                            className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
+                            className={`flex items-center gap-2 rounded-lg px-4 py-2 transition-colors ${
                               course.is_published
                                 ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
                                 : 'bg-green-100 text-green-700 hover:bg-green-200'
                             }`}
                           >
-                            {course.is_published ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            {course.is_published ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
                             {course.is_published ? 'Unpublish' : 'Publish'}
                           </button>
                         </PermissionGate>
                         <PermissionGate permission="courses.manage">
                           <button
                             onClick={() => handleToggleFeatured(course.id, course.is_featured)}
-                            className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
+                            className={`flex items-center gap-2 rounded-lg px-4 py-2 transition-colors ${
                               course.is_featured
                                 ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
                                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                             }`}
                           >
-                            <Award className="w-4 h-4" />
+                            <Award className="h-4 w-4" />
                             {course.is_featured ? 'Unfeature' : 'Feature'}
                           </button>
                         </PermissionGate>
-                        <PermissionGate permission={['courses.delete', 'courses.manage']} requireAny>
+                        <PermissionGate
+                          permission={['courses.delete', 'courses.manage']}
+                          requireAny
+                        >
                           <button
                             onClick={() => handleDelete(course.id)}
-                            className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors flex items-center gap-2 ml-auto"
+                            className="ml-auto flex items-center gap-2 rounded-lg bg-red-100 px-4 py-2 text-red-700 transition-colors hover:bg-red-200"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="h-4 w-4" />
                             Delete
                           </button>
                         </PermissionGate>
@@ -479,6 +499,7 @@ export default function AdminCoursesPage() {
             )}
           </div>
         </div>
-      </main>    </div>
+      </main>{' '}
+    </div>
   )
 }

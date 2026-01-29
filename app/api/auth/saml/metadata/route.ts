@@ -1,18 +1,18 @@
 /**
  * SAML Service Provider Metadata Endpoint
- * 
+ *
  * Provides SP metadata XML for IdP configuration
- * 
+ *
  * This endpoint returns SAML metadata that describes:
  * - Entity ID (SP identifier)
  * - Assertion Consumer Service (ACS) URL
  * - Single Logout Service (SLS) URL
  * - Name ID formats supported
  * - Security requirements
- * 
+ *
  * IdP administrators use this metadata to configure trust
  * relationship with our application.
- * 
+ *
  * @route /api/auth/saml/metadata
  */
 

@@ -279,10 +279,10 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          action: "upload"
-          app_location: "/"
-          api_location: "api"
-          output_location: ".next"
+          action: 'upload'
+          app_location: '/'
+          api_location: 'api'
+          output_location: '.next'
           skip_app_build: true
 
       - name: Run smoke tests
@@ -377,12 +377,12 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          action: "upload"
-          app_location: "/"
-          api_location: "api"
-          output_location: ".next"
+          action: 'upload'
+          app_location: '/'
+          api_location: 'api'
+          output_location: '.next'
           skip_app_build: true
-          deployment_environment: "pr-${{ github.event.pull_request.number }}"
+          deployment_environment: 'pr-${{ github.event.pull_request.number }}'
 
       - name: Comment PR with preview URL
         uses: actions/github-script@v6
@@ -404,8 +404,8 @@ jobs:
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
-          action: "close"
-          deployment_environment: "pr-${{ github.event.pull_request.number }}"
+          action: 'close'
+          deployment_environment: 'pr-${{ github.event.pull_request.number }}'
 ```
 
 ## GitHub Secrets Configuration
@@ -415,6 +415,7 @@ jobs:
 Navigate to **GitHub Repository → Settings → Secrets and variables → Actions** and add:
 
 #### Azure Secrets
+
 ```
 AZURE_STATIC_WEB_APPS_API_TOKEN
   - Description: Deployment token for Azure Static Web Apps
@@ -423,6 +424,7 @@ AZURE_STATIC_WEB_APPS_API_TOKEN
 ```
 
 #### Supabase Secrets
+
 ```
 NEXT_PUBLIC_SUPABASE_URL
   - Description: Public Supabase project URL
@@ -442,6 +444,7 @@ TEST_SUPABASE_ANON_KEY
 ```
 
 #### Site Configuration
+
 ```
 NEXT_PUBLIC_SITE_URL
   - Description: Production site URL
@@ -449,6 +452,7 @@ NEXT_PUBLIC_SITE_URL
 ```
 
 #### External Services
+
 ```
 CODECOV_TOKEN
   - Description: Code coverage reporting token
@@ -471,10 +475,12 @@ SLACK_WEBHOOK_URL
 Create separate environments in GitHub:
 
 **Production Environment:**
+
 - Protection rules: Require approval from 1 reviewer
 - Secrets: Production Supabase, Stripe live keys
 
 **Staging Environment:**
+
 - Protection rules: None (auto-deploy)
 - Secrets: Staging Supabase, Stripe test keys
 
@@ -493,6 +499,7 @@ feature/* (preview environments)
 ### Branch Protection Rules
 
 **Main Branch:**
+
 - Require pull request reviews (min 1)
 - Require status checks to pass:
   - CI - Lint
@@ -505,6 +512,7 @@ feature/* (preview environments)
 - Do not allow bypassing the above settings
 
 **Develop Branch:**
+
 - Require pull request reviews (min 1)
 - Require status checks to pass (same as main)
 - Allow force pushes from admins only
@@ -512,12 +520,14 @@ feature/* (preview environments)
 ## Deployment Environments
 
 ### 1. Development (Local)
+
 - **Branch:** Any feature branch
 - **URL:** http://localhost:3000
 - **Supabase:** Local or shared dev instance
 - **Purpose:** Local development and testing
 
 ### 2. Preview (PR Environments)
+
 - **Branch:** Pull request branches
 - **URL:** `https://abr-insights-app-pr-{number}.azurestaticapps.net`
 - **Supabase:** Test/staging instance
@@ -525,6 +535,7 @@ feature/* (preview environments)
 - **Lifecycle:** Created on PR open, destroyed on PR close
 
 ### 3. Staging (Develop Branch)
+
 - **Branch:** develop
 - **URL:** https://staging.abrinsights.ca
 - **Supabase:** Staging instance
@@ -532,6 +543,7 @@ feature/* (preview environments)
 - **Auto-deploy:** Yes
 
 ### 4. Production (Main Branch)
+
 - **Branch:** main
 - **URL:** https://app.abrinsights.ca
 - **Supabase:** Production instance
@@ -555,7 +567,7 @@ If smoke tests fail after deployment:
   uses: Azure/static-web-apps-deploy@v1
   with:
     azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
-    action: "close"
+    action: 'close'
 ```
 
 ### Manual Rollback
@@ -637,7 +649,7 @@ jobs:
   lint:
     # ...
   test:
-    needs: lint  # Sequential
+    needs: lint # Sequential
   security:
     # Parallel with test
 ```
@@ -647,12 +659,14 @@ jobs:
 ### Build Failures
 
 **Check workflow logs:**
+
 ```bash
 gh run list --workflow=ci.yml
 gh run view <run-id> --log
 ```
 
 **Common issues:**
+
 - Missing environment variables
 - Node.js version mismatch
 - Dependency conflicts
@@ -661,6 +675,7 @@ gh run view <run-id> --log
 ### Deployment Failures
 
 **Check Azure SWA logs:**
+
 ```bash
 az staticwebapp logs show \
   --name abr-insights-app \
@@ -668,6 +683,7 @@ az staticwebapp logs show \
 ```
 
 **Common issues:**
+
 - Invalid API token
 - Build output location incorrect
 - Environment variables not set
@@ -676,6 +692,7 @@ az staticwebapp logs show \
 ### Secret Management
 
 **Test secrets locally:**
+
 ```bash
 # Create .env.test
 cp .env.example .env.test

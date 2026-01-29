@@ -16,10 +16,10 @@ interface LanguageToggleProps {
   className?: string
 }
 
-export function LanguageToggle({ 
-  variant = 'ghost', 
+export function LanguageToggle({
+  variant = 'ghost',
   showLabel = false,
-  className = ''
+  className = '',
 }: LanguageToggleProps) {
   const { language, toggleLanguage, t, isLoading } = useLanguage()
 
@@ -28,9 +28,8 @@ export function LanguageToggle({
   }
 
   const label = language === 'en' ? 'EN' : 'FR'
-  const ariaLabel = language === 'en' 
-    ? t('language.switch_to_french')
-    : t('language.switch_to_english')
+  const ariaLabel =
+    language === 'en' ? t('language.switch_to_french') : t('language.switch_to_english')
 
   return (
     <Button
@@ -44,7 +43,7 @@ export function LanguageToggle({
       {showLabel ? (
         <span className="font-medium">{label}</span>
       ) : (
-        <span className="font-medium text-xs">{label}</span>
+        <span className="text-xs font-medium">{label}</span>
       )}
     </Button>
   )
@@ -60,14 +59,13 @@ export function LanguageToggleCompact() {
     return null
   }
 
-  const ariaLabel = language === 'en' 
-    ? t('language.switch_to_french')
-    : t('language.switch_to_english')
+  const ariaLabel =
+    language === 'en' ? t('language.switch_to_french') : t('language.switch_to_english')
 
   return (
     <button
       onClick={toggleLanguage}
-      className="inline-flex items-center gap-1.5 px-2 py-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-accent"
+      className="text-muted-foreground hover:text-foreground hover:bg-accent inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium transition-colors"
       aria-label={ariaLabel}
       title={ariaLabel}
     >
@@ -88,10 +86,14 @@ export function LanguageTogglePill() {
   }
 
   return (
-    <div className="inline-flex items-center gap-1 p-1 bg-muted rounded-lg" role="group" aria-label="Language selection">
+    <div
+      className="bg-muted inline-flex items-center gap-1 rounded-lg p-1"
+      role="group"
+      aria-label="Language selection"
+    >
       <button
         onClick={() => setLanguage('en')}
-        className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+        className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
           language === 'en'
             ? 'bg-background text-foreground shadow-sm'
             : 'text-muted-foreground hover:text-foreground'
@@ -103,7 +105,7 @@ export function LanguageTogglePill() {
       </button>
       <button
         onClick={() => setLanguage('fr')}
-        className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+        className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
           language === 'fr'
             ? 'bg-background text-foreground shadow-sm'
             : 'text-muted-foreground hover:text-foreground'

@@ -24,15 +24,10 @@ export default function AuthenticatedNavigation() {
           {/* Mobile: Notifications + User Menu */}
           <div className="flex items-center gap-3">
             <NotificationBell />
-            <UserMenu
-              user={user!}
-              profile={profile}
-              onSignOut={signOut}
-            />
+            <UserMenu user={user!} profile={profile} onSignOut={signOut} />
           </div>
         </div>
       </div>
     </nav>
   )
 }
-

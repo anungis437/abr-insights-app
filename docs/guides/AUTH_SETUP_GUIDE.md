@@ -1,6 +1,7 @@
 # 🔐 Authentication Setup - Fix 401 Error
 
 ## Issue
+
 Login failing with 401 error: "Failed to load resource: the server responded with a status of 401"
 
 **Root Cause**: No users exist in `auth.users` table (confirmed: 0 users found)
@@ -37,7 +38,6 @@ Login failing with 401 error: "Failed to load resource: the server responded wit
    - **Email**: `super_admin@abr-insights.com`
    - **Password**: `TestPass123!`
    - **Auto Confirm User**: ✅ **YES** (important!)
-   
 4. Click **"Create User"**
 
 **Option B: Via Supabase CLI**
@@ -101,11 +101,11 @@ npx tsx scripts/test-supabase-keys.ts
 
 Once you have one working user, create others via Dashboard:
 
-| Email | Role | Password |
-|-------|------|----------|
-| learner@abr-insights.com | learner | TestPass123! |
-| educator@abr-insights.com | educator | TestPass123! |
-| analyst@abr-insights.com | analyst | TestPass123! |
+| Email                       | Role               | Password     |
+| --------------------------- | ------------------ | ------------ |
+| learner@abr-insights.com    | learner            | TestPass123! |
+| educator@abr-insights.com   | educator           | TestPass123! |
+| analyst@abr-insights.com    | analyst            | TestPass123! |
 | compliance@abr-insights.com | compliance_officer | TestPass123! |
 
 **Important**: Always enable **"Auto Confirm User"** when creating test users!
@@ -115,12 +115,14 @@ Once you have one working user, create others via Dashboard:
 ### Still Getting 401?
 
 **Check 1: Verify Keys Are Loaded**
+
 ```powershell
 # Check if env vars are loaded
 node -e "require('dotenv').config({path:'.env.local'}); console.log('URL:', process.env.NEXT_PUBLIC_SUPABASE_URL); console.log('Key length:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.length)"
 ```
 
 **Check 2: Test API Connection**
+
 ```bash
 curl -X POST ***REMOVED***/auth/v1/token?grant_type=password \
   -H "apikey: YOUR_ANON_KEY" \
@@ -131,10 +133,11 @@ curl -X POST ***REMOVED***/auth/v1/token?grant_type=password \
 If this returns 401, the key is definitely wrong.
 
 **Check 3: Verify User Exists**
+
 ```sql
 -- Via SQL Editor
-SELECT id, email, email_confirmed_at 
-FROM auth.users 
+SELECT id, email, email_confirmed_at
+FROM auth.users
 WHERE email = 'super_admin@abr-insights.com';
 ```
 
@@ -143,6 +146,7 @@ Should return 1 row with `email_confirmed_at` set (not NULL).
 ## Expected Result
 
 After setup:
+
 - ✅ User exists in `auth.users` with `email_confirmed_at` set
 - ✅ Profile exists in `public.profiles` with matching ID
 - ✅ Login works and redirects to dashboard

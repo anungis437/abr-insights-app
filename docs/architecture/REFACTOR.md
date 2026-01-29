@@ -15,6 +15,7 @@ This document outlines the comprehensive refactoring strategy for migrating the 
 **STATUS**: ✅ **ACHIEVED** - Base44 fully eliminated, legacy folder deleted
 
 **Completion Timeline**:
+
 1. ✅ **Phases 1-2 Complete** (Nov 7, 2025): Foundation (auth, UI components, ingestion)
 2. ✅ **Phase 3 Complete** (Commits: `935fd8d`, `3aeeb06`): Service layer - ALL Base44 SDK replaced
 3. ✅ **Phase 4 Complete** (Commits: `7f241b5`, `5e1f0f3`, `cedfda4`): Public pages with real Supabase data
@@ -375,30 +376,35 @@ This document outlines the comprehensive refactoring strategy for migrating the 
 **Completion Date**: Commit `81c8dab` (Nov 8, 2025)
 
 **Quiz System**:
+
 - [x] Multiple question types (multiple choice, true/false, short answer)
 - [x] Quiz creation and management
 - [x] Real-time scoring and feedback
 - [x] Quiz analytics and performance tracking
 
 **Certificate System**:
+
 - [x] Automatic certificate generation on course completion
 - [x] PDF certificate storage and delivery
 - [x] Certificate verification system
 - [x] Certificate revocation for admins
 
 **CE Credit Tracking**:
+
 - [x] Continuing education credit management
 - [x] Credit hour tracking per course
 - [x] CE certificate generation
 - [x] Credit audit trail
 
 **Instructor Portal**:
+
 - [x] Course authoring interface
 - [x] Content management system
 - [x] Student progress monitoring
 - [x] Course analytics dashboard
 
 **Gamification**:
+
 - [x] Points system for course completion
 - [x] Badge unlocking system
 - [x] Achievement tracking
@@ -406,11 +412,13 @@ This document outlines the comprehensive refactoring strategy for migrating the 
 - [x] Leaderboard with rankings
 
 **Social Features**:
+
 - [x] Study buddy matching system
 - [x] Discussion forums
 - [x] Peer progress visibility
 
 **Live Sessions**:
+
 - [x] WebRTC-based live video
 - [x] Real-time chat
 - [x] Screen sharing
@@ -439,9 +447,9 @@ This document outlines the comprehensive refactoring strategy for migrating the 
 - [x] **DELETED `legacy/` folder entirely** (Base44 eliminated)
 - [x] Remove all `@base44/sdk` dependencies from package.json
 - [x] Verify zero Base44 imports across entire codebase
-- [x] Remove all PHASE_*_COMPLETE.md temporary files
-- [x] Remove all backup files (*.backup)
-- [x] Remove temporary write-*.js script files
+- [x] Remove all PHASE\_\*\_COMPLETE.md temporary files
+- [x] Remove all backup files (\*.backup)
+- [x] Remove temporary write-\*.js script files
 - [x] Clean repository structure
 
 **Deliverables**: ✅ All Complete
@@ -460,6 +468,7 @@ This document outlines the comprehensive refactoring strategy for migrating the 
 **Status**: 🔄 In Progress - Feature development complete, entering testing phase
 
 **Current Status**:
+
 - ✅ All feature development complete (Phases 1-8)
 - ✅ Legacy code eliminated (`legacy/` deleted)
 - ✅ Build successful (497+ pages, 0 errors)
@@ -469,6 +478,7 @@ This document outlines the comprehensive refactoring strategy for migrating the 
 - ⏳ Testing and validation phase in progress
 
 **Testing Tasks** (In Progress):
+
 - [ ] Unit tests for all Supabase services
 - [ ] Integration tests for API calls
 - [ ] E2E tests for critical flows (Playwright)
@@ -480,6 +490,7 @@ This document outlines the comprehensive refactoring strategy for migrating the 
 - [ ] Cross-browser testing (Chrome, Firefox, Safari, Edge)
 
 **Deployment Tasks** (Pending):
+
 - [ ] Apply all database migrations to production Supabase
 - [ ] Configure Azure Static Web Apps production settings
 - [ ] Set up CI/CD pipeline verification
@@ -492,6 +503,7 @@ This document outlines the comprehensive refactoring strategy for migrating the 
 - [ ] **Confirm Base44 decommissioned** ✅ (Already achieved)
 
 **Deliverables Target**:
+
 - Production-ready application ✅ (Code complete)
 - Zero Base44 dependencies ✅ (Already achieved)
 - Performance and security reports
@@ -502,6 +514,7 @@ This document outlines the comprehensive refactoring strategy for migrating the 
 - Users successfully migrated
 
 **Migration Statistics**:
+
 - **Total Commits**: 3 major feature phases
 - **Files Added**: 97 new files
 - **Lines of Code**: +35,033 insertions, -8,368 deletions
@@ -655,18 +668,18 @@ CREATE TABLE public.tribunal_sources (
   base_url TEXT NOT NULL,
   listing_url TEXT,
   scraper_config JSONB DEFAULT '{}',
-  
+
   enabled BOOLEAN DEFAULT true,
   fetch_frequency TEXT DEFAULT 'daily',
   throttle_delay_ms INTEGER DEFAULT 2000,
   max_decisions_per_run INTEGER DEFAULT 50,
-  
+
   classification_prompts JSONB DEFAULT '{}',
-  
+
   last_fetch_at TIMESTAMPTZ,
   last_fetch_count INTEGER DEFAULT 0,
   total_fetched INTEGER DEFAULT 0,
-  
+
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -689,16 +702,16 @@ CREATE TABLE public.tribunal_cases_raw (
   decision_type TEXT,
   full_text TEXT,
   html_excerpt TEXT,
-  
+
   is_race_related BOOLEAN DEFAULT false,
   is_anti_black_likely BOOLEAN DEFAULT false,
   grounds_detected TEXT[],
   confidence_scores JSONB DEFAULT '{}',
   ai_summary TEXT,
-  
+
   processing_status TEXT DEFAULT 'pending',
   processing_error TEXT,
-  
+
   ingested_at TIMESTAMPTZ DEFAULT NOW(),
   processed_at TIMESTAMPTZ,
   promoted_at TIMESTAMPTZ,
@@ -767,16 +780,16 @@ CREATE TABLE public.ingestion_jobs (
   source_id UUID REFERENCES tribunal_sources(id),
   job_status TEXT DEFAULT 'queued',
   run_type TEXT DEFAULT 'scheduled',
-  
+
   decisions_discovered INTEGER DEFAULT 0,
   decisions_classified INTEGER DEFAULT 0,
   race_related_found INTEGER DEFAULT 0,
   anti_black_found INTEGER DEFAULT 0,
-  
+
   started_at TIMESTAMPTZ,
   completed_at TIMESTAMPTZ,
   error_message TEXT,
-  
+
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -876,182 +889,179 @@ CREATE POLICY "Users can view own achievements" ON user_achievements
 
 ```typescript
 // scripts/export-base44-data.ts
-import { base44 } from '../legacy/src/api/base44Client';
-import fs from 'fs';
+import { base44 } from '../legacy/src/api/base44Client'
+import fs from 'fs'
 
 async function exportData() {
-  console.log('Exporting tribunal cases...');
-  const cases = await base44.entities.TribunalCase.list();
-  fs.writeFileSync('./migration/cases.json', JSON.stringify(cases, null, 2));
+  console.log('Exporting tribunal cases...')
+  const cases = await base44.entities.TribunalCase.list()
+  fs.writeFileSync('./migration/cases.json', JSON.stringify(cases, null, 2))
 
-  console.log('Exporting courses...');
-  const courses = await base44.entities.Course.list();
-  fs.writeFileSync('./migration/courses.json', JSON.stringify(courses, null, 2));
+  console.log('Exporting courses...')
+  const courses = await base44.entities.Course.list()
+  fs.writeFileSync('./migration/courses.json', JSON.stringify(courses, null, 2))
 
-  console.log('Exporting users...');
+  console.log('Exporting users...')
   // Note: May need special access for user data
-  const users = await base44.entities.User.list();
-  fs.writeFileSync('./migration/users.json', JSON.stringify(users, null, 2));
+  const users = await base44.entities.User.list()
+  fs.writeFileSync('./migration/users.json', JSON.stringify(users, null, 2))
 
-  console.log('Export complete!');
+  console.log('Export complete!')
 }
 
-exportData();
+exportData()
 ```
 
 #### Script 2: Transform and Import to Supabase
 
 ```typescript
 // scripts/import-to-supabase.ts
-import { createClient } from '@supabase/supabase-js';
-import cases from './migration/cases.json';
-import courses from './migration/courses.json';
+import { createClient } from '@supabase/supabase-js'
+import cases from './migration/cases.json'
+import courses from './migration/courses.json'
 
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY!
-);
+const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_KEY!)
 
 async function importCases() {
-  console.log(`Importing ${cases.length} tribunal cases...`);
-  
+  console.log(`Importing ${cases.length} tribunal cases...`)
+
   // Batch insert (1000 at a time)
   for (let i = 0; i < cases.length; i += 1000) {
-    const batch = cases.slice(i, i + 1000);
-    const { error } = await supabase
-      .from('tribunal_cases')
-      .insert(batch);
-    
+    const batch = cases.slice(i, i + 1000)
+    const { error } = await supabase.from('tribunal_cases').insert(batch)
+
     if (error) {
-      console.error(`Error inserting batch ${i}:`, error);
+      console.error(`Error inserting batch ${i}:`, error)
     } else {
-      console.log(`Imported ${i + batch.length} cases`);
+      console.log(`Imported ${i + batch.length} cases`)
     }
   }
 }
 
 async function importCourses() {
-  console.log(`Importing ${courses.length} courses...`);
-  
-  const { error } = await supabase
-    .from('courses')
-    .insert(courses);
-  
+  console.log(`Importing ${courses.length} courses...`)
+
+  const { error } = await supabase.from('courses').insert(courses)
+
   if (error) {
-    console.error('Error importing courses:', error);
+    console.error('Error importing courses:', error)
   } else {
-    console.log('Courses imported successfully');
+    console.log('Courses imported successfully')
   }
 }
 
 async function migrate() {
-  await importCases();
-  await importCourses();
-  console.log('Migration complete!');
+  await importCases()
+  await importCourses()
+  console.log('Migration complete!')
 }
 
-migrate();
+migrate()
 ```
 
 #### Script 3: Automated Ingestion (Azure Function)
 
 ```typescript
 // api/functions/ingest-tribunal-cases.ts
-import { app, InvocationContext, Timer } from '@azure/functions';
-import { createClient } from '@supabase/supabase-js';
-import { AzureOpenAI } from 'openai';
-import * as cheerio from 'cheerio';
+import { app, InvocationContext, Timer } from '@azure/functions'
+import { createClient } from '@supabase/supabase-js'
+import { AzureOpenAI } from 'openai'
+import * as cheerio from 'cheerio'
 
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY!
-);
+const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_KEY!)
 
 const openai = new AzureOpenAI({
   apiKey: process.env.AZURE_OPENAI_API_KEY,
   endpoint: process.env.AZURE_OPENAI_ENDPOINT,
   apiVersion: '2024-08-01-preview',
-});
+})
 
 // Pluggable scraper interface
 interface ScraperAdapter {
-  name: string;
-  discoverDecisions(config: any): Promise<DecisionLink[]>;
-  fetchContent(url: string): Promise<DecisionContent>;
+  name: string
+  discoverDecisions(config: any): Promise<DecisionLink[]>
+  fetchContent(url: string): Promise<DecisionContent>
 }
 
 interface DecisionLink {
-  title: string;
-  url: string;
-  date: string;
-  decisionType?: string;
+  title: string
+  url: string
+  date: string
+  decisionType?: string
 }
 
 interface DecisionContent {
-  fullText: string;
-  htmlExcerpt: string;
+  fullText: string
+  htmlExcerpt: string
 }
 
 // HRTO Scraper Implementation
 class HRTOScraper implements ScraperAdapter {
-  name = 'HRTO';
+  name = 'HRTO'
 
   async discoverDecisions(config: any): Promise<DecisionLink[]> {
-    const response = await fetch(config.listing_url);
-    const html = await response.text();
-    const $ = cheerio.load(html);
-    
-    const decisions: DecisionLink[] = [];
+    const response = await fetch(config.listing_url)
+    const html = await response.text()
+    const $ = cheerio.load(html)
+
+    const decisions: DecisionLink[] = []
     $(config.scraper_config.selector).each((i, elem) => {
-      if (i >= config.max_decisions_per_run) return false;
-      
+      if (i >= config.max_decisions_per_run) return false
+
       decisions.push({
         title: $(elem).text().trim(),
         url: $(elem).attr('href') || '',
         date: $(elem).closest('.result').find('.date').text() || '',
-      });
-    });
-    
-    return decisions;
+      })
+    })
+
+    return decisions
   }
 
   async fetchContent(url: string): Promise<DecisionContent> {
-    await new Promise(resolve => setTimeout(resolve, 2000)); // Throttle
-    
-    const response = await fetch(url);
-    const html = await response.text();
-    const $ = cheerio.load(html);
-    
+    await new Promise((resolve) => setTimeout(resolve, 2000)) // Throttle
+
+    const response = await fetch(url)
+    const html = await response.text()
+    const $ = cheerio.load(html)
+
     // Remove navigation, headers, footers
-    $('nav, header, footer, .sidebar').remove();
-    
-    const fullText = $('.decision-content').text().trim();
-    const htmlExcerpt = $('.decision-content').html()?.substring(0, 5000) || '';
-    
-    return { fullText, htmlExcerpt };
+    $('nav, header, footer, .sidebar').remove()
+
+    const fullText = $('.decision-content').text().trim()
+    const htmlExcerpt = $('.decision-content').html()?.substring(0, 5000) || ''
+
+    return { fullText, htmlExcerpt }
   }
 }
 
 // Rule-based classifier
 function ruleBasedClassification(text: string) {
-  const lowerText = text.toLowerCase();
-  
-  const raceKeywords = ['race', 'racial', 'colour', 'color', 'ancestry', 'ethnic'];
-  const blackKeywords = ['black', 'anti-black', 'african', 'caribbean'];
-  const discriminationKeywords = ['discrimination', 'discriminatory', 'profiling', 'harassment', 'bias'];
-  
-  const isRaceRelated = raceKeywords.some(kw => lowerText.includes(kw)) &&
-                        discriminationKeywords.some(kw => lowerText.includes(kw));
-  
-  const isAntiBlackLikely = blackKeywords.some(kw => lowerText.includes(kw)) && isRaceRelated;
-  
-  const groundsDetected = [];
-  if (lowerText.includes('race') || lowerText.includes('racial')) groundsDetected.push('race');
-  if (lowerText.includes('colour') || lowerText.includes('color')) groundsDetected.push('colour');
-  if (lowerText.includes('ancestry')) groundsDetected.push('ancestry');
-  if (lowerText.includes('place of origin')) groundsDetected.push('place_of_origin');
-  
-  return { isRaceRelated, isAntiBlackLikely, groundsDetected };
+  const lowerText = text.toLowerCase()
+
+  const raceKeywords = ['race', 'racial', 'colour', 'color', 'ancestry', 'ethnic']
+  const blackKeywords = ['black', 'anti-black', 'african', 'caribbean']
+  const discriminationKeywords = [
+    'discrimination',
+    'discriminatory',
+    'profiling',
+    'harassment',
+    'bias',
+  ]
+
+  const isRaceRelated =
+    raceKeywords.some((kw) => lowerText.includes(kw)) &&
+    discriminationKeywords.some((kw) => lowerText.includes(kw))
+
+  const isAntiBlackLikely = blackKeywords.some((kw) => lowerText.includes(kw)) && isRaceRelated
+
+  const groundsDetected = []
+  if (lowerText.includes('race') || lowerText.includes('racial')) groundsDetected.push('race')
+  if (lowerText.includes('colour') || lowerText.includes('color')) groundsDetected.push('colour')
+  if (lowerText.includes('ancestry')) groundsDetected.push('ancestry')
+  if (lowerText.includes('place of origin')) groundsDetected.push('place_of_origin')
+
+  return { isRaceRelated, isAntiBlackLikely, groundsDetected }
 }
 
 // AI-based classifier
@@ -1074,41 +1084,38 @@ Respond in JSON format:
   "anti_black_confidence": 0.0-1.0,
   "grounds_detected": [],
   "summary": ""
-}`;
+}`
 
   const completion = await openai.chat.completions.create({
     model: 'gpt-4o',
     messages: [
-      { role: 'system', content: 'You are an expert in Canadian human rights law and anti-Black racism analysis.' },
-      { role: 'user', content: prompt }
+      {
+        role: 'system',
+        content: 'You are an expert in Canadian human rights law and anti-Black racism analysis.',
+      },
+      { role: 'user', content: prompt },
     ],
     temperature: 0.3,
-    response_format: { type: 'json_object' }
-  });
+    response_format: { type: 'json_object' },
+  })
 
-  return JSON.parse(completion.choices[0].message.content || '{}');
+  return JSON.parse(completion.choices[0].message.content || '{}')
 }
 
 // Main ingestion function
-export async function ingestTribunalCases(
-  timer: Timer,
-  context: InvocationContext
-): Promise<void> {
-  context.log('Starting tribunal ingestion job');
+export async function ingestTribunalCases(timer: Timer, context: InvocationContext): Promise<void> {
+  context.log('Starting tribunal ingestion job')
 
   // Get active sources
-  const { data: sources } = await supabase
-    .from('tribunal_sources')
-    .select('*')
-    .eq('enabled', true);
+  const { data: sources } = await supabase.from('tribunal_sources').select('*').eq('enabled', true)
 
   if (!sources?.length) {
-    context.log('No active sources found');
-    return;
+    context.log('No active sources found')
+    return
   }
 
   for (const source of sources) {
-    context.log(`Processing source: ${source.name}`);
+    context.log(`Processing source: ${source.name}`)
 
     // Create job record
     const { data: job } = await supabase
@@ -1118,26 +1125,26 @@ export async function ingestTribunalCases(
         run_type: 'scheduled',
         max_decisions: source.max_decisions_per_run,
         job_status: 'running',
-        started_at: new Date().toISOString()
+        started_at: new Date().toISOString(),
       })
       .select()
-      .single();
+      .single()
 
     try {
       // Initialize scraper
-      const scraper = new HRTOScraper(); // TODO: Factory pattern for multiple sources
+      const scraper = new HRTOScraper() // TODO: Factory pattern for multiple sources
 
       // Discover decisions
-      const decisions = await scraper.discoverDecisions(source);
-      context.log(`Discovered ${decisions.length} decisions`);
+      const decisions = await scraper.discoverDecisions(source)
+      context.log(`Discovered ${decisions.length} decisions`)
 
       await supabase
         .from('ingestion_jobs')
         .update({ decisions_discovered: decisions.length })
-        .eq('id', job.id);
+        .eq('id', job.id)
 
-      let raceRelatedCount = 0;
-      let antiBlackCount = 0;
+      let raceRelatedCount = 0
+      let antiBlackCount = 0
 
       // Process each decision
       for (const decision of decisions) {
@@ -1147,27 +1154,29 @@ export async function ingestTribunalCases(
             .from('tribunal_cases_raw')
             .select('id')
             .eq('url', decision.url)
-            .single();
+            .single()
 
           if (existing) {
-            context.log(`Skipping existing decision: ${decision.url}`);
-            continue;
+            context.log(`Skipping existing decision: ${decision.url}`)
+            continue
           }
 
           // Fetch content
-          const content = await scraper.fetchContent(decision.url);
+          const content = await scraper.fetchContent(decision.url)
 
           // Classify
-          const ruleResults = ruleBasedClassification(content.fullText);
-          const aiResults = await aiClassification(content.fullText);
+          const ruleResults = ruleBasedClassification(content.fullText)
+          const aiResults = await aiClassification(content.fullText)
 
           // Merge classifications (AI takes precedence)
-          const isRaceRelated = aiResults.is_race_related || ruleResults.isRaceRelated;
-          const isAntiBlackLikely = aiResults.is_anti_black_likely || ruleResults.isAntiBlackLikely;
-          const groundsDetected = [...new Set([...aiResults.grounds_detected, ...ruleResults.groundsDetected])];
+          const isRaceRelated = aiResults.is_race_related || ruleResults.isRaceRelated
+          const isAntiBlackLikely = aiResults.is_anti_black_likely || ruleResults.isAntiBlackLikely
+          const groundsDetected = [
+            ...new Set([...aiResults.grounds_detected, ...ruleResults.groundsDetected]),
+          ]
 
-          if (isRaceRelated) raceRelatedCount++;
-          if (isAntiBlackLikely) antiBlackCount++;
+          if (isRaceRelated) raceRelatedCount++
+          if (isAntiBlackLikely) antiBlackCount++
 
           // Store in raw table
           await supabase.from('tribunal_cases_raw').insert({
@@ -1183,23 +1192,24 @@ export async function ingestTribunalCases(
             grounds_detected: groundsDetected,
             confidence_scores: {
               race_related: aiResults.race_confidence,
-              anti_black: aiResults.anti_black_confidence
+              anti_black: aiResults.anti_black_confidence,
             },
             ai_summary: aiResults.summary,
-            processing_status: 'classified'
-          });
+            processing_status: 'classified',
+          })
 
-          context.log(`✓ Classified: ${decision.title} (Race: ${isRaceRelated}, Anti-Black: ${isAntiBlackLikely})`);
-
+          context.log(
+            `✓ Classified: ${decision.title} (Race: ${isRaceRelated}, Anti-Black: ${isAntiBlackLikely})`
+          )
         } catch (error) {
-          context.error(`Error processing decision ${decision.url}:`, error);
+          context.error(`Error processing decision ${decision.url}:`, error)
           await supabase.from('tribunal_cases_raw').insert({
             source: source.name,
             url: decision.url,
             title: decision.title,
             processing_status: 'failed',
-            processing_error: error.message
-          });
+            processing_error: error.message,
+          })
         }
       }
 
@@ -1212,9 +1222,9 @@ export async function ingestTribunalCases(
           decisions_classified: raceRelatedCount + antiBlackCount,
           race_related_found: raceRelatedCount,
           anti_black_found: antiBlackCount,
-          completed_at: new Date().toISOString()
+          completed_at: new Date().toISOString(),
         })
-        .eq('id', job.id);
+        .eq('id', job.id)
 
       // Update source statistics
       await supabase
@@ -1223,33 +1233,34 @@ export async function ingestTribunalCases(
           last_fetch_at: new Date().toISOString(),
           last_fetch_count: decisions.length,
           total_fetched: source.total_fetched + decisions.length,
-          total_classified: source.total_classified + raceRelatedCount
+          total_classified: source.total_classified + raceRelatedCount,
         })
-        .eq('id', source.id);
+        .eq('id', source.id)
 
-      context.log(`✅ Completed ${source.name}: ${raceRelatedCount} race-related, ${antiBlackCount} anti-Black`);
-
+      context.log(
+        `✅ Completed ${source.name}: ${raceRelatedCount} race-related, ${antiBlackCount} anti-Black`
+      )
     } catch (error) {
-      context.error(`Error processing source ${source.name}:`, error);
+      context.error(`Error processing source ${source.name}:`, error)
       await supabase
         .from('ingestion_jobs')
         .update({
           job_status: 'failed',
           error_message: error.message,
-          completed_at: new Date().toISOString()
+          completed_at: new Date().toISOString(),
         })
-        .eq('id', job.id);
+        .eq('id', job.id)
     }
   }
 
-  context.log('Ingestion job completed');
+  context.log('Ingestion job completed')
 }
 
 // Schedule: Run daily at 2 AM
 app.timer('ingestTribunalCases', {
   schedule: '0 0 2 * * *', // Daily at 2 AM
-  handler: ingestTribunalCases
-});
+  handler: ingestTribunalCases,
+})
 ```
 
 ---
@@ -1258,41 +1269,41 @@ app.timer('ingestTribunalCases', {
 
 ### Must-Have Features (Parity)
 
-| Feature | Legacy | New | Notes |
-|---------|--------|-----|-------|
-| Authentication | ✅ Base44 | ✅ Supabase Auth | Add SSO support |
-| User Profiles | ✅ | ✅ | Enhanced with avatars |
-| Data Explorer | ✅ | ✅ | Add real-time filters |
-| Advanced Filters | ✅ | ✅ | Improved performance |
-| AI Insights Panel | ✅ | ✅ | Azure OpenAI |
-| Training Hub | ✅ | ✅ | Add video support |
-| Course Player | ✅ | ✅ | Track video progress |
-| Gamification | ✅ | ✅ | Add leaderboards |
-| Certificates | ✅ | ✅ | PDF generation |
-| Dashboard | ✅ | ✅ | Real-time updates |
-| Org Management | ✅ | ✅ | Enhanced analytics |
-| Notifications | ✅ | ✅ | Push + Email |
-| Global Search | ✅ | ✅ | Semantic search |
-| **Data Ingestion** | ⚠️ Manual | ✅ Automated | Scheduled scraping |
-| **Ingestion Admin** | ❌ | ✅ | View/manage ingestion jobs |
+| Feature             | Legacy    | New              | Notes                      |
+| ------------------- | --------- | ---------------- | -------------------------- |
+| Authentication      | ✅ Base44 | ✅ Supabase Auth | Add SSO support            |
+| User Profiles       | ✅        | ✅               | Enhanced with avatars      |
+| Data Explorer       | ✅        | ✅               | Add real-time filters      |
+| Advanced Filters    | ✅        | ✅               | Improved performance       |
+| AI Insights Panel   | ✅        | ✅               | Azure OpenAI               |
+| Training Hub        | ✅        | ✅               | Add video support          |
+| Course Player       | ✅        | ✅               | Track video progress       |
+| Gamification        | ✅        | ✅               | Add leaderboards           |
+| Certificates        | ✅        | ✅               | PDF generation             |
+| Dashboard           | ✅        | ✅               | Real-time updates          |
+| Org Management      | ✅        | ✅               | Enhanced analytics         |
+| Notifications       | ✅        | ✅               | Push + Email               |
+| Global Search       | ✅        | ✅               | Semantic search            |
+| **Data Ingestion**  | ⚠️ Manual | ✅ Automated     | Scheduled scraping         |
+| **Ingestion Admin** | ❌        | ✅               | View/manage ingestion jobs |
 
 ### New Features (Competitive Advantages)
 
-| Feature | Priority | Status | Impact |
-|---------|----------|--------|--------|
-| **Automated Ingestion Pipeline** | P0 | 🟡 In Design | Core data source |
-| **SSO (SAML/OAuth)** | P0 | 🔴 Not Started | Enterprise requirement |
-| **Industry Benchmarking** | P0 | 🔴 Not Started | Key differentiator |
-| **Compliance Reports** | P0 | 🔴 Not Started | Regulatory requirement |
-| **WCAG 2.1 AA** | P0 | 🔴 Not Started | Legal requirement |
-| **Multi-Source Scrapers** | P1 | 🔴 Not Started | CHRT, BCHRT, NSHRC |
-| **Live Webinars** | P1 | 🔴 Not Started | Engagement driver |
-| **HRIS Integration** | P1 | 🔴 Not Started | Enterprise feature |
-| **Mobile PWA** | P1 | 🔴 Not Started | User convenience |
-| **Ingestion Quality Dashboard** | P2 | 🔴 Not Started | Admin tool |
-| **Community Forums** | P2 | 🔴 Not Started | User engagement |
-| **White-Label** | P2 | 🔴 Not Started | Enterprise sales |
-| **API Marketplace** | P3 | 🔴 Not Started | Ecosystem |
+| Feature                          | Priority | Status         | Impact                 |
+| -------------------------------- | -------- | -------------- | ---------------------- |
+| **Automated Ingestion Pipeline** | P0       | 🟡 In Design   | Core data source       |
+| **SSO (SAML/OAuth)**             | P0       | 🔴 Not Started | Enterprise requirement |
+| **Industry Benchmarking**        | P0       | 🔴 Not Started | Key differentiator     |
+| **Compliance Reports**           | P0       | 🔴 Not Started | Regulatory requirement |
+| **WCAG 2.1 AA**                  | P0       | 🔴 Not Started | Legal requirement      |
+| **Multi-Source Scrapers**        | P1       | 🔴 Not Started | CHRT, BCHRT, NSHRC     |
+| **Live Webinars**                | P1       | 🔴 Not Started | Engagement driver      |
+| **HRIS Integration**             | P1       | 🔴 Not Started | Enterprise feature     |
+| **Mobile PWA**                   | P1       | 🔴 Not Started | User convenience       |
+| **Ingestion Quality Dashboard**  | P2       | 🔴 Not Started | Admin tool             |
+| **Community Forums**             | P2       | 🔴 Not Started | User engagement        |
+| **White-Label**                  | P2       | 🔴 Not Started | Enterprise sales       |
+| **API Marketplace**              | P3       | 🔴 Not Started | Ecosystem              |
 
 ---
 
@@ -1311,15 +1322,15 @@ app.timer('ingestTribunalCases', {
 // - Azure Active Directory (Native)
 
 // Implementation
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: true
-  }
-});
+    detectSessionInUrl: true,
+  },
+})
 
 // SSO Login
 async function loginWithSSO(provider: 'azure' | 'google') {
@@ -1327,9 +1338,9 @@ async function loginWithSSO(provider: 'azure' | 'google') {
     provider,
     options: {
       scopes: 'email profile openid',
-      redirectTo: `${window.location.origin}/auth/callback`
-    }
-  });
+      redirectTo: `${window.location.origin}/auth/callback`,
+    },
+  })
 }
 ```
 
@@ -1430,17 +1441,17 @@ Audit logs are **immutable** (no UPDATE/DELETE allowed) and retained for **7 yea
 
 ### Compliance Requirements
 
-| Standard | Status | Implementation |
-|----------|--------|----------------|
-| **PIPEDA** (Canada) | ✅ Planned | Canada region, consent management, data minimization, right to erasure |
-| **GDPR** (EU) | ✅ Planned | Data portability, right to erasure, explicit consent |
-| **WCAG 2.1 AA** | 🔴 Required | Accessibility audit + remediation (keyboard nav, screen readers, ARIA) |
-| **AODA** (Ontario) | 🔴 Required | Accessibility standards, annual accessibility plans |
-| **SOC 2 Type II** | ✅ Inherited | Supabase + Azure certifications (audit annually) |
-| **ISO 27001** | ✅ Inherited | Azure certification (information security management) |
-| **Treasury Board** (Canada) | ✅ Planned | Government of Canada security standards alignment |
-| **FOIPPA** (BC) | ✅ Planned | Freedom of Information and Protection of Privacy Act |
-| **FIPPA** (Ontario) | ✅ Planned | Freedom of Information and Protection of Privacy Act |
+| Standard                    | Status       | Implementation                                                         |
+| --------------------------- | ------------ | ---------------------------------------------------------------------- |
+| **PIPEDA** (Canada)         | ✅ Planned   | Canada region, consent management, data minimization, right to erasure |
+| **GDPR** (EU)               | ✅ Planned   | Data portability, right to erasure, explicit consent                   |
+| **WCAG 2.1 AA**             | 🔴 Required  | Accessibility audit + remediation (keyboard nav, screen readers, ARIA) |
+| **AODA** (Ontario)          | 🔴 Required  | Accessibility standards, annual accessibility plans                    |
+| **SOC 2 Type II**           | ✅ Inherited | Supabase + Azure certifications (audit annually)                       |
+| **ISO 27001**               | ✅ Inherited | Azure certification (information security management)                  |
+| **Treasury Board** (Canada) | ✅ Planned   | Government of Canada security standards alignment                      |
+| **FOIPPA** (BC)             | ✅ Planned   | Freedom of Information and Protection of Privacy Act                   |
+| **FIPPA** (Ontario)         | ✅ Planned   | Freedom of Information and Protection of Privacy Act                   |
 
 **Bilingual Support**: All UI components and documentation available in English and French (official languages of Canada).
 
@@ -1450,15 +1461,15 @@ Audit logs are **immutable** (no UPDATE/DELETE allowed) and retained for **7 yea
 
 ### Target Metrics
 
-| Metric | Target | Current | Strategy |
-|--------|--------|---------|----------|
-| **Time to First Byte (TTFB)** | < 200ms | TBD | Azure CDN, edge caching |
-| **First Contentful Paint (FCP)** | < 1.5s | TBD | Code splitting, lazy loading |
-| **Largest Contentful Paint (LCP)** | < 2.5s | TBD | Image optimization, preload |
-| **Time to Interactive (TTI)** | < 3.5s | TBD | Minimize JavaScript |
-| **Cumulative Layout Shift (CLS)** | < 0.1 | TBD | Skeleton loaders |
-| **API Response Time (p95)** | < 500ms | TBD | Database indexing, caching |
-| **Concurrent Users** | 10,000+ | TBD | Horizontal scaling |
+| Metric                             | Target  | Current | Strategy                     |
+| ---------------------------------- | ------- | ------- | ---------------------------- |
+| **Time to First Byte (TTFB)**      | < 200ms | TBD     | Azure CDN, edge caching      |
+| **First Contentful Paint (FCP)**   | < 1.5s  | TBD     | Code splitting, lazy loading |
+| **Largest Contentful Paint (LCP)** | < 2.5s  | TBD     | Image optimization, preload  |
+| **Time to Interactive (TTI)**      | < 3.5s  | TBD     | Minimize JavaScript          |
+| **Cumulative Layout Shift (CLS)**  | < 0.1   | TBD     | Skeleton loaders             |
+| **API Response Time (p95)**        | < 500ms | TBD     | Database indexing, caching   |
+| **Concurrent Users**               | 10,000+ | TBD     | Horizontal scaling           |
 
 ### Optimization Strategies
 
@@ -1488,9 +1499,9 @@ REFRESH MATERIALIZED VIEW CONCURRENTLY org_analytics;
 
 ```typescript
 // Redis caching layer
-import { Redis } from 'ioredis';
+import { Redis } from 'ioredis'
 
-const redis = new Redis(process.env.REDIS_URL);
+const redis = new Redis(process.env.REDIS_URL)
 
 async function getCachedData<T>(
   key: string,
@@ -1498,18 +1509,18 @@ async function getCachedData<T>(
   ttl: number = 3600
 ): Promise<T> {
   // Check cache first
-  const cached = await redis.get(key);
+  const cached = await redis.get(key)
   if (cached) {
-    return JSON.parse(cached);
+    return JSON.parse(cached)
   }
 
   // Fetch from database
-  const data = await fetcher();
-  
+  const data = await fetcher()
+
   // Store in cache
-  await redis.setex(key, ttl, JSON.stringify(data));
-  
-  return data;
+  await redis.setex(key, ttl, JSON.stringify(data))
+
+  return data
 }
 
 // Usage
@@ -1517,15 +1528,15 @@ const cases = await getCachedData(
   'tribunal:cases:all',
   () => supabase.from('tribunal_cases').select('*'),
   3600 // 1 hour TTL
-);
+)
 ```
 
 #### 3. Frontend Optimization
 
 ```typescript
 // Code splitting by route
-const DataExplorer = lazy(() => import('./pages/DataExplorer'));
-const TrainingHub = lazy(() => import('./pages/TrainingHub'));
+const DataExplorer = lazy(() => import('./pages/DataExplorer'))
+const TrainingHub = lazy(() => import('./pages/TrainingHub'))
 
 // Prefetch critical data
 useEffect(() => {
@@ -1533,13 +1544,13 @@ useEffect(() => {
   requestIdleCallback(() => {
     queryClient.prefetchQuery({
       queryKey: ['courses'],
-      queryFn: fetchCourses
-    });
-  });
-}, []);
+      queryFn: fetchCourses,
+    })
+  })
+}, [])
 
 // Virtual scrolling for large lists
-import { useVirtualizer } from '@tanstack/react-virtual';
+import { useVirtualizer } from '@tanstack/react-virtual'
 ```
 
 #### 4. Image Optimization
@@ -1585,85 +1596,84 @@ const optimizedImageUrl = (url: string, width: number) => {
 
 ```typescript
 // src/lib/permissions.test.ts
-import { describe, it, expect } from 'vitest';
-import { hasPermission } from './permissions';
+import { describe, it, expect } from 'vitest'
+import { hasPermission } from './permissions'
 
 describe('Permission System', () => {
   it('should grant admin full access', () => {
-    const user = { role: 'admin', organization_id: '123' };
-    expect(hasPermission(user, 'data_access', 'view_all_cases')).toBe(true);
-  });
+    const user = { role: 'admin', organization_id: '123' }
+    expect(hasPermission(user, 'data_access', 'view_all_cases')).toBe(true)
+  })
 
   it('should restrict viewer access', () => {
-    const user = { role: 'viewer', organization_id: '123' };
-    expect(hasPermission(user, 'sync_jobs', 'create_jobs')).toBe(false);
-  });
-});
+    const user = { role: 'viewer', organization_id: '123' }
+    expect(hasPermission(user, 'sync_jobs', 'create_jobs')).toBe(false)
+  })
+})
 ```
 
 ### Integration Tests (Supabase)
 
 ```typescript
 // tests/integration/auth.test.ts
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js'
 
 describe('Authentication Flow', () => {
   it('should sign up new user', async () => {
     const { data, error } = await supabase.auth.signUp({
       email: 'test@example.com',
-      password: 'SecurePass123!'
-    });
+      password: 'SecurePass123!',
+    })
 
-    expect(error).toBeNull();
-    expect(data.user).toBeDefined();
-  });
+    expect(error).toBeNull()
+    expect(data.user).toBeDefined()
+  })
 
   it('should enforce RLS policies', async () => {
     // Try to access another user's data
     const { data, error } = await supabase
       .from('progress')
       .select('*')
-      .eq('user_id', 'another-user-id');
+      .eq('user_id', 'another-user-id')
 
-    expect(data).toHaveLength(0); // Should be empty due to RLS
-  });
-});
+    expect(data).toHaveLength(0) // Should be empty due to RLS
+  })
+})
 ```
 
 ### E2E Tests (Playwright)
 
 ```typescript
 // tests/e2e/data-explorer.spec.ts
-import { test, expect } from '@playwright/test';
+import { test, expect } from '@playwright/test'
 
 test.describe('Data Explorer', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/login');
-    await page.fill('[name="email"]', 'test@example.com');
-    await page.fill('[name="password"]', 'password');
-    await page.click('button[type="submit"]');
-    await page.waitForURL('/dashboard');
-  });
+    await page.goto('/login')
+    await page.fill('[name="email"]', 'test@example.com')
+    await page.fill('[name="password"]', 'password')
+    await page.click('button[type="submit"]')
+    await page.waitForURL('/dashboard')
+  })
 
   test('should filter cases by year', async ({ page }) => {
-    await page.goto('/data-explorer');
-    
+    await page.goto('/data-explorer')
+
     // Select year filter
-    await page.click('[data-testid="year-filter"]');
-    await page.click('text=2020');
-    
+    await page.click('[data-testid="year-filter"]')
+    await page.click('text=2020')
+
     // Wait for results
-    await page.waitForSelector('[data-testid="case-card"]');
-    
+    await page.waitForSelector('[data-testid="case-card"]')
+
     // Verify all cases are from 2020
-    const cases = await page.$$eval(
-      '[data-testid="case-year"]',
-      (els) => els.map(el => el.textContent)
-    );
-    
-    expect(cases.every(year => year === '2020')).toBe(true);
-  });
-});
+    const cases = await page.$$eval('[data-testid="case-year"]', (els) =>
+      els.map((el) => el.textContent)
+    )
+
+    expect(cases.every((year) => year === '2020')).toBe(true)
+  })
+})
 ```
 
 ### Load Testing (Artillery)
@@ -1671,26 +1681,26 @@ test.describe('Data Explorer', () => {
 ```yaml
 # tests/load/api-load-test.yml
 config:
-  target: "https://abr-insights.azurestaticapps.net"
+  target: 'https://abr-insights.azurestaticapps.net'
   phases:
     - duration: 300
       arrivalRate: 10
       rampTo: 100
-      name: "Ramp up to 100 users/sec"
+      name: 'Ramp up to 100 users/sec'
     - duration: 600
       arrivalRate: 100
-      name: "Sustained load"
+      name: 'Sustained load'
 
 scenarios:
-  - name: "Browse cases"
+  - name: 'Browse cases'
     flow:
       - get:
-          url: "/api/cases"
+          url: '/api/cases'
           headers:
-            Authorization: "Bearer {{ token }}"
+            Authorization: 'Bearer {{ token }}'
       - think: 2
       - get:
-          url: "/api/cases/{{ caseId }}"
+          url: '/api/cases/{{ caseId }}'
 ```
 
 ---
@@ -1774,10 +1784,10 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          action: "upload"
-          app_location: "/"
-          api_location: "api"
-          output_location: "dist"
+          action: 'upload'
+          app_location: '/'
+          api_location: 'api'
+          output_location: 'dist'
 ```
 
 ### Environment Variables
@@ -1850,18 +1860,15 @@ pg_restore -U postgres -d abr_insights backup_YYYYMMDD.dump
 
 ```typescript
 // Use feature flags to gradually roll out features
-const flags = await supabase
-  .from('feature_flags')
-  .select('*')
-  .single();
+const flags = await supabase.from('feature_flags').select('*').single()
 
 if (flags.data.enable_benchmarking) {
   // Show benchmarking feature
 }
 
 // Gradual rollout (10% of users)
-const rolloutPercentage = 10;
-const userHash = hashCode(user.id);
+const rolloutPercentage = 10
+const userHash = hashCode(user.id)
 if (userHash % 100 < rolloutPercentage) {
   // Enable for this user
 }
@@ -1873,25 +1880,25 @@ if (userHash % 100 < rolloutPercentage) {
 
 ### Technical Metrics
 
-| Metric | Baseline | Target | Measurement |
-|--------|----------|--------|-------------|
-| **API Latency (p95)** | TBD | < 500ms | Application Insights |
-| **Error Rate** | TBD | < 0.1% | Logs + Monitoring |
-| **Uptime** | TBD | 99.9% | Status page |
-| **Database Queries/sec** | TBD | 10,000+ | Supabase metrics |
-| **Concurrent Users** | TBD | 10,000+ | Load testing |
-| **Bundle Size** | TBD | < 500KB (gzipped) | Webpack analyzer |
+| Metric                   | Baseline | Target            | Measurement          |
+| ------------------------ | -------- | ----------------- | -------------------- |
+| **API Latency (p95)**    | TBD      | < 500ms           | Application Insights |
+| **Error Rate**           | TBD      | < 0.1%            | Logs + Monitoring    |
+| **Uptime**               | TBD      | 99.9%             | Status page          |
+| **Database Queries/sec** | TBD      | 10,000+           | Supabase metrics     |
+| **Concurrent Users**     | TBD      | 10,000+           | Load testing         |
+| **Bundle Size**          | TBD      | < 500KB (gzipped) | Webpack analyzer     |
 
 ### Business Metrics
 
-| Metric | Baseline | Target | Timeline |
-|--------|----------|--------|----------|
-| **User Adoption** | 0 | 1,000 users | 3 months |
-| **Course Completion Rate** | 45% | 65% | 6 months |
-| **Daily Active Users** | TBD | 500+ | 6 months |
-| **Enterprise Customers** | 0 | 10 | 12 months |
-| **Revenue (ARR)** | $0 | $100K | 12 months |
-| **Customer Satisfaction (NPS)** | TBD | 50+ | Ongoing |
+| Metric                          | Baseline | Target      | Timeline  |
+| ------------------------------- | -------- | ----------- | --------- |
+| **User Adoption**               | 0        | 1,000 users | 3 months  |
+| **Course Completion Rate**      | 45%      | 65%         | 6 months  |
+| **Daily Active Users**          | TBD      | 500+        | 6 months  |
+| **Enterprise Customers**        | 0        | 10          | 12 months |
+| **Revenue (ARR)**               | $0       | $100K       | 12 months |
+| **Customer Satisfaction (NPS)** | TBD      | 50+         | Ongoing   |
 
 ### Migration Success Criteria
 

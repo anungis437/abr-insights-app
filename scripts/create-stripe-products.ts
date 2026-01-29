@@ -73,7 +73,6 @@ async function createProducts() {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n')
     console.log(`STRIPE_PRICE_ID_PROFESSIONAL=${professionalPrice.id}`)
     console.log(`STRIPE_PRICE_ID_ENTERPRISE=${enterprisePrice.id}\n`)
-
   } catch (error) {
     console.error('Error creating products:', error)
     process.exit(1)

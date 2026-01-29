@@ -3,7 +3,7 @@ import { FileText, TrendingUp, Clock, Users, AlertCircle, CheckCircle } from 'lu
 
 export const metadata: Metadata = {
   title: 'Case Analytics | Analytics | ABR Insights',
-  description: 'Analyze case processing and outcomes'
+  description: 'Analyze case processing and outcomes',
 }
 
 export default function CaseAnalyticsPage() {
@@ -80,9 +80,7 @@ export default function CaseAnalyticsPage() {
     <div className="container-custom py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Case Analytics</h1>
-        <p className="mt-2 text-gray-600">
-          Analyze case processing, trends, and outcomes
-        </p>
+        <p className="mt-2 text-gray-600">Analyze case processing, trends, and outcomes</p>
       </div>
 
       {/* Stats Grid */}
@@ -90,14 +88,19 @@ export default function CaseAnalyticsPage() {
         {stats.map((stat) => {
           const Icon = stat.icon
           return (
-            <div key={stat.label} className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+            <div
+              key={stat.label}
+              className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
+            >
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">{stat.label}</p>
                   <p className="mt-2 text-3xl font-bold text-gray-900">{stat.value}</p>
-                  <p className={`mt-1 text-sm ${
-                    stat.trend === 'up' ? 'text-green-600' : 'text-red-600'
-                  }`}>
+                  <p
+                    className={`mt-1 text-sm ${
+                      stat.trend === 'up' ? 'text-green-600' : 'text-red-600'
+                    }`}
+                  >
                     {stat.change} from last month
                   </p>
                 </div>
@@ -141,7 +144,9 @@ export default function CaseAnalyticsPage() {
                 <div className="flex-1">
                   <div className="mb-1 flex items-center justify-between text-sm">
                     <span className="font-medium text-gray-900">{item.category}</span>
-                    <span className="text-gray-600">{item.cases} ({item.percentage}%)</span>
+                    <span className="text-gray-600">
+                      {item.cases} ({item.percentage}%)
+                    </span>
                   </div>
                   <div className="h-2 w-full rounded-full bg-gray-100">
                     <div
@@ -182,14 +187,21 @@ export default function CaseAnalyticsPage() {
         <h2 className="mb-4 text-xl font-semibold text-gray-900">Recent Case Activity</h2>
         <div className="space-y-4">
           {recentActivity.map((activity) => (
-            <div key={activity.id} className="flex items-center justify-between border-b border-gray-100 pb-4 last:border-0">
+            <div
+              key={activity.id}
+              className="flex items-center justify-between border-b border-gray-100 pb-4 last:border-0"
+            >
               <div className="flex items-center gap-4">
-                <div className={`rounded-full p-2 ${
-                  activity.status === 'success' ? 'bg-green-100' : 'bg-blue-100'
-                }`}>
-                  <FileText className={`h-5 w-5 ${
-                    activity.status === 'success' ? 'text-green-600' : 'text-blue-600'
-                  }`} />
+                <div
+                  className={`rounded-full p-2 ${
+                    activity.status === 'success' ? 'bg-green-100' : 'bg-blue-100'
+                  }`}
+                >
+                  <FileText
+                    className={`h-5 w-5 ${
+                      activity.status === 'success' ? 'text-green-600' : 'text-blue-600'
+                    }`}
+                  />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">

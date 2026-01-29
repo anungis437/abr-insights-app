@@ -1,12 +1,12 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vitest'
 
 // Create mock functions that can be accessed in tests
-const mockCheckoutCreate = vi.fn();
-const mockCheckoutRetrieve = vi.fn();
-const mockCustomerCreate = vi.fn();
-const mockCustomerRetrieve = vi.fn();
-const mockPortalCreate = vi.fn();
-const mockConstructEvent = vi.fn();
+const mockCheckoutCreate = vi.fn()
+const mockCheckoutRetrieve = vi.fn()
+const mockCustomerCreate = vi.fn()
+const mockCustomerRetrieve = vi.fn()
+const mockPortalCreate = vi.fn()
+const mockConstructEvent = vi.fn()
 
 // Mock Stripe with proper class constructor
 vi.mock('stripe', () => {
@@ -17,56 +17,58 @@ vi.mock('stripe', () => {
           create: mockCheckoutCreate,
           retrieve: mockCheckoutRetrieve,
         },
-      };
+      }
       customers = {
         create: mockCustomerCreate,
         retrieve: mockCustomerRetrieve,
-      };
+      }
       billingPortal = {
         sessions: {
           create: mockPortalCreate,
         },
-      };
+      }
       webhooks = {
         constructEvent: mockConstructEvent,
-      };
-      
+      }
+
       constructor() {}
     },
-  };
-});
+  }
+})
 
 describe('Stripe Integration Tests', () => {
   describe('Checkout Session Creation', () => {
     it('should create checkout session with valid parameters', async () => {
-      const Stripe = (await import('stripe')).default;
-      const stripe = new Stripe('test_key', { apiVersion: '2025-12-15.clover' });
+      const Stripe = (await import('stripe')).default
+      const stripe = new Stripe('test_key', { apiVersion: '2025-12-15.clover' })
 
       const mockSession = {
         id: 'cs_test_123',
         url: 'https://checkout.stripe.com/test',
         customer: 'cus_test_123',
-      };
+      }
 
-      mockCheckoutCreate.mockResolvedValue(mockSession);
+      mockCheckoutCreate.mockResolvedValue(mockSession)
 
       const session = await stripe.checkout.sessions.create({
         mode: 'subscription',
-        line_items: [{
-          price: 'price_test_123',
-          quantity: 1,
-        }],
+        line_items: [
+          {
+            price: 'price_test_123',
+            quantity: 1,
+          },
+        ],
         success_url: 'https://example.com/success',
         cancel_url: 'https://example.com/cancel',
-      });
+      })
 
-      expect(session.id).toBe('cs_test_123');
-      expect(session.url).toContain('checkout.stripe.com');
-    });
+      expect(session.id).toBe('cs_test_123')
+      expect(session.url).toContain('checkout.stripe.com')
+    })
 
     it('should include customer email in session', async () => {
-      const Stripe = (await import('stripe')).default;
-      const stripe = new Stripe('test_key', { apiVersion: '2025-12-15.clover' });
+      const Stripe = (await import('stripe')).default
+      const stripe = new Stripe('test_key', { apiVersion: '2025-12-15.clover' })
 
       await stripe.checkout.sessions.create({
         mode: 'subscription',
@@ -74,14 +76,14 @@ describe('Stripe Integration Tests', () => {
         line_items: [{ price: 'price_test', quantity: 1 }],
         success_url: 'https://example.com/success',
         cancel_url: 'https://example.com/cancel',
-      });
+      })
 
-      expect(stripe.checkout.sessions.create).toHaveBeenCalled();
-    });
+      expect(stripe.checkout.sessions.create).toHaveBeenCalled()
+    })
 
     it('should set metadata for tracking', async () => {
-      const Stripe = (await import('stripe')).default;
-      const stripe = new Stripe('test_key', { apiVersion: '2025-12-15.clover' });
+      const Stripe = (await import('stripe')).default
+      const stripe = new Stripe('test_key', { apiVersion: '2025-12-15.clover' })
 
       await stripe.checkout.sessions.create({
         mode: 'subscription',
@@ -92,7 +94,7 @@ describe('Stripe Integration Tests', () => {
           userId: 'user_123',
           tier: 'pro',
         },
-      });
+      })
 
       expect(stripe.checkout.sessions.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -101,35 +103,35 @@ describe('Stripe Integration Tests', () => {
             tier: 'pro',
           }),
         })
-      );
-    });
-  });
+      )
+    })
+  })
 
   describe('Customer Portal', () => {
     it('should create customer portal session', async () => {
-      const Stripe = (await import('stripe')).default;
-      const stripe = new Stripe('test_key', { apiVersion: '2025-12-15.clover' });
+      const Stripe = (await import('stripe')).default
+      const stripe = new Stripe('test_key', { apiVersion: '2025-12-15.clover' })
 
       const mockPortalSession = {
         id: 'bps_test_123',
         url: 'https://billing.stripe.com/session/test',
-      };
+      }
 
-      mockPortalCreate.mockResolvedValue(mockPortalSession);
+      mockPortalCreate.mockResolvedValue(mockPortalSession)
 
       const session = await stripe.billingPortal.sessions.create({
         customer: 'cus_test_123',
         return_url: 'https://example.com/account',
-      });
+      })
 
-      expect(session.url).toContain('billing.stripe.com');
-    });
-  });
+      expect(session.url).toContain('billing.stripe.com')
+    })
+  })
 
   describe('Webhook Processing', () => {
     it('should verify webhook signatures', async () => {
-      const Stripe = (await import('stripe')).default;
-      const stripe = new Stripe('test_key', { apiVersion: '2025-12-15.clover' });
+      const Stripe = (await import('stripe')).default
+      const stripe = new Stripe('test_key', { apiVersion: '2025-12-15.clover' })
 
       const mockEvent = {
         id: 'evt_test_123',
@@ -140,18 +142,14 @@ describe('Stripe Integration Tests', () => {
             customer: 'cus_test_123',
           },
         },
-      };
+      }
 
-      mockConstructEvent.mockReturnValue(mockEvent);
+      mockConstructEvent.mockReturnValue(mockEvent)
 
-      const event = stripe.webhooks.constructEvent(
-        'payload',
-        'signature',
-        'whsec_test'
-      );
+      const event = stripe.webhooks.constructEvent('payload', 'signature', 'whsec_test')
 
-      expect(event.type).toBe('checkout.session.completed');
-    });
+      expect(event.type).toBe('checkout.session.completed')
+    })
 
     it('should handle checkout.session.completed event', () => {
       const event = {
@@ -166,11 +164,11 @@ describe('Stripe Integration Tests', () => {
             },
           },
         },
-      };
+      }
 
-      expect(event.type).toBe('checkout.session.completed');
-      expect(event.data.object.metadata.userId).toBe('user_123');
-    });
+      expect(event.type).toBe('checkout.session.completed')
+      expect(event.data.object.metadata.userId).toBe('user_123')
+    })
 
     it('should handle customer.subscription.updated event', () => {
       const event = {
@@ -183,11 +181,11 @@ describe('Stripe Integration Tests', () => {
             current_period_end: 1234567890,
           },
         },
-      };
+      }
 
-      expect(event.type).toBe('customer.subscription.updated');
-      expect(event.data.object.status).toBe('active');
-    });
+      expect(event.type).toBe('customer.subscription.updated')
+      expect(event.data.object.status).toBe('active')
+    })
 
     it('should handle customer.subscription.deleted event', () => {
       const event = {
@@ -199,92 +197,92 @@ describe('Stripe Integration Tests', () => {
             status: 'canceled',
           },
         },
-      };
+      }
 
-      expect(event.type).toBe('customer.subscription.deleted');
-      expect(event.data.object.status).toBe('canceled');
-    });
-  });
+      expect(event.type).toBe('customer.subscription.deleted')
+      expect(event.data.object.status).toBe('canceled')
+    })
+  })
 
   describe('Subscription Tiers', () => {
     const tiers = [
       { name: 'free', price: 0, features: ['Basic courses', 'Community access'] },
       { name: 'pro', price: 29.99, features: ['All courses', 'AI Coach', 'Priority support'] },
-      { name: 'enterprise', price: 99.99, features: ['Everything', 'Custom training', 'Dedicated support'] },
-    ];
+      {
+        name: 'enterprise',
+        price: 99.99,
+        features: ['Everything', 'Custom training', 'Dedicated support'],
+      },
+    ]
 
     it.each(tiers)('should define $name tier correctly', (tier) => {
-      expect(tier.name).toBeDefined();
-      expect(tier.price).toBeGreaterThanOrEqual(0);
-      expect(tier.features.length).toBeGreaterThan(0);
-    });
-  });
+      expect(tier.name).toBeDefined()
+      expect(tier.price).toBeGreaterThanOrEqual(0)
+      expect(tier.features.length).toBeGreaterThan(0)
+    })
+  })
 
   describe('Feature Flags', () => {
     it('should check AI features for pro tier', () => {
-      const tier = 'pro';
-      const hasAIFeatures = ['pro', 'enterprise'].includes(tier);
-      expect(hasAIFeatures).toBe(true);
-    });
+      const tier = 'pro'
+      const hasAIFeatures = ['pro', 'enterprise'].includes(tier)
+      expect(hasAIFeatures).toBe(true)
+    })
 
     it('should restrict AI features for free tier', () => {
-      const tier = 'free';
-      const hasAIFeatures = ['pro', 'enterprise'].includes(tier);
-      expect(hasAIFeatures).toBe(false);
-    });
+      const tier = 'free'
+      const hasAIFeatures = ['pro', 'enterprise'].includes(tier)
+      expect(hasAIFeatures).toBe(false)
+    })
 
     it('should allow all features for enterprise tier', () => {
-      const tier = 'enterprise';
-      const hasAllFeatures = tier === 'enterprise';
-      expect(hasAllFeatures).toBe(true);
-    });
-  });
+      const tier = 'enterprise'
+      const hasAllFeatures = tier === 'enterprise'
+      expect(hasAllFeatures).toBe(true)
+    })
+  })
 
   describe('Price Validation', () => {
     it('should validate price IDs format', () => {
-      const validPriceIds = ['price_123', 'price_test_456'];
-      const priceIdRegex = /^price_[a-zA-Z0-9_]+$/;
+      const validPriceIds = ['price_123', 'price_test_456']
+      const priceIdRegex = /^price_[a-zA-Z0-9_]+$/
 
       validPriceIds.forEach((id) => {
-        expect(priceIdRegex.test(id)).toBe(true);
-      });
-    });
+        expect(priceIdRegex.test(id)).toBe(true)
+      })
+    })
 
     it('should validate customer IDs format', () => {
-      const validCustomerIds = ['cus_123', 'cus_test_456'];
-      const customerIdRegex = /^cus_[a-zA-Z0-9_]+$/;
+      const validCustomerIds = ['cus_123', 'cus_test_456']
+      const customerIdRegex = /^cus_[a-zA-Z0-9_]+$/
 
       validCustomerIds.forEach((id) => {
-        expect(customerIdRegex.test(id)).toBe(true);
-      });
-    });
-  });
+        expect(customerIdRegex.test(id)).toBe(true)
+      })
+    })
+  })
 
   describe('Error Handling', () => {
     it('should handle invalid checkout parameters', async () => {
-      const Stripe = (await import('stripe')).default;
-      const stripe = new Stripe('test_key', { apiVersion: '2025-12-15.clover' });
+      const Stripe = (await import('stripe')).default
+      const stripe = new Stripe('test_key', { apiVersion: '2025-12-15.clover' })
 
-      mockCheckoutCreate.mockRejectedValue(
-        new Error('Invalid parameters')
-      );
+      mockCheckoutCreate.mockRejectedValue(new Error('Invalid parameters'))
 
-      await expect(
-        stripe.checkout.sessions.create({} as any)
-      ).rejects.toThrow('Invalid parameters');
-    });
+      await expect(stripe.checkout.sessions.create({} as any)).rejects.toThrow('Invalid parameters')
+    })
 
     it('should handle webhook signature verification failures', async () => {
-      const Stripe = (await import('stripe')).default;
-      const stripe = new Stripe('test_key', { apiVersion: '2025-12-15.clover' });
+      const Stripe = (await import('stripe')).default
+      const stripe = new Stripe('test_key', { apiVersion: '2025-12-15.clover' })
 
       mockConstructEvent.mockImplementation(() => {
-        throw new Error('Invalid signature');
-      });
+        throw new Error('Invalid signature')
+      })
 
       expect(() => {
-        stripe.webhooks.constructEvent('payload', 'invalid_sig', 'whsec_test');
-      }).toThrow('Invalid signature');
-    });
-  });
-});
+        stripe.webhooks.constructEvent('payload', 'invalid_sig', 'whsec_test')
+      }).toThrow('Invalid signature')
+    })
+  })
+})

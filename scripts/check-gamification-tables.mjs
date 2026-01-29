@@ -20,7 +20,7 @@ const tables = ['achievements', 'user_achievements', 'user_points', 'quiz_attemp
 for (const table of tables) {
   try {
     const { data, error } = await supabase.from(table).select('*').limit(1)
-    
+
     if (error) {
       console.log(`❌ ${table}: ${error.message}`)
     } else {

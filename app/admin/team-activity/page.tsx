@@ -3,7 +3,7 @@ import { Activity, Users, Eye, Download, Clock } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Team Activity | Admin | ABR Insights',
-  description: 'Monitor team member activity and usage'
+  description: 'Monitor team member activity and usage',
 }
 
 export default function TeamActivityPage() {
@@ -132,13 +132,11 @@ export default function TeamActivityPage() {
   ]
 
   return (
-    <div className="container-custom pt-20 pb-8">
+    <div className="container-custom pb-8 pt-20">
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Team Activity</h1>
-          <p className="mt-2 text-gray-600">
-            Monitor team member activity and usage patterns
-          </p>
+          <p className="mt-2 text-gray-600">Monitor team member activity and usage patterns</p>
         </div>
         <button className="btn-primary flex items-center gap-2">
           <Download className="h-4 w-4" />
@@ -151,7 +149,10 @@ export default function TeamActivityPage() {
         {activityStats.map((stat) => {
           const Icon = stat.icon
           return (
-            <div key={stat.label} className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+            <div
+              key={stat.label}
+              className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
+            >
               <div className="flex items-center gap-3">
                 <div className="rounded-full bg-primary-50 p-3">
                   <Icon className="h-5 w-5 text-primary-600" />
@@ -172,18 +173,25 @@ export default function TeamActivityPage() {
           <h2 className="mb-4 text-xl font-semibold text-gray-900">Team Members</h2>
           <div className="space-y-4">
             {teamActivity.map((member) => (
-              <div key={member.id} className="rounded-lg border border-gray-100 p-4 hover:bg-gray-50">
+              <div
+                key={member.id}
+                className="rounded-lg border border-gray-100 p-4 hover:bg-gray-50"
+              >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     <div className="relative">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary-600 to-secondary-600 text-white font-semibold">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary-600 to-secondary-600 font-semibold text-white">
                         {member.user.avatar}
                       </div>
-                      <div className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white ${
-                        member.status === 'online' ? 'bg-green-500' :
-                        member.status === 'away' ? 'bg-yellow-500' :
-                        'bg-gray-400'
-                      }`} />
+                      <div
+                        className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white ${
+                          member.status === 'online'
+                            ? 'bg-green-500'
+                            : member.status === 'away'
+                              ? 'bg-yellow-500'
+                              : 'bg-gray-400'
+                        }`}
+                      />
                     </div>
                     <div>
                       <p className="font-medium text-gray-900">{member.user.name}</p>
@@ -219,17 +227,28 @@ export default function TeamActivityPage() {
           <h2 className="mb-4 text-xl font-semibold text-gray-900">Recent Actions</h2>
           <div className="space-y-4">
             {recentActions.map((action) => (
-              <div key={action.id} className="flex items-start gap-3 border-b border-gray-100 pb-4 last:border-0">
-                <div className={`mt-1 rounded-full p-2 ${
-                  action.type === 'course' ? 'bg-purple-100' :
-                  action.type === 'report' ? 'bg-blue-100' :
-                  'bg-orange-100'
-                }`}>
-                  <Activity className={`h-4 w-4 ${
-                    action.type === 'course' ? 'text-purple-600' :
-                    action.type === 'report' ? 'text-blue-600' :
-                    'text-orange-600'
-                  }`} />
+              <div
+                key={action.id}
+                className="flex items-start gap-3 border-b border-gray-100 pb-4 last:border-0"
+              >
+                <div
+                  className={`mt-1 rounded-full p-2 ${
+                    action.type === 'course'
+                      ? 'bg-purple-100'
+                      : action.type === 'report'
+                        ? 'bg-blue-100'
+                        : 'bg-orange-100'
+                  }`}
+                >
+                  <Activity
+                    className={`h-4 w-4 ${
+                      action.type === 'course'
+                        ? 'text-purple-600'
+                        : action.type === 'report'
+                          ? 'text-blue-600'
+                          : 'text-orange-600'
+                    }`}
+                  />
                 </div>
                 <div className="flex-1">
                   <p className="text-sm text-gray-900">

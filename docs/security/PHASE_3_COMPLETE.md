@@ -28,9 +28,11 @@ Phase 3 successfully transforms the application from role-based access control (
 ### 1. Database Migrations (4 files, 2,906 lines)
 
 #### Migration 020: Comprehensive Permissions Seed (550 lines)
+
 **Purpose:** Seed all granular permissions for PBAC system
 
 **Permissions Created:**
+
 - **AI & ML (10):** ai.chat.use, ai.coach.use, admin.ai.manage, ai.training.manage, ai.automation.manage
 - **Embeddings (6):** embeddings.generate, embeddings.search, cases.search, courses.search
 - **Courses (15):** lessons.create, lessons.update, quizzes.create, quizzes.take, certificates.issue, ce_credits.manage
@@ -43,6 +45,7 @@ Phase 3 successfully transforms the application from role-based access control (
 - **Social Features (6):** social.follow, social.join_groups, social.moderate_groups, social.review, social.moderate
 
 **Role Assignments:**
+
 - Super Admin: 100 permissions (all)
 - Admin: 85 permissions (all except system-level)
 - Manager: 45 permissions (team management, content creation)
@@ -52,9 +55,11 @@ Phase 3 successfully transforms the application from role-based access control (
 - Guest: 3 permissions (read-only)
 
 #### Migration 021: Permission-Based RLS Functions (450 lines)
+
 **Purpose:** Reusable RLS helper functions for permission checks
 
 **Functions Created:**
+
 1. **`auth.has_permission(user_id, org_id, 'permission.slug')`**
    - Returns: BOOLEAN
    - Checks single permission
@@ -106,14 +111,17 @@ Phase 3 successfully transforms the application from role-based access control (
     - Use: Role flexibility
 
 **Performance:**
+
 - All functions indexed for <1ms lookups
 - STABLE functions for query plan caching
 - SECURITY DEFINER to bypass RLS during checks
 
 #### Migration 022: Critical Table RLS Migration (750 lines)
+
 **Purpose:** Migrate 10 critical tables to permission-based RLS
 
 **Tables Migrated:**
+
 1. **profiles (9 policies)**
    - Own profile access (always)
    - View with `profiles.view` or `users.read`
@@ -175,6 +183,7 @@ Phase 3 successfully transforms the application from role-based access control (
     - Immutable logs
 
 **Policy Patterns:**
+
 - Own + Permission checks
 - Organization scoping
 - Multiple permission options (OR)
@@ -182,15 +191,18 @@ Phase 3 successfully transforms the application from role-based access control (
 - Service role bypass
 
 #### Migration 023: Feature Table RLS Migration (1,156 lines)
+
 **Purpose:** Migrate 20 feature tables to permission-based RLS
 
 **Course Progress (4 tables):**
+
 - enrollments - Enrollment tracking (7 policies)
 - lesson_progress - Progress tracking (6 policies)
 - quiz_attempts - Assessment history (6 policies)
 - quiz_responses - Individual answers (5 policies)
 
 **Gamification (11 tables):**
+
 - course_achievements - Achievement definitions (6 policies)
 - user_course_achievements - Earned badges (5 policies)
 - course_achievement_progress - Progress tracking (5 policies)
@@ -204,6 +216,7 @@ Phase 3 successfully transforms the application from role-based access control (
 - course_user_follows - Social following (5 policies)
 
 **Social & Content (5 tables):**
+
 - course_peer_reviews - Peer feedback (5 policies)
 - course_modules - Course structure (7 policies)
 - questions - Quiz questions (7 policies)
@@ -217,9 +230,11 @@ Phase 3 successfully transforms the application from role-based access control (
 ### 2. Permission Management UI (6 files, 1,260 lines)
 
 #### Types & Data Models (200 lines)
+
 **File:** `lib/types/permissions.ts`
 
 **Interfaces:**
+
 - Permission - Permission definition
 - Role - Role definition
 - RolePermission - Role-permission mapping
@@ -230,14 +245,28 @@ Phase 3 successfully transforms the application from role-based access control (
 - UserWithRoles - User with roles/permissions
 
 **Permission Categories (15):**
+
 ```typescript
 type PermissionCategory =
-  | 'ai' | 'embeddings' | 'courses' | 'cases' | 'gamification'
-  | 'organization' | 'analytics' | 'audit' | 'users' | 'roles'
-  | 'social' | 'admin' | 'compliance' | 'billing' | 'system'
+  | 'ai'
+  | 'embeddings'
+  | 'courses'
+  | 'cases'
+  | 'gamification'
+  | 'organization'
+  | 'analytics'
+  | 'audit'
+  | 'users'
+  | 'roles'
+  | 'social'
+  | 'admin'
+  | 'compliance'
+  | 'billing'
+  | 'system'
 ```
 
 **Helper Functions:**
+
 - `getPermissionCategory()` - Categorize permission
 - `groupPermissionsByCategory()` - Group permissions
 - `canAssignRole()` - Role level enforcement
@@ -245,19 +274,23 @@ type PermissionCategory =
 #### API Routes (630 lines)
 
 **1. Permissions API** (`app/api/admin/permissions/route.ts`)
+
 - GET: List all permissions (filtered by category/resource)
 - POST: Create new permission (super_admin only)
 
 **2. Roles API** (`app/api/admin/roles/route.ts`)
+
 - GET: List all roles (with optional permissions)
 - POST: Create new role (super_admin only)
 
 **3. Role Permissions API** (`app/api/admin/roles/[roleId]/permissions/route.ts`)
+
 - GET: Get permissions for a role
 - POST: Assign permission(s) to role (bulk support)
 - DELETE: Remove permission from role
 
 **Features:**
+
 - Authentication & authorization checks
 - Permission-based access control
 - Bulk operations support
@@ -268,6 +301,7 @@ type PermissionCategory =
 
 **PermissionMatrix Component** (`components/admin/PermissionMatrix.tsx`)
 **Features:**
+
 - Interactive grid (roles × permissions)
 - Real-time permission toggling
 - Category filtering (15 categories)
@@ -284,6 +318,7 @@ type PermissionCategory =
 
 **Permissions Management Page** (`app/admin/permissions-management/page.tsx`)
 **Features:**
+
 - Full admin interface at `/admin/permissions-management`
 - Header with navigation
 - Success/error messaging
@@ -297,6 +332,7 @@ type PermissionCategory =
 ---
 
 ### 3. Tenant Isolation Test Suite (1,400 lines)
+
 **File:** `tests/tenant-isolation.test.ts`
 
 **Test Coverage:**
@@ -357,6 +393,7 @@ type PermissionCategory =
 ## Security Improvements
 
 ### Before Phase 3 ❌
+
 - Hard-coded role checks: `WHERE role = 'admin'`
 - Limited permission granularity
 - 30 tables with role-based RLS
@@ -365,6 +402,7 @@ type PermissionCategory =
 - No central permission management
 
 ### After Phase 3 ✅
+
 - Permission-based checks: `auth.has_permission()`
 - 100+ granular permissions
 - 30 tables with permission-based RLS
@@ -413,12 +451,14 @@ type PermissionCategory =
 ## Implementation Statistics
 
 ### Code Metrics
+
 - **Total Lines:** 5,566
 - **SQL Migrations:** 2,906 lines (52%)
 - **TypeScript/React:** 1,260 lines (23%)
 - **Test Suite:** 1,400 lines (25%)
 
 ### Database Changes
+
 - **New Permissions:** 100+
 - **New Functions:** 10
 - **Tables Migrated:** 30
@@ -426,6 +466,7 @@ type PermissionCategory =
 - **Removed Policies:** ~150 (role-based)
 
 ### Time Investment
+
 - **Migration 020:** 1 hour
 - **Migration 021:** 1.5 hours
 - **Migration 022:** 2 hours
@@ -440,6 +481,7 @@ type PermissionCategory =
 ## Testing & Verification
 
 ### Manual Testing Checklist
+
 - [ ] Apply all migrations (020, 021, 022, 023)
 - [ ] Verify permission functions work
 - [ ] Test permission matrix UI
@@ -451,6 +493,7 @@ type PermissionCategory =
 - [ ] Test permission-based access
 
 ### Automated Testing
+
 ```bash
 # Run tenant isolation tests
 npm run test -- tenant-isolation.test.ts
@@ -464,6 +507,7 @@ npm run test -- tenant-isolation.test.ts
 ```
 
 ### Performance Testing
+
 ```sql
 -- Test permission check performance
 EXPLAIN ANALYZE
@@ -483,6 +527,7 @@ WHERE auth.has_permission(
 ## Migration Execution Plan
 
 ### Prerequisites
+
 1. Backup database
 2. Test in staging environment
 3. Schedule maintenance window (15-30 minutes)
@@ -594,7 +639,7 @@ Phase 3 successfully delivers enterprise-grade permission-based access control a
 ✅ **~300 permission-based RLS policies** replacing role-based checks  
 ✅ **Complete admin UI** for permission management  
 ✅ **Comprehensive test suite** verifying tenant isolation  
-✅ **Full documentation** for implementation and maintenance  
+✅ **Full documentation** for implementation and maintenance
 
 The system is now production-ready with significantly improved security, flexibility, and maintainability. Users can be granted specific permissions independent of their roles, and administrators have a powerful UI to manage access control without code changes.
 
@@ -602,6 +647,6 @@ The system is now production-ready with significantly improved security, flexibi
 
 ---
 
-*Phase 3 completed on January 13, 2026*  
-*Total development time: ~11.5 hours*  
-*Total code: 5,566 lines*
+_Phase 3 completed on January 13, 2026_  
+_Total development time: ~11.5 hours_  
+_Total code: 5,566 lines_

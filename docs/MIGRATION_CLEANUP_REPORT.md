@@ -5,24 +5,29 @@
 The following migration numbers have duplicate files in the `supabase/migrations/` directory:
 
 ### 018 - Courses Enhancement RLS vs Permission Check Functions
+
 - `018_courses_enhancement_rls.sql` - **CURRENT** (applied to remote)
 - `SKIP_018_permission_check_functions.sql` - Duplicate (already applied, marked as SKIP)
 
 ### 019 - AI Usage Logging vs Courses Gamification
+
 - `019_ai_usage_logging.sql` - **CURRENT** (applied to remote)
 - `SKIP_019_courses_gamification.sql` - Duplicate (already applied, marked as SKIP)
 
 ### 021 - Permission Based RLS Functions (Two Versions)
+
 - `021_permission_based_rls_functions.sql` - **CURRENT** (applied to remote)
 - `SKIP_021_permission_based_rls_functions_v2.sql` - Duplicate v2 (already applied, marked as SKIP)
 
 ### 023 - Migrate Feature Table RLS (Two Versions)
+
 - `023_migrate_feature_table_rls.sql` - **CURRENT** (applied to remote)
 - `SKIP_023_migrate_feature_table_rls_FIXED.sql` - Fixed duplicate (already applied, marked as SKIP)
 
 ### Gamification Migrations (3 duplicates)
+
 - `SKIP_20250115000009_gamification_achievements.sql` - Duplicate
-- `SKIP_20250115000010_gamification_points_rewards.sql` - Duplicate  
+- `SKIP_20250115000010_gamification_points_rewards.sql` - Duplicate
 - `SKIP_20250115000011_gamification_social.sql` - Duplicate
 
 ## Resolution Status
@@ -34,6 +39,7 @@ This prevents Supabase CLI from re-applying them while preserving the migration 
 ## Why Duplicates Exist
 
 These duplicates were created during iterative development when:
+
 1. Migrations were applied out of order
 2. Updated versions were created with same number but different content
 3. Migrations failed and were fixed, creating "FIXED" versions
@@ -43,6 +49,7 @@ The `SKIP_` prefix prevents conflicts with the remote migration history table wh
 ## Clean Migration History
 
 Current active migrations (in chronological order):
+
 ```
 000_enable_extensions.sql
 001_initial_schema.sql
@@ -94,4 +101,4 @@ Current active migrations (in chronological order):
 
 ## Recommendation
 
-Keep SKIP_ files for historical reference but they can be safely deleted if needed. They will not affect database state as they've already been applied and the remote migration history table is the source of truth.
+Keep SKIP\_ files for historical reference but they can be safely deleted if needed. They will not affect database state as they've already been applied and the remote migration history table is the source of truth.

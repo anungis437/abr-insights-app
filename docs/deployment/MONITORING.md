@@ -97,7 +97,7 @@ export function initApplicationInsights() {
   }
 
   reactPlugin = new ReactPlugin()
-  
+
   appInsights = new ApplicationInsights({
     config: {
       connectionString: process.env.NEXT_PUBLIC_APPINSIGHTS_CONNECTION_STRING,
@@ -218,7 +218,8 @@ function trackPageView(pageName: string) {
 const appInsights = require('applicationinsights')
 
 // Initialize Application Insights
-appInsights.setup(process.env.APPLICATIONINSIGHTS_CONNECTION_STRING)
+appInsights
+  .setup(process.env.APPLICATIONINSIGHTS_CONNECTION_STRING)
   .setAutoDependencyCorrelation(true)
   .setAutoCollectRequests(true)
   .setAutoCollectPerformance(true, true)
@@ -283,7 +284,7 @@ const { trackEvent, trackMetric, trackException, trackDependency } = require('..
 
 module.exports = async function (context, req) {
   const startTime = Date.now()
-  
+
   try {
     // Track function invocation
     trackEvent('ScrapeTribunalCases', {
@@ -297,12 +298,7 @@ module.exports = async function (context, req) {
     const dependencyDuration = Date.now() - dependencyStart
 
     // Track dependency
-    trackDependency(
-      'FetchTribunalCases',
-      req.body.tribunal,
-      dependencyDuration,
-      true
-    )
+    trackDependency('FetchTribunalCases', req.body.tribunal, dependencyDuration, true)
 
     // Track metrics
     trackMetric('TribunalCasesScraped', result.count)
@@ -341,7 +337,7 @@ module.exports = async function (context, req) {
 ```kql
 requests
 | where timestamp > ago(24h)
-| summarize 
+| summarize
     count(),
     avg(duration),
     percentile(duration, 95),
@@ -355,7 +351,7 @@ requests
 ```kql
 requests
 | where timestamp > ago(7d)
-| summarize 
+| summarize
     total = count(),
     errors = countif(success == false)
     by bin(timestamp, 1h)
@@ -399,7 +395,7 @@ pageViews
 ```kql
 dependencies
 | where timestamp > ago(24h)
-| summarize 
+| summarize
     count(),
     avg(duration),
     percentile(duration, 95)
@@ -413,7 +409,7 @@ dependencies
 customMetrics
 | where timestamp > ago(7d)
 | where name == "QuizScore"
-| summarize 
+| summarize
     avgScore = avg(value),
     minScore = min(value),
     maxScore = max(value)
@@ -430,10 +426,11 @@ customMetrics
 3. **Add Tiles:**
 
 **Performance Tile:**
+
 ```kql
 requests
 | where timestamp > ago(24h)
-| summarize 
+| summarize
     avg(duration),
     percentile(duration, 95)
     by bin(timestamp, 5m)
@@ -441,6 +438,7 @@ requests
 ```
 
 **User Engagement Tile:**
+
 ```kql
 customEvents
 | where timestamp > ago(24h)
@@ -450,6 +448,7 @@ customEvents
 ```
 
 **Error Rate Tile:**
+
 ```kql
 exceptions
 | where timestamp > ago(24h)
@@ -526,14 +525,14 @@ slos:
     query: |
       requests
       | summarize success_rate = countif(success == true) * 100.0 / count()
-  
+
   latency:
     target: 95% of requests under 2 seconds
     measurement: 95th percentile response time
     query: |
       requests
       | summarize p95 = percentile(duration, 95)
-  
+
   error_rate:
     target: Less than 1% error rate
     measurement: Percentage of failed requests
@@ -619,6 +618,7 @@ az monitor app-insights component update \
 ### Missing Telemetry
 
 **Check instrumentation key:**
+
 ```bash
 az monitor app-insights component show \
   --app abr-insights-app \
@@ -627,6 +627,7 @@ az monitor app-insights component show \
 ```
 
 **Verify data ingestion:**
+
 ```kql
 requests
 | where timestamp > ago(5m)
@@ -636,6 +637,7 @@ requests
 ### High Latency
 
 **Identify slow requests:**
+
 ```kql
 requests
 | where duration > 5000
@@ -646,6 +648,7 @@ requests
 ### Alert Not Firing
 
 **Check alert rule:**
+
 ```bash
 az monitor metrics alert show \
   --name "High Error Rate" \

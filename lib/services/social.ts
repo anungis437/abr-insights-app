@@ -3,238 +3,238 @@
  * Handles follows, study buddies, activity feeds, and social features
  */
 
-import { createBrowserClient } from '@supabase/ssr';
+import { createBrowserClient } from '@supabase/ssr'
 
 // =====================================================
 // Type Definitions
 // =====================================================
 
 export interface UserProfileExtended {
-  id: string;
-  user_id: string;
-  display_name?: string;
-  bio?: string;
-  tagline?: string;
-  location?: string;
-  timezone?: string;
-  website_url?: string;
-  linkedin_url?: string;
-  twitter_handle?: string;
-  github_username?: string;
-  avatar_url?: string;
-  cover_image_url?: string;
-  job_title?: string;
-  company?: string;
-  industry?: string;
-  years_of_experience?: number;
-  learning_goals?: string[];
-  interests?: string[];
-  skill_tags?: string[];
-  preferred_learning_time?: string;
-  study_pace?: string;
-  profile_visibility: string;
-  show_achievements: boolean;
-  show_progress: boolean;
-  show_activity: boolean;
-  total_courses_completed: number;
-  total_lessons_completed: number;
-  total_quiz_attempts: number;
-  total_study_time_minutes: number;
-  followers_count: number;
-  following_count: number;
-  posts_count: number;
-  helpful_answers_count: number;
-  featured_achievements?: string[];
-  custom_badges?: Record<string, any>;
-  profile_completed_percentage: number;
-  last_active_at?: string;
-  created_at: string;
-  updated_at: string;
+  id: string
+  user_id: string
+  display_name?: string
+  bio?: string
+  tagline?: string
+  location?: string
+  timezone?: string
+  website_url?: string
+  linkedin_url?: string
+  twitter_handle?: string
+  github_username?: string
+  avatar_url?: string
+  cover_image_url?: string
+  job_title?: string
+  company?: string
+  industry?: string
+  years_of_experience?: number
+  learning_goals?: string[]
+  interests?: string[]
+  skill_tags?: string[]
+  preferred_learning_time?: string
+  study_pace?: string
+  profile_visibility: string
+  show_achievements: boolean
+  show_progress: boolean
+  show_activity: boolean
+  total_courses_completed: number
+  total_lessons_completed: number
+  total_quiz_attempts: number
+  total_study_time_minutes: number
+  followers_count: number
+  following_count: number
+  posts_count: number
+  helpful_answers_count: number
+  featured_achievements?: string[]
+  custom_badges?: Record<string, any>
+  profile_completed_percentage: number
+  last_active_at?: string
+  created_at: string
+  updated_at: string
 }
 
 export interface UserFollow {
-  id: string;
-  follower_id: string;
-  following_id: string;
-  follow_type: string;
-  notify_on_activity: boolean;
-  notify_on_achievements: boolean;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
+  id: string
+  follower_id: string
+  following_id: string
+  follow_type: string
+  notify_on_activity: boolean
+  notify_on_achievements: boolean
+  is_active: boolean
+  created_at: string
+  updated_at: string
   follower?: {
-    id: string;
-    full_name: string;
-    avatar_url?: string;
-  };
+    id: string
+    full_name: string
+    avatar_url?: string
+  }
   following?: {
-    id: string;
-    full_name: string;
-    avatar_url?: string;
-  };
+    id: string
+    full_name: string
+    avatar_url?: string
+  }
 }
 
 export interface StudyBuddy {
-  id: string;
-  user_id: string;
-  buddy_id: string;
-  match_score?: number;
-  match_criteria?: Record<string, any>;
-  matched_at: string;
-  status: 'pending' | 'accepted' | 'declined' | 'ended';
-  accepted_at?: string;
-  ended_at?: string;
-  study_schedule?: Record<string, any>;
-  shared_goals?: string[];
-  target_courses?: string[];
-  last_interaction_at?: string;
-  sessions_completed: number;
-  can_message: boolean;
-  created_at: string;
-  updated_at: string;
+  id: string
+  user_id: string
+  buddy_id: string
+  match_score?: number
+  match_criteria?: Record<string, any>
+  matched_at: string
+  status: 'pending' | 'accepted' | 'declined' | 'ended'
+  accepted_at?: string
+  ended_at?: string
+  study_schedule?: Record<string, any>
+  shared_goals?: string[]
+  target_courses?: string[]
+  last_interaction_at?: string
+  sessions_completed: number
+  can_message: boolean
+  created_at: string
+  updated_at: string
   buddy?: {
-    id: string;
-    full_name: string;
-    avatar_url?: string;
-  };
+    id: string
+    full_name: string
+    avatar_url?: string
+  }
 }
 
 export interface ActivityFeedItem {
-  id: string;
-  user_id: string;
-  activity_type: string;
-  activity_title: string;
-  activity_description?: string;
-  related_type?: string;
-  related_id?: string;
-  related_data?: Record<string, any>;
-  thumbnail_url?: string;
-  likes_count: number;
-  comments_count: number;
-  shares_count: number;
-  visibility: string;
-  is_pinned: boolean;
-  is_featured: boolean;
-  created_at: string;
-  updated_at: string;
+  id: string
+  user_id: string
+  activity_type: string
+  activity_title: string
+  activity_description?: string
+  related_type?: string
+  related_id?: string
+  related_data?: Record<string, any>
+  thumbnail_url?: string
+  likes_count: number
+  comments_count: number
+  shares_count: number
+  visibility: string
+  is_pinned: boolean
+  is_featured: boolean
+  created_at: string
+  updated_at: string
   user?: {
-    id: string;
-    full_name: string;
-    avatar_url?: string;
-  };
+    id: string
+    full_name: string
+    avatar_url?: string
+  }
 }
 
 export interface ActivityReaction {
-  id: string;
-  activity_id: string;
-  user_id: string;
-  reaction_type: string;
-  created_at: string;
+  id: string
+  activity_id: string
+  user_id: string
+  reaction_type: string
+  created_at: string
 }
 
 export interface ActivityComment {
-  id: string;
-  activity_id: string;
-  user_id: string;
-  parent_comment_id?: string;
-  comment_text: string;
-  likes_count: number;
-  is_edited: boolean;
-  edited_at?: string;
-  is_deleted: boolean;
-  deleted_at?: string;
-  created_at: string;
-  updated_at: string;
+  id: string
+  activity_id: string
+  user_id: string
+  parent_comment_id?: string
+  comment_text: string
+  likes_count: number
+  is_edited: boolean
+  edited_at?: string
+  is_deleted: boolean
+  deleted_at?: string
+  created_at: string
+  updated_at: string
   user?: {
-    id: string;
-    full_name: string;
-    avatar_url?: string;
-  };
-  replies?: ActivityComment[];
+    id: string
+    full_name: string
+    avatar_url?: string
+  }
+  replies?: ActivityComment[]
 }
 
 export interface SocialShare {
-  id: string;
-  user_id: string;
-  content_type: string;
-  content_id?: string;
-  content_title?: string;
-  platform: string;
-  share_url?: string;
-  clicks_count: number;
-  conversions_count: number;
-  points_awarded: number;
-  created_at: string;
+  id: string
+  user_id: string
+  content_type: string
+  content_id?: string
+  content_title?: string
+  platform: string
+  share_url?: string
+  clicks_count: number
+  conversions_count: number
+  points_awarded: number
+  created_at: string
 }
 
 export interface GroupChallenge {
-  id: string;
-  name: string;
-  slug: string;
-  description?: string;
-  image_url?: string;
-  challenge_type: string;
-  goal_config: Record<string, any>;
-  starts_at: string;
-  ends_at: string;
-  min_participants: number;
-  max_participants?: number;
-  current_participants: number;
-  reward_config?: Record<string, any>;
-  is_public: boolean;
-  requires_invitation: boolean;
-  status: string;
-  created_by?: string;
-  created_at: string;
-  updated_at: string;
+  id: string
+  name: string
+  slug: string
+  description?: string
+  image_url?: string
+  challenge_type: string
+  goal_config: Record<string, any>
+  starts_at: string
+  ends_at: string
+  min_participants: number
+  max_participants?: number
+  current_participants: number
+  reward_config?: Record<string, any>
+  is_public: boolean
+  requires_invitation: boolean
+  status: string
+  created_by?: string
+  created_at: string
+  updated_at: string
 }
 
 export interface ChallengeParticipant {
-  id: string;
-  challenge_id: string;
-  user_id: string;
-  progress_value: number;
-  progress_percentage: number;
-  is_completed: boolean;
-  completed_at?: string;
-  rank?: number;
-  status: string;
-  joined_at: string;
-  created_at: string;
-  updated_at: string;
+  id: string
+  challenge_id: string
+  user_id: string
+  progress_value: number
+  progress_percentage: number
+  is_completed: boolean
+  completed_at?: string
+  rank?: number
+  status: string
+  joined_at: string
+  created_at: string
+  updated_at: string
   user?: {
-    id: string;
-    full_name: string;
-    avatar_url?: string;
-  };
+    id: string
+    full_name: string
+    avatar_url?: string
+  }
 }
 
 export interface StudySession {
-  id: string;
-  user_id: string;
-  session_type: string;
-  course_id?: string;
-  lesson_id?: string;
-  participants?: string[];
-  buddy_session_id?: string;
-  started_at: string;
-  ended_at?: string;
-  duration_minutes?: number;
-  focus_score?: number;
-  breaks_taken: number;
-  session_notes?: string;
-  points_earned: number;
-  created_at: string;
-  updated_at: string;
+  id: string
+  user_id: string
+  session_type: string
+  course_id?: string
+  lesson_id?: string
+  participants?: string[]
+  buddy_session_id?: string
+  started_at: string
+  ended_at?: string
+  duration_minutes?: number
+  focus_score?: number
+  breaks_taken: number
+  session_notes?: string
+  points_earned: number
+  created_at: string
+  updated_at: string
 }
 
 export interface SocialSummary {
-  followers_count: number;
-  following_count: number;
-  activity_count: number;
-  recent_activities: ActivityFeedItem[];
-  top_achievements: any[];
-  study_buddies: StudyBuddy[];
+  followers_count: number
+  following_count: number
+  activity_count: number
+  recent_activities: ActivityFeedItem[]
+  top_achievements: any[]
+  study_buddies: StudyBuddy[]
 }
 
 // =====================================================
@@ -245,7 +245,7 @@ export class SocialService {
   private supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  )
 
   // =====================================================
   // User Profiles
@@ -259,10 +259,10 @@ export class SocialService {
       .from('user_profiles_extended')
       .select('*')
       .eq('user_id', userId)
-      .single();
+      .single()
 
-    if (error && error.code !== 'PGRST116') throw error;
-    return data;
+    if (error && error.code !== 'PGRST116') throw error
+    return data
   }
 
   /**
@@ -273,10 +273,10 @@ export class SocialService {
       .from('user_profiles_extended')
       .upsert(profile, { onConflict: 'user_id' })
       .select()
-      .single();
+      .single()
 
-    if (error) throw error;
-    return data;
+    if (error) throw error
+    return data
   }
 
   /**
@@ -285,47 +285,47 @@ export class SocialService {
   async searchUsers(
     query: string,
     filters?: {
-      interests?: string[];
-      skills?: string[];
-      learningPace?: string;
-      visibility?: string;
+      interests?: string[]
+      skills?: string[]
+      learningPace?: string
+      visibility?: string
     }
   ): Promise<UserProfileExtended[]> {
-    let dbQuery = this.supabase
-      .from('user_profiles_extended')
-      .select('*');
+    let dbQuery = this.supabase.from('user_profiles_extended').select('*')
 
     if (filters?.visibility) {
-      dbQuery = dbQuery.eq('profile_visibility', filters.visibility);
+      dbQuery = dbQuery.eq('profile_visibility', filters.visibility)
     } else {
-      dbQuery = dbQuery.eq('profile_visibility', 'public');
+      dbQuery = dbQuery.eq('profile_visibility', 'public')
     }
 
     // Text search
     if (query) {
-      dbQuery = dbQuery.or(`display_name.ilike.%${query}%,bio.ilike.%${query}%,tagline.ilike.%${query}%`);
+      dbQuery = dbQuery.or(
+        `display_name.ilike.%${query}%,bio.ilike.%${query}%,tagline.ilike.%${query}%`
+      )
     }
 
     // Filter by interests
     if (filters?.interests && filters.interests.length > 0) {
-      dbQuery = dbQuery.overlaps('interests', filters.interests);
+      dbQuery = dbQuery.overlaps('interests', filters.interests)
     }
 
     // Filter by skills
     if (filters?.skills && filters.skills.length > 0) {
-      dbQuery = dbQuery.overlaps('skill_tags', filters.skills);
+      dbQuery = dbQuery.overlaps('skill_tags', filters.skills)
     }
 
     // Filter by learning pace
     if (filters?.learningPace) {
-      dbQuery = dbQuery.eq('study_pace', filters.learningPace);
+      dbQuery = dbQuery.eq('study_pace', filters.learningPace)
     }
 
-    dbQuery = dbQuery.limit(50);
+    dbQuery = dbQuery.limit(50)
 
-    const { data, error } = await dbQuery;
-    if (error) throw error;
-    return data || [];
+    const { data, error } = await dbQuery
+    if (error) throw error
+    return data || []
   }
 
   // =====================================================
@@ -338,11 +338,11 @@ export class SocialService {
   async followUser(followerId: string, followingId: string): Promise<UserFollow> {
     const { data, error } = await this.supabase.rpc('follow_user', {
       p_follower_id: followerId,
-      p_following_id: followingId
-    });
+      p_following_id: followingId,
+    })
 
-    if (error) throw error;
-    return data;
+    if (error) throw error
+    return data
   }
 
   /**
@@ -351,10 +351,10 @@ export class SocialService {
   async unfollowUser(followerId: string, followingId: string): Promise<void> {
     const { error } = await this.supabase.rpc('unfollow_user', {
       p_follower_id: followerId,
-      p_following_id: followingId
-    });
+      p_following_id: followingId,
+    })
 
-    if (error) throw error;
+    if (error) throw error
   }
 
   /**
@@ -363,17 +363,19 @@ export class SocialService {
   async getFollowers(userId: string, limit = 50, offset = 0): Promise<UserFollow[]> {
     const { data, error } = await this.supabase
       .from('user_follows')
-      .select(`
+      .select(
+        `
         *,
         follower:profiles!user_follows_follower_id_fkey(id, full_name, avatar_url)
-      `)
+      `
+      )
       .eq('following_id', userId)
       .eq('is_active', true)
       .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
+      .range(offset, offset + limit - 1)
 
-    if (error) throw error;
-    return data || [];
+    if (error) throw error
+    return data || []
   }
 
   /**
@@ -382,17 +384,19 @@ export class SocialService {
   async getFollowing(userId: string, limit = 50, offset = 0): Promise<UserFollow[]> {
     const { data, error } = await this.supabase
       .from('user_follows')
-      .select(`
+      .select(
+        `
         *,
         following:profiles!user_follows_following_id_fkey(id, full_name, avatar_url)
-      `)
+      `
+      )
       .eq('follower_id', userId)
       .eq('is_active', true)
       .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
+      .range(offset, offset + limit - 1)
 
-    if (error) throw error;
-    return data || [];
+    if (error) throw error
+    return data || []
   }
 
   /**
@@ -405,10 +409,10 @@ export class SocialService {
       .eq('follower_id', followerId)
       .eq('following_id', followingId)
       .eq('is_active', true)
-      .single();
+      .single()
 
-    if (error && error.code !== 'PGRST116') throw error;
-    return !!data;
+    if (error && error.code !== 'PGRST116') throw error
+    return !!data
   }
 
   // =====================================================
@@ -421,42 +425,45 @@ export class SocialService {
   async findStudyBuddyMatches(
     userId: string,
     preferences?: {
-      targetCourses?: string[];
-      learningPace?: string;
-      preferredTime?: string;
-      minMatchScore?: number;
+      targetCourses?: string[]
+      learningPace?: string
+      preferredTime?: string
+      minMatchScore?: number
     }
   ): Promise<UserProfileExtended[]> {
     // Get user's profile
-    const userProfile = await this.getUserProfile(userId);
-    if (!userProfile) return [];
+    const userProfile = await this.getUserProfile(userId)
+    if (!userProfile) return []
 
     let query = this.supabase
       .from('user_profiles_extended')
       .select('*')
       .neq('user_id', userId)
-      .eq('profile_visibility', 'public');
+      .eq('profile_visibility', 'public')
 
     // Match learning pace
     if (preferences?.learningPace || userProfile.study_pace) {
-      query = query.eq('study_pace', preferences?.learningPace || userProfile.study_pace);
+      query = query.eq('study_pace', preferences?.learningPace || userProfile.study_pace)
     }
 
     // Match preferred learning time
     if (preferences?.preferredTime || userProfile.preferred_learning_time) {
-      query = query.eq('preferred_learning_time', preferences?.preferredTime || userProfile.preferred_learning_time);
+      query = query.eq(
+        'preferred_learning_time',
+        preferences?.preferredTime || userProfile.preferred_learning_time
+      )
     }
 
     // Match interests
     if (userProfile.interests && userProfile.interests.length > 0) {
-      query = query.overlaps('interests', userProfile.interests);
+      query = query.overlaps('interests', userProfile.interests)
     }
 
-    query = query.limit(20);
+    query = query.limit(20)
 
-    const { data, error } = await query;
-    if (error) throw error;
-    return data || [];
+    const { data, error } = await query
+    if (error) throw error
+    return data || []
   }
 
   /**
@@ -475,13 +482,13 @@ export class SocialService {
         buddy_id: buddyId,
         shared_goals: sharedGoals,
         target_courses: targetCourses,
-        status: 'pending'
+        status: 'pending',
       })
       .select()
-      .single();
+      .single()
 
-    if (error) throw error;
-    return data;
+    if (error) throw error
+    return data
   }
 
   /**
@@ -493,14 +500,14 @@ export class SocialService {
       .update({
         status: 'accepted',
         accepted_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq('id', requestId)
       .select()
-      .single();
+      .single()
 
-    if (error) throw error;
-    return data;
+    if (error) throw error
+    return data
   }
 
   /**
@@ -511,11 +518,11 @@ export class SocialService {
       .from('study_buddies')
       .update({
         status: 'declined',
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
-      .eq('id', requestId);
+      .eq('id', requestId)
 
-    if (error) throw error;
+    if (error) throw error
   }
 
   /**
@@ -524,16 +531,18 @@ export class SocialService {
   async getStudyBuddies(userId: string, status = 'accepted'): Promise<StudyBuddy[]> {
     const { data, error } = await this.supabase
       .from('study_buddies')
-      .select(`
+      .select(
+        `
         *,
         buddy:profiles!study_buddies_buddy_id_fkey(id, full_name, avatar_url)
-      `)
+      `
+      )
       .eq('user_id', userId)
       .eq('status', status)
-      .order('accepted_at', { ascending: false });
+      .order('accepted_at', { ascending: false })
 
-    if (error) throw error;
-    return data || [];
+    if (error) throw error
+    return data || []
   }
 
   /**
@@ -542,16 +551,18 @@ export class SocialService {
   async getPendingStudyBuddyRequests(userId: string): Promise<StudyBuddy[]> {
     const { data, error } = await this.supabase
       .from('study_buddies')
-      .select(`
+      .select(
+        `
         *,
         buddy:profiles!study_buddies_user_id_fkey(id, full_name, avatar_url)
-      `)
+      `
+      )
       .eq('buddy_id', userId)
       .eq('status', 'pending')
-      .order('matched_at', { ascending: false });
+      .order('matched_at', { ascending: false })
 
-    if (error) throw error;
-    return data || [];
+    if (error) throw error
+    return data || []
   }
 
   // =====================================================
@@ -575,56 +586,52 @@ export class SocialService {
       p_activity_title: activityTitle,
       p_related_type: relatedType,
       p_related_id: relatedId,
-      p_visibility: visibility
-    });
+      p_visibility: visibility,
+    })
 
-    if (error) throw error;
-    return data;
+    if (error) throw error
+    return data
   }
 
   /**
    * Get activity feed (for user's home feed - includes followed users)
    */
-  async getActivityFeed(
-    userId: string,
-    limit = 50,
-    offset = 0
-  ): Promise<ActivityFeedItem[]> {
+  async getActivityFeed(userId: string, limit = 50, offset = 0): Promise<ActivityFeedItem[]> {
     // Get activities from followed users
     const { data, error } = await this.supabase
       .from('user_activity_feed')
-      .select(`
+      .select(
+        `
         *,
         user:profiles(id, full_name, avatar_url)
-      `)
+      `
+      )
       .or(`visibility.eq.public,user_id.eq.${userId}`)
       .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
+      .range(offset, offset + limit - 1)
 
-    if (error) throw error;
-    return data || [];
+    if (error) throw error
+    return data || []
   }
 
   /**
    * Get user's own activity
    */
-  async getUserActivity(
-    userId: string,
-    limit = 50,
-    offset = 0
-  ): Promise<ActivityFeedItem[]> {
+  async getUserActivity(userId: string, limit = 50, offset = 0): Promise<ActivityFeedItem[]> {
     const { data, error } = await this.supabase
       .from('user_activity_feed')
-      .select(`
+      .select(
+        `
         *,
         user:profiles(id, full_name, avatar_url)
-      `)
+      `
+      )
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
+      .range(offset, offset + limit - 1)
 
-    if (error) throw error;
-    return data || [];
+    if (error) throw error
+    return data || []
   }
 
   /**
@@ -640,21 +647,21 @@ export class SocialService {
       .insert({
         activity_id: activityId,
         user_id: userId,
-        reaction_type: reactionType
+        reaction_type: reactionType,
       })
       .select()
-      .single();
+      .single()
 
-    if (error) throw error;
+    if (error) throw error
 
     // Update reaction count
     await this.supabase.rpc('increment', {
       table_name: 'user_activity_feed',
       row_id: activityId,
-      column_name: 'likes_count'
-    });
+      column_name: 'likes_count',
+    })
 
-    return data;
+    return data
   }
 
   /**
@@ -665,24 +672,24 @@ export class SocialService {
       .from('activity_reactions')
       .delete()
       .eq('activity_id', activityId)
-      .eq('user_id', userId);
+      .eq('user_id', userId)
 
-    if (error) throw error;
+    if (error) throw error
 
     // Update reaction count (decrement, but don't go below 0)
     const { data: activity } = await this.supabase
       .from('user_activity_feed')
       .select('likes_count')
       .eq('id', activityId)
-      .single();
-    
+      .single()
+
     if (activity) {
       await this.supabase
         .from('user_activity_feed')
         .update({
-          likes_count: Math.max(0, (activity.likes_count || 0) - 1)
+          likes_count: Math.max(0, (activity.likes_count || 0) - 1),
         })
-        .eq('id', activityId);
+        .eq('id', activityId)
     }
   }
 
@@ -701,30 +708,30 @@ export class SocialService {
         activity_id: activityId,
         user_id: userId,
         comment_text: commentText,
-        parent_comment_id: parentCommentId
+        parent_comment_id: parentCommentId,
       })
       .select()
-      .single();
+      .single()
 
-    if (error) throw error;
+    if (error) throw error
 
     // Update comment count (increment)
     const { data: activity } = await this.supabase
       .from('user_activity_feed')
       .select('comments_count')
       .eq('id', activityId)
-      .single();
-    
+      .single()
+
     if (activity) {
       await this.supabase
         .from('user_activity_feed')
         .update({
-          comments_count: (activity.comments_count || 0) + 1
+          comments_count: (activity.comments_count || 0) + 1,
         })
-        .eq('id', activityId);
+        .eq('id', activityId)
     }
 
-    return data;
+    return data
   }
 
   /**
@@ -733,35 +740,39 @@ export class SocialService {
   async getActivityComments(activityId: string): Promise<ActivityComment[]> {
     const { data, error } = await this.supabase
       .from('activity_comments')
-      .select(`
+      .select(
+        `
         *,
         user:profiles(id, full_name, avatar_url)
-      `)
+      `
+      )
       .eq('activity_id', activityId)
       .is('parent_comment_id', null)
       .eq('is_deleted', false)
-      .order('created_at', { ascending: true });
+      .order('created_at', { ascending: true })
 
-    if (error) throw error;
+    if (error) throw error
 
     // Get replies for each comment
     const commentsWithReplies = await Promise.all(
       (data || []).map(async (comment) => {
         const { data: replies } = await this.supabase
           .from('activity_comments')
-          .select(`
+          .select(
+            `
             *,
             user:profiles(id, full_name, avatar_url)
-          `)
+          `
+          )
           .eq('parent_comment_id', comment.id)
           .eq('is_deleted', false)
-          .order('created_at', { ascending: true });
+          .order('created_at', { ascending: true })
 
-        return { ...comment, replies: replies || [] };
+        return { ...comment, replies: replies || [] }
       })
-    );
+    )
 
-    return commentsWithReplies;
+    return commentsWithReplies
   }
 
   // =====================================================
@@ -785,13 +796,13 @@ export class SocialService {
         content_type: contentType,
         content_id: contentId,
         content_title: contentTitle,
-        platform: platform
+        platform: platform,
       })
       .select()
-      .single();
+      .single()
 
-    if (error) throw error;
-    return data;
+    if (error) throw error
+    return data
   }
 
   /**
@@ -802,10 +813,10 @@ export class SocialService {
       .from('social_shares')
       .select('*')
       .eq('user_id', userId)
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
 
-    if (error) throw error;
-    return data || [];
+    if (error) throw error
+    return data || []
   }
 
   // =====================================================
@@ -821,10 +832,10 @@ export class SocialService {
       .select('*')
       .eq('is_public', true)
       .eq('status', status)
-      .order('starts_at', { ascending: false });
+      .order('starts_at', { ascending: false })
 
-    if (error) throw error;
-    return data || [];
+    if (error) throw error
+    return data || []
   }
 
   /**
@@ -836,30 +847,30 @@ export class SocialService {
       .insert({
         challenge_id: challengeId,
         user_id: userId,
-        status: 'active'
+        status: 'active',
       })
       .select()
-      .single();
+      .single()
 
-    if (error) throw error;
+    if (error) throw error
 
     // Update participant count (increment)
     const { data: challenge } = await this.supabase
       .from('group_challenges')
       .select('current_participants')
       .eq('id', challengeId)
-      .single();
-    
+      .single()
+
     if (challenge) {
       await this.supabase
         .from('group_challenges')
         .update({
-          current_participants: (challenge.current_participants || 0) + 1
+          current_participants: (challenge.current_participants || 0) + 1,
         })
-        .eq('id', challengeId);
+        .eq('id', challengeId)
     }
 
-    return data;
+    return data
   }
 
   /**
@@ -868,15 +879,17 @@ export class SocialService {
   async getChallengeParticipants(challengeId: string): Promise<ChallengeParticipant[]> {
     const { data, error } = await this.supabase
       .from('challenge_participants')
-      .select(`
+      .select(
+        `
         *,
         user:profiles(id, full_name, avatar_url)
-      `)
+      `
+      )
       .eq('challenge_id', challengeId)
-      .order('rank');
+      .order('rank')
 
-    if (error) throw error;
-    return data || [];
+    if (error) throw error
+    return data || []
   }
 
   // =====================================================
@@ -901,13 +914,13 @@ export class SocialService {
         course_id: courseId,
         lesson_id: lessonId,
         participants: participants,
-        started_at: new Date().toISOString()
+        started_at: new Date().toISOString(),
       })
       .select()
-      .single();
+      .single()
 
-    if (error) throw error;
-    return data;
+    if (error) throw error
+    return data
   }
 
   /**
@@ -918,19 +931,19 @@ export class SocialService {
     focusScore?: number,
     sessionNotes?: string
   ): Promise<StudySession> {
-    const endTime = new Date();
-    
+    const endTime = new Date()
+
     // Get session to calculate duration
     const { data: session } = await this.supabase
       .from('study_sessions')
       .select('started_at')
       .eq('id', sessionId)
-      .single();
+      .single()
 
-    let durationMinutes = 0;
+    let durationMinutes = 0
     if (session) {
-      const startTime = new Date(session.started_at);
-      durationMinutes = Math.floor((endTime.getTime() - startTime.getTime()) / 1000 / 60);
+      const startTime = new Date(session.started_at)
+      durationMinutes = Math.floor((endTime.getTime() - startTime.getTime()) / 1000 / 60)
     }
 
     const { data, error } = await this.supabase
@@ -940,14 +953,14 @@ export class SocialService {
         duration_minutes: durationMinutes,
         focus_score: focusScore,
         session_notes: sessionNotes,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq('id', sessionId)
       .select()
-      .single();
+      .single()
 
-    if (error) throw error;
-    return data;
+    if (error) throw error
+    return data
   }
 
   /**
@@ -959,10 +972,10 @@ export class SocialService {
       .select('*')
       .eq('user_id', userId)
       .order('started_at', { ascending: false })
-      .limit(limit);
+      .limit(limit)
 
-    if (error) throw error;
-    return data || [];
+    if (error) throw error
+    return data || []
   }
 
   // =====================================================
@@ -974,20 +987,22 @@ export class SocialService {
    */
   async getUserSocialSummary(userId: string): Promise<SocialSummary> {
     const { data, error } = await this.supabase.rpc('get_user_social_summary', {
-      p_user_id: userId
-    });
+      p_user_id: userId,
+    })
 
-    if (error) throw error;
-    return data?.[0] || {
-      followers_count: 0,
-      following_count: 0,
-      activity_count: 0,
-      recent_activities: [],
-      top_achievements: [],
-      study_buddies: []
-    };
+    if (error) throw error
+    return (
+      data?.[0] || {
+        followers_count: 0,
+        following_count: 0,
+        activity_count: 0,
+        recent_activities: [],
+        top_achievements: [],
+        study_buddies: [],
+      }
+    )
   }
 }
 
 // Export singleton instance
-export const socialService = new SocialService();
+export const socialService = new SocialService()

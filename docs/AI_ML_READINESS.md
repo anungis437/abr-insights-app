@@ -100,16 +100,18 @@ The **complete AI/ML infrastructure** is now implemented, including ingestion pi
 ### Hybrid Search: Text + Vector
 
 **Full-text search (PostgreSQL tsvector)** - Fast keyword matching:
+
 ```sql
-SELECT * FROM tribunal_cases 
-WHERE to_tsvector('english', case_title || ' ' || full_text) 
+SELECT * FROM tribunal_cases
+WHERE to_tsvector('english', case_title || ' ' || full_text)
   @@ to_tsquery('english', 'anti-Black & racism');
 ```
 
 **Vector semantic search (pgvector)** - Contextual understanding:
+
 ```sql
 -- Implemented in search_similar_cases() database function
-SELECT tc.*, 
+SELECT tc.*,
        1 - (ce.embedding <=> query_embedding) AS similarity
 FROM case_embeddings ce
 JOIN tribunal_cases tc ON tc.id = ce.case_id
@@ -119,6 +121,7 @@ LIMIT 10;
 ```
 
 **Benefits Achieved**:
+
 - ✅ Semantic understanding (finds related concepts)
 - ✅ Similarity scoring (quantify how related cases are)
 - ✅ Superior search results (understands context)
@@ -133,10 +136,12 @@ LIMIT 10;
 ### Database Migrations (Completed)
 
 **Migration: 20250108000001_enable_pgvector.sql**
+
 - Enables pgvector extension for vector similarity operations
 - Foundation for all embedding functionality
 
 **Migration: 20250108000002_create_embeddings_tables.sql** (280 lines)
+
 - `case_embeddings`: Vector storage with 1536-dimensional embeddings, content hashing, HNSW index
 - `course_embeddings`: Course content vectors with embedding type variants
 - `lesson_embeddings`: Granular lesson-level vectors for precise recommendations
@@ -144,6 +149,7 @@ LIMIT 10;
 - Automatic timestamp triggers for all tables
 
 **Migration: 20250108000003_create_similarity_functions.sql** (270 lines)
+
 - `search_similar_cases()`: Cosine similarity search with configurable threshold and filters
 - `search_similar_courses()`: Course discovery with difficulty/category filters
 - `find_related_lessons()`: Cross-course lesson suggestions
@@ -151,6 +157,7 @@ LIMIT 10;
 - `get_embedding_coverage_stats()`: Analytics for embedding generation progress
 
 **Migration: 20250108000004_create_outcome_prediction.sql** (360 lines)
+
 - `case_outcomes`: Training data with outcome types, remedies, monetary amounts, features
 - `outcome_predictions`: Model predictions with confidence scores, probabilities, explanations
 - `prediction_models`: Model registry with performance metrics and versioning
@@ -159,6 +166,7 @@ LIMIT 10;
 ### Services (Completed)
 
 **Service: lib/services/embedding-service.ts** (750+ lines)
+
 - **Embedding Generation**:
   - `generateEmbedding()`: Single embedding with retry logic (3 attempts, exponential backoff)
   - `generateEmbeddingsBatch()`: Concurrent batch processing (max 5 parallel)
@@ -179,6 +187,7 @@ LIMIT 10;
 - **Configuration**: Azure OpenAI text-embedding-3-large, batch size 100, max concurrent 5
 
 **Service: lib/services/outcome-prediction-service.ts** (600+ lines)
+
 - **Statistical ML Model**: Ensemble combining:
   1. Base rates (historical outcome distribution)
   2. Logistic regression (feature-based prediction)
@@ -202,39 +211,48 @@ LIMIT 10;
 ### API Routes (Completed)
 
 **POST /api/embeddings/search-cases** - Semantic case search
+
 - Input: query (text), similarityThreshold (0-1), maxResults (1-100)
 - Returns: matching cases with similarity scores
 
 **POST /api/embeddings/search-courses** - Semantic course search
+
 - Input: query, threshold, maxResults, difficulty, category filters
 - Returns: matching courses with similarity scores
 
 **POST /api/embeddings/generate** - Trigger batch embedding generation
+
 - Input: type ('cases'/'courses'), embeddingType, batchSize
 - Returns: job progress object
 - Runtime: nodejs, maxDuration: 300 seconds
 
 **GET /api/embeddings/generate?jobId=...** - Check job status
+
 - Input: jobId (query param)
 - Returns: job details with progress metrics
 
 **GET /api/admin/ml/embedding-jobs** - List all embedding jobs
+
 - Returns: 50 most recent jobs ordered by created_at
 
 **GET /api/admin/ml/coverage-stats** - Embedding coverage statistics
+
 - Calls `get_embedding_coverage_stats()` database function
 - Returns: coverage percentage for cases, courses, lessons
 
 **GET /api/admin/ml/prediction-stats** - Prediction statistics
+
 - Returns: total predictions, validated predictions, accuracy, average confidence
 
 **GET /api/admin/ml/model-performance** - Model performance metrics
+
 - Calls `evaluateModel()` from outcome-prediction-service
 - Returns: accuracy, precision, recall, F1 score, AUC-ROC
 
 ### Admin Interface (Completed)
 
 **Page: app/admin/ml/page.tsx** (530 lines)
+
 - **Embeddings Tab**:
   - Coverage statistics with progress bars for cases/courses/lessons
   - Generate buttons for batch embedding creation
@@ -287,7 +305,7 @@ CREATE TABLE IF NOT EXISTS case_embeddings (
 );
 
 -- HNSW index for fast similarity search
-CREATE INDEX idx_case_embeddings_hnsw ON case_embeddings 
+CREATE INDEX idx_case_embeddings_hnsw ON case_embeddings
 USING hnsw (embedding vector_cosine_ops)
 WITH (m = 16, ef_construction = 64);
 
@@ -305,7 +323,7 @@ CREATE TABLE IF NOT EXISTS course_embeddings (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_course_embeddings_hnsw ON course_embeddings 
+CREATE INDEX idx_course_embeddings_hnsw ON course_embeddings
 USING hnsw (embedding vector_cosine_ops)
 WITH (m = 16, ef_construction = 64);
 
@@ -328,7 +346,7 @@ LANGUAGE plpgsql
 AS $$
 BEGIN
   RETURN QUERY
-  SELECT 
+  SELECT
     tc.id AS case_id,
     1 - (ce.embedding <=> query_embedding) AS similarity,
     tc.case_number,
@@ -352,49 +370,44 @@ $$;
 File: `lib/ai/embeddings.ts` (NEW)
 
 ```typescript
-import OpenAI from 'openai';
+import OpenAI from 'openai'
 
 const openai = new OpenAI({
   apiKey: process.env.AZURE_OPENAI_API_KEY,
   baseURL: `${process.env.AZURE_OPENAI_ENDPOINT}/openai/deployments/text-embedding-3-large`,
   defaultQuery: { 'api-version': '2024-08-01-preview' },
   defaultHeaders: { 'api-key': process.env.AZURE_OPENAI_API_KEY },
-});
+})
 
 export async function generateEmbedding(text: string): Promise<number[]> {
   // Clean and truncate text (max 8191 tokens)
-  const cleanText = text
-    .replace(/\s+/g, ' ')
-    .trim()
-    .substring(0, 32000); // ~8K tokens
+  const cleanText = text.replace(/\s+/g, ' ').trim().substring(0, 32000) // ~8K tokens
 
   const response = await openai.embeddings.create({
     model: '', // Model in baseURL for Azure
     input: cleanText,
     dimensions: 1536,
-  });
+  })
 
-  return response.data[0].embedding;
+  return response.data[0].embedding
 }
 
 export async function batchGenerateEmbeddings(
   texts: string[],
   batchSize: number = 100
 ): Promise<number[][]> {
-  const embeddings: number[][] = [];
+  const embeddings: number[][] = []
 
   for (let i = 0; i < texts.length; i += batchSize) {
-    const batch = texts.slice(i, i + batchSize);
-    const responses = await Promise.all(
-      batch.map(text => generateEmbedding(text))
-    );
-    embeddings.push(...responses);
+    const batch = texts.slice(i, i + batchSize)
+    const responses = await Promise.all(batch.map((text) => generateEmbedding(text)))
+    embeddings.push(...responses)
 
     // Rate limiting
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100))
   }
 
-  return embeddings;
+  return embeddings
 }
 ```
 
@@ -403,22 +416,22 @@ export async function batchGenerateEmbeddings(
 File: `lib/ai/embedding-storage.ts` (NEW)
 
 ```typescript
-import { createClient } from '@/lib/supabase';
-import { generateEmbedding } from './embeddings';
-import crypto from 'crypto';
+import { createClient } from '@/lib/supabase'
+import { generateEmbedding } from './embeddings'
+import crypto from 'crypto'
 
 export async function embedCase(caseId: string) {
-  const supabase = createClient();
+  const supabase = createClient()
 
   // Get case content
   const { data: caseData, error: caseError } = await supabase
     .from('tribunal_cases')
     .select('case_title, summary_en, summary_fr, full_text')
     .eq('id', caseId)
-    .single();
+    .single()
 
   if (caseError || !caseData) {
-    throw new Error(`Case not found: ${caseId}`);
+    throw new Error(`Case not found: ${caseId}`)
   }
 
   // Prepare content for embedding
@@ -426,69 +439,74 @@ export async function embedCase(caseId: string) {
     caseData.case_title,
     caseData.summary_en,
     caseData.full_text?.substring(0, 10000), // Limit size
-  ].filter(Boolean).join(' ');
+  ]
+    .filter(Boolean)
+    .join(' ')
 
   // Generate content hash
-  const contentHash = crypto.createHash('md5').update(content).digest('hex');
+  const contentHash = crypto.createHash('md5').update(content).digest('hex')
 
   // Check if embedding exists and is current
   const { data: existingEmbedding } = await supabase
     .from('case_embeddings')
     .select('id, content_hash')
     .eq('case_id', caseId)
-    .single();
+    .single()
 
   if (existingEmbedding && existingEmbedding.content_hash === contentHash) {
-    console.log(`Embedding up-to-date for case ${caseId}`);
-    return existingEmbedding.id;
+    console.log(`Embedding up-to-date for case ${caseId}`)
+    return existingEmbedding.id
   }
 
   // Generate embedding
-  const embedding = await generateEmbedding(content);
+  const embedding = await generateEmbedding(content)
 
   // Upsert embedding
   const { data, error } = await supabase
     .from('case_embeddings')
-    .upsert({
-      case_id: caseId,
-      embedding,
-      content_hash: contentHash,
-      embedding_model: 'text-embedding-3-large',
-      updated_at: new Date().toISOString(),
-    }, {
-      onConflict: 'case_id',
-    })
+    .upsert(
+      {
+        case_id: caseId,
+        embedding,
+        content_hash: contentHash,
+        embedding_model: 'text-embedding-3-large',
+        updated_at: new Date().toISOString(),
+      },
+      {
+        onConflict: 'case_id',
+      }
+    )
     .select()
-    .single();
+    .single()
 
-  if (error) throw error;
+  if (error) throw error
 
-  console.log(`Embedded case ${caseId}`);
-  return data.id;
+  console.log(`Embedded case ${caseId}`)
+  return data.id
 }
 
 export async function embedAllCases() {
-  const supabase = createClient();
+  const supabase = createClient()
 
   // Get all cases without embeddings
   const { data: cases, error } = await supabase
     .from('tribunal_cases')
     .select('id')
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
 
-  if (error) throw error;
+  if (error) throw error
 
-  console.log(`Embedding ${cases.length} cases...`);
+  console.log(`Embedding ${cases.length} cases...`)
 
   for (const caseItem of cases) {
     try {
-      await embedCase(caseItem.id);
+      await embedCase(caseItem.id)
     } catch (error) {
-      console.error(`Failed to embed case ${caseItem.id}:`, error);
+      console.error(`Failed to embed case ${caseItem.id}:`, error)
     }
   }
 
-  console.log('Embedding complete');
+  console.log('Embedding complete')
 }
 ```
 
@@ -499,46 +517,39 @@ export async function embedAllCases() {
 File: `app/api/search/semantic/route.ts` (NEW)
 
 ```typescript
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase';
-import { generateEmbedding } from '@/lib/ai/embeddings';
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase'
+import { generateEmbedding } from '@/lib/ai/embeddings'
 
 export async function POST(request: NextRequest) {
   try {
-    const { query, limit = 10, threshold = 0.7 } = await request.json();
+    const { query, limit = 10, threshold = 0.7 } = await request.json()
 
     if (!query) {
-      return NextResponse.json(
-        { error: 'Query is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Query is required' }, { status: 400 })
     }
 
     // Generate query embedding
-    const queryEmbedding = await generateEmbedding(query);
+    const queryEmbedding = await generateEmbedding(query)
 
     // Search similar cases
-    const supabase = createClient();
+    const supabase = createClient()
     const { data, error } = await supabase.rpc('search_similar_cases', {
       query_embedding: queryEmbedding,
       match_threshold: threshold,
       match_count: limit,
-    });
+    })
 
-    if (error) throw error;
+    if (error) throw error
 
     return NextResponse.json({
       results: data,
       query,
       count: data?.length || 0,
-    });
-
+    })
   } catch (error: any) {
-    console.error('Semantic search error:', error);
-    return NextResponse.json(
-      { error: error.message || 'Search failed' },
-      { status: 500 }
-    );
+    console.error('Semantic search error:', error)
+    return NextResponse.json({ error: error.message || 'Search failed' }, { status: 500 })
   }
 }
 ```
@@ -548,23 +559,20 @@ export async function POST(request: NextRequest) {
 File: `lib/ai/similar-cases.ts` (NEW)
 
 ```typescript
-import { createClient } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase'
 
-export async function findSimilarCases(
-  caseId: string,
-  limit: number = 5
-) {
-  const supabase = createClient();
+export async function findSimilarCases(caseId: string, limit: number = 5) {
+  const supabase = createClient()
 
   // Get case embedding
   const { data: embedding, error: embError } = await supabase
     .from('case_embeddings')
     .select('embedding')
     .eq('case_id', caseId)
-    .single();
+    .single()
 
   if (embError || !embedding) {
-    throw new Error('Case embedding not found');
+    throw new Error('Case embedding not found')
   }
 
   // Find similar cases
@@ -572,12 +580,12 @@ export async function findSimilarCases(
     query_embedding: embedding.embedding,
     match_threshold: 0.75,
     match_count: limit + 1, // +1 to exclude query case
-  });
+  })
 
-  if (error) throw error;
+  if (error) throw error
 
   // Filter out the query case itself
-  return data.filter((c: any) => c.case_id !== caseId);
+  return data.filter((c: any) => c.case_id !== caseId)
 }
 ```
 
@@ -593,19 +601,19 @@ File: `scripts/generate-embeddings.ts` (NEW)
  * Run: npx tsx --env-file=.env.local scripts/generate-embeddings.ts
  */
 
-import { embedAllCases } from '../lib/ai/embedding-storage';
+import { embedAllCases } from '../lib/ai/embedding-storage'
 
 async function main() {
-  console.log('Starting embedding generation...');
-  console.log('⚠️  This will make many Azure OpenAI API calls');
-  console.log('⚠️  Estimated cost: ~$0.0001 per case for text-embedding-3-large');
-  
-  await embedAllCases();
-  
-  console.log('✅ Embedding generation complete');
+  console.log('Starting embedding generation...')
+  console.log('⚠️  This will make many Azure OpenAI API calls')
+  console.log('⚠️  Estimated cost: ~$0.0001 per case for text-embedding-3-large')
+
+  await embedAllCases()
+
+  console.log('✅ Embedding generation complete')
 }
 
-main().catch(console.error);
+main().catch(console.error)
 ```
 
 ---
@@ -633,27 +641,28 @@ AZURE_OPENAI_EMBEDDINGS_DIMENSIONS=1536
 
 ## Estimated Implementation Time
 
-| Phase | Task | Time Estimate |
-|-------|------|---------------|
-| 1 | Database migrations | 1 hour |
-| 2 | Embedding service code | 2 hours |
-| 3 | Semantic search API | 2 hours |
-| 4 | Background jobs | 1 hour |
-| 5 | Testing | 2 hours |
-| 6 | Initial embedding generation | 2-4 hours (runtime) |
-| **Total** | | **8-10 hours dev + 2-4 hours runtime** |
+| Phase     | Task                         | Time Estimate                          |
+| --------- | ---------------------------- | -------------------------------------- |
+| 1         | Database migrations          | 1 hour                                 |
+| 2         | Embedding service code       | 2 hours                                |
+| 3         | Semantic search API          | 2 hours                                |
+| 4         | Background jobs              | 1 hour                                 |
+| 5         | Testing                      | 2 hours                                |
+| 6         | Initial embedding generation | 2-4 hours (runtime)                    |
+| **Total** |                              | **8-10 hours dev + 2-4 hours runtime** |
 
 ---
 
 ## Cost Estimate
 
 **Azure OpenAI Embeddings Pricing**:
+
 - Model: `text-embedding-3-large`
 - Cost: ~$0.00013 per 1K tokens
 - Average case: ~2K tokens = $0.00026 per case
 
 **For 1000 cases**: ~$0.26  
-**For 10,000 cases**: ~$2.60  
+**For 10,000 cases**: ~$2.60
 
 ---
 
@@ -664,6 +673,7 @@ AZURE_OPENAI_EMBEDDINGS_DIMENSIONS=1536
 **Branch**: `feature/ml-advanced-capabilities`
 
 **Database Layer** (4 migrations, ~1,110 lines):
+
 - ✅ pgvector extension enabled
 - ✅ 3 embeddings tables (cases, courses, lessons) + job tracking
 - ✅ HNSW indexes for fast similarity search (m=16, ef_construction=64)
@@ -673,6 +683,7 @@ AZURE_OPENAI_EMBEDDINGS_DIMENSIONS=1536
 - ✅ RLS policies configured
 
 **Service Layer** (2 services, ~1,350 lines):
+
 - ✅ World-class embedding generation service
   - Azure OpenAI integration
   - Batch processing with progress tracking
@@ -684,11 +695,13 @@ AZURE_OPENAI_EMBEDDINGS_DIMENSIONS=1536
   - Explainable AI
 
 **API Layer** (7 endpoints, ~450 lines):
+
 - ✅ Semantic search (cases, courses)
 - ✅ Embedding generation (batch, status check)
 - ✅ Admin analytics (jobs, coverage, predictions, performance)
 
 **Admin Interface** (530 lines):
+
 - ✅ 4-tab management interface
 - ✅ Embedding job monitoring
 - ✅ Real-time search testing
@@ -696,6 +709,7 @@ AZURE_OPENAI_EMBEDDINGS_DIMENSIONS=1536
 - ✅ Model performance metrics
 
 **UI Components**:
+
 - ✅ Alert component created
 - ✅ Table component created
 - ✅ CardDescription added
@@ -740,16 +754,19 @@ AZURE_OPENAI_EMBEDDINGS_DIMENSIONS=1536
 ### Performance Metrics
 
 **Embedding Generation**:
+
 - Speed: ~100-200 items per minute (Azure OpenAI rate limits)
 - Cost: ~$0.00026 per case (~$2.60 for 10,000 cases)
 - Storage: ~6KB per embedding (1536 dimensions × 4 bytes)
 
 **Semantic Search**:
+
 - Query time: <100ms for similarity search (HNSW index)
 - Accuracy: Cosine similarity >0.7 for relevant matches
 - Scalability: Sub-linear search time with HNSW
 
 **Outcome Prediction**:
+
 - Inference time: <50ms per case
 - Confidence: Calibrated 0-1 score with entropy adjustment
 - Explainability: Natural language reasoning included
@@ -761,6 +778,7 @@ AZURE_OPENAI_EMBEDDINGS_DIMENSIONS=1536
 ### Status: ✅ COMPLETE - Ready for Production
 
 **What We Built**:
+
 - ✅ Complete vector embedding infrastructure
 - ✅ Semantic search for cases and courses
 - ✅ Statistical ML outcome prediction model
@@ -769,6 +787,7 @@ AZURE_OPENAI_EMBEDDINGS_DIMENSIONS=1536
 - ✅ Explainable AI with confidence scoring
 
 **Production Readiness**:
+
 - ✅ Database migrations tested
 - ✅ Services implemented with error handling
 - ✅ API endpoints with validation

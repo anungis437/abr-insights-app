@@ -1,8 +1,8 @@
 /**
  * API Route: Search Similar Courses
- * 
+ *
  * POST /api/embeddings/search-courses
- * 
+ *
  * Performs semantic similarity search for courses using vector embeddings
  */
 
@@ -19,22 +19,13 @@ export const POST = withRateLimit(
     async (request, context) => {
       // Lazy load to avoid build-time initialization
       const { searchSimilarCoursesByText } = await import('@/lib/services/embedding-service')
-      
+
       const body = await request.json()
-      const {
-        query,
-        similarityThreshold = 0.7,
-        maxResults = 10,
-        difficulty,
-        category,
-      } = body
+      const { query, similarityThreshold = 0.7, maxResults = 10, difficulty, category } = body
 
       // Validate query
       if (!query || typeof query !== 'string' || query.trim().length === 0) {
-        return NextResponse.json(
-          { error: 'Query text is required' },
-          { status: 400 }
-        )
+        return NextResponse.json({ error: 'Query text is required' }, { status: 400 })
       }
 
       if (query.length > 2000) {
@@ -78,7 +69,7 @@ export const POST = withRateLimit(
     {
       requireAuth: true,
       requireOrg: true,
-      anyPermissions: ['courses.search', 'embeddings.search']
+      anyPermissions: ['courses.search', 'embeddings.search'],
     }
   )
 )

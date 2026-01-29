@@ -110,14 +110,14 @@ This document outlines the comprehensive AI/ML architecture for the ABR Insights
 
 ```typescript
 // config/azure-openai.ts
-import { AzureOpenAI } from 'openai';
+import { AzureOpenAI } from 'openai'
 
 export const azureOpenAI = new AzureOpenAI({
   apiKey: process.env.AZURE_OPENAI_API_KEY,
   endpoint: process.env.AZURE_OPENAI_ENDPOINT,
   apiVersion: '2024-08-01-preview',
   deployment: 'gpt-4o',
-});
+})
 
 // Configuration profiles
 export const AI_CONFIGS = {
@@ -145,7 +145,7 @@ export const AI_CONFIGS = {
     model: 'text-embedding-3-large',
     dimensions: 1536,
   },
-};
+}
 ```
 
 ### Use Cases
@@ -154,7 +154,7 @@ export const AI_CONFIGS = {
 
 ```typescript
 // services/ai/chat-assistant.ts
-import { azureOpenAI, AI_CONFIGS } from '../../config/azure-openai';
+import { azureOpenAI, AI_CONFIGS } from '../../config/azure-openai'
 
 export async function getChatResponse(
   userMessage: string,
@@ -165,20 +165,20 @@ export async function getChatResponse(
 specializing in Canadian human rights law, anti-Black racism, and tribunal decisions. 
 You provide accurate, empathetic, and actionable guidance to users.
 
-${context ? `Context: ${context}` : ''}`;
+${context ? `Context: ${context}` : ''}`
 
   const messages = [
     { role: 'system', content: systemPrompt },
     ...conversationHistory,
     { role: 'user', content: userMessage },
-  ];
+  ]
 
   const completion = await azureOpenAI.chat.completions.create({
     messages,
     ...AI_CONFIGS.chat,
-  });
+  })
 
-  return completion.choices[0].message.content || '';
+  return completion.choices[0].message.content || ''
 }
 ```
 
@@ -190,10 +190,10 @@ export async function summarizeCase(
   caseText: string,
   language: 'en' | 'fr' = 'en'
 ): Promise<{
-  summary: string;
-  keyPoints: string[];
-  outcome: string;
-  significance: string;
+  summary: string
+  keyPoints: string[]
+  outcome: string
+  significance: string
 }> {
   const prompt = `Analyze this human rights tribunal decision and provide:
 
@@ -211,15 +211,15 @@ Respond in ${language === 'fr' ? 'French' : 'English'} using JSON format:
   "keyPoints": ["...", "..."],
   "outcome": "...",
   "significance": "high|medium|low"
-}`;
+}`
 
   const completion = await azureOpenAI.chat.completions.create({
     messages: [{ role: 'user', content: prompt }],
     ...AI_CONFIGS.summarization,
     responseFormat: { type: 'json_object' },
-  });
+  })
 
-  return JSON.parse(completion.choices[0].message.content || '{}');
+  return JSON.parse(completion.choices[0].message.content || '{}')
 }
 ```
 
@@ -232,10 +232,10 @@ export async function generateTrainingContent(
   learningLevel: 'beginner' | 'intermediate' | 'advanced',
   duration: number // minutes
 ): Promise<{
-  title: string;
-  content: string;
-  objectives: string[];
-  quiz: Array<{ question: string; options: string[]; correctAnswer: number }>;
+  title: string
+  content: string
+  objectives: string[]
+  quiz: Array<{ question: string; options: string[]; correctAnswer: number }>
 }> {
   const prompt = `Create a ${duration}-minute training module on: ${topic}
 
@@ -247,7 +247,7 @@ Include:
 3. 3-5 learning objectives
 4. A 5-question multiple-choice quiz
 
-Respond in JSON format with proper structure.`;
+Respond in JSON format with proper structure.`
 
   const completion = await azureOpenAI.chat.completions.create({
     messages: [{ role: 'user', content: prompt }],
@@ -255,9 +255,9 @@ Respond in JSON format with proper structure.`;
     temperature: 0.7,
     maxTokens: 4096,
     responseFormat: { type: 'json_object' },
-  });
+  })
 
-  return JSON.parse(completion.choices[0].message.content || '{}');
+  return JSON.parse(completion.choices[0].message.content || '{}')
 }
 ```
 
@@ -269,39 +269,37 @@ Respond in JSON format with proper structure.`;
 
 ```typescript
 // services/ai/embeddings.ts
-import { azureOpenAI, AI_CONFIGS } from '../../config/azure-openai';
+import { azureOpenAI, AI_CONFIGS } from '../../config/azure-openai'
 
 export async function generateEmbedding(text: string): Promise<number[]> {
   // Clean and truncate text (max 8191 tokens for text-embedding-3-large)
-  const cleanText = text.replace(/\s+/g, ' ').trim().substring(0, 32000);
+  const cleanText = text.replace(/\s+/g, ' ').trim().substring(0, 32000)
 
   const response = await azureOpenAI.embeddings.create({
     model: AI_CONFIGS.embeddings.model,
     input: cleanText,
     dimensions: AI_CONFIGS.embeddings.dimensions,
-  });
+  })
 
-  return response.data[0].embedding;
+  return response.data[0].embedding
 }
 
 export async function batchGenerateEmbeddings(
   texts: string[],
   batchSize: number = 100
 ): Promise<number[][]> {
-  const embeddings: number[][] = [];
+  const embeddings: number[][] = []
 
   for (let i = 0; i < texts.length; i += batchSize) {
-    const batch = texts.slice(i, i + batchSize);
-    const responses = await Promise.all(
-      batch.map(text => generateEmbedding(text))
-    );
-    embeddings.push(...responses);
+    const batch = texts.slice(i, i + batchSize)
+    const responses = await Promise.all(batch.map((text) => generateEmbedding(text)))
+    embeddings.push(...responses)
 
     // Rate limiting
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100))
   }
 
-  return embeddings;
+  return embeddings
 }
 ```
 
@@ -323,7 +321,7 @@ CREATE TABLE case_embeddings (
 );
 
 -- Create HNSW index for fast similarity search
-CREATE INDEX idx_case_embeddings_hnsw ON case_embeddings 
+CREATE INDEX idx_case_embeddings_hnsw ON case_embeddings
 USING hnsw (embedding vector_cosine_ops)
 WITH (m = 16, ef_construction = 64);
 
@@ -336,7 +334,7 @@ CREATE TABLE course_embeddings (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_course_embeddings_hnsw ON course_embeddings 
+CREATE INDEX idx_course_embeddings_hnsw ON course_embeddings
 USING hnsw (embedding vector_cosine_ops)
 WITH (m = 16, ef_construction = 64);
 ```
@@ -345,45 +343,47 @@ WITH (m = 16, ef_construction = 64);
 
 ```typescript
 // services/ai/semantic-search.ts
-import { supabase } from '../../lib/supabase';
-import { generateEmbedding } from './embeddings';
+import { supabase } from '../../lib/supabase'
+import { generateEmbedding } from './embeddings'
 
 export async function semanticSearchCases(
   query: string,
   limit: number = 10,
   filters?: {
-    yearFrom?: number;
-    yearTo?: number;
-    tribunal?: string;
-    raceCategory?: string;
+    yearFrom?: number
+    yearTo?: number
+    tribunal?: string
+    raceCategory?: string
   }
-): Promise<Array<{
-  case_id: string;
-  similarity: number;
-  case_data: any;
-}>> {
+): Promise<
+  Array<{
+    case_id: string
+    similarity: number
+    case_data: any
+  }>
+> {
   // Generate query embedding
-  const queryEmbedding = await generateEmbedding(query);
+  const queryEmbedding = await generateEmbedding(query)
 
   // Build filter conditions
-  let filterSQL = '';
-  const filterParams: any = { limit };
+  let filterSQL = ''
+  const filterParams: any = { limit }
 
   if (filters?.yearFrom) {
-    filterSQL += ' AND tc.year >= :yearFrom';
-    filterParams.yearFrom = filters.yearFrom;
+    filterSQL += ' AND tc.year >= :yearFrom'
+    filterParams.yearFrom = filters.yearFrom
   }
   if (filters?.yearTo) {
-    filterSQL += ' AND tc.year <= :yearTo';
-    filterParams.yearTo = filters.yearTo;
+    filterSQL += ' AND tc.year <= :yearTo'
+    filterParams.yearTo = filters.yearTo
   }
   if (filters?.tribunal) {
-    filterSQL += ' AND tc.tribunal = :tribunal';
-    filterParams.tribunal = filters.tribunal;
+    filterSQL += ' AND tc.tribunal = :tribunal'
+    filterParams.tribunal = filters.tribunal
   }
   if (filters?.raceCategory) {
-    filterSQL += ' AND tc.race_category = :raceCategory';
-    filterParams.raceCategory = filters.raceCategory;
+    filterSQL += ' AND tc.race_category = :raceCategory'
+    filterParams.raceCategory = filters.raceCategory
   }
 
   // Execute similarity search
@@ -393,11 +393,11 @@ export async function semanticSearchCases(
     match_count: limit,
     filter_conditions: filterSQL,
     filter_params: filterParams,
-  });
+  })
 
-  if (error) throw error;
+  if (error) throw error
 
-  return data;
+  return data
 }
 ```
 
@@ -422,7 +422,7 @@ AS $$
 BEGIN
   RETURN QUERY
   EXECUTE format(
-    'SELECT 
+    'SELECT
       tc.id AS case_id,
       1 - (ce.embedding <=> $1) AS similarity,
       jsonb_build_object(
@@ -454,20 +454,18 @@ $$;
 ```typescript
 // services/ai/classifier.ts
 interface ClassificationResult {
-  isRaceRelated: boolean;
-  raceConfidence: number;
-  isAntiBlackLikely: boolean;
-  antiBlackConfidence: number;
-  protectedGrounds: string[];
-  discriminationTypes: string[];
-  sentiment: 'positive' | 'neutral' | 'negative';
-  urgency: 'low' | 'medium' | 'high';
-  reasoning: string;
+  isRaceRelated: boolean
+  raceConfidence: number
+  isAntiBlackLikely: boolean
+  antiBlackConfidence: number
+  protectedGrounds: string[]
+  discriminationTypes: string[]
+  sentiment: 'positive' | 'neutral' | 'negative'
+  urgency: 'low' | 'medium' | 'high'
+  reasoning: string
 }
 
-export async function classifyCase(
-  caseText: string
-): Promise<ClassificationResult> {
+export async function classifyCase(caseText: string): Promise<ClassificationResult> {
   const prompt = `Analyze this Canadian human rights tribunal decision.
 
 Decision text:
@@ -494,7 +492,7 @@ Respond in JSON format:
   "sentiment": "positive|neutral|negative",
   "urgency": "low|medium|high",
   "reasoning": ""
-}`;
+}`
 
   const completion = await azureOpenAI.chat.completions.create({
     messages: [
@@ -505,9 +503,9 @@ Respond in JSON format:
       { role: 'user', content: prompt },
     ],
     ...AI_CONFIGS.classification,
-  });
+  })
 
-  return JSON.parse(completion.choices[0].message.content || '{}');
+  return JSON.parse(completion.choices[0].message.content || '{}')
 }
 ```
 
@@ -515,12 +513,9 @@ Respond in JSON format:
 
 ```typescript
 // services/ai/batch-classifier.ts
-export async function batchClassifyCases(
-  caseIds: string[],
-  batchSize: number = 10
-): Promise<void> {
+export async function batchClassifyCases(caseIds: string[], batchSize: number = 10): Promise<void> {
   for (let i = 0; i < caseIds.length; i += batchSize) {
-    const batch = caseIds.slice(i, i + batchSize);
+    const batch = caseIds.slice(i, i + batchSize)
 
     await Promise.all(
       batch.map(async (caseId) => {
@@ -529,11 +524,11 @@ export async function batchClassifyCases(
             .from('tribunal_cases')
             .select('id, title, summary_en')
             .eq('id', caseId)
-            .single();
+            .single()
 
-          if (!caseData) return;
+          if (!caseData) return
 
-          const classification = await classifyCase(caseData.summary_en);
+          const classification = await classifyCase(caseData.summary_en)
 
           await supabase
             .from('tribunal_cases')
@@ -544,17 +539,17 @@ export async function batchClassifyCases(
               ai_classification_confidence: classification.raceConfidence,
               updated_at: new Date().toISOString(),
             })
-            .eq('id', caseId);
+            .eq('id', caseId)
 
-          console.log(`✓ Classified case ${caseId}`);
+          console.log(`✓ Classified case ${caseId}`)
         } catch (error) {
-          console.error(`Error classifying case ${caseId}:`, error);
+          console.error(`Error classifying case ${caseId}:`, error)
         }
       })
-    );
+    )
 
     // Rate limiting
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000))
   }
 }
 ```
@@ -567,33 +562,33 @@ export async function batchClassifyCases(
 
 ```typescript
 // services/ai/recommendations.ts
-import { supabase } from '../../lib/supabase';
-import { generateEmbedding } from './embeddings';
+import { supabase } from '../../lib/supabase'
+import { generateEmbedding } from './embeddings'
 
-export async function getPersonalizedLearningPath(
-  userId: string
-): Promise<Array<{
-  course_id: string;
-  reason: string;
-  priority: number;
-}>> {
+export async function getPersonalizedLearningPath(userId: string): Promise<
+  Array<{
+    course_id: string
+    reason: string
+    priority: number
+  }>
+> {
   // Get user profile and history
   const { data: profile } = await supabase
     .from('profiles')
     .select('role, organization_id')
     .eq('id', userId)
-    .single();
+    .single()
 
   const { data: progress } = await supabase
     .from('progress')
     .select('course_id, completion_percentage, quiz_score')
-    .eq('user_id', userId);
+    .eq('user_id', userId)
 
   const { data: achievements } = await supabase
     .from('user_achievements')
     .select('level, total_points, badges')
     .eq('user_id', userId)
-    .single();
+    .single()
 
   // Build user context
   const userContext = `
@@ -601,7 +596,7 @@ User role: ${profile?.role}
 Learning level: ${achievements?.level || 1}
 Completed courses: ${progress?.length || 0}
 Average quiz score: ${progress?.reduce((acc, p) => acc + (p.quiz_score || 0), 0) / (progress?.length || 1)}
-  `;
+  `
 
   const prompt = `Based on this user's profile and learning history, recommend 5 courses 
 that would be most beneficial for their continued development in understanding anti-Black 
@@ -620,17 +615,17 @@ Provide recommendations in JSON format:
       "priority": 1-5
     }
   ]
-}`;
+}`
 
   const completion = await azureOpenAI.chat.completions.create({
     messages: [{ role: 'user', content: prompt }],
     model: 'gpt-4o',
     temperature: 0.5,
     responseFormat: { type: 'json_object' },
-  });
+  })
 
-  const result = JSON.parse(completion.choices[0].message.content || '{}');
-  return result.recommendations || [];
+  const result = JSON.parse(completion.choices[0].message.content || '{}')
+  return result.recommendations || []
 }
 ```
 
@@ -641,32 +636,34 @@ Provide recommendations in JSON format:
 export async function findSimilarCases(
   caseId: string,
   limit: number = 5
-): Promise<Array<{
-  case_id: string;
-  similarity: number;
-  title: string;
-  summary: string;
-}>> {
+): Promise<
+  Array<{
+    case_id: string
+    similarity: number
+    title: string
+    summary: string
+  }>
+> {
   // Get case embedding
   const { data: caseEmbedding } = await supabase
     .from('case_embeddings')
     .select('embedding')
     .eq('case_id', caseId)
-    .single();
+    .single()
 
-  if (!caseEmbedding) return [];
+  if (!caseEmbedding) return []
 
   // Find similar cases
   const { data, error } = await supabase.rpc('search_similar_cases', {
     query_embedding: caseEmbedding.embedding,
     match_threshold: 0.75,
     match_count: limit + 1, // +1 to exclude the query case
-  });
+  })
 
-  if (error) throw error;
+  if (error) throw error
 
   // Exclude the query case itself
-  return data.filter((c: any) => c.case_id !== caseId).slice(0, limit);
+  return data.filter((c: any) => c.case_id !== caseId).slice(0, limit)
 }
 ```
 
@@ -678,26 +675,23 @@ export async function findSimilarCases(
 
 ```typescript
 // services/ai/translation.ts
-export async function translateContent(
-  text: string,
-  targetLanguage: 'en' | 'fr'
-): Promise<string> {
+export async function translateContent(text: string, targetLanguage: 'en' | 'fr'): Promise<string> {
   const prompt = `Translate the following text to ${targetLanguage === 'fr' ? 'French' : 'English'}.
 Maintain the professional tone and legal terminology.
 
 Text:
 ${text}
 
-Translation:`;
+Translation:`
 
   const completion = await azureOpenAI.chat.completions.create({
     messages: [{ role: 'user', content: prompt }],
     model: 'gpt-4o',
     temperature: 0.3,
     maxTokens: 2048,
-  });
+  })
 
-  return completion.choices[0].message.content || '';
+  return completion.choices[0].message.content || ''
 }
 ```
 
@@ -706,11 +700,11 @@ Translation:`;
 ```typescript
 // services/ai/entity-extraction.ts
 export async function extractEntities(text: string): Promise<{
-  people: string[];
-  organizations: string[];
-  locations: string[];
-  dates: string[];
-  laws: string[];
+  people: string[]
+  organizations: string[]
+  locations: string[]
+  dates: string[]
+  laws: string[]
 }> {
   const prompt = `Extract named entities from this legal text:
 
@@ -723,16 +717,16 @@ Identify:
 4. Dates
 5. Referenced laws and statutes
 
-Respond in JSON format.`;
+Respond in JSON format.`
 
   const completion = await azureOpenAI.chat.completions.create({
     messages: [{ role: 'user', content: prompt }],
     model: 'gpt-4o',
     temperature: 0.1,
     responseFormat: { type: 'json_object' },
-  });
+  })
 
-  return JSON.parse(completion.choices[0].message.content || '{}');
+  return JSON.parse(completion.choices[0].message.content || '{}')
 }
 ```
 
@@ -777,30 +771,27 @@ CREATE INDEX idx_model_usage_created ON ai_model_usage(created_at DESC);
 
 ```typescript
 // services/ai/ab-testing.ts
-export async function selectModelVariant(
-  userId: string,
-  experimentName: string
-): Promise<string> {
+export async function selectModelVariant(userId: string, experimentName: string): Promise<string> {
   // Get user's variant assignment
   const { data: assignment } = await supabase
     .from('experiment_assignments')
     .select('variant')
     .eq('user_id', userId)
     .eq('experiment_name', experimentName)
-    .single();
+    .single()
 
-  if (assignment) return assignment.variant;
+  if (assignment) return assignment.variant
 
   // Assign variant (50/50 split)
-  const variant = Math.random() < 0.5 ? 'control' : 'treatment';
+  const variant = Math.random() < 0.5 ? 'control' : 'treatment'
 
   await supabase.from('experiment_assignments').insert({
     user_id: userId,
     experiment_name: experimentName,
     variant,
-  });
+  })
 
-  return variant;
+  return variant
 }
 ```
 
@@ -812,35 +803,30 @@ export async function selectModelVariant(
 
 ```typescript
 // services/ai/cache.ts
-import { Redis } from 'ioredis';
+import { Redis } from 'ioredis'
 
-const redis = new Redis(process.env.REDIS_URL);
+const redis = new Redis(process.env.REDIS_URL)
 
-export async function cachedEmbedding(
-  text: string
-): Promise<number[]> {
-  const cacheKey = `embedding:${hashText(text)}`;
+export async function cachedEmbedding(text: string): Promise<number[]> {
+  const cacheKey = `embedding:${hashText(text)}`
 
   // Check cache
-  const cached = await redis.get(cacheKey);
+  const cached = await redis.get(cacheKey)
   if (cached) {
-    return JSON.parse(cached);
+    return JSON.parse(cached)
   }
 
   // Generate embedding
-  const embedding = await generateEmbedding(text);
+  const embedding = await generateEmbedding(text)
 
   // Cache for 30 days
-  await redis.setex(cacheKey, 30 * 24 * 60 * 60, JSON.stringify(embedding));
+  await redis.setex(cacheKey, 30 * 24 * 60 * 60, JSON.stringify(embedding))
 
-  return embedding;
+  return embedding
 }
 
 function hashText(text: string): string {
-  return require('crypto')
-    .createHash('sha256')
-    .update(text)
-    .digest('hex');
+  return require('crypto').createHash('sha256').update(text).digest('hex')
 }
 ```
 
@@ -849,29 +835,29 @@ function hashText(text: string): string {
 ```typescript
 // services/ai/batch-processor.ts
 export class AIBatchProcessor {
-  private queue: Array<{ id: string; task: () => Promise<any> }> = [];
-  private batchSize = 10;
-  private concurrency = 3;
+  private queue: Array<{ id: string; task: () => Promise<any> }> = []
+  private batchSize = 10
+  private concurrency = 3
 
   async add(id: string, task: () => Promise<any>) {
-    this.queue.push({ id, task });
+    this.queue.push({ id, task })
   }
 
   async process(): Promise<void> {
-    const batches = [];
+    const batches = []
     for (let i = 0; i < this.queue.length; i += this.batchSize) {
-      batches.push(this.queue.slice(i, i + this.batchSize));
+      batches.push(this.queue.slice(i, i + this.batchSize))
     }
 
     for (const batch of batches) {
-      const chunks = [];
+      const chunks = []
       for (let i = 0; i < batch.length; i += this.concurrency) {
-        chunks.push(batch.slice(i, i + this.concurrency));
+        chunks.push(batch.slice(i, i + this.concurrency))
       }
 
       for (const chunk of chunks) {
-        await Promise.all(chunk.map(item => item.task()));
-        await new Promise(resolve => setTimeout(resolve, 100)); // Rate limit
+        await Promise.all(chunk.map((item) => item.task()))
+        await new Promise((resolve) => setTimeout(resolve, 100)) // Rate limit
       }
     }
   }
@@ -909,7 +895,7 @@ export const AI_SECURITY = {
     violence: 'medium',
     selfHarm: 'high',
   },
-};
+}
 ```
 
 ### Data Privacy
@@ -921,7 +907,7 @@ export function sanitizeForAI(text: string): string {
   return text
     .replace(/\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b/g, '[EMAIL]')
     .replace(/\b\d{3}[-.]?\d{3}[-.]?\d{4}\b/g, '[PHONE]')
-    .replace(/\b\d{9}\b/g, '[SIN]');
+    .replace(/\b\d{9}\b/g, '[SIN]')
 }
 ```
 
@@ -937,10 +923,10 @@ export async function logAIMetrics(
   modelName: string,
   operation: string,
   metrics: {
-    inputTokens: number;
-    outputTokens: number;
-    latencyMs: number;
-    cost: number;
+    inputTokens: number
+    outputTokens: number
+    latencyMs: number
+    cost: number
   }
 ): Promise<void> {
   await supabase.from('ai_model_usage').insert({
@@ -951,7 +937,7 @@ export async function logAIMetrics(
     latency_ms: metrics.latencyMs,
     cost_usd: metrics.cost,
     user_id: getCurrentUserId(),
-  });
+  })
 }
 ```
 
@@ -991,20 +977,24 @@ $$ LANGUAGE plpgsql;
 ```typescript
 // hooks/useAIChat.ts
 export function useAIChat() {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([])
+  const [loading, setLoading] = useState(false)
 
   const sendMessage = async (content: string) => {
-    setLoading(true);
+    setLoading(true)
     try {
-      const response = await getChatResponse(content, messages);
-      setMessages([...messages, { role: 'user', content }, { role: 'assistant', content: response }]);
+      const response = await getChatResponse(content, messages)
+      setMessages([
+        ...messages,
+        { role: 'user', content },
+        { role: 'assistant', content: response },
+      ])
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
-  return { messages, sendMessage, loading };
+  return { messages, sendMessage, loading }
 }
 ```
 

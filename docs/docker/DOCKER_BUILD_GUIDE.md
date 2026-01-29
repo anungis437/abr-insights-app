@@ -43,6 +43,7 @@ chmod +x docker-build.sh
 **Windows**: Download from [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop)
 
 **Installation Steps**:
+
 1. Download Docker Desktop for Windows
 2. Run installer
 3. Restart computer
@@ -50,6 +51,7 @@ chmod +x docker-build.sh
 5. Verify: `docker --version`
 
 **System Requirements**:
+
 - Windows 10/11 64-bit Pro, Enterprise, or Education
 - WSL 2 enabled (installer will set this up)
 - Virtualization enabled in BIOS
@@ -196,6 +198,7 @@ Docker Compose will automatically load these variables.
 
 **Issue**: Docker Desktop fails to start  
 **Solutions**:
+
 ```powershell
 # 1. Enable WSL 2
 wsl --install
@@ -212,6 +215,7 @@ wsl --set-default-version 2
 
 **Issue**: Missing dependencies  
 **Solution**:
+
 ```powershell
 # Clear Docker cache and rebuild
 docker builder prune -af
@@ -222,6 +226,7 @@ docker builder prune -af
 
 **Issue**: First build takes 5-10 minutes  
 **Solutions**:
+
 ```powershell
 # 1. Increase Docker memory (Docker Desktop Settings → Resources)
 # Recommended: 4GB minimum, 8GB ideal
@@ -237,6 +242,7 @@ $env:DOCKER_BUILDKIT=1
 
 **Issue**: Docker ran out of disk space  
 **Solution**:
+
 ```powershell
 # Clean up Docker
 docker system prune -a --volumes
@@ -249,6 +255,7 @@ docker system prune -a --volumes
 
 **Issue**: Production container stops after starting  
 **Diagnosis**:
+
 ```powershell
 # Check logs
 docker-compose logs app
@@ -260,6 +267,7 @@ docker-compose logs app
 ```
 
 **Solutions**:
+
 ```powershell
 # Stop any process using port 3000
 Get-Process -Id (Get-NetTCPConnection -LocalPort 3000).OwningProcess | Stop-Process
@@ -289,26 +297,26 @@ on:
 jobs:
   docker-build:
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      
+
       - name: Build production bundle
         run: |
           docker build -f Dockerfile.build \
             -t abr-insights-app:build \
             --target builder \
             .
-      
+
       - name: Extract artifacts
         run: |
           docker create --name builder abr-insights-app:build
           docker cp builder:/app/.next ./.next
           docker rm builder
-      
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -335,13 +343,13 @@ steps:
       command: build
       dockerfile: Dockerfile.build
       arguments: '--target builder -t abr-insights-app:build'
-  
+
   - script: |
       docker create --name builder abr-insights-app:build
       docker cp builder:/app/.next ./.next
       docker rm builder
     displayName: 'Extract Build Artifacts'
-  
+
   - task: PublishBuildArtifacts@1
     inputs:
       pathToPublish: '.next'
@@ -447,17 +455,18 @@ abr-insights-app/
 
 ### Docker vs Moving to NTFS
 
-| Aspect | Docker | Move to NTFS |
-|--------|--------|--------------|
-| **Setup Time** | 15-30 min | 5 min |
-| **Build Speed** | Slower (first time) | Faster |
-| **Disk Space** | Requires ~2GB | No extra space |
-| **Consistency** | ✅ Matches production | ⚠️ Dev environment only |
-| **CI/CD Match** | ✅ Identical to GitHub Actions | ❌ Different environment |
-| **Learning Curve** | Medium | Easy |
-| **Long-term** | ✅ Best practice | ✅ Also valid |
+| Aspect             | Docker                         | Move to NTFS             |
+| ------------------ | ------------------------------ | ------------------------ |
+| **Setup Time**     | 15-30 min                      | 5 min                    |
+| **Build Speed**    | Slower (first time)            | Faster                   |
+| **Disk Space**     | Requires ~2GB                  | No extra space           |
+| **Consistency**    | ✅ Matches production          | ⚠️ Dev environment only  |
+| **CI/CD Match**    | ✅ Identical to GitHub Actions | ❌ Different environment |
+| **Learning Curve** | Medium                         | Easy                     |
+| **Long-term**      | ✅ Best practice               | ✅ Also valid            |
 
-**Recommendation**: 
+**Recommendation**:
+
 - **Quick fix**: Move to NTFS (C: drive)
 - **Production-ready**: Use Docker (matches deployment environment)
 - **Best approach**: Both (NTFS for dev, Docker for builds)
@@ -485,11 +494,13 @@ abr-insights-app/
 ## Support
 
 ### Documentation
+
 - [Docker Documentation](https://docs.docker.com/)
 - [Next.js Docker Guide](https://nextjs.org/docs/deployment#docker-image)
 - [Docker Compose Reference](https://docs.docker.com/compose/)
 
 ### Troubleshooting
+
 See [CRITICAL_ASSESSMENT_FILESYSTEM_ISSUE.md](CRITICAL_ASSESSMENT_FILESYSTEM_ISSUE.md) for full context on the exFAT issue.
 
 ---

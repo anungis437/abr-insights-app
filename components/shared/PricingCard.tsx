@@ -65,9 +65,7 @@ export function PricingCard({
     <div
       className={cn(
         'relative rounded-2xl border-2 bg-white p-8 shadow-lg transition-all hover:shadow-xl',
-        popular
-          ? 'border-primary-500 ring-4 ring-primary-100'
-          : 'border-gray-200',
+        popular ? 'border-primary-500 ring-4 ring-primary-100' : 'border-gray-200'
       )}
     >
       {popular && (
@@ -98,12 +96,7 @@ export function PricingCard({
             ) : (
               <X className="h-5 w-5 flex-shrink-0 text-gray-300" />
             )}
-            <span
-              className={cn(
-                'text-sm',
-                feature.included ? 'text-gray-700' : 'text-gray-400',
-              )}
-            >
+            <span className={cn('text-sm', feature.included ? 'text-gray-700' : 'text-gray-400')}>
               {feature.text}
             </span>
           </li>
@@ -117,7 +110,7 @@ export function PricingCard({
           'w-full',
           popular
             ? 'bg-gradient-to-r from-primary-600 to-secondary-600 hover:from-primary-700 hover:to-secondary-700'
-            : '',
+            : ''
         )}
         variant={popular ? 'default' : 'outline'}
       >

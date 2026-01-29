@@ -68,6 +68,7 @@ Your dashboard provides quick access to:
 **Understanding Case Details:**
 
 Each case includes:
+
 - **Citation & Source** - Official tribunal reference
 - **Parties Involved** - Applicant and respondent (anonymized when applicable)
 - **Key Facts** - Summary of the case background
@@ -194,6 +195,7 @@ The AI tutor is available in all courses to:
 - Offer personalized study tips
 
 **Best Practices:**
+
 - Encourage students to try the AI tutor first for quick questions
 - Review AI tutor interactions to identify common confusion points
 - Update course content based on AI tutor analytics
@@ -260,18 +262,21 @@ The AI tutor is available in all courses to:
 ### AI-Powered Insights
 
 **Personalized Recommendations:**
+
 - Suggested courses based on role and interests
 - Relevant tribunal cases for current projects
 - Learning paths tailored to organizational goals
 - Study tips and productivity recommendations
 
 **AI Case Classifier:**
+
 - Automatically identifies anti-Black racism indicators
 - Tags cases with themes (hiring, promotion, harassment, etc.)
 - Extracts key legal principles and remedies
 - Suggests related cases and precedents
 
 **AI Tutor:**
+
 - 24/7 assistance with course content
 - Answers questions about tribunal cases
 - Generates practice scenarios
@@ -281,6 +286,7 @@ The AI tutor is available in all courses to:
 
 **Achievements:**
 Earn badges and trophies for:
+
 - Completing courses
 - Reaching learning milestones
 - Contributing to discussions
@@ -288,12 +294,14 @@ Earn badges and trophies for:
 - Helping team members
 
 **Leaderboards:**
+
 - Organization-wide rankings (optional)
 - Department or team leaderboards
 - Weekly and monthly competitions
 - Points earned through learning activities
 
 **Certificates:**
+
 - Professional certificates for course completion
 - CE credits where applicable
 - Downloadable and shareable
@@ -302,6 +310,7 @@ Earn badges and trophies for:
 ### Mobile Access
 
 **Mobile App Features:**
+
 - iOS and Android apps available
 - Download courses for offline learning
 - Push notifications for deadlines and updates
@@ -311,6 +320,7 @@ Earn badges and trophies for:
 ### Integrations
 
 **Connect ABR Insights with:**
+
 - **Slack** - Course notifications and achievements
 - **Microsoft Teams** - Embed content in channels
 - **HRIS Systems** - Sync employee data and track training
@@ -383,22 +393,26 @@ A: Yes, you can export your learning progress, certificates, and saved cases any
 ### Getting Help
 
 **In-Platform Help:**
+
 - Click the **"?"** icon in the bottom right corner
 - Search our knowledge base
 - Access contextual help on any page
 
 **Email Support:**
+
 - General inquiries: [support@abrinsights.ca](mailto:support@abrinsights.ca)
 - Technical issues: [tech@abrinsights.ca](mailto:tech@abrinsights.ca)
 - Billing questions: [billing@abrinsights.ca](mailto:billing@abrinsights.ca)
 
 **Response Times:**
+
 - **Free plan:** 2-3 business days
 - **Professional plan:** 1 business day
 - **Enterprise plan:** 4 hours (priority support)
 
 **Live Chat:**
 Available on Professional and Enterprise plans:
+
 - Monday-Friday: 9 AM - 5 PM ET
 - Click the chat icon in the platform
 
@@ -445,4 +459,4 @@ Want to see a new feature?
 
 Together, we're building more equitable workplaces across Canada. 🇨🇦
 
-*Last updated: January 28, 2026*
+_Last updated: January 28, 2026_

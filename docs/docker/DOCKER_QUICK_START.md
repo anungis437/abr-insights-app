@@ -99,7 +99,7 @@ ls .next
 
 # Expected folders:
 # - server/      (server-side code)
-# - static/      (static assets)  
+# - static/      (static assets)
 # - cache/       (build cache)
 # - standalone/  (if configured)
 ```
@@ -161,6 +161,7 @@ docker-compose up app
 ## Full Documentation
 
 See [DOCKER_BUILD_GUIDE.md](DOCKER_BUILD_GUIDE.md) for:
+
 - Complete setup instructions
 - Advanced configurations
 - CI/CD integration

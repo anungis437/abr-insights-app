@@ -20,13 +20,17 @@ export default function UserMenu({ user, profile, onSignOut, isMobile = false }:
   const [open, setOpen] = useState(false)
   const menuItems = getUserMenuItems()
 
-  const displayName = profile?.display_name || 
-    (profile?.first_name && profile?.last_name 
-      ? `${profile.first_name} ${profile.last_name}` 
+  const displayName =
+    profile?.display_name ||
+    (profile?.first_name && profile?.last_name
+      ? `${profile.first_name} ${profile.last_name}`
       : user.name || user.email)
 
-  const roleLabel = profile?.role 
-    ? profile.role.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+  const roleLabel = profile?.role
+    ? profile.role
+        .split('_')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ')
     : 'User'
 
   if (isMobile) {
@@ -37,7 +41,7 @@ export default function UserMenu({ user, profile, onSignOut, isMobile = false }:
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary-600 to-secondary-600">
             <User className="h-5 w-5 text-white" />
           </div>
-          <div className="flex-1 min-w-0">
+          <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold text-gray-900">{displayName}</p>
             <p className="truncate text-xs text-gray-500">{roleLabel}</p>
           </div>
@@ -67,10 +71,7 @@ export default function UserMenu({ user, profile, onSignOut, isMobile = false }:
 
   // Desktop: Dropdown menu
   return (
-    <div 
-      className="relative"
-      onMouseLeave={() => setOpen(false)}
-    >
+    <div className="relative" onMouseLeave={() => setOpen(false)}>
       <button
         onClick={() => setOpen(!open)}
         onMouseEnter={() => setOpen(true)}
@@ -81,13 +82,13 @@ export default function UserMenu({ user, profile, onSignOut, isMobile = false }:
           <User className="h-4 w-4 text-white" />
         </div>
         <div className="hidden text-left lg:block">
-          <p className="text-sm font-medium text-gray-900 max-w-[120px] truncate">{displayName}</p>
+          <p className="max-w-[120px] truncate text-sm font-medium text-gray-900">{displayName}</p>
           <p className="text-xs text-gray-500">{roleLabel}</p>
         </div>
       </button>
 
       {open && (
-        <div 
+        <div
           className="absolute right-0 top-full z-50 mt-1 w-56 rounded-lg border border-gray-200 bg-white shadow-lg"
           onMouseEnter={() => setOpen(true)}
         >

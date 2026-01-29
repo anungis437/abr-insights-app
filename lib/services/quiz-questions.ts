@@ -1,7 +1,7 @@
 /**
  * Quiz Questions Service
  * Manages question bank operations: CRUD, pools, random selection
- * 
+ *
  * Security: All mutations protected by permission checks via RLS policies.
  * Policies defined in migrations 020-023.
  */
@@ -106,11 +106,13 @@ export interface UpdateQuestionInput {
 
 /**
  * Create a new question with optional answer options
- * 
+ *
  * Required permissions: questions.create, courses.manage, or instructor.access
  * RLS Policy: questions_insert_with_permission
  */
-export async function createQuestion(input: CreateQuestionInput): Promise<QuestionWithOptions | null> {
+export async function createQuestion(
+  input: CreateQuestionInput
+): Promise<QuestionWithOptions | null> {
   const supabase = createClient()
 
   try {
@@ -261,7 +263,7 @@ export async function getQuestions(filters: {
 
 /**
  * Update a question
- * 
+ *
  * Required permissions: Question creator OR questions.update OR courses.manage
  * RLS Policy: questions_update_creator_or_permission
  */
@@ -295,7 +297,7 @@ export async function updateQuestion(
 
 /**
  * Delete a question (soft delete by setting is_active = false)
- * 
+ *
  * Required permissions: Question creator OR questions.delete OR courses.manage
  * RLS Policy: questions_delete_creator_or_permission (hard delete), questions_update_creator_or_permission (soft delete)
  */
@@ -509,9 +511,7 @@ export async function getRandomQuestionsFromPool(
     )
 
     // Fetch full questions with options
-    const questions = await Promise.all(
-      selectedIds.map((id: any) => getQuestion(id))
-    )
+    const questions = await Promise.all(selectedIds.map((id: any) => getQuestion(id)))
 
     return questions.filter((q): q is QuestionWithOptions => q !== null)
   } catch (error) {
@@ -527,10 +527,7 @@ export async function getRandomQuestionsFromPool(
 /**
  * Weighted random selection algorithm
  */
-function weightedRandomSelection(
-  items: { id: string; weight: number }[],
-  count: number
-): string[] {
+function weightedRandomSelection(items: { id: string; weight: number }[], count: number): string[] {
   const selected: string[] = []
   const remaining = [...items]
 

@@ -11,40 +11,27 @@ import { createAdminClient } from '@/lib/supabase/admin'
 export async function POST(req: NextRequest) {
   // Lazy load Stripe to avoid build-time initialization
   const { stripe } = await import('@/lib/stripe')
-  
+
   const body = await req.text()
   const headersList = await headers()
   const signature = headersList.get('stripe-signature')
 
   if (!signature) {
-    return NextResponse.json(
-      { error: 'Missing stripe-signature header' },
-      { status: 400 }
-    )
+    return NextResponse.json({ error: 'Missing stripe-signature header' }, { status: 400 })
   }
 
   if (!process.env.STRIPE_WEBHOOK_SECRET) {
     console.error('STRIPE_WEBHOOK_SECRET not configured')
-    return NextResponse.json(
-      { error: 'Webhook secret not configured' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Webhook secret not configured' }, { status: 500 })
   }
 
   let event: Stripe.Event
 
   try {
-    event = stripe.webhooks.constructEvent(
-      body,
-      signature,
-      process.env.STRIPE_WEBHOOK_SECRET
-    )
+    event = stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET)
   } catch (err) {
     console.error('Webhook signature verification failed:', err)
-    return NextResponse.json(
-      { error: 'Invalid signature' },
-      { status: 400 }
-    )
+    return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
 
   console.log(`[Stripe Webhook] Received event: ${event.type}`)
@@ -90,21 +77,16 @@ export async function POST(req: NextRequest) {
     }
 
     // Mark event as processed
-    await supabase
-      .from('stripe_webhook_events')
-      .insert({
-        id: event.id,
-        event_type: event.type,
-        processed_at: new Date().toISOString()
-      })
+    await supabase.from('stripe_webhook_events').insert({
+      id: event.id,
+      event_type: event.type,
+      processed_at: new Date().toISOString(),
+    })
 
     return NextResponse.json({ received: true })
   } catch (error) {
     console.error('[Stripe Webhook] Error processing event:', error)
-    return NextResponse.json(
-      { error: 'Webhook handler failed' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Webhook handler failed' }, { status: 500 })
   }
 }
 
@@ -164,7 +146,9 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
     .update({
       subscription_status: subscription.status,
       subscription_tier: subscription.metadata?.tier || 'professional',
-      subscription_current_period_end: new Date(((subscription as any).current_period_end) * 1000).toISOString(),
+      subscription_current_period_end: new Date(
+        (subscription as any).current_period_end * 1000
+      ).toISOString(),
       updated_at: new Date().toISOString(),
     })
     .eq('id', profile.id)

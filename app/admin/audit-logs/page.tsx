@@ -3,7 +3,7 @@
 /**
  * Audit Logs Admin Page - UPDATED WITH REAL DB INTEGRATION
  * Route: /admin/audit-logs
- * 
+ *
  * Features:
  * - Real-time audit log viewing from audit_logs table
  * - Statistics from get_audit_log_statistics() DB function
@@ -25,7 +25,7 @@ import {
   XCircle,
   Clock,
   Hash,
-  Loader2
+  Loader2,
 } from 'lucide-react'
 
 interface AuditLog {
@@ -89,7 +89,9 @@ export default function AuditLogsPage() {
   async function loadData() {
     setLoading(true)
     try {
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
       if (!user) return
 
       // Get user's organization
@@ -139,7 +141,7 @@ export default function AuditLogsPage() {
       // Load statistics (last 7 days)
       const startDate = new Date()
       startDate.setDate(startDate.getDate() - 7)
-      
+
       const { data: statsData } = await supabase.rpc('get_audit_log_statistics', {
         p_organization_id: profile.organization_id,
         p_start_date: startDate.toISOString(),
@@ -170,7 +172,9 @@ export default function AuditLogsPage() {
   async function handleExport() {
     setExporting(true)
     try {
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
       if (!user) throw new Error('Not authenticated')
 
       const { data: profile } = await supabase
@@ -227,25 +231,23 @@ export default function AuditLogsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
       </div>
     )
   }
 
   return (
-    <div className="container-custom pt-20 pb-8">
+    <div className="container-custom pb-8 pt-20">
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Audit Logs</h1>
-          <p className="mt-2 text-gray-600">
-            Monitor system activity and security events
-          </p>
+          <p className="mt-2 text-gray-600">Monitor system activity and security events</p>
         </div>
         <button
           onClick={handleExport}
           disabled={exporting}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50 flex items-center gap-2"
+          className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700 disabled:opacity-50"
         >
           {exporting ? (
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -258,11 +260,11 @@ export default function AuditLogsPage() {
 
       {/* Anomaly Alerts */}
       {anomalies.length > 0 && (
-        <div className="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+        <div className="mb-6 rounded-lg border border-yellow-200 bg-yellow-50 p-4">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5" />
+            <AlertTriangle className="mt-0.5 h-5 w-5 text-yellow-600" />
             <div className="flex-1">
-              <h3 className="font-semibold text-yellow-900 mb-2">
+              <h3 className="mb-2 font-semibold text-yellow-900">
                 {anomalies.length} Anomal{anomalies.length === 1 ? 'y' : 'ies'} Detected
               </h3>
               <div className="space-y-2">
@@ -299,16 +301,14 @@ export default function AuditLogsPage() {
         </div>
         <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
           <p className="text-sm font-medium text-gray-600">Unique Users</p>
-          <p className="mt-2 text-3xl font-bold text-gray-900">
-            {statistics?.uniqueUsers || 0}
-          </p>
+          <p className="mt-2 text-3xl font-bold text-gray-900">{statistics?.uniqueUsers || 0}</p>
         </div>
       </div>
 
       {/* Filters */}
       <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
         <div className="flex flex-wrap items-center gap-4">
-          <div className="flex-1 min-w-[200px]">
+          <div className="min-w-[200px] flex-1">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
               <input
@@ -316,7 +316,7 @@ export default function AuditLogsPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search logs..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -324,7 +324,7 @@ export default function AuditLogsPage() {
             value={filterCategory}
             onChange={(e) => setFilterCategory(e.target.value)}
             aria-label="Filter by event category"
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
           >
             <option value="all">All Categories</option>
             <option value="authentication">Authentication</option>
@@ -339,7 +339,7 @@ export default function AuditLogsPage() {
             value={filterSeverity}
             onChange={(e) => setFilterSeverity(e.target.value)}
             aria-label="Filter by severity"
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
           >
             <option value="all">All Severities</option>
             <option value="debug">Debug</option>
@@ -352,7 +352,7 @@ export default function AuditLogsPage() {
             value={filterComplianceLevel}
             onChange={(e) => setFilterComplianceLevel(e.target.value)}
             aria-label="Filter by compliance level"
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
           >
             <option value="all">All Compliance Levels</option>
             <option value="low">Low</option>
@@ -405,12 +405,10 @@ export default function AuditLogsPage() {
               ) : (
                 filteredLogs.map((log) => (
                   <tr key={log.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
                       {new Date(log.timestamp).toLocaleString()}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {log.user_email}
-                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-900">{log.user_email}</td>
                     <td className="px-6 py-4">
                       <span className="font-medium text-gray-900">{log.action}</span>
                       <p className="text-xs text-gray-500">{log.event_category}</p>
@@ -422,7 +420,7 @@ export default function AuditLogsPage() {
                     </td>
                     <td className="px-6 py-4">
                       <span
-                        className={`px-2 py-1 text-xs font-medium rounded ${
+                        className={`rounded px-2 py-1 text-xs font-medium ${
                           log.severity === 'critical'
                             ? 'bg-red-100 text-red-700'
                             : log.severity === 'error'
@@ -439,7 +437,7 @@ export default function AuditLogsPage() {
                     </td>
                     <td className="px-6 py-4">
                       <span
-                        className={`px-2 py-1 text-xs font-medium rounded ${
+                        className={`rounded px-2 py-1 text-xs font-medium ${
                           log.compliance_level === 'critical'
                             ? 'bg-purple-100 text-purple-700'
                             : log.compliance_level === 'high'
@@ -452,9 +450,7 @@ export default function AuditLogsPage() {
                         {log.compliance_level}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      {log.ip_address || '-'}
-                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-500">{log.ip_address || '-'}</td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1 text-xs text-gray-500">
                         <Hash className="h-3 w-3" />

@@ -7,6 +7,7 @@
 ### Test Results Summary
 
 **Passing: 28 tests** - ALL TESTS PASSING
+
 - ✅ Cross-tenant profile isolation (2/2)
 - ✅ Course read access (1/3)
 - ✅ Organization read access (2/3)
@@ -54,7 +55,7 @@ CREATE POLICY "org_admins_update_own_org" ON organizations
 FOR UPDATE USING (
   id = (SELECT organization_id FROM profiles WHERE user_id = auth.uid())
   AND auth.uid() IN (
-    SELECT user_id FROM user_roles 
+    SELECT user_id FROM user_roles
     WHERE organization_id = organizations.id
     AND role IN ('owner', 'admin')
   )
@@ -68,7 +69,7 @@ FOR UPDATE USING (user_id = auth.uid());
 CREATE POLICY "instructors_update_courses" ON courses
 FOR UPDATE USING (
   auth.uid() IN (
-    SELECT user_id FROM course_instructors  
+    SELECT user_id FROM course_instructors
     WHERE course_id = courses.id
   )
   OR created_by = auth.uid()
@@ -78,7 +79,7 @@ FOR UPDATE USING (
 CREATE POLICY "instructors_delete_courses" ON courses
 FOR DELETE USING (
   auth.uid() IN (
-    SELECT user_id FROM course_instructors  
+    SELECT user_id FROM course_instructors
     WHERE course_id = courses.id
   )
   OR created_by = auth.uid()
@@ -102,6 +103,7 @@ npm run test -- tenant-isolation.test.ts --run
 **File**: `supabase/migrations/20260128000006_fix_rls_update_delete_policies.sql`
 
 **Policies Added**:
+
 1. ✅ `org_admins_update_own_org` - Organizations UPDATE policy
 2. ✅ `users_update_own_enrollments` - Enrollments UPDATE policy
 3. ✅ `instructors_update_courses` - Courses UPDATE policy

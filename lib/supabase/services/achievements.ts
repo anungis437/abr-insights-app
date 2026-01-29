@@ -7,7 +7,12 @@
 import { createClient } from '@/lib/supabase/client'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
-export type AchievementType = 'course_completion' | 'streak' | 'engagement' | 'milestone' | 'special'
+export type AchievementType =
+  | 'course_completion'
+  | 'streak'
+  | 'engagement'
+  | 'milestone'
+  | 'special'
 
 export type Achievement = {
   id: string
@@ -86,10 +91,12 @@ export class AchievementsService {
     try {
       const { data, error } = await this.supabase
         .from('user_achievements')
-        .select(`
+        .select(
+          `
           *,
           achievement:achievements(*)
-        `)
+        `
+        )
         .eq('user_id', userId)
         .order('earned_at', { ascending: false })
 
@@ -112,7 +119,11 @@ export class AchievementsService {
    * Award achievement to user
    * Replaces: base44.entities.UserAchievement.award()
    */
-  async awardAchievement(userId: string, achievementId: string, progressData?: Record<string, any>) {
+  async awardAchievement(
+    userId: string,
+    achievementId: string,
+    progressData?: Record<string, any>
+  ) {
     // Check if already earned
     const { data: existing } = await this.supabase
       .from('user_achievements')
@@ -139,7 +150,7 @@ export class AchievementsService {
         user_id: userId,
         achievement_id: achievementId,
         earned_at: new Date().toISOString(),
-        progress_data: progressData
+        progress_data: progressData,
       })
       .select()
       .single()
@@ -168,7 +179,12 @@ export class AchievementsService {
 
       if (error) {
         // Handle table not found gracefully
-        if (error.code === 'PGRST301' || error.code === '42P01' || error.code === 'PGRST205' || error.code === 'PGRST204') {
+        if (
+          error.code === 'PGRST301' ||
+          error.code === '42P01' ||
+          error.code === 'PGRST205' ||
+          error.code === 'PGRST204'
+        ) {
           console.warn('[Achievements] user_points table not found, returning default')
           return {
             user_id: userId,
@@ -176,7 +192,7 @@ export class AchievementsService {
             course_points: 0,
             engagement_points: 0,
             achievement_points: 0,
-            bonus_points: 0
+            bonus_points: 0,
           } as UserPoints
         }
         // Create if doesn't exist
@@ -195,7 +211,7 @@ export class AchievementsService {
         course_points: 0,
         engagement_points: 0,
         achievement_points: 0,
-        bonus_points: 0
+        bonus_points: 0,
       } as UserPoints
     }
   }
@@ -212,7 +228,7 @@ export class AchievementsService {
         course_points: 0,
         engagement_points: 0,
         achievement_points: 0,
-        bonus_points: 0
+        bonus_points: 0,
       })
       .select()
       .single()
@@ -228,7 +244,11 @@ export class AchievementsService {
   async addPoints(
     userId: string,
     points: number,
-    category: 'course_points' | 'engagement_points' | 'achievement_points' | 'bonus_points' = 'engagement_points'
+    category:
+      | 'course_points'
+      | 'engagement_points'
+      | 'achievement_points'
+      | 'bonus_points' = 'engagement_points'
   ) {
     // Get current points
     const current = await this.getUserPoints(userId)
@@ -243,7 +263,7 @@ export class AchievementsService {
       .update({
         [category]: newCategoryPoints,
         total_points: newTotalPoints,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq('user_id', userId)
       .select()
@@ -259,10 +279,12 @@ export class AchievementsService {
   async getLeaderboard(organizationId?: string, limit = 10) {
     let query = this.supabase
       .from('user_points')
-      .select(`
+      .select(
+        `
         *,
         profile:profiles(*)
-      `)
+      `
+      )
       .order('total_points', { ascending: false })
       .limit(limit)
 
@@ -301,12 +323,15 @@ export class AchievementsService {
    * Create custom badge
    * Replaces: base44.entities.CustomBadge.create()
    */
-  async createCustomBadge(organizationId: string, badgeData: Omit<CustomBadge, 'id' | 'created_at' | 'updated_at' | 'deleted_at'>) {
+  async createCustomBadge(
+    organizationId: string,
+    badgeData: Omit<CustomBadge, 'id' | 'created_at' | 'updated_at' | 'deleted_at'>
+  ) {
     const { data, error } = await this.supabase
       .from('custom_badges')
       .insert({
         ...badgeData,
-        organization_id: organizationId
+        organization_id: organizationId,
       })
       .select()
       .single()
@@ -333,7 +358,11 @@ export class AchievementsService {
   /**
    * Check and award achievements based on activity
    */
-  async checkAndAwardAchievements(userId: string, activityType: string, activityData: Record<string, any>) {
+  async checkAndAwardAchievements(
+    userId: string,
+    activityType: string,
+    activityData: Record<string, any>
+  ) {
     // Get all active achievements
     const achievements = await this.listAchievements()
 
@@ -412,4 +441,3 @@ export class AchievementsService {
 
 // Export singleton instance
 export const achievementsService = new AchievementsService()
-

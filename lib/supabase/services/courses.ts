@@ -19,21 +19,21 @@ export type Course = {
   estimated_duration_minutes: number | null
   is_published: boolean
   is_featured: boolean
-  
+
   // Content
   learning_objectives: string[] | null
   prerequisites: string[] | null
   tags: string[] | null
-  
+
   // Metadata
   instructor_name: string | null
   instructor_bio: string | null
-  
+
   // Stats
   total_lessons: number
   total_enrollments: number
   average_rating: number | null
-  
+
   // Timestamps
   created_at: string
   updated_at: string
@@ -41,7 +41,10 @@ export type Course = {
   deleted_at: string | null
 }
 
-export type CourseInsert = Omit<Course, 'id' | 'created_at' | 'updated_at' | 'total_enrollments' | 'average_rating'>
+export type CourseInsert = Omit<
+  Course,
+  'id' | 'created_at' | 'updated_at' | 'total_enrollments' | 'average_rating'
+>
 export type CourseUpdate = Partial<CourseInsert>
 
 export type CourseWithLessons = Course & {
@@ -78,7 +81,10 @@ export class CoursesService {
    * List all courses with optional filters
    * Replaces: base44.entities.Course.list()
    */
-  async list(filters?: { level?: CourseLevel; is_published?: boolean; tags?: string[] }, options?: { limit?: number; offset?: number }) {
+  async list(
+    filters?: { level?: CourseLevel; is_published?: boolean; tags?: string[] },
+    options?: { limit?: number; offset?: number }
+  ) {
     let query = this.supabase
       .from('courses')
       .select('*', { count: 'exact' })
@@ -99,7 +105,7 @@ export class CoursesService {
       query = query.limit(options.limit)
     }
     if (options?.offset) {
-      query = query.range(options.offset, (options.offset + (options.limit || 10)) - 1)
+      query = query.range(options.offset, options.offset + (options.limit || 10) - 1)
     }
 
     const { data, error, count } = await query
@@ -121,12 +127,12 @@ export class CoursesService {
       .single()
 
     if (error) throw error
-    
+
     if (includeLessons) {
       const lessons = await this.getLessons(id)
       return { ...data, lessons } as CourseWithLessons
     }
-    
+
     return data as Course
   }
 
@@ -142,12 +148,12 @@ export class CoursesService {
       .single()
 
     if (error) throw error
-    
+
     if (includeLessons) {
       const lessons = await this.getLessons(data.id)
       return { ...data, lessons } as CourseWithLessons
     }
-    
+
     return data as Course
   }
 
@@ -156,11 +162,7 @@ export class CoursesService {
    * Replaces: base44.entities.Course.create()
    */
   async create(courseData: CourseInsert) {
-    const { data, error } = await this.supabase
-      .from('courses')
-      .insert(courseData)
-      .select()
-      .single()
+    const { data, error } = await this.supabase.from('courses').insert(courseData).select().single()
 
     if (error) throw error
     return data as Course
@@ -202,10 +204,10 @@ export class CoursesService {
   async publish(id: string) {
     const { data, error } = await this.supabase
       .from('courses')
-      .update({ 
+      .update({
         is_published: true,
         published_at: new Date().toISOString(),
-        updated_at: new Date().toISOString() 
+        updated_at: new Date().toISOString(),
       })
       .eq('id', id)
       .is('deleted_at', null)
@@ -222,9 +224,9 @@ export class CoursesService {
   async archive(id: string) {
     const { data, error } = await this.supabase
       .from('courses')
-      .update({ 
+      .update({
         is_published: false,
-        updated_at: new Date().toISOString() 
+        updated_at: new Date().toISOString(),
       })
       .eq('id', id)
       .is('deleted_at', null)
@@ -269,17 +271,13 @@ export class CoursesService {
    * Create a lesson
    */
   async createLesson(lessonData: LessonInsert) {
-    const { data, error } = await this.supabase
-      .from('lessons')
-      .insert(lessonData)
-      .select()
-      .single()
+    const { data, error } = await this.supabase.from('lessons').insert(lessonData).select().single()
 
     if (error) throw error
-    
+
     // Update course lesson count
     await this.updateLessonCount(lessonData.course_id)
-    
+
     return data as Lesson
   }
 
@@ -305,14 +303,14 @@ export class CoursesService {
   async deleteLesson(id: string) {
     // Get lesson to update course count
     const lesson = await this.getLesson(id)
-    
+
     const { error } = await this.supabase
       .from('lessons')
       .update({ deleted_at: new Date().toISOString() })
       .eq('id', id)
 
     if (error) throw error
-    
+
     // Update course lesson count
     await this.updateLessonCount(lesson.course_id)
   }
@@ -342,12 +340,10 @@ export class CoursesService {
     const updates = lessonIds.map((id, index) => ({
       id,
       order_index: index,
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
     }))
 
-    const { error } = await this.supabase
-      .from('lessons')
-      .upsert(updates)
+    const { error } = await this.supabase.from('lessons').upsert(updates)
 
     if (error) throw error
   }

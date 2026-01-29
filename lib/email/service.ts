@@ -35,7 +35,7 @@ export interface NewsletterData {
  */
 export async function sendContactFormNotification(data: ContactFormData) {
   const resend = getResendClient()
-  
+
   if (!resend) {
     console.warn('RESEND_API_KEY not configured, skipping email')
     return { success: false, error: 'Email service not configured' }
@@ -72,17 +72,19 @@ export async function sendContactFormNotification(data: ContactFormData) {
  */
 export async function sendContactFormConfirmation(data: ContactFormData) {
   const resend = getResendClient()
-  
+
   if (!resend) {
     console.warn('RESEND_API_KEY not configured, skipping email')
     return { success: false, error: 'Email service not configured' }
   }
 
   try {
-    const emailHtml = await render(ContactConfirmationEmail({
-      name: data.name,
-      subject: data.subject,
-    }))
+    const emailHtml = await render(
+      ContactConfirmationEmail({
+        name: data.name,
+        subject: data.subject,
+      })
+    )
 
     await resend.emails.send({
       from: FROM_EMAIL,
@@ -103,16 +105,18 @@ export async function sendContactFormConfirmation(data: ContactFormData) {
  */
 export async function sendNewsletterWelcome(data: NewsletterData) {
   const resend = getResendClient()
-  
+
   if (!resend) {
     console.warn('RESEND_API_KEY not configured, skipping email')
     return { success: false, error: 'Email service not configured' }
   }
 
   try {
-    const emailHtml = await render(NewsletterWelcomeEmail({
-      firstName: data.firstName,
-    }))
+    const emailHtml = await render(
+      NewsletterWelcomeEmail({
+        firstName: data.firstName,
+      })
+    )
 
     await resend.emails.send({
       from: FROM_EMAIL,
@@ -143,7 +147,7 @@ export async function sendEmail({
   replyTo?: string
 }) {
   const resend = getResendClient()
-  
+
   if (!resend) {
     console.warn('RESEND_API_KEY not configured, skipping email')
     return { success: false, error: 'Email service not configured' }

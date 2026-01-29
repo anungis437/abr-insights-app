@@ -1,23 +1,23 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { 
-  MessageSquare, 
-  Reply, 
-  ThumbsUp, 
-  CheckCircle, 
+import {
+  MessageSquare,
+  Reply,
+  ThumbsUp,
+  CheckCircle,
   Filter,
   Search,
   ChevronDown,
   ChevronUp,
-  User
+  User,
 } from 'lucide-react'
-import { 
-  getCourseDiscussions, 
+import {
+  getCourseDiscussions,
   getDiscussionReplies,
   createDiscussion,
   replyToDiscussion,
-  markDiscussionAsAnswered
+  markDiscussionAsAnswered,
 } from '@/lib/services/courses-enhanced'
 import type { CourseDiscussion, DiscussionType } from '@/lib/types/courses'
 
@@ -39,7 +39,7 @@ export function DiscussionForum({
   lessonId,
   userId,
   userRole,
-  className = ''
+  className = '',
 }: DiscussionForumProps) {
   const [discussions, setDiscussions] = useState<DiscussionWithReplies[]>([])
   const [loading, setLoading] = useState(true)
@@ -47,7 +47,9 @@ export function DiscussionForum({
   const [filterType, setFilterType] = useState<DiscussionType | 'all'>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [showNewPost, setShowNewPost] = useState(false)
-  const [newPostType, setNewPostType] = useState<'question' | 'discussion' | 'announcement'>('question')
+  const [newPostType, setNewPostType] = useState<'question' | 'discussion' | 'announcement'>(
+    'question'
+  )
   const [newPostTitle, setNewPostTitle] = useState('')
   const [newPostContent, setNewPostContent] = useState('')
   const [replyingTo, setReplyingTo] = useState<string | null>(null)
@@ -61,14 +63,13 @@ export function DiscussionForum({
         setError(null)
 
         const data = await getCourseDiscussions(courseId, lessonId)
-        
+
         if (data) {
           // Filter by type if needed
-          const filtered = filterType === 'all' 
-            ? data 
-            : data.filter(d => d.discussion_type === filterType)
-          
-          setDiscussions(filtered.map(d => ({ ...d, showReplies: false })))
+          const filtered =
+            filterType === 'all' ? data : data.filter((d) => d.discussion_type === filterType)
+
+          setDiscussions(filtered.map((d) => ({ ...d, showReplies: false })))
         }
       } catch (err) {
         console.error('Error loading discussions:', err)
@@ -77,7 +78,7 @@ export function DiscussionForum({
         setLoading(false)
       }
     }
-    
+
     loadData()
   }, [courseId, lessonId, filterType])
 
@@ -87,14 +88,13 @@ export function DiscussionForum({
       setError(null)
 
       const data = await getCourseDiscussions(courseId, lessonId)
-      
+
       if (data) {
         // Filter by type if needed
-        const filtered = filterType === 'all' 
-          ? data 
-          : data.filter(d => d.discussion_type === filterType)
-        
-        setDiscussions(filtered.map(d => ({ ...d, showReplies: false })))
+        const filtered =
+          filterType === 'all' ? data : data.filter((d) => d.discussion_type === filterType)
+
+        setDiscussions(filtered.map((d) => ({ ...d, showReplies: false })))
       }
     } catch (err) {
       console.error('Error loading discussions:', err)
@@ -107,27 +107,23 @@ export function DiscussionForum({
   const loadReplies = async (discussionId: string) => {
     try {
       const replies = await getDiscussionReplies(discussionId)
-      
-      setDiscussions(prev => prev.map(d => 
-        d.id === discussionId 
-          ? { ...d, replies, showReplies: true }
-          : d
-      ))
+
+      setDiscussions((prev) =>
+        prev.map((d) => (d.id === discussionId ? { ...d, replies, showReplies: true } : d))
+      )
     } catch (err) {
       console.error('Error loading replies:', err)
     }
   }
 
   const toggleReplies = (discussionId: string) => {
-    const discussion = discussions.find(d => d.id === discussionId)
-    
+    const discussion = discussions.find((d) => d.id === discussionId)
+
     if (discussion?.showReplies) {
       // Collapse replies
-      setDiscussions(prev => prev.map(d => 
-        d.id === discussionId 
-          ? { ...d, showReplies: false }
-          : d
-      ))
+      setDiscussions((prev) =>
+        prev.map((d) => (d.id === discussionId ? { ...d, showReplies: false } : d))
+      )
     } else {
       // Load and show replies
       loadReplies(discussionId)
@@ -136,12 +132,12 @@ export function DiscussionForum({
 
   const handleCreatePost = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!userId || !newPostContent.trim()) return
 
     try {
       setSubmitting(true)
-      
+
       await createDiscussion(
         userId,
         courseId,
@@ -155,7 +151,7 @@ export function DiscussionForum({
       setNewPostTitle('')
       setNewPostContent('')
       setShowNewPost(false)
-      
+
       // Reload discussions
       await loadDiscussions()
     } catch (err) {
@@ -171,13 +167,13 @@ export function DiscussionForum({
 
     try {
       setSubmitting(true)
-      
+
       await replyToDiscussion(userId, parentId, replyContent)
 
       // Reset reply form
       setReplyContent('')
       setReplyingTo(null)
-      
+
       // Reload replies for this discussion
       await loadReplies(parentId)
     } catch (err) {
@@ -193,7 +189,7 @@ export function DiscussionForum({
 
     try {
       await markDiscussionAsAnswered(discussionId, answerId, userId)
-      
+
       // Reload discussions to show updated status
       await loadDiscussions()
     } catch (err) {
@@ -202,13 +198,10 @@ export function DiscussionForum({
     }
   }
 
-  const filteredDiscussions = discussions.filter(d => {
+  const filteredDiscussions = discussions.filter((d) => {
     if (searchQuery) {
       const query = searchQuery.toLowerCase()
-      return (
-        d.content?.toLowerCase().includes(query) ||
-        d.title?.toLowerCase().includes(query)
-      )
+      return d.content?.toLowerCase().includes(query) || d.title?.toLowerCase().includes(query)
     }
     return true
   })
@@ -216,13 +209,13 @@ export function DiscussionForum({
   const getTypeIcon = (type: DiscussionType) => {
     switch (type) {
       case 'question':
-        return <MessageSquare className="w-5 h-5" />
+        return <MessageSquare className="h-5 w-5" />
       case 'discussion':
-        return <MessageSquare className="w-5 h-5" />
+        return <MessageSquare className="h-5 w-5" />
       case 'announcement':
-        return <MessageSquare className="w-5 h-5" />
+        return <MessageSquare className="h-5 w-5" />
       default:
-        return <Reply className="w-5 h-5" />
+        return <Reply className="h-5 w-5" />
     }
   }
 
@@ -231,11 +224,13 @@ export function DiscussionForum({
       question: 'bg-blue-100 text-blue-800',
       discussion: 'bg-purple-100 text-purple-800',
       announcement: 'bg-yellow-100 text-yellow-800',
-      reply: 'bg-gray-100 text-gray-800'
+      reply: 'bg-gray-100 text-gray-800',
     }
-    
+
     return (
-      <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${colors[type]}`}>
+      <span
+        className={`inline-flex items-center rounded px-2 py-1 text-xs font-medium ${colors[type]}`}
+      >
         {type}
       </span>
     )
@@ -257,12 +252,12 @@ export function DiscussionForum({
 
   if (loading) {
     return (
-      <div className={`bg-white rounded-lg shadow-sm border border-gray-200 p-6 ${className}`}>
+      <div className={`rounded-lg border border-gray-200 bg-white p-6 shadow-sm ${className}`}>
         <div className="animate-pulse space-y-4">
-          {[1, 2, 3].map(i => (
+          {[1, 2, 3].map((i) => (
             <div key={i} className="space-y-3">
-              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-              <div className="h-20 bg-gray-100 rounded"></div>
+              <div className="h-4 w-3/4 rounded bg-gray-200"></div>
+              <div className="h-20 rounded bg-gray-100"></div>
             </div>
           ))}
         </div>
@@ -271,16 +266,16 @@ export function DiscussionForum({
   }
 
   return (
-    <div className={`bg-white rounded-lg shadow-sm border border-gray-200 ${className}`}>
+    <div className={`rounded-lg border border-gray-200 bg-white shadow-sm ${className}`}>
       {/* Header */}
-      <div className="p-6 border-b border-gray-200">
-        <div className="flex items-center justify-between mb-4">
+      <div className="border-b border-gray-200 p-6">
+        <div className="mb-4 flex items-center justify-between">
           <h2 className="text-xl font-bold text-gray-900">Discussion Forum</h2>
-          
+
           {userId && (
             <button
               onClick={() => setShowNewPost(!showNewPost)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
             >
               New Post
             </button>
@@ -288,26 +283,28 @@ export function DiscussionForum({
         </div>
 
         {/* Search and Filter */}
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
             <input
               type="text"
               placeholder="Search discussions..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-transparent focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div className="relative">
-            <label htmlFor="discussion-filter" className="sr-only">Filter discussions by type</label>
-            <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <label htmlFor="discussion-filter" className="sr-only">
+              Filter discussions by type
+            </label>
+            <Filter className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
             <select
               id="discussion-filter"
               value={filterType}
               onChange={(e) => setFilterType(e.target.value as DiscussionType | 'all')}
-              className="pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
+              className="appearance-none rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-8 focus:border-transparent focus:ring-2 focus:ring-blue-500"
             >
               <option value="all">All Types</option>
               <option value="question">Questions</option>
@@ -320,19 +317,17 @@ export function DiscussionForum({
 
       {/* New Post Form */}
       {showNewPost && userId && (
-        <div className="p-6 border-b border-gray-200 bg-gray-50">
+        <div className="border-b border-gray-200 bg-gray-50 p-6">
           <form onSubmit={handleCreatePost} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Post Type
-              </label>
+              <label className="mb-2 block text-sm font-medium text-gray-700">Post Type</label>
               <div className="flex gap-2">
-              {(['question', 'discussion'] as const).map(type => (
-                <button
+                {(['question', 'discussion'] as const).map((type) => (
+                  <button
                     key={type}
                     type="button"
                     onClick={() => setNewPostType(type)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                       newPostType === type
                         ? 'bg-blue-600 text-white'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -340,13 +335,16 @@ export function DiscussionForum({
                   >
                     {type.charAt(0).toUpperCase() + type.slice(1)}
                   </button>
-              ))}
+                ))}
               </div>
             </div>
 
             {newPostType === 'question' && (
               <div>
-                <label htmlFor="post-title" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="post-title"
+                  className="mb-2 block text-sm font-medium text-gray-700"
+                >
                   Question Title
                 </label>
                 <input
@@ -355,23 +353,30 @@ export function DiscussionForum({
                   value={newPostTitle}
                   onChange={(e) => setNewPostTitle(e.target.value)}
                   placeholder="What do you want to ask?"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                   required
                 />
               </div>
             )}
 
             <div>
-              <label htmlFor="post-content" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="post-content"
+                className="mb-2 block text-sm font-medium text-gray-700"
+              >
                 {newPostType === 'question' ? 'Details' : 'Content'}
               </label>
               <textarea
                 id="post-content"
                 value={newPostContent}
                 onChange={(e) => setNewPostContent(e.target.value)}
-                placeholder={newPostType === 'question' ? 'Provide more details about your question...' : 'Share your thoughts...'}
+                placeholder={
+                  newPostType === 'question'
+                    ? 'Provide more details about your question...'
+                    : 'Share your thoughts...'
+                }
                 rows={4}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full resize-none rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
@@ -380,7 +385,7 @@ export function DiscussionForum({
               <button
                 type="submit"
                 disabled={submitting || !newPostContent.trim()}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {submitting ? 'Posting...' : 'Post'}
               </button>
@@ -391,7 +396,7 @@ export function DiscussionForum({
                   setNewPostTitle('')
                   setNewPostContent('')
                 }}
-                className="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50"
               >
                 Cancel
               </button>
@@ -408,93 +413,94 @@ export function DiscussionForum({
           </div>
         ) : filteredDiscussions.length === 0 ? (
           <div className="p-12 text-center">
-            <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+            <MessageSquare className="mx-auto mb-3 h-12 w-12 text-gray-300" />
             <p className="text-gray-500">
-              {searchQuery ? 'No discussions found matching your search.' : 'No discussions yet. Be the first to start one!'}
+              {searchQuery
+                ? 'No discussions found matching your search.'
+                : 'No discussions yet. Be the first to start one!'}
             </p>
           </div>
         ) : (
           filteredDiscussions.map((discussion) => (
-            <div key={discussion.id} className="p-6 hover:bg-gray-50 transition-colors">
+            <div key={discussion.id} className="p-6 transition-colors hover:bg-gray-50">
               {/* Discussion Header */}
               <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                  <User className="w-5 h-5 text-gray-500" />
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gray-200">
+                  <User className="h-5 w-5 text-gray-500" />
                 </div>
 
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <div className="flex items-center gap-2 flex-wrap">
+                <div className="min-w-0 flex-1">
+                  <div className="mb-2 flex items-start justify-between gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       {getTypeBadge(discussion.discussion_type)}
                       {discussion.is_answered && (
-                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium">
-                          <CheckCircle className="w-3 h-3" />
+                        <span className="inline-flex items-center gap-1 rounded bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
+                          <CheckCircle className="h-3 w-3" />
                           Answered
                         </span>
                       )}
                     </div>
-                    <span className="text-sm text-gray-500 flex-shrink-0">
+                    <span className="flex-shrink-0 text-sm text-gray-500">
                       {formatDate(discussion.created_at)}
                     </span>
                   </div>
 
                   {discussion.title && (
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      {discussion.title}
-                    </h3>
+                    <h3 className="mb-2 text-lg font-semibold text-gray-900">{discussion.title}</h3>
                   )}
 
-                  <p className="text-gray-700 whitespace-pre-wrap mb-3">
-                    {discussion.content}
-                  </p>
+                  <p className="mb-3 whitespace-pre-wrap text-gray-700">{discussion.content}</p>
 
                   {/* Discussion Actions */}
                   <div className="flex items-center gap-4 text-sm">
                     <button
                       onClick={() => toggleReplies(discussion.id)}
-                      className="flex items-center gap-1 text-gray-500 hover:text-blue-600 transition-colors"
+                      className="flex items-center gap-1 text-gray-500 transition-colors hover:text-blue-600"
                     >
                       {discussion.showReplies ? (
-                        <ChevronUp className="w-4 h-4" />
+                        <ChevronUp className="h-4 w-4" />
                       ) : (
-                        <ChevronDown className="w-4 h-4" />
+                        <ChevronDown className="h-4 w-4" />
                       )}
                       <span>
-                        {discussion.replies_count || 0} {discussion.replies_count === 1 ? 'reply' : 'replies'}
+                        {discussion.replies_count || 0}{' '}
+                        {discussion.replies_count === 1 ? 'reply' : 'replies'}
                       </span>
                     </button>
 
                     {userId && (
                       <button
-                        onClick={() => setReplyingTo(replyingTo === discussion.id ? null : discussion.id)}
-                        className="flex items-center gap-1 text-gray-500 hover:text-blue-600 transition-colors"
+                        onClick={() =>
+                          setReplyingTo(replyingTo === discussion.id ? null : discussion.id)
+                        }
+                        className="flex items-center gap-1 text-gray-500 transition-colors hover:text-blue-600"
                       >
-                        <Reply className="w-4 h-4" />
+                        <Reply className="h-4 w-4" />
                         <span>Reply</span>
                       </button>
                     )}
 
-                    <button className="flex items-center gap-1 text-gray-500 hover:text-blue-600 transition-colors">
-                      <ThumbsUp className="w-4 h-4" />
+                    <button className="flex items-center gap-1 text-gray-500 transition-colors hover:text-blue-600">
+                      <ThumbsUp className="h-4 w-4" />
                       <span>{discussion.upvotes_count || 0}</span>
                     </button>
                   </div>
 
                   {/* Reply Form */}
                   {replyingTo === discussion.id && userId && (
-                    <div className="mt-4 pl-4 border-l-2 border-blue-200">
+                    <div className="mt-4 border-l-2 border-blue-200 pl-4">
                       <textarea
                         value={replyContent}
                         onChange={(e) => setReplyContent(e.target.value)}
                         placeholder="Write your reply..."
                         rows={3}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                        className="w-full resize-none rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                       />
-                      <div className="flex gap-2 mt-2">
+                      <div className="mt-2 flex gap-2">
                         <button
                           onClick={() => handleReply(discussion.id)}
                           disabled={submitting || !replyContent.trim()}
-                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           {submitting ? 'Posting...' : 'Post Reply'}
                         </button>
@@ -503,7 +509,7 @@ export function DiscussionForum({
                             setReplyingTo(null)
                             setReplyContent('')
                           }}
-                          className="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+                          className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50"
                         >
                           Cancel
                         </button>
@@ -512,49 +518,51 @@ export function DiscussionForum({
                   )}
 
                   {/* Replies */}
-                  {discussion.showReplies && discussion.replies && discussion.replies.length > 0 && (
-                    <div className="mt-4 space-y-4 pl-4 border-l-2 border-gray-200">
-                      {discussion.replies.map((reply) => (
-                        <div key={reply.id} className="flex items-start gap-3">
-                          <div className="flex-shrink-0 w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                            <User className="w-4 h-4 text-gray-500" />
-                          </div>
-                          
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between gap-2 mb-1">
-                              <span className="text-sm font-medium text-gray-900">
-                                User
-                              </span>
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs text-gray-500">
-                                  {formatDate(reply.created_at)}
-                                </span>
-                                {discussion.discussion_type === 'question' && 
-                                 discussion.user_id === userId && 
-                                 !discussion.is_answered && (
-                                  <button
-                                    onClick={() => handleMarkAsAnswered(discussion.id, reply.id)}
-                                    className="text-xs text-green-600 hover:text-green-700 font-medium"
-                                  >
-                                    Mark as answer
-                                  </button>
-                                )}
-                                {reply.id === discussion.best_answer_id && (
-                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-800 rounded text-xs font-medium">
-                                    <CheckCircle className="w-3 h-3" />
-                                    Best Answer
-                                  </span>
-                                )}
-                              </div>
+                  {discussion.showReplies &&
+                    discussion.replies &&
+                    discussion.replies.length > 0 && (
+                      <div className="mt-4 space-y-4 border-l-2 border-gray-200 pl-4">
+                        {discussion.replies.map((reply) => (
+                          <div key={reply.id} className="flex items-start gap-3">
+                            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gray-200">
+                              <User className="h-4 w-4 text-gray-500" />
                             </div>
-                            <p className="text-sm text-gray-700 whitespace-pre-wrap">
-                              {reply.content}
-                            </p>
+
+                            <div className="min-w-0 flex-1">
+                              <div className="mb-1 flex items-center justify-between gap-2">
+                                <span className="text-sm font-medium text-gray-900">User</span>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs text-gray-500">
+                                    {formatDate(reply.created_at)}
+                                  </span>
+                                  {discussion.discussion_type === 'question' &&
+                                    discussion.user_id === userId &&
+                                    !discussion.is_answered && (
+                                      <button
+                                        onClick={() =>
+                                          handleMarkAsAnswered(discussion.id, reply.id)
+                                        }
+                                        className="text-xs font-medium text-green-600 hover:text-green-700"
+                                      >
+                                        Mark as answer
+                                      </button>
+                                    )}
+                                  {reply.id === discussion.best_answer_id && (
+                                    <span className="inline-flex items-center gap-1 rounded bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">
+                                      <CheckCircle className="h-3 w-3" />
+                                      Best Answer
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                              <p className="whitespace-pre-wrap text-sm text-gray-700">
+                                {reply.content}
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                        ))}
+                      </div>
+                    )}
                 </div>
               </div>
             </div>

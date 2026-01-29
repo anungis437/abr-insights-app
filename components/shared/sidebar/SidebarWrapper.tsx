@@ -19,7 +19,7 @@ export default function SidebarWrapper() {
     } else {
       document.body.classList.remove('has-sidebar')
     }
-    
+
     return () => {
       document.body.classList.remove('has-sidebar')
     }

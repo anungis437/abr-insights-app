@@ -13,7 +13,7 @@
 **Critical Issue Discovered**: Next.js build fails with **EISDIR webpack error** due to **Windows exFAT filesystem incompatibility**.
 
 ```
-Error: EISDIR: illegal operation on a directory, readlink 
+Error: EISDIR: illegal operation on a directory, readlink
 'D:\APPS\abr-insights-app\app\api\admin\ml\coverage-stats\route.ts'
 ```
 
@@ -36,6 +36,7 @@ Volume label is My Passport.
 ```
 
 **Verification Steps Taken**:
+
 1. ✅ Checked for actual symlinks - None found
 2. ✅ Recreated all affected files - Issue persists
 3. ✅ Ran filesystem check (chkdsk) - No errors found
@@ -76,13 +77,14 @@ The error consistently appears during webpack's compilation phase:
 ```
 Creating an optimized production build ...
 Failed to compile.
-Error: EISDIR: illegal operation on a directory, readlink 
+Error: EISDIR: illegal operation on a directory, readlink
 'D:\APPS\abr-insights-app\app\api\admin\ml\[route-name]\route.ts'
 ```
 
 ### Affected Files
 
 All API route files in specific directories:
+
 - `app/api/admin/ml/coverage-stats/route.ts`
 - `app/api/admin/ml/embedding-jobs/route.ts`
 - `app/api/admin/ml/model-performance/route.ts`
@@ -96,11 +98,11 @@ All API route files in specific directories:
 // Added to next.config.js - Did not resolve issue
 config.resolve = {
   ...config.resolve,
-  symlinks: false,  // Disable symlink resolution
+  symlinks: false, // Disable symlink resolution
 }
 
 config.cache = {
-  type: 'memory',  // Changed from filesystem caching
+  type: 'memory', // Changed from filesystem caching
 }
 ```
 
@@ -116,6 +118,7 @@ config.cache = {
 **Success Rate**: 99%
 
 **Steps**:
+
 ```powershell
 # 1. Close all terminals/VS Code instances
 # 2. Copy project to NTFS drive
@@ -132,6 +135,7 @@ npm run build
 ```
 
 **Why This Works**:
+
 - NTFS has full support for webpack file operations
 - All Next.js/webpack features work correctly
 - No code changes required
@@ -147,6 +151,7 @@ npm run build
 **Success Rate**: 95%
 
 **Steps**:
+
 ```bash
 # 1. Install WSL2 (if not already installed)
 wsl --install
@@ -161,12 +166,14 @@ npm run build
 ```
 
 **Benefits**:
+
 - Linux filesystem eliminates Windows quirks
 - Better Docker integration
 - Improved build performance
 - Industry best practice for Node.js development on Windows
 
 **Drawbacks**:
+
 - Requires WSL2 setup
 - Learning curve for WSL commands
 - File system bridge can be slow
@@ -181,6 +188,7 @@ npm run build
 **Success Rate**: 90%
 
 **Create Dockerfile.build**:
+
 ```dockerfile
 FROM node:20-alpine
 WORKDIR /app
@@ -191,17 +199,20 @@ RUN npm run build
 ```
 
 **Build command**:
+
 ```powershell
 docker build -f Dockerfile.build -t abr-build .
 docker run --rm -v ${PWD}/.next:/app/.next abr-build
 ```
 
 **Benefits**:
+
 - Consistent build environment
 - Matches CI/CD environment
 - Filesystem isolation
 
 **Drawbacks**:
+
 - Requires Docker Desktop
 - Slower than native builds
 - More complex workflow
@@ -215,6 +226,7 @@ docker run --rm -v ${PWD}/.next:/app/.next abr-build
 1. **Decision Required**: Choose resolution option (recommend Option 1)
 
 2. **If Option 1 (Move to NTFS)**:
+
    ```powershell
    # Close all VS Code instances and terminals
    # Run from PowerShell as Administrator
@@ -242,6 +254,7 @@ docker run --rm -v ${PWD}/.next:/app/.next abr-build
 ## Pre-Production Checklist Status
 
 ### Code Quality ✅
+
 - [x] All source code production-ready
 - [x] Zero security vulnerabilities in tests
 - [x] 28/28 RLS tests passing
@@ -251,12 +264,14 @@ docker run --rm -v ${PWD}/.next:/app/.next abr-build
 - [x] AI features operational
 
 ### Infrastructure ❌
+
 - [ ] **Production build successful** ← BLOCKER
 - [ ] Build artifacts generated
 - [ ] Static assets optimized
 - [ ] Route manifests created
 
 ### Deployment ❌
+
 - [ ] **CI/CD pipeline** will build successfully ← BLOCKER
 - [ ] Azure deployment possible
 - [ ] Environment variables configured
@@ -275,7 +290,7 @@ docker run --rm -v ${PWD}/.next:/app/.next abr-build
 jobs:
   build-test:
     - name: Build production bundle
-      run: npm run build  # ← WILL FAIL if checked out to exFAT drive
+      run: npm run build # ← WILL FAIL if checked out to exFAT drive
 ```
 
 **Note**: GitHub Actions runners use **ext4 (Linux)** or **NTFS (Windows runners)**, so builds **will succeed in CI/CD** but **fail locally on developer's machine**.
@@ -327,6 +342,7 @@ npm test -- tenant-isolation.test.ts --run
 ```
 
 **Expected Results**:
+
 - ✅ Build completes in 2-5 minutes
 - ✅ No EISDIR errors
 - ✅ All 88 pages compiled
@@ -356,6 +372,7 @@ npm test -- tenant-isolation.test.ts --run
 **Move project to C: drive (NTFS) immediately**
 
 This is:
+
 - ✅ Fastest resolution (5 minutes)
 - ✅ Lowest risk approach
 - ✅ Industry standard practice
@@ -376,6 +393,7 @@ This is:
 ### Industry Standard
 
 **Windows Development Best Practice**:
+
 - Use **NTFS** for active development
 - Use **exFAT/FAT32** only for portable storage
 - Node.js projects should always be on NTFS or WSL2 (ext4)
@@ -385,6 +403,7 @@ This is:
 ## Files Modified (During Troubleshooting)
 
 ### next.config.js
+
 - ✅ Added `symlinks: false` to webpack config
 - ✅ Removed bundle analyzer dependency (was missing)
 - ✅ Changed cache to memory mode

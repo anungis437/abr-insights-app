@@ -3,38 +3,38 @@
  * Manages service worker registration, offline detection, installation prompts
  */
 
-'use client';
+'use client'
 
-import { useEffect, useState, useCallback } from 'react';
-import { logger } from '@/lib/utils/logger';
+import { useEffect, useState, useCallback } from 'react'
+import { logger } from '@/lib/utils/logger'
 
 // =====================================================
 // Types
 // =====================================================
 
 export interface BeforeInstallPromptEvent extends Event {
-  prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+  prompt: () => Promise<void>
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
 }
 
 export interface PWAStatus {
-  isInstalled: boolean;
-  isOnline: boolean;
-  isUpdateAvailable: boolean;
-  canInstall: boolean;
+  isInstalled: boolean
+  isOnline: boolean
+  isUpdateAvailable: boolean
+  canInstall: boolean
 }
 
 export interface CacheStatus {
-  usage: number;
-  quota: number;
-  percentage: string;
+  usage: number
+  quota: number
+  percentage: string
 }
 
 export interface DownloadedCourse {
-  courseId: string;
-  title: string;
-  downloadedAt: string;
-  size: number;
+  courseId: string
+  title: string
+  downloadedAt: string
+  size: number
 }
 
 // =====================================================
@@ -42,55 +42,58 @@ export interface DownloadedCourse {
 // =====================================================
 
 export function useServiceWorker() {
-  const [registration, setRegistration] = useState<ServiceWorkerRegistration | null>(null);
-  const [isUpdateAvailable, setIsUpdateAvailable] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const [registration, setRegistration] = useState<ServiceWorkerRegistration | null>(null)
+  const [isUpdateAvailable, setIsUpdateAvailable] = useState(false)
+  const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
         .register('/sw.js')
         .then((reg) => {
-          logger.info('[PWA] Service Worker registered', { scope: reg.scope });
-          setRegistration(reg);
+          logger.info('[PWA] Service Worker registered', { scope: reg.scope })
+          setRegistration(reg)
 
           // Check for updates
           reg.addEventListener('updatefound', () => {
-            const newWorker = reg.installing;
+            const newWorker = reg.installing
             if (newWorker) {
               newWorker.addEventListener('statechange', () => {
                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                  setIsUpdateAvailable(true);
+                  setIsUpdateAvailable(true)
                 }
-              });
+              })
             }
-          });
+          })
 
           // Check for updates every hour
-          setInterval(() => {
-            reg.update();
-          }, 60 * 60 * 1000);
+          setInterval(
+            () => {
+              reg.update()
+            },
+            60 * 60 * 1000
+          )
         })
         .catch((err) => {
-          console.error('[PWA] Service Worker registration failed:', err);
-          setError(err);
-        });
+          console.error('[PWA] Service Worker registration failed:', err)
+          setError(err)
+        })
     }
-  }, []);
+  }, [])
 
   const updateServiceWorker = useCallback(() => {
     if (registration && registration.waiting) {
-      registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-      window.location.reload();
+      registration.waiting.postMessage({ type: 'SKIP_WAITING' })
+      window.location.reload()
     }
-  }, [registration]);
+  }, [registration])
 
   return {
     registration,
     isUpdateAvailable,
     updateServiceWorker,
     error,
-  };
+  }
 }
 
 // =====================================================
@@ -98,44 +101,44 @@ export function useServiceWorker() {
 // =====================================================
 
 export function useOnlineStatus() {
-  const [isOnline, setIsOnline] = useState(true);
+  const [isOnline, setIsOnline] = useState(true)
 
   useEffect(() => {
-    setIsOnline(navigator.onLine);
+    setIsOnline(navigator.onLine)
 
     const handleOnline = () => {
-      setIsOnline(true);
-      logger.info('[PWA] Back online');
-      
+      setIsOnline(true)
+      logger.info('[PWA] Back online')
+
       // Trigger sync
       if ('serviceWorker' in navigator && 'sync' in ServiceWorkerRegistration.prototype) {
         navigator.serviceWorker.ready.then((reg) => {
           // @ts-ignore - Background Sync API not in TypeScript types yet
           if (reg.sync) {
             // @ts-ignore
-            reg.sync.register('sync-quiz-attempts');
+            reg.sync.register('sync-quiz-attempts')
             // @ts-ignore
-            reg.sync.register('sync-course-progress');
+            reg.sync.register('sync-course-progress')
           }
-        });
+        })
       }
-    };
+    }
 
     const handleOffline = () => {
-      setIsOnline(false);
-      logger.info('[PWA] Gone offline');
-    };
+      setIsOnline(false)
+      logger.info('[PWA] Gone offline')
+    }
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+    window.addEventListener('online', handleOnline)
+    window.addEventListener('offline', handleOffline)
 
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, []);
+      window.removeEventListener('online', handleOnline)
+      window.removeEventListener('offline', handleOffline)
+    }
+  }, [])
 
-  return isOnline;
+  return isOnline
 }
 
 // =====================================================
@@ -143,60 +146,60 @@ export function useOnlineStatus() {
 // =====================================================
 
 export function useInstallPrompt() {
-  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [isInstalled, setIsInstalled] = useState(false);
+  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null)
+  const [isInstalled, setIsInstalled] = useState(false)
 
   useEffect(() => {
     // Check if already installed
     if (window.matchMedia('(display-mode: standalone)').matches) {
-      setIsInstalled(true);
+      setIsInstalled(true)
     }
 
     const handleBeforeInstallPrompt = (e: Event) => {
-      e.preventDefault();
-      setInstallPrompt(e as BeforeInstallPromptEvent);
-      logger.info('[PWA] Install prompt available');
-    };
+      e.preventDefault()
+      setInstallPrompt(e as BeforeInstallPromptEvent)
+      logger.info('[PWA] Install prompt available')
+    }
 
     const handleAppInstalled = () => {
-      setIsInstalled(true);
-      setInstallPrompt(null);
-      logger.info('[PWA] App installed');
-    };
+      setIsInstalled(true)
+      setInstallPrompt(null)
+      logger.info('[PWA] App installed')
+    }
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    window.addEventListener('appinstalled', handleAppInstalled);
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+    window.addEventListener('appinstalled', handleAppInstalled)
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-      window.removeEventListener('appinstalled', handleAppInstalled);
-    };
-  }, []);
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
+      window.removeEventListener('appinstalled', handleAppInstalled)
+    }
+  }, [])
 
   const promptInstall = useCallback(async () => {
     if (!installPrompt) {
-      console.warn('[PWA] Install prompt not available');
-      return false;
+      console.warn('[PWA] Install prompt not available')
+      return false
     }
 
-    await installPrompt.prompt();
-    const { outcome } = await installPrompt.userChoice;
-    
-    logger.info('[PWA] Install prompt outcome', { outcome });
-    
+    await installPrompt.prompt()
+    const { outcome } = await installPrompt.userChoice
+
+    logger.info('[PWA] Install prompt outcome', { outcome })
+
     if (outcome === 'accepted') {
-      setInstallPrompt(null);
-      return true;
+      setInstallPrompt(null)
+      return true
     }
-    
-    return false;
-  }, [installPrompt]);
+
+    return false
+  }, [installPrompt])
 
   return {
     canInstall: !!installPrompt,
     isInstalled,
     promptInstall,
-  };
+  }
 }
 
 // =====================================================
@@ -204,81 +207,81 @@ export function useInstallPrompt() {
 // =====================================================
 
 export function usePushNotifications() {
-  const [permission, setPermission] = useState<NotificationPermission>('default');
-  const [subscription, setSubscription] = useState<PushSubscription | null>(null);
+  const [permission, setPermission] = useState<NotificationPermission>('default')
+  const [subscription, setSubscription] = useState<PushSubscription | null>(null)
 
   useEffect(() => {
     if ('Notification' in window) {
-      setPermission(Notification.permission);
+      setPermission(Notification.permission)
     }
-  }, []);
+  }, [])
 
   const requestPermission = useCallback(async () => {
     if (!('Notification' in window)) {
-      console.warn('[PWA] Notifications not supported');
-      return false;
+      console.warn('[PWA] Notifications not supported')
+      return false
     }
 
-    const result = await Notification.requestPermission();
-    setPermission(result);
-    return result === 'granted';
-  }, []);
+    const result = await Notification.requestPermission()
+    setPermission(result)
+    return result === 'granted'
+  }, [])
 
   const subscribe = useCallback(async () => {
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-      console.warn('[PWA] Push notifications not supported');
-      return null;
+      console.warn('[PWA] Push notifications not supported')
+      return null
     }
 
     try {
-      const registration = await navigator.serviceWorker.ready;
-      
+      const registration = await navigator.serviceWorker.ready
+
       // Get existing subscription or create new one
-      let sub = await registration.pushManager.getSubscription();
-      
+      let sub = await registration.pushManager.getSubscription()
+
       if (!sub) {
         // You'll need to generate VAPID keys and add your public key here
-        const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '';
-        
+        const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || ''
+
         sub = await registration.pushManager.subscribe({
           userVisibleOnly: true,
           applicationServerKey: urlBase64ToUint8Array(vapidPublicKey) as BufferSource,
-        });
+        })
       }
-      
-      setSubscription(sub);
-      
+
+      setSubscription(sub)
+
       // Send subscription to your backend
       await fetch('/api/push/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(sub),
-      });
-      
-      return sub;
+      })
+
+      return sub
     } catch (error) {
-      console.error('[PWA] Failed to subscribe to push:', error);
-      return null;
+      console.error('[PWA] Failed to subscribe to push:', error)
+      return null
     }
-  }, []);
+  }, [])
 
   const unsubscribe = useCallback(async () => {
     if (subscription) {
       try {
-        await subscription.unsubscribe();
-        setSubscription(null);
-        
+        await subscription.unsubscribe()
+        setSubscription(null)
+
         // Notify backend
         await fetch('/api/push/unsubscribe', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ endpoint: subscription.endpoint }),
-        });
+        })
       } catch (error) {
-        console.error('[PWA] Failed to unsubscribe:', error);
+        console.error('[PWA] Failed to unsubscribe:', error)
       }
     }
-  }, [subscription]);
+  }, [subscription])
 
   return {
     permission,
@@ -286,7 +289,7 @@ export function usePushNotifications() {
     requestPermission,
     subscribe,
     unsubscribe,
-  };
+  }
 }
 
 // =====================================================
@@ -294,68 +297,71 @@ export function usePushNotifications() {
 // =====================================================
 
 export function useCourseDownload() {
-  const [downloadedCourses, setDownloadedCourses] = useState<DownloadedCourse[]>([]);
-  const [downloading, setDownloading] = useState<string[]>([]);
+  const [downloadedCourses, setDownloadedCourses] = useState<DownloadedCourse[]>([])
+  const [downloading, setDownloading] = useState<string[]>([])
 
   useEffect(() => {
-    loadDownloadedCourses();
-  }, []);
+    loadDownloadedCourses()
+  }, [])
 
   const loadDownloadedCourses = async () => {
     try {
-      const db = await openDB();
-      const courses = await getAllFromStore(db, 'downloadedCourses');
-      setDownloadedCourses(courses);
+      const db = await openDB()
+      const courses = await getAllFromStore(db, 'downloadedCourses')
+      setDownloadedCourses(courses)
     } catch (error) {
-      console.error('[PWA] Failed to load downloaded courses:', error);
+      console.error('[PWA] Failed to load downloaded courses:', error)
     }
-  };
+  }
 
-  const downloadCourse = useCallback(async (courseId: string) => {
-    if (downloading.includes(courseId)) return;
-    
-    setDownloading((prev) => [...prev, courseId]);
-    
-    try {
-      if ('serviceWorker' in navigator) {
-        const registration = await navigator.serviceWorker.ready;
-        registration.active?.postMessage({
-          type: 'CACHE_COURSE',
-          courseId,
-        });
-        
-        // Wait a bit for the download to complete
-        setTimeout(() => {
-          loadDownloadedCourses();
-          setDownloading((prev) => prev.filter((id) => id !== courseId));
-        }, 2000);
+  const downloadCourse = useCallback(
+    async (courseId: string) => {
+      if (downloading.includes(courseId)) return
+
+      setDownloading((prev) => [...prev, courseId])
+
+      try {
+        if ('serviceWorker' in navigator) {
+          const registration = await navigator.serviceWorker.ready
+          registration.active?.postMessage({
+            type: 'CACHE_COURSE',
+            courseId,
+          })
+
+          // Wait a bit for the download to complete
+          setTimeout(() => {
+            loadDownloadedCourses()
+            setDownloading((prev) => prev.filter((id) => id !== courseId))
+          }, 2000)
+        }
+      } catch (error) {
+        console.error('[PWA] Failed to download course:', error)
+        setDownloading((prev) => prev.filter((id) => id !== courseId))
       }
-    } catch (error) {
-      console.error('[PWA] Failed to download course:', error);
-      setDownloading((prev) => prev.filter((id) => id !== courseId));
-    }
-  }, [downloading]);
+    },
+    [downloading]
+  )
 
   const removeCourse = useCallback(async (courseId: string) => {
     try {
       if ('serviceWorker' in navigator) {
-        const registration = await navigator.serviceWorker.ready;
+        const registration = await navigator.serviceWorker.ready
         registration.active?.postMessage({
           type: 'REMOVE_COURSE_CACHE',
           courseId,
-        });
-        
-        await loadDownloadedCourses();
+        })
+
+        await loadDownloadedCourses()
       }
     } catch (error) {
-      console.error('[PWA] Failed to remove course:', error);
+      console.error('[PWA] Failed to remove course:', error)
     }
-  }, []);
+  }, [])
 
   const isDownloaded = useCallback(
     (courseId: string) => downloadedCourses.some((c) => c.courseId === courseId),
     [downloadedCourses]
-  );
+  )
 
   return {
     downloadedCourses,
@@ -364,7 +370,7 @@ export function useCourseDownload() {
     removeCourse,
     isDownloaded,
     refresh: loadDownloadedCourses,
-  };
+  }
 }
 
 // =====================================================
@@ -376,47 +382,44 @@ export function useCacheManagement() {
     usage: 0,
     quota: 0,
     percentage: '0',
-  });
+  })
 
   const checkCacheSize = useCallback(async () => {
     if ('serviceWorker' in navigator) {
-      const registration = await navigator.serviceWorker.ready;
-      
-      const messageChannel = new MessageChannel();
-      
+      const registration = await navigator.serviceWorker.ready
+
+      const messageChannel = new MessageChannel()
+
       messageChannel.port1.onmessage = (event) => {
         if (event.data.type === 'CACHE_SIZE') {
-          setCacheStatus(event.data.size);
+          setCacheStatus(event.data.size)
         }
-      };
-      
-      registration.active?.postMessage(
-        { type: 'GET_CACHE_SIZE' },
-        [messageChannel.port2]
-      );
+      }
+
+      registration.active?.postMessage({ type: 'GET_CACHE_SIZE' }, [messageChannel.port2])
     }
-  }, []);
+  }, [])
 
   const clearAllCaches = useCallback(async () => {
     if ('serviceWorker' in navigator) {
-      const registration = await navigator.serviceWorker.ready;
-      registration.active?.postMessage({ type: 'CLEAR_ALL_CACHES' });
-      
+      const registration = await navigator.serviceWorker.ready
+      registration.active?.postMessage({ type: 'CLEAR_ALL_CACHES' })
+
       setTimeout(() => {
-        checkCacheSize();
-      }, 1000);
+        checkCacheSize()
+      }, 1000)
     }
-  }, [checkCacheSize]);
+  }, [checkCacheSize])
 
   useEffect(() => {
-    checkCacheSize();
-  }, [checkCacheSize]);
+    checkCacheSize()
+  }, [checkCacheSize])
 
   return {
     cacheStatus,
     checkCacheSize,
     clearAllCaches,
-  };
+  }
 }
 
 // =====================================================
@@ -424,16 +427,16 @@ export function useCacheManagement() {
 // =====================================================
 
 export function usePWAStatus(): PWAStatus {
-  const { isUpdateAvailable } = useServiceWorker();
-  const isOnline = useOnlineStatus();
-  const { canInstall, isInstalled } = useInstallPrompt();
+  const { isUpdateAvailable } = useServiceWorker()
+  const isOnline = useOnlineStatus()
+  const { canInstall, isInstalled } = useInstallPrompt()
 
   return {
     isInstalled,
     isOnline,
     isUpdateAvailable,
     canInstall,
-  };
+  }
 }
 
 // =====================================================
@@ -441,52 +444,52 @@ export function usePWAStatus(): PWAStatus {
 // =====================================================
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
-  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-  const rawData = window.atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
-  
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
+  const rawData = window.atob(base64)
+  const outputArray = new Uint8Array(rawData.length)
+
   for (let i = 0; i < rawData.length; ++i) {
-    outputArray[i] = rawData.charCodeAt(i);
+    outputArray[i] = rawData.charCodeAt(i)
   }
-  
-  return outputArray;
+
+  return outputArray
 }
 
 function openDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open('ABRInsightsDB', 1);
-    
-    request.onerror = () => reject(request.error);
-    request.onsuccess = () => resolve(request.result);
-    
+    const request = indexedDB.open('ABRInsightsDB', 1)
+
+    request.onerror = () => reject(request.error)
+    request.onsuccess = () => resolve(request.result)
+
     request.onupgradeneeded = (event) => {
-      const db = (event.target as IDBOpenDBRequest).result;
-      
+      const db = (event.target as IDBOpenDBRequest).result
+
       if (!db.objectStoreNames.contains('offlineQuizAttempts')) {
-        db.createObjectStore('offlineQuizAttempts', { keyPath: 'id', autoIncrement: true });
+        db.createObjectStore('offlineQuizAttempts', { keyPath: 'id', autoIncrement: true })
       }
-      
+
       if (!db.objectStoreNames.contains('offlineProgress')) {
-        db.createObjectStore('offlineProgress', { keyPath: 'id', autoIncrement: true });
+        db.createObjectStore('offlineProgress', { keyPath: 'id', autoIncrement: true })
       }
-      
+
       if (!db.objectStoreNames.contains('downloadedCourses')) {
-        db.createObjectStore('downloadedCourses', { keyPath: 'courseId' });
+        db.createObjectStore('downloadedCourses', { keyPath: 'courseId' })
       }
-    };
-  });
+    }
+  })
 }
 
 function getAllFromStore(db: IDBDatabase, storeName: string): Promise<any[]> {
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction([storeName], 'readonly');
-    const store = transaction.objectStore(storeName);
-    const request = store.getAll();
-    
-    request.onerror = () => reject(request.error);
-    request.onsuccess = () => resolve(request.result);
-  });
+    const transaction = db.transaction([storeName], 'readonly')
+    const store = transaction.objectStore(storeName)
+    const request = store.getAll()
+
+    request.onerror = () => reject(request.error)
+    request.onsuccess = () => resolve(request.result)
+  })
 }
 
 // =====================================================
@@ -494,14 +497,14 @@ function getAllFromStore(db: IDBDatabase, storeName: string): Promise<any[]> {
 // =====================================================
 
 export class OfflineQueue {
-  private static instance: OfflineQueue;
-  private queue: Array<{ url: string; options: RequestInit; timestamp: number }> = [];
+  private static instance: OfflineQueue
+  private queue: Array<{ url: string; options: RequestInit; timestamp: number }> = []
 
   static getInstance(): OfflineQueue {
     if (!OfflineQueue.instance) {
-      OfflineQueue.instance = new OfflineQueue();
+      OfflineQueue.instance = new OfflineQueue()
     }
-    return OfflineQueue.instance;
+    return OfflineQueue.instance
   }
 
   async add(url: string, options: RequestInit): Promise<void> {
@@ -509,41 +512,41 @@ export class OfflineQueue {
       url,
       options,
       timestamp: Date.now(),
-    });
-    
+    })
+
     // Try to save to IndexedDB
     try {
-      const db = await openDB();
-      const transaction = db.transaction(['offlineProgress'], 'readwrite');
-      const store = transaction.objectStore('offlineProgress');
-      
+      const db = await openDB()
+      const transaction = db.transaction(['offlineProgress'], 'readwrite')
+      const store = transaction.objectStore('offlineProgress')
+
       await new Promise((resolve, reject) => {
         const request = store.add({
           url,
           options,
           timestamp: Date.now(),
-        });
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
-      });
+        })
+        request.onsuccess = () => resolve(request.result)
+        request.onerror = () => reject(request.error)
+      })
     } catch (error) {
-      console.error('[PWA] Failed to save to offline queue:', error);
+      console.error('[PWA] Failed to save to offline queue:', error)
     }
   }
 
   async processQueue(): Promise<void> {
-    if (!navigator.onLine) return;
-    
-    const toProcess = [...this.queue];
-    this.queue = [];
-    
+    if (!navigator.onLine) return
+
+    const toProcess = [...this.queue]
+    this.queue = []
+
     for (const item of toProcess) {
       try {
-        await fetch(item.url, item.options);
-        logger.info('[PWA] Processed offline request', { url: item.url });
+        await fetch(item.url, item.options)
+        logger.info('[PWA] Processed offline request', { url: item.url })
       } catch (error) {
-        logger.error('[PWA] Failed to process offline request', error, { url: item.url });
-        this.queue.push(item); // Re-add on failure
+        logger.error('[PWA] Failed to process offline request', error, { url: item.url })
+        this.queue.push(item) // Re-add on failure
       }
     }
   }
@@ -552,6 +555,6 @@ export class OfflineQueue {
 // Initialize offline queue processing when online
 if (typeof window !== 'undefined') {
   window.addEventListener('online', () => {
-    OfflineQueue.getInstance().processQueue();
-  });
+    OfflineQueue.getInstance().processQueue()
+  })
 }

@@ -24,7 +24,7 @@ const publicFooterSections: FooterSection[] = [
       { label: 'Analytics', href: '/analytics' },
       { label: 'Team Management', href: '/team' },
       { label: 'Pricing', href: '/pricing' },
-    ]
+    ],
   },
   {
     title: 'Company',
@@ -35,7 +35,7 @@ const publicFooterSections: FooterSection[] = [
       { label: 'FAQ', href: '/faq' },
       { label: 'Blog', href: '/blog' },
       { label: 'Careers', href: '/careers' },
-    ]
+    ],
   },
   {
     title: 'Legal',
@@ -45,8 +45,8 @@ const publicFooterSections: FooterSection[] = [
       { label: 'Accessibility', href: '/accessibility' },
       { label: 'Cookie Policy', href: '/cookies' },
       { label: 'Security', href: '/security' },
-    ]
-  }
+    ],
+  },
 ]
 
 // Authenticated footer - User focused
@@ -59,7 +59,7 @@ const authenticatedFooterSections: FooterSection[] = [
       { label: 'Browse Cases', href: '/cases/browse' },
       { label: 'Profile', href: '/profile' },
       { label: 'Settings', href: '/profile/settings' },
-    ]
+    ],
   },
   {
     title: 'Support',
@@ -69,7 +69,7 @@ const authenticatedFooterSections: FooterSection[] = [
       { label: 'Feedback', href: '/feedback' },
       { label: 'FAQ', href: '/faq' },
       { label: 'API Docs', href: '/docs/api', external: true },
-    ]
+    ],
   },
   {
     title: 'Legal',
@@ -77,13 +77,13 @@ const authenticatedFooterSections: FooterSection[] = [
       { label: 'Privacy Policy', href: '/privacy' },
       { label: 'Terms of Service', href: '/terms' },
       { label: 'Security', href: '/security' },
-    ]
-  }
+    ],
+  },
 ]
 
 export const footerConfig: FooterConfig = {
   public: publicFooterSections,
-  authenticated: authenticatedFooterSections
+  authenticated: authenticatedFooterSections,
 }
 
 /**

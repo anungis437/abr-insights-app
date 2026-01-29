@@ -34,7 +34,7 @@ export default function NavDropdown({ link, isMobile = false }: NavDropdownProps
           <ChevronDown className={`h-4 w-4 transition-transform ${open ? 'rotate-180' : ''}`} />
         </button>
         {open && (
-          <div className="ml-4 flex flex-col gap-2 border-l-2 border-gray-200 pl-4 py-2">
+          <div className="ml-4 flex flex-col gap-2 border-l-2 border-gray-200 py-2 pl-4">
             {link.children.map((child) => (
               <Link
                 key={child.href}
@@ -70,7 +70,7 @@ export default function NavDropdown({ link, isMobile = false }: NavDropdownProps
       </button>
 
       {open && (
-        <div 
+        <div
           className="absolute left-0 top-full z-50 mt-1 min-w-[200px] rounded-lg border border-gray-200 bg-white shadow-lg"
           onMouseEnter={() => setOpen(true)}
         >

@@ -9,13 +9,17 @@ export default function AuthenticatedFooter() {
   const { user, profile } = useAuth()
   const sections = footerConfig.authenticated
 
-  const displayName = profile?.display_name || 
-    (profile?.first_name && profile?.last_name 
-      ? `${profile.first_name} ${profile.last_name}` 
+  const displayName =
+    profile?.display_name ||
+    (profile?.first_name && profile?.last_name
+      ? `${profile.first_name} ${profile.last_name}`
       : user?.email)
 
-  const roleLabel = profile?.role 
-    ? profile.role.split('_').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+  const roleLabel = profile?.role
+    ? profile.role
+        .split('_')
+        .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ')
     : 'User'
 
   return (
@@ -31,8 +35,8 @@ export default function AuthenticatedFooter() {
               <span className="text-lg font-semibold text-gray-900">ABR Insights</span>
             </div>
             <div className="mb-4 rounded-lg border border-gray-200 bg-gray-50 p-3">
-              <p className="mb-1 text-sm font-semibold text-gray-900 truncate">{displayName}</p>
-              <p className="mb-1 text-xs text-gray-500 truncate">{user?.email}</p>
+              <p className="mb-1 truncate text-sm font-semibold text-gray-900">{displayName}</p>
+              <p className="mb-1 truncate text-xs text-gray-500">{user?.email}</p>
               <p className="text-xs font-medium text-primary-600">{roleLabel}</p>
             </div>
             <div className="flex gap-4">

@@ -86,7 +86,10 @@ export default function OrgDashboardPage() {
       setError(null)
 
       // Get current user
-      const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser()
+      const {
+        data: { user: currentUser },
+        error: userError,
+      } = await supabase.auth.getUser()
       if (userError || !currentUser) {
         router.push('/auth/sign-in')
         return
@@ -143,7 +146,8 @@ export default function OrgDashboardPage() {
       // Get all certificates for organization members
       const { data: certs, error: certsError } = await supabase
         .from('certificates')
-        .select(`
+        .select(
+          `
           id,
           user_id,
           course_id,
@@ -151,12 +155,13 @@ export default function OrgDashboardPage() {
           issued_at,
           profiles!inner(full_name),
           courses!inner(title)
-        `)
+        `
+        )
         .in('user_id', memberIds)
         .order('issued_at', { ascending: false })
 
       if (certsError) throw certsError
-      
+
       const formattedCerts = (certs || []).map((cert: any) => ({
         id: cert.id,
         user_id: cert.user_id,
@@ -176,7 +181,6 @@ export default function OrgDashboardPage() {
 
       if (coursesError) throw coursesError
       setCourses(allCourses || [])
-
     } catch (err: any) {
       console.error('Failed to load organization dashboard:', err)
       setError(err.message || 'Failed to load dashboard data')
@@ -187,70 +191,79 @@ export default function OrgDashboardPage() {
 
   if (loading) {
     return (
-      <>        <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12 flex items-center justify-center">
+      <>
+        {' '}
+        <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-gray-50 to-white py-12">
           <div className="text-center">
-            <Loader2 className="w-12 h-12 text-teal-600 animate-spin mx-auto mb-4" />
+            <Loader2 className="mx-auto mb-4 h-12 w-12 animate-spin text-teal-600" />
             <p className="text-gray-600">Loading organization dashboard...</p>
           </div>
-        </div>      </>
+        </div>{' '}
+      </>
     )
   }
 
   if (error) {
     return (
-      <>        <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12 flex items-center justify-center">
+      <>
+        {' '}
+        <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-gray-50 to-white py-12">
           <Card className="max-w-md">
             <CardContent className="p-12 text-center">
-              <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Error</h2>
-              <p className="text-gray-600 mb-6">{error}</p>
+              <AlertCircle className="mx-auto mb-4 h-16 w-16 text-red-500" />
+              <h2 className="mb-2 text-2xl font-bold text-gray-900">Access Error</h2>
+              <p className="mb-6 text-gray-600">{error}</p>
               <Link href="/">
-                <Button className="bg-teal-600 hover:bg-teal-700 text-white">
-                  Back to Home
-                </Button>
+                <Button className="bg-teal-600 text-white hover:bg-teal-700">Back to Home</Button>
               </Link>
             </CardContent>
           </Card>
-        </div>      </>
+        </div>{' '}
+      </>
     )
   }
 
   if (!organization) {
     return (
-      <>        <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12 flex items-center justify-center">
+      <>
+        {' '}
+        <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-gray-50 to-white py-12">
           <Card className="max-w-md">
             <CardContent className="p-12 text-center">
-              <Building2 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">No Organization Found</h2>
-              <p className="text-gray-600 mb-6">
-                You&apos;re not part of any organization yet. Contact your administrator or upgrade to Enterprise.
+              <Building2 className="mx-auto mb-4 h-16 w-16 text-gray-400" />
+              <h2 className="mb-2 text-2xl font-bold text-gray-900">No Organization Found</h2>
+              <p className="mb-6 text-gray-600">
+                You&apos;re not part of any organization yet. Contact your administrator or upgrade
+                to Enterprise.
               </p>
               <Link href="/">
-                <Button className="bg-teal-600 hover:bg-teal-700 text-white">
-                  Back to Home
-                </Button>
+                <Button className="bg-teal-600 text-white hover:bg-teal-700">Back to Home</Button>
               </Link>
             </CardContent>
           </Card>
-        </div>      </>
+        </div>{' '}
+      </>
     )
   }
 
   // Calculate metrics
   const totalMembers = members.length
   const seatsAvailable = organization.seat_limit - totalMembers
-  const completedCourses = allProgress.filter(p => p.completion_percentage === 100).length
+  const completedCourses = allProgress.filter((p) => p.completion_percentage === 100).length
   const totalCertificates = certificates.length
-  const avgCompletion = allProgress.length > 0
-    ? allProgress.reduce((sum, p) => sum + p.completion_percentage, 0) / allProgress.length
-    : 0
+  const avgCompletion =
+    allProgress.length > 0
+      ? allProgress.reduce((sum, p) => sum + p.completion_percentage, 0) / allProgress.length
+      : 0
 
   // Course progress breakdown
-  const courseProgress = courses.slice(0, 6).map(course => {
-    const courseProgressRecords = allProgress.filter(p => p.course_id === course.id)
-    const avgProgress = courseProgressRecords.length > 0
-      ? courseProgressRecords.reduce((sum, p) => sum + p.completion_percentage, 0) / courseProgressRecords.length
-      : 0
+  const courseProgress = courses.slice(0, 6).map((course) => {
+    const courseProgressRecords = allProgress.filter((p) => p.course_id === course.id)
+    const avgProgress =
+      courseProgressRecords.length > 0
+        ? courseProgressRecords.reduce((sum, p) => sum + p.completion_percentage, 0) /
+          courseProgressRecords.length
+        : 0
     return {
       name: course.title.substring(0, 25) + (course.title.length > 25 ? '...' : ''),
       progress: avgProgress.toFixed(0),
@@ -259,18 +272,20 @@ export default function OrgDashboardPage() {
   })
 
   // Engagement data
-  const activeLearners = allProgress.filter(p => p.completion_percentage > 0).length
+  const activeLearners = allProgress.filter((p) => p.completion_percentage > 0).length
   const notStarted = totalMembers - activeLearners
 
   return (
-    <>      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12 pt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <>
+      {' '}
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12 pt-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="mb-12">
-            <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center">
-                  <Building2 className="w-7 h-7 text-white" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600">
+                  <Building2 className="h-7 w-7 text-white" />
                 </div>
                 <div>
                   <h1 className="text-4xl font-bold text-gray-900">{organization.name}</h1>
@@ -280,13 +295,13 @@ export default function OrgDashboardPage() {
               <div className="flex gap-3">
                 <Link href="/admin/team">
                   <Button variant="outline">
-                    <Users className="w-4 h-4 mr-2" />
+                    <Users className="mr-2 h-4 w-4" />
                     Manage Team
                   </Button>
                 </Link>
                 <Link href="/admin/org-settings">
                   <Button variant="outline">
-                    <Settings className="w-4 h-4 mr-2" />
+                    <Settings className="mr-2 h-4 w-4" />
                     Settings
                   </Button>
                 </Link>
@@ -295,32 +310,26 @@ export default function OrgDashboardPage() {
           </div>
 
           {/* Key Metrics */}
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
+          <div className="mb-8 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">
-                  Team Members
-                </CardTitle>
-                <Users className="w-4 h-4 text-gray-400" />
+                <CardTitle className="text-sm font-medium text-gray-600">Team Members</CardTitle>
+                <Users className="h-4 w-4 text-gray-400" />
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-gray-900">{totalMembers}</div>
-                <p className="text-xs text-gray-500 mt-1">
-                  {seatsAvailable} seats available
-                </p>
+                <p className="mt-1 text-xs text-gray-500">{seatsAvailable} seats available</p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">
-                  Avg Completion
-                </CardTitle>
-                <TrendingUp className="w-4 h-4 text-gray-400" />
+                <CardTitle className="text-sm font-medium text-gray-600">Avg Completion</CardTitle>
+                <TrendingUp className="h-4 w-4 text-gray-400" />
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-gray-900">{avgCompletion.toFixed(0)}%</div>
-                <Progress value={avgCompletion} className="h-2 mt-2" />
+                <Progress value={avgCompletion} className="mt-2 h-2" />
               </CardContent>
             </Card>
 
@@ -329,13 +338,11 @@ export default function OrgDashboardPage() {
                 <CardTitle className="text-sm font-medium text-gray-600">
                   Courses Completed
                 </CardTitle>
-                <CheckCircle className="w-4 h-4 text-gray-400" />
+                <CheckCircle className="h-4 w-4 text-gray-400" />
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-gray-900">{completedCourses}</div>
-                <p className="text-xs text-gray-500 mt-1">
-                  Across all team members
-                </p>
+                <p className="mt-1 text-xs text-gray-500">Across all team members</p>
               </CardContent>
             </Card>
 
@@ -344,13 +351,11 @@ export default function OrgDashboardPage() {
                 <CardTitle className="text-sm font-medium text-gray-600">
                   Certificates Earned
                 </CardTitle>
-                <Award className="w-4 h-4 text-gray-400" />
+                <Award className="h-4 w-4 text-gray-400" />
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-gray-900">{totalCertificates}</div>
-                <p className="text-xs text-gray-500 mt-1">
-                  Team achievements
-                </p>
+                <p className="mt-1 text-xs text-gray-500">Team achievements</p>
               </CardContent>
             </Card>
           </div>
@@ -358,12 +363,12 @@ export default function OrgDashboardPage() {
           {/* Main Content */}
           <div className="grid gap-6 lg:grid-cols-3">
             {/* Left Column - 2/3 width */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="space-y-6 lg:col-span-2">
               {/* Course Progress */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <BarChart3 className="w-5 h-5" />
+                    <BarChart3 className="h-5 w-5" />
                     Team Progress by Course
                   </CardTitle>
                 </CardHeader>
@@ -372,7 +377,7 @@ export default function OrgDashboardPage() {
                     <div className="space-y-4">
                       {courseProgress.map((course, index) => (
                         <div key={index}>
-                          <div className="flex justify-between text-sm mb-2">
+                          <div className="mb-2 flex justify-between text-sm">
                             <span className="text-gray-700">{course.name}</span>
                             <span className="font-semibold text-gray-900">
                               {course.progress}% • {course.enrolled} enrolled
@@ -383,8 +388,8 @@ export default function OrgDashboardPage() {
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-8">
-                      <BarChart3 className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                    <div className="py-8 text-center">
+                      <BarChart3 className="mx-auto mb-3 h-12 w-12 text-gray-400" />
                       <p className="text-sm text-gray-600">No course progress yet</p>
                     </div>
                   )}
@@ -395,19 +400,19 @@ export default function OrgDashboardPage() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Users className="w-5 h-5" />
+                    <Users className="h-5 w-5" />
                     Team Engagement
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="p-4 bg-teal-50 rounded-lg">
+                    <div className="rounded-lg bg-teal-50 p-4">
                       <div className="text-3xl font-bold text-teal-600">{activeLearners}</div>
-                      <p className="text-sm text-gray-600 mt-1">Active Learners</p>
+                      <p className="mt-1 text-sm text-gray-600">Active Learners</p>
                     </div>
-                    <div className="p-4 bg-gray-50 rounded-lg">
+                    <div className="rounded-lg bg-gray-50 p-4">
                       <div className="text-3xl font-bold text-gray-600">{notStarted}</div>
-                      <p className="text-sm text-gray-600 mt-1">Not Started</p>
+                      <p className="mt-1 text-sm text-gray-600">Not Started</p>
                     </div>
                   </div>
                 </CardContent>
@@ -417,7 +422,7 @@ export default function OrgDashboardPage() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Award className="w-5 h-5" />
+                    <Award className="h-5 w-5" />
                     Recent Certifications
                   </CardTitle>
                 </CardHeader>
@@ -425,14 +430,19 @@ export default function OrgDashboardPage() {
                   {certificates.length > 0 ? (
                     <div className="space-y-3">
                       {certificates.slice(0, 5).map((cert) => (
-                        <div key={cert.id} className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                        <div
+                          key={cert.id}
+                          className="flex items-center justify-between rounded-lg bg-green-50 p-3"
+                        >
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
-                              <Award className="w-5 h-5 text-white" />
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-500">
+                              <Award className="h-5 w-5 text-white" />
                             </div>
                             <div>
                               <p className="font-semibold text-gray-900">{cert.user_name}</p>
-                              <p className="text-sm text-gray-600 truncate max-w-xs">{cert.course_title}</p>
+                              <p className="max-w-xs truncate text-sm text-gray-600">
+                                {cert.course_title}
+                              </p>
                             </div>
                           </div>
                           <Badge className="bg-green-100 text-green-800">
@@ -442,8 +452,8 @@ export default function OrgDashboardPage() {
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-8">
-                      <Award className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                    <div className="py-8 text-center">
+                      <Award className="mx-auto mb-3 h-12 w-12 text-gray-400" />
                       <p className="text-sm text-gray-600">No certifications yet</p>
                     </div>
                   )}
@@ -461,38 +471,40 @@ export default function OrgDashboardPage() {
                 <CardContent className="space-y-2">
                   <Link href="/admin/team">
                     <Button variant="outline" className="w-full justify-start">
-                      <UserPlus className="w-4 h-4 mr-2" />
+                      <UserPlus className="mr-2 h-4 w-4" />
                       Invite Team Members
                     </Button>
                   </Link>
                   <Link href="/admin/analytics">
                     <Button variant="outline" className="w-full justify-start">
-                      <BarChart3 className="w-4 h-4 mr-2" />
+                      <BarChart3 className="mr-2 h-4 w-4" />
                       View Full Analytics
                     </Button>
                   </Link>
                   <Button variant="outline" className="w-full justify-start">
-                    <FileText className="w-4 h-4 mr-2" />
+                    <FileText className="mr-2 h-4 w-4" />
                     Generate Report
                   </Button>
                 </CardContent>
               </Card>
 
               {/* Compliance Status */}
-              <Card className="bg-gradient-to-br from-teal-50 to-white border-teal-200">
+              <Card className="border-teal-200 bg-gradient-to-br from-teal-50 to-white">
                 <CardHeader>
                   <CardTitle className="text-lg">Compliance Status</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     <div>
-                      <div className="flex justify-between text-sm mb-2">
+                      <div className="mb-2 flex justify-between text-sm">
                         <span className="text-gray-700">Team Training Completion</span>
-                        <span className="font-semibold text-gray-900">{avgCompletion.toFixed(0)}%</span>
+                        <span className="font-semibold text-gray-900">
+                          {avgCompletion.toFixed(0)}%
+                        </span>
                       </div>
                       <Progress value={avgCompletion} className="h-2" />
                     </div>
-                    <div className="pt-4 border-t space-y-2 text-sm">
+                    <div className="space-y-2 border-t pt-4 text-sm">
                       <div className="flex items-center justify-between">
                         <span className="text-gray-600">Certified Members</span>
                         <span className="font-semibold text-gray-900">
@@ -501,9 +513,7 @@ export default function OrgDashboardPage() {
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-gray-600">Active Learners</span>
-                        <span className="font-semibold text-gray-900">
-                          {activeLearners}
-                        </span>
+                        <span className="font-semibold text-gray-900">{activeLearners}</span>
                       </div>
                     </div>
                   </div>
@@ -517,10 +527,11 @@ export default function OrgDashboardPage() {
                 </CardHeader>
                 <CardContent className="space-y-3 text-sm">
                   <p className="text-gray-600">
-                    Our team is here to support your organization&apos;s anti-racism training journey.
+                    Our team is here to support your organization&apos;s anti-racism training
+                    journey.
                   </p>
                   <Link href="/contact">
-                    <Button className="w-full bg-teal-600 hover:bg-teal-700 text-white">
+                    <Button className="w-full bg-teal-600 text-white hover:bg-teal-700">
                       Contact Support
                     </Button>
                   </Link>
@@ -534,6 +545,7 @@ export default function OrgDashboardPage() {
             </div>
           </div>
         </div>
-      </div>    </>
+      </div>{' '}
+    </>
   )
 }

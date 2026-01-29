@@ -34,7 +34,7 @@ async function checkTables() {
     'lesson_notes',
     'user_points',
     'achievements',
-    'user_achievements'
+    'user_achievements',
   ]
 
   for (const table of tables) {
@@ -42,7 +42,7 @@ async function checkTables() {
       const { count, error } = await supabase
         .from(table)
         .select('*', { count: 'exact', head: true })
-      
+
       if (error) {
         console.log(`❌ ${table.padEnd(25)} Error: ${error.message}`)
       } else {

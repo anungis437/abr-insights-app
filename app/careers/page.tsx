@@ -2,7 +2,7 @@ import { Briefcase, MapPin, Clock, DollarSign, Users, Heart, TrendingUp, Award }
 
 export default function CareersPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">      
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
       {/* Hero Section */}
       <section className="relative bg-gradient-to-r from-primary-600 to-secondary-600 px-4 pb-16 pt-32 text-white">
         <div className="container-custom">
@@ -10,11 +10,10 @@ export default function CareersPage() {
             <div className="mb-4 flex justify-center">
               <Briefcase className="h-12 w-12" />
             </div>
-            <h1 className="mb-6 text-4xl font-bold md:text-5xl lg:text-6xl">
-              Join Our Mission
-            </h1>
+            <h1 className="mb-6 text-4xl font-bold md:text-5xl lg:text-6xl">Join Our Mission</h1>
             <p className="mb-8 text-xl text-blue-100">
-              Help us build a more equitable future by empowering organizations to combat anti-Black racism in Canadian workplaces
+              Help us build a more equitable future by empowering organizations to combat anti-Black
+              racism in Canadian workplaces
             </p>
             <button className="btn-primary border-2 border-white bg-white text-primary-600 hover:bg-gray-50">
               View Open Positions
@@ -25,10 +24,9 @@ export default function CareersPage() {
         {/* Decorative Blurs */}
         <div className="absolute left-0 top-0 -z-10 h-full w-full opacity-10">
           <div className="absolute right-1/4 top-1/3 h-80 w-80 rounded-full bg-white blur-3xl" />
-          <div className="absolute left-1/4 bottom-1/4 h-96 w-96 rounded-full bg-yellow-300 blur-3xl" />
+          <div className="absolute bottom-1/4 left-1/4 h-96 w-96 rounded-full bg-yellow-300 blur-3xl" />
         </div>
       </section>
-
       {/* Why Join Us */}
       <section className="px-4 py-16">
         <div className="container-custom">
@@ -61,14 +59,11 @@ export default function CareersPage() {
           </div>
         </div>
       </section>
-
       {/* Benefits */}
       <section className="bg-white px-4 py-16">
         <div className="container-custom">
           <div className="mx-auto max-w-5xl">
-            <h2 className="mb-12 text-center text-3xl font-bold text-gray-900">
-              Benefits & Perks
-            </h2>
+            <h2 className="mb-12 text-center text-3xl font-bold text-gray-900">Benefits & Perks</h2>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               <BenefitCard
                 title="Health & Wellness"
@@ -76,7 +71,7 @@ export default function CareersPage() {
                   'Comprehensive health, dental, and vision coverage',
                   'Mental health support and counseling services',
                   'Wellness stipend for fitness and self-care',
-                  'Flexible health spending account'
+                  'Flexible health spending account',
                 ]}
               />
               <BenefitCard
@@ -85,7 +80,7 @@ export default function CareersPage() {
                   'Flexible hybrid work arrangements',
                   'Unlimited PTO with 3-week minimum',
                   'Paid parental leave (6 months)',
-                  'Summer Fridays (half-day)'
+                  'Summer Fridays (half-day)',
                 ]}
               />
               <BenefitCard
@@ -94,7 +89,7 @@ export default function CareersPage() {
                   'Competitive salary with equity options',
                   'RRSP matching up to 5%',
                   'Annual performance bonuses',
-                  'Professional development budget ($5K/year)'
+                  'Professional development budget ($5K/year)',
                 ]}
               />
               <BenefitCard
@@ -103,7 +98,7 @@ export default function CareersPage() {
                   'Conference and training allowance',
                   'Mentorship program',
                   'Internal mobility opportunities',
-                  'Leadership development track'
+                  'Leadership development track',
                 ]}
               />
               <BenefitCard
@@ -112,7 +107,7 @@ export default function CareersPage() {
                   'Modern downtown Toronto office',
                   'Top-tier equipment and software',
                   'Home office setup stipend',
-                  'Co-working space membership'
+                  'Co-working space membership',
                 ]}
               />
               <BenefitCard
@@ -121,22 +116,19 @@ export default function CareersPage() {
                   'Regular team building events',
                   'Diversity & inclusion initiatives',
                   'Volunteer time off (5 days/year)',
-                  'Employee resource groups'
+                  'Employee resource groups',
                 ]}
               />
             </div>
           </div>
         </div>
       </section>
-
       {/* Open Positions */}
       <section className="px-4 py-16">
         <div className="container-custom">
           <div className="mx-auto max-w-5xl">
-            <h2 className="mb-12 text-center text-3xl font-bold text-gray-900">
-              Open Positions
-            </h2>
-            
+            <h2 className="mb-12 text-center text-3xl font-bold text-gray-900">Open Positions</h2>
+
             {/* Engineering */}
             <div className="mb-8">
               <h3 className="mb-4 text-xl font-bold text-gray-900">Engineering</h3>
@@ -148,7 +140,11 @@ export default function CareersPage() {
                   type="Full-Time"
                   salary="$120K - $160K"
                   description="Lead the development of our AI-powered platform. Work with React, Node.js, Python, and Azure OpenAI."
-                  requirements={['5+ years full-stack experience', 'React & TypeScript expertise', 'Experience with AI/ML systems']}
+                  requirements={[
+                    '5+ years full-stack experience',
+                    'React & TypeScript expertise',
+                    'Experience with AI/ML systems',
+                  ]}
                 />
                 <JobCard
                   title="Machine Learning Engineer"
@@ -157,7 +153,11 @@ export default function CareersPage() {
                   type="Full-Time"
                   salary="$130K - $180K"
                   description="Build and improve our NLP models for case classification and semantic search. Work with Python, PyTorch, and Azure ML."
-                  requirements={['3+ years ML experience', 'NLP expertise', 'Production ML system experience']}
+                  requirements={[
+                    '3+ years ML experience',
+                    'NLP expertise',
+                    'Production ML system experience',
+                  ]}
                 />
               </div>
             </div>
@@ -173,7 +173,11 @@ export default function CareersPage() {
                   type="Full-Time"
                   salary="$110K - $145K"
                   description="Drive product strategy and roadmap for our learning platform. Partner with engineering, design, and customers."
-                  requirements={['4+ years product management', 'B2B SaaS experience', 'User-centered design mindset']}
+                  requirements={[
+                    '4+ years product management',
+                    'B2B SaaS experience',
+                    'User-centered design mindset',
+                  ]}
                 />
                 <JobCard
                   title="UX/UI Designer"
@@ -182,7 +186,11 @@ export default function CareersPage() {
                   type="Full-Time"
                   salary="$85K - $115K"
                   description="Design intuitive, accessible interfaces for complex data and learning experiences. Conduct user research."
-                  requirements={['3+ years UX/UI design', 'Figma proficiency', 'Accessibility expertise (WCAG 2.1)']}
+                  requirements={[
+                    '3+ years UX/UI design',
+                    'Figma proficiency',
+                    'Accessibility expertise (WCAG 2.1)',
+                  ]}
                 />
               </div>
             </div>
@@ -198,7 +206,11 @@ export default function CareersPage() {
                   type="Full-Time"
                   salary="$70K - $95K"
                   description="Analyze human rights tribunal decisions, identify patterns, and contribute to our case database and insights."
-                  requirements={['J.D. or LLM preferred', 'Human rights law expertise', 'Strong analytical writing']}
+                  requirements={[
+                    'J.D. or LLM preferred',
+                    'Human rights law expertise',
+                    'Strong analytical writing',
+                  ]}
                 />
                 <JobCard
                   title="Learning Experience Designer"
@@ -207,7 +219,11 @@ export default function CareersPage() {
                   type="Full-Time"
                   salary="$75K - $105K"
                   description="Create engaging, evidence-based courses on anti-racism and workplace equity. Work with subject matter experts."
-                  requirements={['3+ years instructional design', 'Adult learning principles', 'EDI content experience']}
+                  requirements={[
+                    '3+ years instructional design',
+                    'Adult learning principles',
+                    'EDI content experience',
+                  ]}
                 />
               </div>
             </div>
@@ -223,14 +239,17 @@ export default function CareersPage() {
                   type="Full-Time"
                   salary="$65K - $85K"
                   description="Ensure customer adoption and success. Provide strategic guidance to organizations on implementing anti-racism practices."
-                  requirements={['2+ years customer success', 'B2B SaaS experience', 'Strong communication skills']}
+                  requirements={[
+                    '2+ years customer success',
+                    'B2B SaaS experience',
+                    'Strong communication skills',
+                  ]}
                 />
               </div>
             </div>
           </div>
         </div>
       </section>
-
       {/* Application Process */}
       <section className="bg-gray-50 px-4 py-16">
         <div className="container-custom">
@@ -262,60 +281,66 @@ export default function CareersPage() {
             </div>
             <div className="mt-12 rounded-lg bg-blue-50 p-8 text-center">
               <p className="text-gray-700">
-                <strong>We&rsquo;re committed to fair hiring:</strong> Our process is designed to reduce bias and ensure 
-                equitable evaluation. We provide accommodations, anonymize initial reviews, and use structured interviews 
-                with diverse panels.
+                <strong>We&rsquo;re committed to fair hiring:</strong> Our process is designed to
+                reduce bias and ensure equitable evaluation. We provide accommodations, anonymize
+                initial reviews, and use structured interviews with diverse panels.
               </p>
             </div>
           </div>
         </div>
       </section>
-
       {/* Diversity Statement */}
       <section className="px-4 py-16">
         <div className="container-custom">
           <div className="mx-auto max-w-3xl text-center">
-            <h2 className="mb-6 text-3xl font-bold text-gray-900">
-              Diversity, Equity & Inclusion
-            </h2>
+            <h2 className="mb-6 text-3xl font-bold text-gray-900">Diversity, Equity & Inclusion</h2>
             <p className="mb-6 text-lg text-gray-700">
-              ABR Insights is committed to building a diverse, equitable, and inclusive workplace. We believe that 
-              lived experiences with racism and discrimination bring invaluable perspectives to our mission.
+              ABR Insights is committed to building a diverse, equitable, and inclusive workplace.
+              We believe that lived experiences with racism and discrimination bring invaluable
+              perspectives to our mission.
             </p>
             <p className="mb-6 text-lg text-gray-700">
-              We strongly encourage applications from Black, Indigenous, and racialized individuals, as well as 
-              people with disabilities, LGBTQ2S+ individuals, and members of other equity-deserving communities.
+              We strongly encourage applications from Black, Indigenous, and racialized individuals,
+              as well as people with disabilities, LGBTQ2S+ individuals, and members of other
+              equity-deserving communities.
             </p>
             <p className="text-lg text-gray-700">
-              We provide accommodations throughout the hiring process. Please let us know how we can support you 
-              by contacting <a href="mailto:careers@abrinsights.ca" className="text-primary-600 hover:text-primary-700">careers@abrinsights.ca</a>.
+              We provide accommodations throughout the hiring process. Please let us know how we can
+              support you by contacting{' '}
+              <a
+                href="mailto:careers@abrinsights.ca"
+                className="text-primary-600 hover:text-primary-700"
+              >
+                careers@abrinsights.ca
+              </a>
+              .
             </p>
           </div>
         </div>
       </section>
-
       {/* CTA */}
       <section className="bg-gradient-to-r from-primary-600 to-secondary-600 px-4 py-16 text-white">
         <div className="container-custom">
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="mb-4 text-3xl font-bold">Don&rsquo;t See the Right Role?</h2>
             <p className="mb-8 text-xl text-blue-100">
-              We&rsquo;re always looking for talented individuals who share our mission. Send us your resume and 
-              tell us how you&rsquo;d like to contribute.
+              We&rsquo;re always looking for talented individuals who share our mission. Send us
+              your resume and tell us how you&rsquo;d like to contribute.
             </p>
             <button className="btn-primary border-2 border-white bg-white text-primary-600 hover:bg-gray-50">
               Send General Application
             </button>
           </div>
         </div>
-      </section>    </div>
+      </section>{' '}
+    </div>
   )
 }
 
 function ValueCard({
   icon,
   title,
-  description
+  description,
 }: {
   icon: React.ReactNode
   title: string
@@ -323,22 +348,14 @@ function ValueCard({
 }) {
   return (
     <div className="text-center">
-      <div className="mb-4 flex justify-center text-primary-600">
-        {icon}
-      </div>
+      <div className="mb-4 flex justify-center text-primary-600">{icon}</div>
       <h3 className="mb-2 text-lg font-bold text-gray-900">{title}</h3>
       <p className="text-sm text-gray-600">{description}</p>
     </div>
   )
 }
 
-function BenefitCard({
-  title,
-  benefits
-}: {
-  title: string
-  benefits: string[]
-}) {
+function BenefitCard({ title, benefits }: { title: string; benefits: string[] }) {
   return (
     <div className="card">
       <h3 className="mb-4 text-lg font-bold text-gray-900">{title}</h3>
@@ -361,7 +378,7 @@ function JobCard({
   type,
   salary,
   description,
-  requirements
+  requirements,
 }: {
   title: string
   department: string
@@ -398,9 +415,9 @@ function JobCard({
           </div>
         </div>
       </div>
-      
+
       <p className="mb-4 text-gray-700">{description}</p>
-      
+
       <div className="mb-4">
         <h5 className="mb-2 font-semibold text-gray-900">Key Requirements:</h5>
         <ul className="space-y-1 text-sm text-gray-700">
@@ -412,10 +429,8 @@ function JobCard({
           ))}
         </ul>
       </div>
-      
-      <button className="btn-primary w-full">
-        Apply for this Position
-      </button>
+
+      <button className="btn-primary w-full">Apply for this Position</button>
     </div>
   )
 }
@@ -423,7 +438,7 @@ function JobCard({
 function ProcessStep({
   number,
   title,
-  description
+  description,
 }: {
   number: number
   title: string

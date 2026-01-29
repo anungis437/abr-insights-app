@@ -15,14 +15,15 @@ The ABR Insights platform now has complete Role-Based Access Control (RBAC) and 
 
 ### Organizations Configured
 
-| Organization | Slug | Tier | Status | Seats | Storage |
-|-------------|------|------|--------|-------|---------|
-| **Nzila** | `nzila` | Enterprise | Active | 9,999 | 1,000 GB |
-| Demo Organization | `demo-org` | Free | Active | 5 | 10 GB |
+| Organization      | Slug       | Tier       | Status | Seats | Storage  |
+| ----------------- | ---------- | ---------- | ------ | ----- | -------- |
+| **Nzila**         | `nzila`    | Enterprise | Active | 9,999 | 1,000 GB |
+| Demo Organization | `demo-org` | Free       | Active | 5     | 10 GB    |
 
 ### Master Organization
 
 **Nzila** has been designated as the master organization with:
+
 - **Enterprise tier** subscription
 - **Unlimited seating** (9,999 seats)
 - **Extended storage** (1 TB)
@@ -41,12 +42,12 @@ The ABR Insights platform now has complete Role-Based Access Control (RBAC) and 
 
 ### Core Components Deployed
 
-| Component | Status | Count | Description |
-|-----------|--------|-------|-------------|
-| **Roles** | ✅ Deployed | 8 | System-defined role hierarchy |
-| **Permissions** | ✅ Deployed | 106 | Granular permission definitions |
-| **Role Permissions** | ✅ Deployed | 222 | Permission-to-role mappings |
-| **User Roles** | ✅ Deployed | 9 | User-to-role assignments |
+| Component            | Status      | Count | Description                     |
+| -------------------- | ----------- | ----- | ------------------------------- |
+| **Roles**            | ✅ Deployed | 8     | System-defined role hierarchy   |
+| **Permissions**      | ✅ Deployed | 106   | Granular permission definitions |
+| **Role Permissions** | ✅ Deployed | 222   | Permission-to-role mappings     |
+| **User Roles**       | ✅ Deployed | 9     | User-to-role assignments        |
 
 ### Role Hierarchy
 
@@ -147,16 +148,16 @@ Tenant B (Demo Org)
 
 ## 📊 Current Usage Statistics
 
-| Metric | Value |
-|--------|-------|
-| Total Organizations | 2 |
-| Total Users | 9 |
-| Users in Nzila Org | 1 (super_admin) |
-| Users in Demo Org | 0 |
-| Unassigned Users | 8 |
-| Roles Defined | 8 |
-| Permissions | 106 |
-| Role-Permission Mappings | 222 |
+| Metric                   | Value           |
+| ------------------------ | --------------- |
+| Total Organizations      | 2               |
+| Total Users              | 9               |
+| Users in Nzila Org       | 1 (super_admin) |
+| Users in Demo Org        | 0               |
+| Unassigned Users         | 8               |
+| Roles Defined            | 8               |
+| Permissions              | 106             |
+| Role-Permission Mappings | 222             |
 
 ---
 
@@ -210,16 +211,19 @@ OVERALL STATUS: 10/10 checks passed (100%)
 ### Database Schema
 
 **Core RBAC Tables:**
+
 - `roles` - Role definitions with hierarchy levels
 - `permissions` - Permission catalog
 - `role_permissions` - Many-to-many role-permission mapping
 - `user_roles` - User role assignments (supports multiple roles)
 
 **Tenant Management:**
+
 - `organizations` - Tenant definitions with subscriptions
 - `profiles.organization_id` - User-to-tenant assignment
 
 **Advanced Features:**
+
 - `resource_permissions` - Object-level permissions
 - `permission_overrides` - User-specific exceptions
 
@@ -260,6 +264,7 @@ node check-migrations.mjs
 ## 📞 Support
 
 For questions or issues with RBAC or tenant management:
+
 - Review migration files in `supabase/migrations/`
 - Check RLS policies in Supabase dashboard
 - Verify user roles in `user_roles` table

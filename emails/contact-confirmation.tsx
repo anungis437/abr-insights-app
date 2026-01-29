@@ -14,10 +14,7 @@ interface ContactConfirmationEmailProps {
   subject: string
 }
 
-export default function ContactConfirmationEmail({
-  name,
-  subject,
-}: ContactConfirmationEmailProps) {
+export default function ContactConfirmationEmail({ name, subject }: ContactConfirmationEmailProps) {
   return (
     <Html>
       <Head />
@@ -25,39 +22,41 @@ export default function ContactConfirmationEmail({
       <Body style={main}>
         <Container style={container}>
           <Heading style={h1}>Thank You for Reaching Out</Heading>
-          
+
+          <Text style={text}>Hi {name},</Text>
+
           <Text style={text}>
-            Hi {name},
+            We&apos;ve received your message regarding &ldquo;{subject}&rdquo; and appreciate you
+            taking the time to contact us.
           </Text>
-          
+
           <Text style={text}>
-            We&apos;ve received your message regarding &ldquo;{subject}&rdquo; and appreciate you taking the time to contact us.
+            Our team will review your inquiry and get back to you within 1-2 business days.
+            We&apos;re committed to providing you with the support and information you need.
           </Text>
-          
-          <Text style={text}>
-            Our team will review your inquiry and get back to you within 1-2 business days. We&apos;re committed to providing you with the support and information you need.
-          </Text>
-          
+
           <Section style={infoBox}>
             <Text style={infoText}>
               <strong>What happens next?</strong>
             </Text>
             <Text style={infoText}>
-              • Our team reviews your message<br />
-              • We research the best solution for your needs<br />
-              • You receive a personalized response
+              • Our team reviews your message
+              <br />
+              • We research the best solution for your needs
+              <br />• You receive a personalized response
             </Text>
           </Section>
-          
+
           <Text style={text}>
             In the meantime, feel free to explore our resources and training materials.
           </Text>
-          
+
           <Text style={text}>
-            Best regards,<br />
+            Best regards,
+            <br />
             The ABR Insights Team
           </Text>
-          
+
           <Text style={footer}>
             © {new Date().getFullYear()} ABR Insights. All rights reserved.
           </Text>

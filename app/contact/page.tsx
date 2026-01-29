@@ -36,7 +36,7 @@ export default function ContactPage() {
       }
 
       setSubmitted(true)
-      
+
       // Reset form after 5 seconds
       setTimeout(() => {
         setFormState({ name: '', email: '', organization: '', subject: '', message: '' })
@@ -50,22 +50,22 @@ export default function ContactPage() {
     }
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormState(prev => ({
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    setFormState((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     }))
   }
 
   return (
-    <div className="min-h-screen bg-white">      
+    <div className="min-h-screen bg-white">
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary-600 to-secondary-600 py-20 text-white">
         <div className="container-custom">
           <div className="mx-auto max-w-3xl text-center">
-            <h1 className="mb-6 text-4xl font-bold md:text-5xl lg:text-6xl">
-              Get in Touch
-            </h1>
+            <h1 className="mb-6 text-4xl font-bold md:text-5xl lg:text-6xl">Get in Touch</h1>
             <p className="text-lg text-primary-50 md:text-xl">
               Have questions about ABR Insights? Our team is here to help you get started.
             </p>
@@ -75,10 +75,9 @@ export default function ContactPage() {
         {/* Decorative Blurs */}
         <div className="absolute left-0 top-0 -z-10 h-full w-full opacity-10">
           <div className="absolute left-1/3 top-1/4 h-80 w-80 rounded-full bg-white blur-3xl" />
-          <div className="absolute right-1/4 bottom-1/3 h-96 w-96 rounded-full bg-yellow-300 blur-3xl" />
+          <div className="absolute bottom-1/3 right-1/4 h-96 w-96 rounded-full bg-yellow-300 blur-3xl" />
         </div>
       </section>
-
       {/* Contact Form & Info */}
       <section className="py-20">
         <div className="container-custom">
@@ -86,7 +85,7 @@ export default function ContactPage() {
             {/* Contact Form */}
             <div>
               <h2 className="mb-6 text-3xl font-bold text-gray-900">Send us a Message</h2>
-              
+
               {submitted ? (
                 <div className="rounded-lg bg-green-50 p-6 text-center">
                   <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
@@ -107,98 +106,117 @@ export default function ContactPage() {
                       <p>{error}</p>
                     </div>
                   )}
-                  
+
                   <form onSubmit={handleSubmit} className="space-y-6">
-                  <div>
-                    <label htmlFor="name" className="mb-2 block text-sm font-medium text-gray-700">
-                      Full Name *
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      required
-                      value={formState.name}
-                      onChange={handleChange}
-                      className="input-field"
-                      placeholder="John Doe"
-                    />
-                  </div>
+                    <div>
+                      <label
+                        htmlFor="name"
+                        className="mb-2 block text-sm font-medium text-gray-700"
+                      >
+                        Full Name *
+                      </label>
+                      <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        required
+                        value={formState.name}
+                        onChange={handleChange}
+                        className="input-field"
+                        placeholder="John Doe"
+                      />
+                    </div>
 
-                  <div>
-                    <label htmlFor="email" className="mb-2 block text-sm font-medium text-gray-700">
-                      Email Address *
-                    </label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      required
-                      value={formState.email}
-                      onChange={handleChange}
-                      className="input-field"
-                      placeholder="john@example.com"
-                    />
-                  </div>
+                    <div>
+                      <label
+                        htmlFor="email"
+                        className="mb-2 block text-sm font-medium text-gray-700"
+                      >
+                        Email Address *
+                      </label>
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        required
+                        value={formState.email}
+                        onChange={handleChange}
+                        className="input-field"
+                        placeholder="john@example.com"
+                      />
+                    </div>
 
-                  <div>
-                    <label htmlFor="organization" className="mb-2 block text-sm font-medium text-gray-700">
-                      Organization
-                    </label>
-                    <input
-                      type="text"
-                      id="organization"
-                      name="organization"
-                      value={formState.organization}
-                      onChange={handleChange}
-                      className="input-field"
-                      placeholder="Your Company Name"
-                    />
-                  </div>
+                    <div>
+                      <label
+                        htmlFor="organization"
+                        className="mb-2 block text-sm font-medium text-gray-700"
+                      >
+                        Organization
+                      </label>
+                      <input
+                        type="text"
+                        id="organization"
+                        name="organization"
+                        value={formState.organization}
+                        onChange={handleChange}
+                        className="input-field"
+                        placeholder="Your Company Name"
+                      />
+                    </div>
 
-                  <div>
-                    <label htmlFor="subject" className="mb-2 block text-sm font-medium text-gray-700">
-                      Subject *
-                    </label>
-                    <select
-                      id="subject"
-                      name="subject"
-                      required
-                      value={formState.subject}
-                      onChange={handleChange}
-                      className="input-field"
+                    <div>
+                      <label
+                        htmlFor="subject"
+                        className="mb-2 block text-sm font-medium text-gray-700"
+                      >
+                        Subject *
+                      </label>
+                      <select
+                        id="subject"
+                        name="subject"
+                        required
+                        value={formState.subject}
+                        onChange={handleChange}
+                        className="input-field"
+                      >
+                        <option value="">Select a subject</option>
+                        <option value="general">General Inquiry</option>
+                        <option value="demo">Request a Demo</option>
+                        <option value="pricing">Pricing Question</option>
+                        <option value="support">Technical Support</option>
+                        <option value="partnership">Partnership Opportunity</option>
+                        <option value="feedback">Feedback</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="message"
+                        className="mb-2 block text-sm font-medium text-gray-700"
+                      >
+                        Message *
+                      </label>
+                      <textarea
+                        id="message"
+                        name="message"
+                        required
+                        value={formState.message}
+                        onChange={handleChange}
+                        rows={6}
+                        className="input-field"
+                        placeholder="Tell us how we can help..."
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="btn-primary w-full disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      <option value="">Select a subject</option>
-                      <option value="general">General Inquiry</option>
-                      <option value="demo">Request a Demo</option>
-                      <option value="pricing">Pricing Question</option>
-                      <option value="support">Technical Support</option>
-                      <option value="partnership">Partnership Opportunity</option>
-                      <option value="feedback">Feedback</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label htmlFor="message" className="mb-2 block text-sm font-medium text-gray-700">
-                      Message *
-                    </label>
-                    <textarea
-                      id="message"
-                      name="message"
-                      required
-                      value={formState.message}
-                      onChange={handleChange}
-                      rows={6}
-                      className="input-field"
-                      placeholder="Tell us how we can help..."
-                    />
-                  </div>
-
-                  <button type="submit" disabled={submitting} className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed">
-                    <Send className="mr-2 h-5 w-5" />
-                    {submitting ? 'Sending...' : 'Send Message'}
-                  </button>
-                </form>
+                      <Send className="mr-2 h-5 w-5" />
+                      {submitting ? 'Sending...' : 'Send Message'}
+                    </button>
+                  </form>
                 </>
               )}
             </div>
@@ -206,7 +224,7 @@ export default function ContactPage() {
             {/* Contact Information */}
             <div className="relative">
               <h2 className="mb-6 text-3xl font-bold text-gray-900">Contact Information</h2>
-              
+
               <div className="space-y-8">
                 <ContactInfoCard
                   icon={<Mail className="h-6 w-6 text-primary-600" />}
@@ -267,23 +285,24 @@ export default function ContactPage() {
           </div>
         </div>
       </section>
-
       {/* CTA Section */}
       <section className="bg-gradient-to-br from-primary-600 to-secondary-600 py-20 text-white">
         <div className="container-custom">
           <div className="mx-auto max-w-3xl text-center">
-            <h2 className="mb-6 text-3xl font-bold md:text-4xl">
-              Ready to Get Started?
-            </h2>
+            <h2 className="mb-6 text-3xl font-bold md:text-4xl">Ready to Get Started?</h2>
             <p className="mb-8 text-lg text-primary-50">
               Join hundreds of organizations using ABR Insights to build more equitable workplaces.
             </p>
-            <a href="/auth/signup" className="btn-primary bg-white text-primary-600 hover:bg-gray-100">
+            <a
+              href="/auth/signup"
+              className="btn-primary bg-white text-primary-600 hover:bg-gray-100"
+            >
               Start Free Trial
             </a>
           </div>
         </div>
-      </section>    </div>
+      </section>{' '}
+    </div>
   )
 }
 

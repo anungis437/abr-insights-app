@@ -48,6 +48,7 @@ The demo generator creates highly realistic synthetic tribunal decisions with:
 ### Decision Structure (7,846 characters average)
 
 Each decision includes:
+
 - **Parties and Nature of Application**: Standard tribunal format
 - **Facts**: Detailed evidence including witness testimony, documentary evidence
 - **Legal Framework**: Canadian human rights law test for discrimination
@@ -118,7 +119,7 @@ Duration:         0.2s
 Edit `runDemoIngestion()` in `cli.ts`:
 
 ```typescript
-const dataset = generateDemoDataset(sourceSystem, limit, 0.7); // 70% anti-Black racism
+const dataset = generateDemoDataset(sourceSystem, limit, 0.7) // 70% anti-Black racism
 ```
 
 ### Adding More Applicant Names
@@ -130,7 +131,7 @@ const DEMO_APPLICANTS = [
   'John Smith',
   'Maria Garcia',
   // Add more names...
-];
+]
 ```
 
 ### Customizing Decision Text

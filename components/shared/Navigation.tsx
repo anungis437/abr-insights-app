@@ -58,10 +58,10 @@ export default function Navigation() {
                   <div className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2">
                     <User className="h-4 w-4 text-gray-600" />
                     <span className="text-sm font-medium text-gray-700">
-                      {profile?.display_name || 
-                       (profile?.first_name && profile?.last_name 
-                         ? `${profile.first_name} ${profile.last_name}` 
-                         : user.email)}
+                      {profile?.display_name ||
+                        (profile?.first_name && profile?.last_name
+                          ? `${profile.first_name} ${profile.last_name}`
+                          : user.email)}
                     </span>
                   </div>
                   <button
@@ -128,10 +128,10 @@ export default function Navigation() {
                     <div className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2">
                       <User className="h-4 w-4 text-gray-600" />
                       <span className="text-sm font-medium text-gray-700">
-                        {profile?.display_name || 
-                         (profile?.first_name && profile?.last_name 
-                           ? `${profile.first_name} ${profile.last_name}` 
-                           : user.email)}
+                        {profile?.display_name ||
+                          (profile?.first_name && profile?.last_name
+                            ? `${profile.first_name} ${profile.last_name}`
+                            : user.email)}
                       </span>
                     </div>
                     <button

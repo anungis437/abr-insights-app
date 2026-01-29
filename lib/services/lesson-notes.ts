@@ -5,21 +5,14 @@
  */
 
 import { createClient } from '@/lib/supabase/client'
-import type { 
-  LessonNote, 
-  CreateLessonNoteData, 
-  UpdateLessonNoteData 
-} from '@/lib/types/courses'
+import type { LessonNote, CreateLessonNoteData, UpdateLessonNoteData } from '@/lib/types/courses'
 
 const supabase = createClient()
 
 /**
  * Get all notes for a specific lesson by the current user
  */
-export async function getLessonNotes(
-  userId: string,
-  lessonId: string
-): Promise<LessonNote[]> {
+export async function getLessonNotes(userId: string, lessonId: string): Promise<LessonNote[]> {
   const { data, error } = await supabase
     .from('lesson_notes')
     .select('*')
@@ -46,7 +39,7 @@ export async function createLessonNote(
     .from('lesson_notes')
     .insert({
       user_id: userId,
-      ...noteData
+      ...noteData,
     })
     .select()
     .single()
@@ -85,10 +78,7 @@ export async function updateLessonNote(
  * Delete a note
  */
 export async function deleteLessonNote(noteId: string): Promise<void> {
-  const { error } = await supabase
-    .from('lesson_notes')
-    .delete()
-    .eq('id', noteId)
+  const { error } = await supabase.from('lesson_notes').delete().eq('id', noteId)
 
   if (error) {
     console.error('Error deleting lesson note:', error)
@@ -99,10 +89,7 @@ export async function deleteLessonNote(noteId: string): Promise<void> {
 /**
  * Get note count for a lesson
  */
-export async function getLessonNoteCount(
-  userId: string,
-  lessonId: string
-): Promise<number> {
+export async function getLessonNoteCount(userId: string, lessonId: string): Promise<number> {
   const { count, error } = await supabase
     .from('lesson_notes')
     .select('*', { count: 'exact', head: true })
@@ -120,12 +107,9 @@ export async function getLessonNoteCount(
 /**
  * Export all notes for a lesson as text
  */
-export async function exportLessonNotesAsText(
-  userId: string,
-  lessonId: string
-): Promise<string> {
+export async function exportLessonNotesAsText(userId: string, lessonId: string): Promise<string> {
   const notes = await getLessonNotes(userId, lessonId)
-  
+
   if (notes.length === 0) {
     return 'No notes available for this lesson.'
   }
@@ -137,6 +121,6 @@ export async function exportLessonNotesAsText(
   }
 
   return notes
-    .map(note => `[${formatTimestamp(note.timestamp_seconds)}] ${note.note_text}`)
+    .map((note) => `[${formatTimestamp(note.timestamp_seconds)}] ${note.note_text}`)
     .join('\n\n')
 }

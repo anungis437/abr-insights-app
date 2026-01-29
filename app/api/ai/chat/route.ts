@@ -1,13 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
-import { guardedRoute, GuardedContext } from '@/lib/api/guard';
-import { withMultipleRateLimits, RateLimitPresets } from '@/lib/security/rateLimit';
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
+import { guardedRoute, GuardedContext } from '@/lib/api/guard'
+import { withMultipleRateLimits, RateLimitPresets } from '@/lib/security/rateLimit'
 
 /**
  * AI Chat API Endpoint
  * Handles chat requests to Azure OpenAI GPT-4o
  * POST /api/ai/chat
- * 
+ *
  * Protected by:
  * - Authentication: Required (withAuth)
  * - Organization Context: Required (withOrg)
@@ -16,35 +16,26 @@ import { withMultipleRateLimits, RateLimitPresets } from '@/lib/security/rateLim
 
 async function chatHandler(request: NextRequest, context: GuardedContext) {
   try {
-    const { message, context: chatContext } = await request.json();
+    const { message, context: chatContext } = await request.json()
 
     if (!message || typeof message !== 'string') {
-      return NextResponse.json(
-        { error: 'Message is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Message is required' }, { status: 400 })
     }
 
     // Verify Azure OpenAI configuration
-    const endpoint = process.env.AZURE_OPENAI_ENDPOINT;
-    const apiKey = process.env.AZURE_OPENAI_API_KEY;
-    const deployment = process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-4o';
-    const apiVersion = process.env.AZURE_OPENAI_API_VERSION || '2024-02-15-preview';
+    const endpoint = process.env.AZURE_OPENAI_ENDPOINT
+    const apiKey = process.env.AZURE_OPENAI_API_KEY
+    const deployment = process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-4o'
+    const apiVersion = process.env.AZURE_OPENAI_API_VERSION || '2024-02-15-preview'
 
     if (!endpoint || !apiKey) {
-      console.error('Azure OpenAI credentials not configured');
-      return NextResponse.json(
-        { error: 'AI service not configured' },
-        { status: 500 }
-      );
+      console.error('Azure OpenAI credentials not configured')
+      return NextResponse.json({ error: 'AI service not configured' }, { status: 500 })
     }
 
     // Validate input length (rate limit abuse prevention)
     if (message.length > 4000) {
-      return NextResponse.json(
-        { error: 'Message too long (max 4000 characters)' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Message too long (max 4000 characters)' }, { status: 400 })
     }
 
     // Build system prompt with context
@@ -70,10 +61,10 @@ Guidelines:
 - Always be respectful, informative, and action-oriented
 - If you don't know something specific, acknowledge limitations and suggest general directions
 
-Respond in a helpful, conversational tone with actionable insights.`;
+Respond in a helpful, conversational tone with actionable insights.`
 
     // Call Azure OpenAI
-    const url = `${endpoint.replace(/\/$/, '')}/openai/deployments/${deployment}/chat/completions?api-version=${apiVersion}`;
+    const url = `${endpoint.replace(/\/$/, '')}/openai/deployments/${deployment}/chat/completions?api-version=${apiVersion}`
 
     const response = await fetch(url, {
       method: 'POST',
@@ -98,19 +89,19 @@ Respond in a helpful, conversational tone with actionable insights.`;
         frequency_penalty: 0,
         presence_penalty: 0,
       }),
-    });
+    })
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Azure OpenAI API error:', errorText);
-      throw new Error(`Azure OpenAI API returned ${response.status}`);
+      const errorText = await response.text()
+      console.error('Azure OpenAI API error:', errorText)
+      throw new Error(`Azure OpenAI API returned ${response.status}`)
     }
 
-    const data = await response.json();
-    const aiResponse = data.choices?.[0]?.message?.content || 'Unable to generate response.';
+    const data = await response.json()
+    const aiResponse = data.choices?.[0]?.message?.content || 'Unable to generate response.'
 
     // Log AI usage for audit trail and cost tracking
-    const supabase = await createClient();
+    const supabase = await createClient()
     try {
       await supabase.from('ai_usage_logs').insert({
         user_id: context.user!.id,
@@ -120,27 +111,26 @@ Respond in a helpful, conversational tone with actionable insights.`;
         completion_tokens: data.usage?.completion_tokens || 0,
         total_tokens: data.usage?.total_tokens || 0,
         model: deployment,
-        created_at: new Date().toISOString()
-      });
+        created_at: new Date().toISOString(),
+      })
     } catch (err) {
       // Log error but don't fail the request
-      console.error('Failed to log AI usage:', err);
+      console.error('Failed to log AI usage:', err)
     }
 
     return NextResponse.json({
       response: aiResponse,
       usage: data.usage,
-    });
-
+    })
   } catch (error: any) {
-    console.error('AI chat error:', error);
+    console.error('AI chat error:', error)
     return NextResponse.json(
-      { 
+      {
         error: error.message || 'Failed to process AI request',
-        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined,
       },
       { status: 500 }
-    );
+    )
   }
 }
 
@@ -150,6 +140,6 @@ export const POST = withMultipleRateLimits(
   guardedRoute(chatHandler, {
     requireAuth: true,
     requireOrg: true,
-    anyPermissions: ['ai.chat.use', 'admin.ai.manage']
+    anyPermissions: ['ai.chat.use', 'admin.ai.manage'],
   })
-);
+)

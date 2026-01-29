@@ -60,7 +60,9 @@ export default function TrainingHubPage() {
 
   useEffect(() => {
     const loadUser = async () => {
-      const { data: { user: currentUser } } = await supabase.auth.getUser()
+      const {
+        data: { user: currentUser },
+      } = await supabase.auth.getUser()
       setUser(currentUser)
     }
     loadUser()
@@ -165,12 +167,14 @@ export default function TrainingHubPage() {
   const inProgressCourses = getInProgressCourses()
 
   return (
-    <>      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12 pt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <>
+      {' '}
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12 pt-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-12">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-yellow-500 via-yellow-600 to-yellow-700 rounded-xl flex items-center justify-center">
-                <GraduationCap className="w-7 h-7 text-white" />
+            <div className="mb-4 flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-yellow-500 via-yellow-600 to-yellow-700">
+                <GraduationCap className="h-7 w-7 text-white" />
               </div>
               <div>
                 <h1 className="text-4xl font-bold text-gray-900">Training Hub</h1>
@@ -179,63 +183,65 @@ export default function TrainingHubPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white rounded-lg shadow-sm border-l-4 border-l-teal-500 p-6">
+          <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
+            <div className="rounded-lg border-l-4 border-l-teal-500 bg-white p-6 shadow-sm">
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-3xl font-bold text-gray-900">{courses.length}</div>
-                  <div className="text-sm text-gray-600 mt-1">Total Courses</div>
+                  <div className="mt-1 text-sm text-gray-600">Total Courses</div>
                 </div>
-                <BookOpen className="w-8 h-8 text-teal-500" />
+                <BookOpen className="h-8 w-8 text-teal-500" />
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-sm border-l-4 border-l-green-500 p-6">
+            <div className="rounded-lg border-l-4 border-l-green-500 bg-white p-6 shadow-sm">
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-3xl font-bold text-green-700">{getCompletedCount()}</div>
-                  <div className="text-sm text-gray-600 mt-1">Completed</div>
+                  <div className="mt-1 text-sm text-gray-600">Completed</div>
                 </div>
-                <CheckCircle className="w-8 h-8 text-green-500" />
+                <CheckCircle className="h-8 w-8 text-green-500" />
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-sm border-l-4 border-l-yellow-500 p-6">
+            <div className="rounded-lg border-l-4 border-l-yellow-500 bg-white p-6 shadow-sm">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-3xl font-bold text-gray-900">{getTotalHours().toFixed(0)}h</div>
-                  <div className="text-sm text-gray-600 mt-1">Content Hours</div>
+                  <div className="text-3xl font-bold text-gray-900">
+                    {getTotalHours().toFixed(0)}h
+                  </div>
+                  <div className="mt-1 text-sm text-gray-600">Content Hours</div>
                 </div>
-                <Clock className="w-8 h-8 text-yellow-500" />
+                <Clock className="h-8 w-8 text-yellow-500" />
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-sm border-l-4 border-l-purple-500 p-6">
+            <div className="rounded-lg border-l-4 border-l-purple-500 bg-white p-6 shadow-sm">
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-3xl font-bold text-purple-700">{getCertificateCount()}</div>
-                  <div className="text-sm text-gray-600 mt-1">Certificates</div>
+                  <div className="mt-1 text-sm text-gray-600">Certificates</div>
                 </div>
-                <Award className="w-8 h-8 text-purple-500" />
+                <Award className="h-8 w-8 text-purple-500" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-            <div className="flex items-center gap-2 mb-4">
-              <Filter className="w-5 h-5 text-gray-700" />
+          <div className="mb-8 rounded-lg bg-white p-6 shadow-sm">
+            <div className="mb-4 flex items-center gap-2">
+              <Filter className="h-5 w-5 text-gray-700" />
               <h2 className="text-lg font-semibold text-gray-900">Find Your Course</h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
               <div className="md:col-span-2">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 transform text-gray-400" />
                   <input
                     type="text"
                     placeholder="Search courses..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                    className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-teal-500"
                   />
                 </div>
               </div>
@@ -243,7 +249,7 @@ export default function TrainingHubPage() {
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                className="rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-teal-500"
                 aria-label="Filter by category"
               >
                 <option value="all">All Categories</option>
@@ -257,7 +263,7 @@ export default function TrainingHubPage() {
               <select
                 value={selectedLevel}
                 onChange={(e) => setSelectedLevel(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                className="rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-teal-500"
                 aria-label="Filter by level"
               >
                 <option value="all">All Levels</option>
@@ -272,41 +278,49 @@ export default function TrainingHubPage() {
 
           {inProgressCourses.length > 0 && (
             <div className="mb-12">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <TrendingUp className="w-6 h-6 text-teal-600" />
+              <h2 className="mb-6 flex items-center gap-2 text-2xl font-bold text-gray-900">
+                <TrendingUp className="h-6 w-6 text-teal-600" />
                 Continue Learning
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 {inProgressCourses.map((item) => {
                   if (!item) return null
                   const { course, progress } = item
                   return (
                     <div
                       key={course.id}
-                      className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all border-2 border-teal-200 p-6"
+                      className="rounded-lg border-2 border-teal-200 bg-white p-6 shadow-md transition-all hover:shadow-xl"
                     >
                       <div className="flex gap-4">
                         {course.thumbnail_url ? (
-                          <Image src={course.thumbnail_url} alt={course.title} width={96} height={96} className="w-24 h-24 object-cover rounded-lg" />
+                          <Image
+                            src={course.thumbnail_url}
+                            alt={course.title}
+                            width={96}
+                            height={96}
+                            className="h-24 w-24 rounded-lg object-cover"
+                          />
                         ) : (
-                          <div className="w-24 h-24 bg-gradient-to-r from-teal-500 to-teal-600 rounded-lg flex items-center justify-center">
-                            <GraduationCap className="w-12 h-12 text-white" />
+                          <div className="flex h-24 w-24 items-center justify-center rounded-lg bg-gradient-to-r from-teal-500 to-teal-600">
+                            <GraduationCap className="h-12 w-12 text-white" />
                           </div>
                         )}
                         <div className="flex-1">
-                          <h3 className="font-bold text-lg text-gray-900 mb-2">{course.title}</h3>
+                          <h3 className="mb-2 text-lg font-bold text-gray-900">{course.title}</h3>
                           <div className="space-y-2">
-                            <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div className="h-2 w-full rounded-full bg-gray-200">
                               <div
-                                className="bg-teal-500 h-2 rounded-full transition-all"
+                                className="h-2 rounded-full bg-teal-500 transition-all"
                                 style={{ width: `${progress.completion_percentage}%` }}
                               />
                             </div>
                             <div className="flex items-center justify-between text-sm">
-                              <span className="text-gray-600">{progress.completion_percentage.toFixed(0)}% Complete</span>
+                              <span className="text-gray-600">
+                                {progress.completion_percentage.toFixed(0)}% Complete
+                              </span>
                               <Link href={`/courses/${course.slug}/player`}>
-                                <button className="px-3 py-1 bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-lg hover:from-teal-600 hover:to-teal-700 flex items-center gap-1 text-sm">
-                                  <Play className="w-4 h-4" />
+                                <button className="flex items-center gap-1 rounded-lg bg-gradient-to-r from-teal-500 to-teal-600 px-3 py-1 text-sm text-white hover:from-teal-600 hover:to-teal-700">
+                                  <Play className="h-4 w-4" />
                                   Continue
                                 </button>
                               </Link>
@@ -322,70 +336,83 @@ export default function TrainingHubPage() {
           )}
 
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">{selectedCategory === 'all' ? 'All Courses' : selectedCategory}</h2>
+            <h2 className="mb-6 text-2xl font-bold text-gray-900">
+              {selectedCategory === 'all' ? 'All Courses' : selectedCategory}
+            </h2>
             {loading ? (
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto"></div>
-                <p className="text-gray-600 mt-4">Loading courses...</p>
+              <div className="py-12 text-center">
+                <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-teal-600"></div>
+                <p className="mt-4 text-gray-600">Loading courses...</p>
               </div>
             ) : filteredCourses.length === 0 ? (
-              <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-                <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <div className="rounded-lg bg-white p-12 text-center shadow-sm">
+                <BookOpen className="mx-auto mb-4 h-12 w-12 text-gray-400" />
                 <p className="text-gray-600">No courses found. Try adjusting your filters.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {filteredCourses.map((course) => {
                   const progress = getCourseProgress(course.id)
                   const hasAccess = canAccessCourse(course)
                   const isCompleted = progress === 100
 
                   return (
-                    <div key={course.id} className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all overflow-hidden group cursor-pointer">
+                    <div
+                      key={course.id}
+                      className="group cursor-pointer overflow-hidden rounded-lg bg-white shadow-md transition-all hover:shadow-xl"
+                    >
                       <div className="relative">
                         {course.thumbnail_url ? (
-                          <Image src={course.thumbnail_url} alt={course.title} width={384} height={192} className="w-full h-48 object-cover" />
+                          <Image
+                            src={course.thumbnail_url}
+                            alt={course.title}
+                            width={384}
+                            height={192}
+                            className="h-48 w-full object-cover"
+                          />
                         ) : (
-                          <div className="w-full h-48 bg-gradient-to-r from-teal-500 to-teal-600 flex items-center justify-center">
-                            <GraduationCap className="w-20 h-20 text-white opacity-50" />
+                          <div className="flex h-48 w-full items-center justify-center bg-gradient-to-r from-teal-500 to-teal-600">
+                            <GraduationCap className="h-20 w-20 text-white opacity-50" />
                           </div>
                         )}
                         {course.is_featured && (
-                          <span className="absolute top-3 right-3 px-3 py-1 bg-gradient-to-r from-yellow-500 to-yellow-600 text-gray-900 text-xs font-semibold rounded-full">
+                          <span className="absolute right-3 top-3 rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600 px-3 py-1 text-xs font-semibold text-gray-900">
                             Featured
                           </span>
                         )}
                         {isCompleted && (
-                          <div className="absolute top-3 left-3 w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
-                            <CheckCircle className="w-6 h-6 text-white" />
+                          <div className="absolute left-3 top-3 flex h-10 w-10 items-center justify-center rounded-full bg-green-500">
+                            <CheckCircle className="h-6 w-6 text-white" />
                           </div>
                         )}
                         {!hasAccess && (
-                          <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                            <Lock className="w-12 h-12 text-white" />
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/60">
+                            <Lock className="h-12 w-12 text-white" />
                           </div>
                         )}
                       </div>
                       <div className="p-6">
-                        <div className="flex items-start justify-between mb-3">
-                          <span className="px-2 py-1 text-xs font-medium text-gray-700 bg-gray-100 border border-gray-200 rounded">
+                        <div className="mb-3 flex items-start justify-between">
+                          <span className="rounded border border-gray-200 bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700">
                             {course.level}
                           </span>
-                          <span className="px-2 py-1 text-xs font-medium text-gray-700 bg-gray-100 border border-gray-200 rounded flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
+                          <span className="flex items-center gap-1 rounded border border-gray-200 bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700">
+                            <Clock className="h-3 w-3" />
                             {course.duration_minutes} min
                           </span>
                         </div>
 
-                        <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-2 group-hover:text-teal-600 transition-colors">
+                        <h3 className="mb-2 line-clamp-2 text-lg font-bold text-gray-900 transition-colors group-hover:text-teal-600">
                           {course.title}
                         </h3>
 
-                        <p className="text-sm text-gray-600 mb-4 line-clamp-3">{course.description || 'No description available'}</p>
+                        <p className="mb-4 line-clamp-3 text-sm text-gray-600">
+                          {course.description || 'No description available'}
+                        </p>
 
                         {course.instructor_name && (
-                          <div className="flex items-center gap-2 mb-4">
-                            <div className="w-8 h-8 bg-gradient-to-r from-teal-500 to-teal-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                          <div className="mb-4 flex items-center gap-2">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-teal-500 to-teal-600 text-sm font-bold text-white">
                               {course.instructor_name.charAt(0)}
                             </div>
                             <span className="text-sm text-gray-600">{course.instructor_name}</span>
@@ -394,8 +421,11 @@ export default function TrainingHubPage() {
 
                         {progress > 0 && (
                           <div className="mb-4">
-                            <div className="w-full bg-gray-200 rounded-full h-2 mb-1">
-                              <div className="bg-teal-500 h-2 rounded-full transition-all" style={{ width: `${progress}%` }} />
+                            <div className="mb-1 h-2 w-full rounded-full bg-gray-200">
+                              <div
+                                className="h-2 rounded-full bg-teal-500 transition-all"
+                                style={{ width: `${progress}%` }}
+                              />
                             </div>
                             <p className="text-xs text-gray-500">{progress.toFixed(0)}% complete</p>
                           </div>
@@ -403,26 +433,26 @@ export default function TrainingHubPage() {
 
                         <Link href={`/courses/${course.slug}/player`}>
                           <button
-                            className={`w-full py-2 px-4 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${
+                            className={`flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2 font-medium transition-colors ${
                               hasAccess
                                 ? 'bg-gradient-to-r from-teal-500 to-teal-600 text-white hover:from-teal-600 hover:to-teal-700'
-                                : 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                                : 'cursor-not-allowed bg-gray-300 text-gray-600'
                             }`}
                             disabled={!hasAccess}
                           >
                             {!hasAccess ? (
                               <>
-                                <Lock className="w-4 h-4" />
+                                <Lock className="h-4 w-4" />
                                 Upgrade to Access
                               </>
                             ) : progress > 0 ? (
                               <>
-                                <Play className="w-4 h-4" />
+                                <Play className="h-4 w-4" />
                                 Continue Course
                               </>
                             ) : (
                               <>
-                                <Play className="w-4 h-4" />
+                                <Play className="h-4 w-4" />
                                 Start Course
                               </>
                             )}
@@ -436,7 +466,7 @@ export default function TrainingHubPage() {
             )}
           </div>
         </div>
-      </div>    </>
+      </div>{' '}
+    </>
   )
 }
-

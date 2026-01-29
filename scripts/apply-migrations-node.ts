@@ -1,26 +1,26 @@
-import { createClient } from '@supabase/supabase-js';
-import { readFileSync, readdirSync } from 'fs';
-import { join } from 'path';
-import dotenv from 'dotenv';
+import { createClient } from '@supabase/supabase-js'
+import { readFileSync, readdirSync } from 'fs'
+import { join } from 'path'
+import dotenv from 'dotenv'
 
 // Load environment variables
-dotenv.config({ path: '.env.local' });
+dotenv.config({ path: '.env.local' })
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
 if (!supabaseUrl || !serviceRoleKey) {
-  console.error('ERROR: Missing environment variables');
-  console.error('Need: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY');
-  process.exit(1);
+  console.error('ERROR: Missing environment variables')
+  console.error('Need: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY')
+  process.exit(1)
 }
 
 const supabase = createClient(supabaseUrl, serviceRoleKey, {
   auth: {
     autoRefreshToken: false,
-    persistSession: false
-  }
-});
+    persistSession: false,
+  },
+})
 
 const migrations = [
   '001_initial_schema.sql',
@@ -63,81 +63,80 @@ const migrations = [
   '20250116000006_gamification_social.sql',
   '20250116000007_comprehensive_demo_seed.sql',
   '20250124_safe_ml_features.sql',
-  '20250124_case_verdicts_fix.sql'
-];
+  '20250124_case_verdicts_fix.sql',
+]
 
 async function applyMigrations() {
-  console.log('ABR Insights - Database Migration Script');
-  console.log('========================================');
-  console.log('');
+  console.log('ABR Insights - Database Migration Script')
+  console.log('========================================')
+  console.log('')
 
-  let applied = 0;
-  let failed = 0;
-  let skipped = 0;
+  let applied = 0
+  let failed = 0
+  let skipped = 0
 
   for (const migrationFile of migrations) {
-    const migrationPath = join('supabase', 'migrations', migrationFile);
-    
+    const migrationPath = join('supabase', 'migrations', migrationFile)
+
     try {
-      const sql = readFileSync(migrationPath, 'utf-8');
-      
-      console.log(`Applying: ${migrationFile}`);
-      
+      const sql = readFileSync(migrationPath, 'utf-8')
+
+      console.log(`Applying: ${migrationFile}`)
+
       // Execute SQL via Supabase SQL Editor endpoint
       const response = await fetch(`${supabaseUrl}/rest/v1/rpc/exec`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'apikey': serviceRoleKey,
-          'Authorization': `Bearer ${serviceRoleKey}`
+          apikey: serviceRoleKey,
+          Authorization: `Bearer ${serviceRoleKey}`,
         },
-        body: JSON.stringify({ query: sql })
-      });
+        body: JSON.stringify({ query: sql }),
+      })
 
       if (response.ok) {
-        console.log(`  SUCCESS: ${migrationFile}`);
-        applied++;
+        console.log(`  SUCCESS: ${migrationFile}`)
+        applied++
       } else {
-        const error = await response.text();
-        
+        const error = await response.text()
+
         // Check if it's an "already exists" error (acceptable)
         if (error.includes('already exists') || error.includes('duplicate')) {
-          console.log(`  SKIPPED: ${migrationFile} (already exists)`);
-          skipped++;
+          console.log(`  SKIPPED: ${migrationFile} (already exists)`)
+          skipped++
         } else {
-          console.log(`  FAILED: ${migrationFile}`);
-          console.log(`  Error: ${error.substring(0, 200)}`);
-          failed++;
+          console.log(`  FAILED: ${migrationFile}`)
+          console.log(`  Error: ${error.substring(0, 200)}`)
+          failed++
         }
       }
-      
+
       // Small delay to avoid rate limiting
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
+      await new Promise((resolve) => setTimeout(resolve, 100))
     } catch (error: any) {
-      console.log(`  ERROR: ${migrationFile} - ${error.message}`);
-      failed++;
+      console.log(`  ERROR: ${migrationFile} - ${error.message}`)
+      failed++
     }
   }
 
-  console.log('');
-  console.log('========================================');
-  console.log('Migration Summary');
-  console.log('========================================');
-  console.log(`Total migrations: ${migrations.length}`);
-  console.log(`Applied: ${applied}`);
-  console.log(`Skipped: ${skipped}`);
-  console.log(`Failed: ${failed}`);
-  console.log('');
+  console.log('')
+  console.log('========================================')
+  console.log('Migration Summary')
+  console.log('========================================')
+  console.log(`Total migrations: ${migrations.length}`)
+  console.log(`Applied: ${applied}`)
+  console.log(`Skipped: ${skipped}`)
+  console.log(`Failed: ${failed}`)
+  console.log('')
 
   if (failed > 0) {
-    console.log('Some migrations failed. Check errors above.');
-    process.exit(1);
+    console.log('Some migrations failed. Check errors above.')
+    process.exit(1)
   } else {
-    console.log('All migrations completed successfully!');
-    console.log('');
-    console.log('Next: Verify database with validation script');
+    console.log('All migrations completed successfully!')
+    console.log('')
+    console.log('Next: Verify database with validation script')
   }
 }
 
-applyMigrations().catch(console.error);
+applyMigrations().catch(console.error)

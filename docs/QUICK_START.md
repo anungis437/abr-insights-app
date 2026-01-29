@@ -51,6 +51,7 @@
 ### Take the Platform Tour
 
 When you first log in, you'll see a **"Start Tour"** button. This 2-minute interactive walkthrough shows you:
+
 - Dashboard overview
 - Where to find courses
 - How to search tribunal cases
@@ -72,7 +73,7 @@ Your dashboard has 4 main sections:
 
 ### Start with a Foundational Course
 
-**Recommended first course:** *"Introduction to Anti-Black Racism in Canadian Workplaces"* (30 minutes)
+**Recommended first course:** _"Introduction to Anti-Black Racism in Canadian Workplaces"_ (30 minutes)
 
 1. Click **"Courses"** in the main menu
 2. Find the recommended course (marked with a ⭐)
@@ -81,6 +82,7 @@ Your dashboard has 4 main sections:
 5. Complete the first module
 
 **You'll learn:**
+
 - Definition and history of anti-Black racism
 - How it manifests in workplaces
 - Legal framework in Canada
@@ -104,6 +106,7 @@ Your dashboard has 4 main sections:
    - AI analysis
 
 **Useful filters:**
+
 - Date range (e.g., last 5 years)
 - Jurisdiction (Ontario, BC, Federal, etc.)
 - Outcome (applicant successful, dismissed, etc.)
@@ -116,16 +119,19 @@ Your dashboard has 4 main sections:
 ### Continue Your Learning Journey
 
 **For HR & EDI Professionals:**
-- ✅ Complete *"Conducting Equitable Hiring Practices"* course
+
+- ✅ Complete _"Conducting Equitable Hiring Practices"_ course
 - ✅ Save relevant tribunal cases to a collection
 - ✅ Generate your first analytics report
 
 **For Trainers & Instructors:**
+
 - ✅ Explore the course authoring tools
 - ✅ Create a test course
 - ✅ Invite team members to review
 
 **For Administrators:**
+
 - ✅ Invite your team members
 - ✅ Assign initial courses
 - ✅ Set up organization branding
@@ -134,10 +140,12 @@ Your dashboard has 4 main sections:
 ### Get the Mobile App
 
 📱 **Download ABR Insights:**
+
 - iOS: [App Store link]
 - Android: [Google Play link]
 
 Benefits:
+
 - Learn on the go
 - Offline course access
 - Push notifications
@@ -146,6 +154,7 @@ Benefits:
 ### Join the Community
 
 🌍 **Connect with other users:**
+
 - Join our monthly webinars
 - Participate in discussion forums
 - Follow us on LinkedIn and Twitter
@@ -158,19 +167,23 @@ Benefits:
 ### Quick Support Options
 
 **In-Platform Help:**
+
 - Click the **"?"** icon (bottom right)
 - Search the knowledge base
 - Start live chat (Professional/Enterprise plans)
 
 **Email Support:**
+
 - support@abrinsights.ca
 - Response within 1-3 business days
 
 **Video Tutorials:**
+
 - Watch step-by-step guides on YouTube
 - Topics: Navigation, course enrollment, case research, reports
 
 **Schedule a Demo:**
+
 - Book a 30-minute guided tour with our team
 - Perfect for organization administrators
 - [Book here](https://abrinsights.ca/book-demo)
@@ -200,27 +213,32 @@ Benefits:
 ### Make the Most of ABR Insights
 
 **📅 Schedule Learning Time**
+
 - Block 30 minutes daily or 2 hours weekly
 - Consistency beats intensity
 - Use calendar integration to set reminders
 
 **🎯 Set Clear Goals**
+
 - What do you want to achieve? (e.g., complete 3 courses this quarter)
 - Use the goal-setting feature in your profile
 - Track progress on your dashboard
 
 **🤝 Engage with Content**
+
 - Don't just watch - take notes
 - Complete quizzes and assessments
 - Participate in discussions
 - Share insights with colleagues
 
 **📊 Use Analytics**
+
 - Review your learning patterns
 - Identify knowledge gaps
 - Celebrate milestones
 
 **🤖 Leverage AI Features**
+
 - Ask the AI tutor questions
 - Use recommended content suggestions
 - Explore AI-classified cases
@@ -242,6 +260,6 @@ Save time with these shortcuts:
 
 **You're all set! Welcome to ABR Insights.** 🚀
 
-*Questions? Email us at support@abrinsights.ca*
+_Questions? Email us at support@abrinsights.ca_
 
-*Last updated: January 28, 2026*
+_Last updated: January 28, 2026_

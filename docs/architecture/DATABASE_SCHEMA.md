@@ -79,37 +79,37 @@
 ```sql
 CREATE TABLE public.profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  
+
   -- Personal Info
   email TEXT UNIQUE NOT NULL,
   full_name TEXT,
   avatar_url TEXT,
   phone TEXT,
   preferred_language TEXT DEFAULT 'en' CHECK (preferred_language IN ('en', 'fr')),
-  
+
   -- Organization & Role
   organization_id UUID REFERENCES organizations(id) ON DELETE SET NULL,
   team_id UUID REFERENCES teams(id) ON DELETE SET NULL,
   role TEXT NOT NULL DEFAULT 'learner' CHECK (role IN (
-    'super_admin', 'compliance_officer', 'org_admin', 
+    'super_admin', 'compliance_officer', 'org_admin',
     'analyst', 'investigator', 'educator', 'learner', 'viewer', 'guest'
   )),
-  
+
   -- Subscription (denormalized for performance)
   subscription_tier TEXT DEFAULT 'free' CHECK (subscription_tier IN ('free', 'professional', 'enterprise', 'custom')),
   seat_id UUID REFERENCES subscription_seats(id) ON DELETE SET NULL,
-  
+
   -- Security
   mfa_enabled BOOLEAN DEFAULT false,
   email_verified BOOLEAN DEFAULT false,
   last_login_at TIMESTAMPTZ,
   login_count INTEGER DEFAULT 0,
-  
+
   -- Preferences
   notification_preferences JSONB DEFAULT '{"email": true, "push": false, "in_app": true}'::jsonb,
   theme TEXT DEFAULT 'light' CHECK (theme IN ('light', 'dark', 'system')),
   timezone TEXT DEFAULT 'America/Toronto',
-  
+
   -- Metadata
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
@@ -130,19 +130,19 @@ CREATE INDEX idx_profiles_team ON profiles(team_id) WHERE deleted_at IS NULL;
 ```sql
 CREATE TABLE public.organizations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  
+
   -- Basic Info
   name TEXT NOT NULL,
   slug TEXT UNIQUE NOT NULL,
   industry TEXT,
   size_category TEXT CHECK (size_category IN ('1-50', '51-200', '201-500', '501-1000', '1000+')),
-  
+
   -- Contact
   admin_email TEXT NOT NULL,
   primary_contact_name TEXT,
   primary_contact_phone TEXT,
   billing_email TEXT,
-  
+
   -- Address (Canadian)
   address_line1 TEXT,
   address_line2 TEXT,
@@ -152,21 +152,21 @@ CREATE TABLE public.organizations (
   )),
   postal_code TEXT,
   country TEXT DEFAULT 'CA',
-  
+
   -- Subscription
   subscription_id UUID REFERENCES subscriptions(id),
   subscription_status TEXT DEFAULT 'trial' CHECK (subscription_status IN (
     'trial', 'active', 'past_due', 'canceled', 'paused'
   )),
   trial_ends_at TIMESTAMPTZ,
-  
+
   -- Settings
   settings JSONB DEFAULT '{
     "branding": {"logo_url": null, "primary_color": "#0d9488"},
     "features": {"ai_coach": true, "analytics": true, "custom_content": false},
     "compliance": {"sso_required": false, "mfa_required": false, "ip_whitelist": []}
   }'::jsonb,
-  
+
   -- Metadata
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
@@ -186,20 +186,20 @@ CREATE INDEX idx_orgs_status ON organizations(subscription_status) WHERE deleted
 CREATE TABLE public.teams (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   organization_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
-  
+
   -- Info
   name TEXT NOT NULL,
   description TEXT,
   team_lead_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
-  
+
   -- Settings
   seat_allocation INTEGER DEFAULT 0, -- Number of seats allocated to this team
   settings JSONB DEFAULT '{}'::jsonb,
-  
+
   -- Metadata
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
-  
+
   UNIQUE(organization_id, name)
 );
 
@@ -218,14 +218,14 @@ CREATE INDEX idx_teams_lead ON teams(team_lead_id);
 ```sql
 CREATE TABLE public.courses (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  
+
   -- Content (Bilingual)
   title_en TEXT NOT NULL,
   title_fr TEXT,
   description_en TEXT,
   description_fr TEXT,
   slug TEXT UNIQUE NOT NULL,
-  
+
   -- Classification
   category TEXT NOT NULL CHECK (category IN (
     'Foundations', 'Workplace', 'Legal', 'Leadership', 'Specialized', 'Certification'
@@ -233,33 +233,33 @@ CREATE TABLE public.courses (
   level TEXT NOT NULL CHECK (level IN ('Introductory', 'Intermediate', 'Advanced', 'Specialized')),
   tags TEXT[] DEFAULT '{}',
   keywords TEXT[] DEFAULT '{}',
-  
+
   -- Structure
   duration_minutes INTEGER NOT NULL,
   estimated_hours DECIMAL(4,2),
   lesson_count INTEGER DEFAULT 0,
   order_index INTEGER DEFAULT 0,
-  
+
   -- Media
   thumbnail_url TEXT,
   video_intro_url TEXT,
-  
+
   -- Access Control
   is_published BOOLEAN DEFAULT false,
   tier_required TEXT DEFAULT 'free' CHECK (tier_required IN ('free', 'professional', 'enterprise')),
   prerequisite_course_ids UUID[] DEFAULT '{}',
-  
+
   -- Gamification
   points_value INTEGER DEFAULT 100,
   certificate_template_id UUID,
-  
+
   -- Learning Outcomes
   learning_objectives TEXT[] DEFAULT '{}',
   competencies TEXT[] DEFAULT '{}',
-  
+
   -- Tribunal Case Links
   featured_case_ids UUID[] DEFAULT '{}',
-  
+
   -- Metadata
   created_by UUID REFERENCES profiles(id),
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -283,38 +283,38 @@ CREATE INDEX idx_courses_tags ON courses USING gin(tags);
 CREATE TABLE public.lessons (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
-  
+
   -- Content (Bilingual)
   title_en TEXT NOT NULL,
   title_fr TEXT,
   content_en TEXT, -- Markdown/HTML
   content_fr TEXT,
-  
+
   -- Structure
   lesson_type TEXT NOT NULL CHECK (lesson_type IN ('video', 'reading', 'quiz', 'interactive', 'case_study')),
   order_index INTEGER NOT NULL,
   duration_minutes INTEGER,
-  
+
   -- Media
   video_url TEXT,
   audio_url TEXT,
   attachments JSONB DEFAULT '[]'::jsonb, -- [{name, url, type, size}]
-  
+
   -- Quiz Data (for lesson_type = 'quiz')
   quiz_questions JSONB, -- [{question, options, correct_answer, explanation}]
   pass_threshold INTEGER DEFAULT 70, -- Percentage
-  
+
   -- Case Study (for lesson_type = 'case_study')
   tribunal_case_id UUID REFERENCES tribunal_cases(id),
-  
+
   -- Completion Criteria
   requires_completion BOOLEAN DEFAULT true,
   min_time_seconds INTEGER, -- Minimum time to spend
-  
+
   -- Metadata
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
-  
+
   UNIQUE(course_id, order_index)
 );
 
@@ -333,32 +333,32 @@ CREATE TABLE public.progress (
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
   lesson_id UUID REFERENCES lessons(id) ON DELETE SET NULL,
-  
+
   -- Progress Metrics
   completion_percentage DECIMAL(5,2) DEFAULT 0 CHECK (completion_percentage BETWEEN 0 AND 100),
   lessons_completed INTEGER DEFAULT 0,
   total_lessons INTEGER,
-  
+
   -- Quiz Performance
   quiz_attempts INTEGER DEFAULT 0,
   quiz_best_score DECIMAL(5,2),
   quiz_last_score DECIMAL(5,2),
   quiz_passed BOOLEAN DEFAULT false,
-  
+
   -- Time Tracking
   time_spent_seconds INTEGER DEFAULT 0,
   started_at TIMESTAMPTZ DEFAULT NOW(),
   last_accessed TIMESTAMPTZ DEFAULT NOW(),
   completed_at TIMESTAMPTZ,
-  
+
   -- Bookmarks & Notes
   bookmarked BOOLEAN DEFAULT false,
   notes TEXT,
-  
+
   -- Metadata
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
-  
+
   UNIQUE(user_id, course_id, lesson_id)
 );
 
@@ -375,32 +375,32 @@ CREATE INDEX idx_progress_user_course ON progress(user_id, course_id);
 ```sql
 CREATE TABLE public.certificates (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  
+
   -- User & Course
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   course_id UUID NOT NULL REFERENCES courses(id) ON DELETE RESTRICT,
-  
+
   -- Certificate Info
   certificate_number TEXT UNIQUE NOT NULL, -- e.g., ABR-2025-001234
   issued_date DATE NOT NULL DEFAULT CURRENT_DATE,
   expiry_date DATE, -- Some certificates expire
-  
+
   -- Performance
   final_score DECIMAL(5,2),
   completion_time_hours DECIMAL(6,2),
-  
+
   -- Files
   pdf_url TEXT,
   verification_url TEXT, -- Public verification page
-  
+
   -- Status
   status TEXT DEFAULT 'active' CHECK (status IN ('active', 'revoked', 'expired')),
   revoked_at TIMESTAMPTZ,
   revoked_reason TEXT,
-  
+
   -- Metadata
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  
+
   UNIQUE(user_id, course_id)
 );
 
@@ -422,26 +422,26 @@ CREATE INDEX idx_certificates_status ON certificates(status);
 CREATE TABLE public.user_achievements (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID UNIQUE NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  
+
   -- Points System
   total_points INTEGER DEFAULT 0,
   weekly_points INTEGER DEFAULT 0,
   monthly_points INTEGER DEFAULT 0,
-  
+
   -- Streaks
   current_streak_days INTEGER DEFAULT 0,
   longest_streak_days INTEGER DEFAULT 0,
   last_activity_date DATE,
-  
+
   -- Badges (array of badge slugs)
   badges_earned TEXT[] DEFAULT '{}',
   badge_timestamps JSONB DEFAULT '{}'::jsonb, -- {badge_slug: timestamp}
-  
+
   -- Leaderboard Rank (updated periodically)
   global_rank INTEGER,
   organization_rank INTEGER,
   team_rank INTEGER,
-  
+
   -- Milestones
   courses_completed INTEGER DEFAULT 0,
   lessons_completed INTEGER DEFAULT 0,
@@ -449,11 +449,11 @@ CREATE TABLE public.user_achievements (
   certificates_earned INTEGER DEFAULT 0,
   cases_bookmarked INTEGER DEFAULT 0,
   coaching_sessions INTEGER DEFAULT 0,
-  
+
   -- Level System
   level INTEGER DEFAULT 1,
   level_progress DECIMAL(5,2) DEFAULT 0, -- Progress to next level (0-100%)
-  
+
   -- Metadata
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -472,27 +472,27 @@ CREATE INDEX idx_achievements_level ON user_achievements(level DESC, level_progr
 CREATE TABLE public.custom_badges (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   organization_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
-  
+
   -- Badge Info
   name TEXT NOT NULL,
   description TEXT,
   icon_url TEXT,
-  
+
   -- Criteria
   criteria_type TEXT CHECK (criteria_type IN ('manual', 'automated', 'hybrid')),
   criteria_config JSONB, -- {type: 'course_completion', course_ids: [...], threshold: 5}
-  
+
   -- Rarity
   rarity TEXT DEFAULT 'common' CHECK (rarity IN ('common', 'uncommon', 'rare', 'epic', 'legendary')),
   points_value INTEGER DEFAULT 10,
-  
+
   -- Status
   is_active BOOLEAN DEFAULT true,
-  
+
   -- Metadata
   created_by UUID REFERENCES profiles(id),
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  
+
   UNIQUE(organization_id, name)
 );
 
@@ -506,26 +506,26 @@ CREATE INDEX idx_custom_badges_org ON custom_badges(organization_id) WHERE is_ac
 ```sql
 CREATE TABLE public.learning_paths (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  
+
   -- Info (Bilingual)
   title_en TEXT NOT NULL,
   title_fr TEXT,
   description_en TEXT,
   description_fr TEXT,
   slug TEXT UNIQUE NOT NULL,
-  
+
   -- Structure
   course_ids UUID[] NOT NULL, -- Ordered array of course IDs
   estimated_duration_hours DECIMAL(6,2),
-  
+
   -- Classification
   category TEXT,
   level TEXT,
-  
+
   -- Access
   is_published BOOLEAN DEFAULT false,
   tier_required TEXT DEFAULT 'free',
-  
+
   -- Metadata
   created_by UUID REFERENCES profiles(id),
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -546,58 +546,58 @@ CREATE INDEX idx_learning_paths_published ON learning_paths(is_published);
 ```sql
 CREATE TABLE public.tribunal_cases (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  
+
   -- Case Identification
   case_number TEXT UNIQUE NOT NULL,
   title TEXT NOT NULL,
   tribunal TEXT NOT NULL, -- HRTO, CHRT, BCHRT, etc.
   source_url TEXT NOT NULL,
-  
+
   -- Date Info
   decision_date DATE,
   year INTEGER,
-  
+
   -- Content (Bilingual)
   summary_en TEXT,
   summary_fr TEXT,
   full_text_en TEXT,
   full_text_fr TEXT,
-  
+
   -- Classification
   outcome TEXT CHECK (outcome IN ('Upheld', 'Dismissed', 'Settled', 'Partially Upheld', 'Other')),
   protected_ground TEXT[] DEFAULT '{}', -- ['race', 'disability', 'gender', ...]
   discrimination_type TEXT[] DEFAULT '{}', -- ['hiring', 'harassment', 'accommodation', ...]
-  
+
   -- Anti-Black Racism Specific
   race_category TEXT CHECK (race_category IN ('Anti-Black', 'General', 'Other', 'Unknown')),
   is_race_related BOOLEAN DEFAULT false,
   is_anti_black_specific BOOLEAN DEFAULT false,
   relevance_score DECIMAL(3,2) CHECK (relevance_score BETWEEN 0 AND 1),
-  
+
   -- Legal Analysis
   precedent_value TEXT CHECK (precedent_value IN ('High', 'Medium', 'Low', 'Unknown')),
   key_legal_principles TEXT[] DEFAULT '{}',
   remedies_awarded TEXT[] DEFAULT '{}',
   monetary_award DECIMAL(12,2),
-  
+
   -- AI-Generated
   ai_generated_summary TEXT,
   ai_tags TEXT[] DEFAULT '{}',
   ai_confidence_score DECIMAL(3,2),
   ai_classification_model TEXT, -- 'gpt-4o', 'claude-3-opus', etc.
   ai_classified_at TIMESTAMPTZ,
-  
+
   -- Educational Use
   keywords TEXT[] DEFAULT '{}',
   complexity_level TEXT CHECK (complexity_level IN ('Beginner', 'Intermediate', 'Advanced')),
   featured BOOLEAN DEFAULT false,
-  
+
   -- Lineage (from ingestion)
   ingested_from_raw_id UUID REFERENCES tribunal_cases_raw(id),
   manually_reviewed BOOLEAN DEFAULT false,
   reviewed_by UUID REFERENCES profiles(id),
   reviewed_at TIMESTAMPTZ,
-  
+
   -- Metadata
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
@@ -626,12 +626,12 @@ CREATE INDEX idx_tribunal_fts ON tribunal_cases USING gin(
 ```sql
 CREATE TABLE public.tribunal_cases_raw (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  
+
   -- Source
   source_name TEXT NOT NULL, -- 'HRTO', 'CHRT', 'CanLII'
   source_url TEXT NOT NULL,
   scraper_version TEXT,
-  
+
   -- Raw Data
   raw_html TEXT,
   raw_text TEXT,
@@ -639,29 +639,29 @@ CREATE TABLE public.tribunal_cases_raw (
   extracted_case_number TEXT,
   extracted_date DATE,
   extracted_tribunal TEXT,
-  
+
   -- Initial Classification (AI)
   ai_classification JSONB, -- {is_race_related, is_anti_black, confidence, reasoning}
   rule_based_classification JSONB,
-  
+
   -- Status
   status TEXT DEFAULT 'pending' CHECK (status IN (
     'pending', 'classified', 'approved', 'rejected', 'duplicate'
   )),
   rejection_reason TEXT,
-  
+
   -- Duplicate Detection
   is_duplicate BOOLEAN DEFAULT false,
   duplicate_of_case_id UUID REFERENCES tribunal_cases(id),
-  
+
   -- Lineage
   ingestion_job_id UUID REFERENCES ingestion_jobs(id),
   promoted_to_case_id UUID REFERENCES tribunal_cases(id),
-  
+
   -- Review
   reviewed_by UUID REFERENCES profiles(id),
   reviewed_at TIMESTAMPTZ,
-  
+
   -- Metadata
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -680,25 +680,25 @@ CREATE INDEX idx_raw_cases_duplicate ON tribunal_cases_raw(is_duplicate, duplica
 ```sql
 CREATE TABLE public.tribunal_sources (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  
+
   -- Source Info
   name TEXT UNIQUE NOT NULL, -- 'HRTO', 'CHRT', 'CanLII-HRTO'
   tribunal TEXT NOT NULL, -- 'Ontario Human Rights Tribunal'
   base_url TEXT NOT NULL,
-  
+
   -- Scraper Config
   scraper_type TEXT DEFAULT 'generic' CHECK (scraper_type IN ('generic', 'hrto', 'chrt', 'canlii', 'custom')),
   scraper_config JSONB NOT NULL, -- Selectors, pagination, etc.
-  
+
   -- Schedule
   is_active BOOLEAN DEFAULT true,
   schedule_cron TEXT DEFAULT '0 2 * * *', -- Daily at 2 AM
   priority INTEGER DEFAULT 5,
-  
+
   -- Rate Limiting
   rate_limit_delay_seconds DECIMAL(5,2) DEFAULT 2.0,
   max_concurrent_requests INTEGER DEFAULT 1,
-  
+
   -- Metadata
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
@@ -717,30 +717,30 @@ CREATE INDEX idx_sources_active ON tribunal_sources(is_active, priority DESC);
 CREATE TABLE public.ingestion_jobs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   source_id UUID NOT NULL REFERENCES tribunal_sources(id) ON DELETE CASCADE,
-  
+
   -- Job Info
   job_type TEXT DEFAULT 'scheduled' CHECK (job_type IN ('scheduled', 'manual', 'backfill')),
   status TEXT DEFAULT 'running' CHECK (status IN ('running', 'completed', 'failed', 'cancelled')),
-  
+
   -- Progress
   items_fetched INTEGER DEFAULT 0,
   items_classified INTEGER DEFAULT 0,
   items_approved INTEGER DEFAULT 0,
   items_rejected INTEGER DEFAULT 0,
   items_duplicate INTEGER DEFAULT 0,
-  
+
   -- Timing
   started_at TIMESTAMPTZ DEFAULT NOW(),
   completed_at TIMESTAMPTZ,
   duration_seconds INTEGER,
-  
+
   -- Errors
   error_message TEXT,
   error_stack TEXT,
-  
+
   -- Logs
   execution_log JSONB DEFAULT '[]'::jsonb, -- [{timestamp, level, message}]
-  
+
   -- Metadata
   triggered_by UUID REFERENCES profiles(id),
   created_at TIMESTAMPTZ DEFAULT NOW()
@@ -757,28 +757,28 @@ CREATE INDEX idx_jobs_status ON ingestion_jobs(status);
 ```sql
 CREATE TABLE public.classification_feedback (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  
+
   -- Case Reference
   raw_case_id UUID REFERENCES tribunal_cases_raw(id) ON DELETE CASCADE,
   case_id UUID REFERENCES tribunal_cases(id) ON DELETE CASCADE,
-  
+
   -- Feedback
   ai_classification TEXT, -- What AI predicted
   user_classification TEXT, -- What user says it should be
   feedback_type TEXT CHECK (feedback_type IN ('correction', 'confirmation', 'suggestion')),
-  
+
   -- Details
   comments TEXT,
   confidence_rating INTEGER CHECK (confidence_rating BETWEEN 1 AND 5),
-  
+
   -- User
   reviewed_by UUID NOT NULL REFERENCES profiles(id),
   reviewed_date TIMESTAMPTZ DEFAULT NOW(),
-  
+
   -- Training Flag
   used_for_training BOOLEAN DEFAULT false,
   training_batch_id UUID,
-  
+
   -- Metadata
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -800,30 +800,30 @@ CREATE INDEX idx_feedback_training ON classification_feedback(used_for_training)
 CREATE TABLE public.ai_coaching_sessions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  
+
   -- Session Info
   session_type TEXT NOT NULL CHECK (session_type IN (
     'comprehensive', 'at_risk', 'learning_path', 'motivation', 'custom'
   )),
-  
+
   -- Input
   user_query TEXT,
   user_context JSONB, -- {progress, achievements, recent_activity}
-  
+
   -- AI Response
   ai_response TEXT NOT NULL,
   ai_model TEXT, -- 'gpt-4o', 'claude-3-opus'
   ai_prompt TEXT,
-  
+
   -- Recommendations
   recommended_actions JSONB, -- [{action, priority, reason}]
   recommended_courses UUID[] DEFAULT '{}',
-  
+
   -- Feedback
   user_rating INTEGER CHECK (user_rating BETWEEN 1 AND 5),
   was_helpful BOOLEAN,
   user_feedback TEXT,
-  
+
   -- Metadata
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -841,23 +841,23 @@ CREATE INDEX idx_coaching_type ON ai_coaching_sessions(session_type);
 CREATE TABLE public.bookmarks (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  
+
   -- Bookmarked Item
   resource_type TEXT NOT NULL CHECK (resource_type IN ('tribunal_case', 'course', 'lesson', 'resource', 'article')),
   resource_id UUID NOT NULL,
-  
+
   -- Notes
   notes TEXT,
   tags TEXT[] DEFAULT '{}',
-  
+
   -- Organization
   folder TEXT DEFAULT 'default',
   is_favorite BOOLEAN DEFAULT false,
-  
+
   -- Metadata
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
-  
+
   UNIQUE(user_id, resource_type, resource_id)
 );
 
@@ -873,21 +873,21 @@ CREATE INDEX idx_bookmarks_resource ON bookmarks(resource_type, resource_id);
 CREATE TABLE public.saved_searches (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  
+
   -- Search Info
   name TEXT NOT NULL,
   description TEXT,
-  
+
   -- Search Criteria
   filters JSONB NOT NULL, -- All filter values from data explorer
-  
+
   -- Usage
   use_count INTEGER DEFAULT 0,
   last_used TIMESTAMPTZ,
-  
+
   -- Notifications
   notify_on_new_results BOOLEAN DEFAULT false,
-  
+
   -- Metadata
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -904,7 +904,7 @@ CREATE INDEX idx_saved_searches_user ON saved_searches(user_id, last_used DESC N
 CREATE TABLE public.notifications (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  
+
   -- Notification Content
   type TEXT NOT NULL CHECK (type IN (
     'course_assigned', 'course_completed', 'certificate_earned', 'badge_unlocked',
@@ -912,18 +912,18 @@ CREATE TABLE public.notifications (
   )),
   title TEXT NOT NULL,
   message TEXT NOT NULL,
-  
+
   -- Links
   link_url TEXT,
   link_text TEXT,
-  
+
   -- Status
   read BOOLEAN DEFAULT false,
   read_at TIMESTAMPTZ,
-  
+
   -- Priority
   priority TEXT DEFAULT 'normal' CHECK (priority IN ('low', 'normal', 'high', 'urgent')),
-  
+
   -- Metadata
   created_at TIMESTAMPTZ DEFAULT NOW(),
   expires_at TIMESTAMPTZ DEFAULT NOW() + INTERVAL '30 days'
@@ -940,31 +940,31 @@ CREATE INDEX idx_notifications_expires ON notifications(expires_at) WHERE read =
 ```sql
 CREATE TABLE public.resources (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  
+
   -- Info (Bilingual)
   title_en TEXT NOT NULL,
   title_fr TEXT,
   description_en TEXT,
   description_fr TEXT,
-  
+
   -- Classification
   category TEXT NOT NULL CHECK (category IN (
     'Template', 'Guide', 'Toolkit', 'Policy', 'Checklist', 'Report', 'Research', 'Other'
   )),
   tags TEXT[] DEFAULT '{}',
-  
+
   -- File
   file_url TEXT NOT NULL,
   file_type TEXT, -- 'pdf', 'docx', 'xlsx', 'pptx'
   file_size_bytes INTEGER,
-  
+
   -- Access
   is_published BOOLEAN DEFAULT false,
   tier_required TEXT DEFAULT 'free',
-  
+
   -- Analytics
   download_count INTEGER DEFAULT 0,
-  
+
   -- Metadata
   created_by UUID REFERENCES profiles(id),
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -987,30 +987,30 @@ CREATE INDEX idx_resources_tags ON resources USING gin(tags);
 CREATE TABLE public.subscriptions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   organization_id UUID UNIQUE NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
-  
+
   -- Stripe IDs
   stripe_subscription_id TEXT UNIQUE NOT NULL,
   stripe_customer_id TEXT NOT NULL,
   stripe_price_id TEXT NOT NULL,
-  
+
   -- Plan Details
   plan_tier TEXT NOT NULL CHECK (plan_tier IN ('free', 'professional', 'enterprise', 'custom')),
   plan_name TEXT NOT NULL, -- 'Professional - Annual'
   billing_interval TEXT NOT NULL CHECK (billing_interval IN ('month', 'year')),
-  
+
   -- Seats
   seat_count INTEGER NOT NULL DEFAULT 1,
   seats_used INTEGER DEFAULT 0,
-  
+
   -- Pricing (CAD)
   amount_cents INTEGER NOT NULL, -- e.g., 199900 = $1999.00
   currency TEXT DEFAULT 'CAD',
-  
+
   -- Status
   status TEXT NOT NULL CHECK (status IN (
     'trialing', 'active', 'past_due', 'canceled', 'unpaid', 'incomplete', 'incomplete_expired', 'paused'
   )),
-  
+
   -- Dates
   trial_start TIMESTAMPTZ,
   trial_end TIMESTAMPTZ,
@@ -1018,17 +1018,17 @@ CREATE TABLE public.subscriptions (
   current_period_end TIMESTAMPTZ NOT NULL,
   canceled_at TIMESTAMPTZ,
   ended_at TIMESTAMPTZ,
-  
+
   -- Cancellation
   cancel_at_period_end BOOLEAN DEFAULT false,
   cancellation_reason TEXT,
   cancellation_feedback TEXT,
-  
+
   -- Payment
   last_payment_date TIMESTAMPTZ,
   next_payment_date TIMESTAMPTZ,
   last_payment_status TEXT,
-  
+
   -- Metadata
   metadata JSONB DEFAULT '{}'::jsonb,
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -1050,24 +1050,24 @@ CREATE TABLE public.subscription_seats (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   subscription_id UUID NOT NULL REFERENCES subscriptions(id) ON DELETE CASCADE,
   organization_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
-  
+
   -- Assignment
   assigned_to_user_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
   assigned_to_email TEXT, -- Email if user not yet registered
   assigned_by UUID REFERENCES profiles(id),
   assigned_at TIMESTAMPTZ,
-  
+
   -- Status
   status TEXT DEFAULT 'available' CHECK (status IN ('available', 'assigned', 'active', 'suspended')),
-  
+
   -- Team Assignment (optional)
   team_id UUID REFERENCES teams(id) ON DELETE SET NULL,
-  
+
   -- Usage Tracking
   first_login_at TIMESTAMPTZ,
   last_login_at TIMESTAMPTZ,
   login_count INTEGER DEFAULT 0,
-  
+
   -- Metadata
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -1088,36 +1088,36 @@ CREATE TABLE public.invoices (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   subscription_id UUID NOT NULL REFERENCES subscriptions(id) ON DELETE CASCADE,
   organization_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
-  
+
   -- Stripe IDs
   stripe_invoice_id TEXT UNIQUE NOT NULL,
   stripe_charge_id TEXT,
-  
+
   -- Invoice Details
   invoice_number TEXT,
   amount_cents INTEGER NOT NULL,
   amount_paid_cents INTEGER DEFAULT 0,
   currency TEXT DEFAULT 'CAD',
-  
+
   -- Tax (Canadian)
   tax_gst_cents INTEGER DEFAULT 0,
   tax_hst_cents INTEGER DEFAULT 0,
   tax_qst_cents INTEGER DEFAULT 0,
   tax_pst_cents INTEGER DEFAULT 0,
-  
+
   -- Status
   status TEXT NOT NULL CHECK (status IN ('draft', 'open', 'paid', 'void', 'uncollectible')),
-  
+
   -- Dates
   period_start DATE NOT NULL,
   period_end DATE NOT NULL,
   due_date DATE,
   paid_at TIMESTAMPTZ,
-  
+
   -- Files
   invoice_pdf_url TEXT,
   hosted_invoice_url TEXT,
-  
+
   -- Metadata
   metadata JSONB DEFAULT '{}'::jsonb,
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -1137,26 +1137,26 @@ CREATE INDEX idx_invoices_status ON invoices(status);
 CREATE TABLE public.payment_methods (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   organization_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
-  
+
   -- Stripe IDs
   stripe_payment_method_id TEXT UNIQUE NOT NULL,
   stripe_customer_id TEXT NOT NULL,
-  
+
   -- Card Details (last 4, brand, exp)
   card_brand TEXT, -- 'visa', 'mastercard', 'amex'
   card_last4 TEXT,
   card_exp_month INTEGER,
   card_exp_year INTEGER,
-  
+
   -- Billing Address
   billing_name TEXT,
   billing_email TEXT,
   billing_address JSONB, -- {line1, line2, city, province, postal_code, country}
-  
+
   -- Status
   is_default BOOLEAN DEFAULT false,
   is_active BOOLEAN DEFAULT true,
-  
+
   -- Metadata
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -1175,25 +1175,25 @@ CREATE TABLE public.usage_tracking (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   organization_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
   subscription_id UUID NOT NULL REFERENCES subscriptions(id) ON DELETE CASCADE,
-  
+
   -- Metric
   metric_type TEXT NOT NULL CHECK (metric_type IN (
     'api_calls', 'ai_coach_sessions', 'data_exports', 'custom_courses', 'storage_gb'
   )),
-  
+
   -- Usage
   quantity DECIMAL(10,2) NOT NULL,
   unit TEXT NOT NULL, -- 'count', 'gb', 'hours'
-  
+
   -- Period
   period_start DATE NOT NULL,
   period_end DATE NOT NULL,
-  
+
   -- Billing
   is_billable BOOLEAN DEFAULT true,
   invoiced BOOLEAN DEFAULT false,
   invoice_id UUID REFERENCES invoices(id),
-  
+
   -- Metadata
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -1240,24 +1240,24 @@ CREATE TABLE public.audit_logs (
 CREATE TABLE public.onboarding (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID UNIQUE NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  
+
   -- Tour Progress
   tour_completed BOOLEAN DEFAULT false,
   tour_step_completed INTEGER DEFAULT 0,
   tour_dismissed BOOLEAN DEFAULT false,
-  
+
   -- Checklist
   checklist_items JSONB DEFAULT '{}'::jsonb, -- {item_id: {completed, completed_at}}
-  
+
   -- Role-Specific
   role_specific_completed JSONB DEFAULT '{}'::jsonb, -- {role: {completed, steps}}
-  
+
   -- First Actions
   first_course_started BOOLEAN DEFAULT false,
   first_course_completed BOOLEAN DEFAULT false,
   first_search_performed BOOLEAN DEFAULT false,
   profile_completed BOOLEAN DEFAULT false,
-  
+
   -- Metadata
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -1273,24 +1273,24 @@ CREATE INDEX idx_onboarding_user ON onboarding(user_id);
 ```sql
 CREATE TABLE public.feature_flags (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  
+
   -- Flag Info
   flag_key TEXT UNIQUE NOT NULL,
   name TEXT NOT NULL,
   description TEXT,
-  
+
   -- Status
   is_enabled BOOLEAN DEFAULT false,
-  
+
   -- Targeting
   target_type TEXT DEFAULT 'global' CHECK (target_type IN ('global', 'tier', 'organization', 'user')),
   target_tiers TEXT[] DEFAULT '{}', -- ['professional', 'enterprise']
   target_org_ids UUID[] DEFAULT '{}',
   target_user_ids UUID[] DEFAULT '{}',
-  
+
   -- Rollout
   rollout_percentage INTEGER DEFAULT 100 CHECK (rollout_percentage BETWEEN 0 AND 100),
-  
+
   -- Metadata
   created_by UUID REFERENCES profiles(id),
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -1391,7 +1391,7 @@ CREATE INDEX idx_tribunal_tags ON tribunal_cases USING gin(ai_tags);
 CREATE INDEX idx_achievements_leaderboard ON user_achievements(total_points DESC, level DESC);
 
 -- Billing
-CREATE INDEX idx_subscriptions_renewal ON subscriptions(next_payment_date, status) 
+CREATE INDEX idx_subscriptions_renewal ON subscriptions(next_payment_date, status)
   WHERE status = 'active' AND cancel_at_period_end = false;
 ```
 

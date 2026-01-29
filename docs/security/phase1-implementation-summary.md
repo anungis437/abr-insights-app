@@ -25,9 +25,11 @@ Phase 1 of the production security implementation has successfully addressed the
 ### 1. Core Authentication Infrastructure
 
 #### File: `lib/auth/serverAuth.ts` ✅
+
 **Purpose:** Server-side authentication utilities for API routes
 
 **Exported Functions:**
+
 - `requireSession(request)` - Validates Supabase session
 - `requireUser(request)` - Returns authenticated user
 - `requireOrgContext(user, request)` - Resolves and validates org membership
@@ -38,6 +40,7 @@ Phase 1 of the production security implementation has successfully addressed the
 - `getUserPermissions(userId, orgId)` - Get all permissions for caching
 
 **Custom Error Types:**
+
 - `AuthError` - Base authentication error (401)
 - `PermissionError` - Permission denied (403)
 - `OrgContextError` - Invalid organization context (403)
@@ -47,28 +50,33 @@ Phase 1 of the production security implementation has successfully addressed the
 ### 2. Route Guard Wrappers
 
 #### File: `lib/api/guard.ts` ✅
+
 **Purpose:** HOC-style guards for protecting API routes
 
 **Core Guards:**
+
 - `withAuth(handler)` - Ensures user is logged in
 - `withOrg(handler)` - Ensures valid org context (must be after withAuth)
 - `withPermission(slug, handler)` - Ensures specific permission (must be after withOrg)
 - `withAnyPermission(slugs, handler)` - OR logic for multiple permissions
 
 **Composeable Guard:**
+
 ```typescript
 guardedRoute(handler, {
   requireAuth: true,
   requireOrg: true,
   permissions: ['ai.chat.use', 'admin.ai.manage'],
-  anyPermissions: ['optional', 'list']
+  anyPermissions: ['optional', 'list'],
 })
 ```
 
 **Public Route Guard:**
+
 - `publicRoute(handler)` - Attempts to get session but doesn't fail if absent
 
 **Features:**
+
 - Standardized error responses with HTTP status codes
 - Context passing between guards
 - Type-safe with TypeScript
@@ -79,9 +87,11 @@ guardedRoute(handler, {
 ### 3. Database Functions (Supabase)
 
 #### Migration: `018_permission_check_functions.sql` ✅
+
 **Purpose:** Efficient permission resolution via RPC
 
 **Functions Created:**
+
 1. **`check_user_permission(user_id, org_id, permission_slug)`**
    - Returns: `BOOLEAN`
    - Checks if user has permission through their roles
@@ -105,6 +115,7 @@ guardedRoute(handler, {
 ### 4. AI Usage Logging System
 
 #### Migration: `019_ai_usage_logging.sql` ✅
+
 **Purpose:** Track all AI endpoint usage for cost attribution and audit compliance
 
 **Table: `ai_usage_logs`**
@@ -125,6 +136,7 @@ guardedRoute(handler, {
 | `created_at` | TIMESTAMPTZ | When request was made |
 
 **Indexes Created:**
+
 - `user_id` - For user usage reports
 - `organization_id` - For org billing
 - `endpoint` - For endpoint analytics
@@ -132,16 +144,19 @@ guardedRoute(handler, {
 - `(organization_id, created_at DESC)` - Combined org+time index
 
 **RLS Policies:**
+
 - Users can view their own usage
 - Org admins can view all usage in their org
 - Service role can insert (for logging)
 
 **View: `ai_usage_analytics`**
+
 - Aggregates usage by org, endpoint, and day
 - Calculates estimated costs in USD
 - GPT-4o pricing: $0.01/1K prompt tokens, $0.03/1K completion tokens
 
 **Sample Query:**
+
 ```sql
 SELECT *
 FROM ai_usage_analytics
@@ -157,28 +172,30 @@ ORDER BY usage_date DESC, total_tokens DESC;
 #### `/api/ai/chat` ✅ SECURED
 
 **Before:**
+
 ```typescript
 export async function POST(request: NextRequest) {
   // ❌ NO AUTHENTICATION
   // ❌ NO PERMISSION CHECK
   // ❌ NO RATE LIMITING
-  const { message } = await request.json();
+  const { message } = await request.json()
   // Call Azure OpenAI...
 }
 ```
 
 **After:**
+
 ```typescript
 async function chatHandler(request: NextRequest, context: GuardedContext) {
-  const { message, context: chatContext } = await request.json();
-  
+  const { message, context: chatContext } = await request.json()
+
   // ✅ Input validation
   if (message.length > 4000) {
-    return NextResponse.json({ error: 'Message too long' }, { status: 400 });
+    return NextResponse.json({ error: 'Message too long' }, { status: 400 })
   }
-  
+
   // ... Azure OpenAI call ...
-  
+
   // ✅ Usage logging
   await supabase.from('ai_usage_logs').insert({
     user_id: context.user!.id,
@@ -187,21 +204,22 @@ async function chatHandler(request: NextRequest, context: GuardedContext) {
     prompt_tokens: data.usage?.prompt_tokens,
     completion_tokens: data.usage?.completion_tokens,
     total_tokens: data.usage?.total_tokens,
-    model: deployment
-  });
-  
-  return NextResponse.json({ response: aiResponse, usage: data.usage });
+    model: deployment,
+  })
+
+  return NextResponse.json({ response: aiResponse, usage: data.usage })
 }
 
 // ✅ Apply guards
 export const POST = guardedRoute(chatHandler, {
   requireAuth: true,
   requireOrg: true,
-  anyPermissions: ['ai.chat.use', 'admin.ai.manage']
-});
+  anyPermissions: ['ai.chat.use', 'admin.ai.manage'],
+})
 ```
 
 **Protection Added:**
+
 - ✅ Authentication required
 - ✅ Organization context validated
 - ✅ Permission: `ai.chat.use` OR `admin.ai.manage`
@@ -214,6 +232,7 @@ export const POST = guardedRoute(chatHandler, {
 #### `/api/ai/coach` ✅ SECURED
 
 **Changes Applied:**
+
 - ✅ Authentication required
 - ✅ Organization context validated
 - ✅ Permission: `ai.coach.use` OR `admin.ai.manage`
@@ -222,6 +241,7 @@ export const POST = guardedRoute(chatHandler, {
 - ⚠️ Rate limiting: TODO (20 req/min/user, 80 req/min/org)
 
 **Protected Session Types:**
+
 - `comprehensive` - Full progress review
 - `learning_path` - Personalized course sequence
 - `at_risk` - Re-engagement support
@@ -232,6 +252,7 @@ export const POST = guardedRoute(chatHandler, {
 #### `/api/embeddings/generate` 🔴 CRITICAL - ADMIN ONLY ✅
 
 **Changes Applied:**
+
 - ✅ Authentication required
 - ✅ Organization context validated
 - ✅ Permission: `admin.ai.manage` (ADMIN ONLY - no fallback)
@@ -240,12 +261,14 @@ export const POST = guardedRoute(chatHandler, {
 - ⚠️ Rate limiting: TODO (2 req/hour/org for POST)
 
 **Why Admin-Only:**
+
 - Can trigger 5-minute batch operations (`maxDuration: 300`)
 - Generates embeddings for ALL cases or courses
 - High Azure OpenAI API cost
 - Should be triggered manually or via scheduled jobs only
 
 **Endpoint Split:**
+
 - `POST /api/embeddings/generate` - Trigger generation (ADMIN ONLY)
 - `GET /api/embeddings/generate?jobId=...` - Check status (AUTH ONLY)
 
@@ -254,9 +277,11 @@ export const POST = guardedRoute(chatHandler, {
 ### 6. Documentation Deliverables
 
 #### `docs/engineering/baseline-findings.md` ✅
+
 **Purpose:** Comprehensive security audit results
 
 **Contents:**
+
 - Executive summary with risk assessment
 - All 27+ API routes documented with protection status
 - RBAC split-brain problem analysis
@@ -271,9 +296,11 @@ export const POST = guardedRoute(chatHandler, {
 ---
 
 #### `docs/security/api-protection-matrix.md` ✅
+
 **Purpose:** Living document of API route security
 
 **Contents:**
+
 - Protection levels (Critical, Protected, Public, Framework)
 - Detailed status for each endpoint
 - Required permissions reference
@@ -287,12 +314,13 @@ export const POST = guardedRoute(chatHandler, {
 
 ## Migration Status
 
-| Migration | File | Status | Date Applied |
-|-----------|------|--------|--------------|
-| 018 | `018_permission_check_functions.sql` | ✅ Applied | 2026-01-13 |
-| 019 | `019_ai_usage_logging.sql` | ✅ Applied | 2026-01-13 |
+| Migration | File                                 | Status     | Date Applied |
+| --------- | ------------------------------------ | ---------- | ------------ |
+| 018       | `018_permission_check_functions.sql` | ✅ Applied | 2026-01-13   |
+| 019       | `019_ai_usage_logging.sql`           | ✅ Applied | 2026-01-13   |
 
 **Verification:**
+
 ```sql
 -- Check if functions exist
 SELECT routine_name
@@ -312,6 +340,7 @@ WHERE table_schema = 'public'
 ## Testing Performed
 
 ### Manual Testing ✅
+
 - [x] Unauthenticated request to `/api/ai/chat` returns 401
 - [x] Authenticated user without `ai.chat.use` permission returns 403
 - [x] Authenticated user with permission succeeds
@@ -319,6 +348,7 @@ WHERE table_schema = 'public'
 - [x] Org context validation works (header, query param, profile)
 
 ### Pending Testing ⚠️
+
 - [ ] Automated test suite (Playwright/Vitest)
 - [ ] Tenant isolation tests (OrgA cannot access OrgB data)
 - [ ] Permission caching performance
@@ -329,20 +359,21 @@ WHERE table_schema = 'public'
 
 ## Before & After Metrics
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| Protected AI routes | 0/5 (0%) | 3/5 (60%) | +60% |
-| Protected embeddings routes | 0/3 (0%) | 1/3 (33%) | +33% |
-| Overall API protection | 0/27 (0%) | 11/27 (41%) | +41% |
-| AI usage audit trail | ❌ None | ✅ Full logging | ✅ |
-| Permission checking | ❌ Ad-hoc | ✅ Centralized | ✅ |
-| Authentication utilities | ❌ None | ✅ Complete | ✅ |
+| Metric                      | Before    | After           | Improvement |
+| --------------------------- | --------- | --------------- | ----------- |
+| Protected AI routes         | 0/5 (0%)  | 3/5 (60%)       | +60%        |
+| Protected embeddings routes | 0/3 (0%)  | 1/3 (33%)       | +33%        |
+| Overall API protection      | 0/27 (0%) | 11/27 (41%)     | +41%        |
+| AI usage audit trail        | ❌ None   | ✅ Full logging | ✅          |
+| Permission checking         | ❌ Ad-hoc | ✅ Centralized  | ✅          |
+| Authentication utilities    | ❌ None   | ✅ Complete     | ✅          |
 
 ---
 
 ## Known Limitations & TODOs
 
 ### High Priority (Phase 2)
+
 1. **Rate Limiting Not Implemented**
    - AI endpoints can still be spammed (but now require auth)
    - No cost controls per user/org
@@ -365,6 +396,7 @@ WHERE table_schema = 'public'
    - **Action:** Add Cloudflare Turnstile + rate limits
 
 ### Medium Priority (Phase 3)
+
 5. **RBAC Split-Brain Not Fixed**
    - Migration 015 still uses `profiles.role` directly
    - Need to migrate to permission-based RLS policies
@@ -381,6 +413,7 @@ WHERE table_schema = 'public'
    - **Action:** Add subscription tier enforcement
 
 ### Low Priority (Phase 4)
+
 8. **No Permission Caching**
    - Each request calls `check_user_permission()` RPC
    - Could be slow under load
@@ -401,20 +434,24 @@ WHERE table_schema = 'public'
 ## Required Permissions (Must Exist in Database)
 
 **AI Permissions:**
+
 - `ai.chat.use` - Use AI chat assistant
 - `ai.coach.use` - Use AI coaching
 - `ai.feedback.submit` - Submit AI feedback
 - `admin.ai.manage` - Manage AI operations (admin only)
 
 **Embeddings Permissions:**
+
 - `embeddings.search` - Search using embeddings
 - `cases.search` - Search case law
 - `courses.search` - Search courses
 
 **Subscription Permissions:**
+
 - `subscriptions.manage` - Manage own subscription
 
 **Verification SQL:**
+
 ```sql
 SELECT slug, name, description
 FROM permissions
@@ -440,55 +477,54 @@ WHERE slug IN (
 
 ```typescript
 // app/api/your-new-route/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { guardedRoute, GuardedContext } from '@/lib/api/guard';
+import { NextRequest, NextResponse } from 'next/server'
+import { guardedRoute, GuardedContext } from '@/lib/api/guard'
 
 async function handler(request: NextRequest, context: GuardedContext) {
   // context.user - Authenticated user
   // context.organizationId - User's org ID
   // context.session - Full Supabase session
-  
-  const supabase = await createClient();
-  
+
+  const supabase = await createClient()
+
   // Your logic here...
-  
-  return NextResponse.json({ success: true });
+
+  return NextResponse.json({ success: true })
 }
 
 // Apply guards
 export const POST = guardedRoute(handler, {
   requireAuth: true,
   requireOrg: true,
-  permissions: ['your.permission.slug']
-});
+  permissions: ['your.permission.slug'],
+})
 ```
 
 ### Checking Permissions Manually
 
 ```typescript
-import { requirePermission, requireOrgContext, requireUser } from '@/lib/auth/serverAuth';
+import { requirePermission, requireOrgContext, requireUser } from '@/lib/auth/serverAuth'
 
 export async function POST(request: NextRequest) {
   try {
     // Get authenticated user
-    const user = await requireUser(request);
-    
+    const user = await requireUser(request)
+
     // Get organization context
-    const orgId = await requireOrgContext(user, request);
-    
+    const orgId = await requireOrgContext(user, request)
+
     // Check specific permission
-    await requirePermission(user.id, orgId, 'your.permission');
-    
+    await requirePermission(user.id, orgId, 'your.permission')
+
     // Continue with logic...
-    
   } catch (error) {
     if (error instanceof AuthError) {
       return NextResponse.json(
         { error: error.message, code: error.code },
         { status: error.statusCode }
-      );
+      )
     }
-    throw error;
+    throw error
   }
 }
 ```
@@ -502,7 +538,7 @@ const { data: usage } = await supabase
   .select('*')
   .eq('user_id', userId)
   .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
-  .order('created_at', { ascending: false });
+  .order('created_at', { ascending: false })
 
 // Get org's total cost this month
 const { data: analytics } = await supabase
@@ -510,9 +546,9 @@ const { data: analytics } = await supabase
   .select('*')
   .eq('organization_id', orgId)
   .gte('usage_date', new Date(new Date().getFullYear(), new Date().getMonth(), 1))
-  .order('usage_date', { ascending: false });
+  .order('usage_date', { ascending: false })
 
-const totalCost = analytics.reduce((sum, day) => sum + day.estimated_cost_usd, 0);
+const totalCost = analytics.reduce((sum, day) => sum + day.estimated_cost_usd, 0)
 ```
 
 ---
@@ -520,6 +556,7 @@ const totalCost = analytics.reduce((sum, day) => sum + day.estimated_cost_usd, 0
 ## Next Steps (Phase 2)
 
 ### Week 1: Rate Limiting
+
 1. Create `lib/security/rateLimit.ts` with token bucket algorithm
 2. Add rate limit middleware to Next.js config
 3. Apply to AI endpoints (30-60 req/min/user)
@@ -527,6 +564,7 @@ const totalCost = analytics.reduce((sum, day) => sum + day.estimated_cost_usd, 0
 5. Return `429 Too Many Requests` with `Retry-After` header
 
 ### Week 2: Remaining Route Protection
+
 1. Secure `/api/ai/feedback` (auth + permission)
 2. Secure `/api/ai/automation` (auth + admin only)
 3. Secure `/api/ai/training-jobs` (auth + admin only)
@@ -534,6 +572,7 @@ const totalCost = analytics.reduce((sum, day) => sum + day.estimated_cost_usd, 0
 5. Add bot protection to `/api/contact` and `/api/newsletter`
 
 ### Week 3: RBAC Unification
+
 1. Create migration to add missing permissions to `permissions` table
 2. Assign permissions to roles (learner, instructor, org_admin, super_admin)
 3. Migrate RLS policies in migration 015 from `profiles.role` to permission-based
@@ -541,6 +580,7 @@ const totalCost = analytics.reduce((sum, day) => sum + day.estimated_cost_usd, 0
 5. Document RBAC standard in `/docs/security/rbac-standard.md`
 
 ### Week 4: Testing & Validation
+
 1. Create Playwright tests for tenant isolation
 2. Create Vitest tests for permission checking
 3. Load test rate limiting
@@ -552,6 +592,7 @@ const totalCost = analytics.reduce((sum, day) => sum + day.estimated_cost_usd, 0
 ## Files Modified/Created
 
 ### Created Files ✅
+
 - `lib/auth/serverAuth.ts` - Authentication utilities (310 lines)
 - `lib/api/guard.ts` - Route guard wrappers (230 lines)
 - `supabase/migrations/018_permission_check_functions.sql` - RPC functions (110 lines)
@@ -561,11 +602,13 @@ const totalCost = analytics.reduce((sum, day) => sum + day.estimated_cost_usd, 0
 - `docs/security/phase1-implementation-summary.md` - This file (current)
 
 ### Modified Files ✅
+
 - `app/api/ai/chat/route.ts` - Added guards + usage logging
 - `app/api/ai/coach/route.ts` - Added guards + usage logging
 - `app/api/embeddings/generate/route.ts` - Added guards + usage logging
 
 ### Total Changes
+
 - **Created:** 7 files (2,720 lines)
 - **Modified:** 3 files
 - **Migrations Applied:** 2
@@ -575,6 +618,7 @@ const totalCost = analytics.reduce((sum, day) => sum + day.estimated_cost_usd, 0
 ## Success Criteria
 
 ✅ **Phase 1 Goals Met:**
+
 - [x] Authentication infrastructure created
 - [x] Route guards implemented and tested
 - [x] Critical AI endpoints secured (chat, coach, embeddings)
@@ -583,6 +627,7 @@ const totalCost = analytics.reduce((sum, day) => sum + day.estimated_cost_usd, 0
 - [x] Documentation complete and comprehensive
 
 🎯 **Phase 2 Goals:**
+
 - [ ] Rate limiting implemented
 - [ ] All remaining routes secured
 - [ ] Bot protection on public forms
@@ -598,7 +643,7 @@ const totalCost = analytics.reduce((sum, day) => sum + day.estimated_cost_usd, 0
 **Ready for Phase 2:** ✅ Yes
 
 **Reviewed by:** Development Team  
-**Date:** January 13, 2026  
+**Date:** January 13, 2026
 
 ---
 

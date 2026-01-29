@@ -4,35 +4,78 @@ import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: 'Admin Dashboard | ABR Insights',
-  description: 'Platform administration dashboard'
+  description: 'Platform administration dashboard',
 }
 
 export default function AdminDashboardPage() {
   // Mock data - replace with real data fetching
   const stats = [
-    { label: 'Total Organizations', value: '248', change: '+12%', icon: Building2, color: 'text-blue-600' },
+    {
+      label: 'Total Organizations',
+      value: '248',
+      change: '+12%',
+      icon: Building2,
+      color: 'text-blue-600',
+    },
     { label: 'Active Users', value: '12,847', change: '+8%', icon: Users, color: 'text-green-600' },
-    { label: 'Total Courses', value: '156', change: '+5%', icon: GraduationCap, color: 'text-purple-600' },
-    { label: 'Cases Analyzed', value: '3,429', change: '+15%', icon: FileText, color: 'text-orange-600' },
-    { label: 'AI Requests (24h)', value: '48,294', change: '+22%', icon: Activity, color: 'text-indigo-600' },
-    { label: 'System Health', value: '99.8%', change: '+0.1%', icon: TrendingUp, color: 'text-emerald-600' },
+    {
+      label: 'Total Courses',
+      value: '156',
+      change: '+5%',
+      icon: GraduationCap,
+      color: 'text-purple-600',
+    },
+    {
+      label: 'Cases Analyzed',
+      value: '3,429',
+      change: '+15%',
+      icon: FileText,
+      color: 'text-orange-600',
+    },
+    {
+      label: 'AI Requests (24h)',
+      value: '48,294',
+      change: '+22%',
+      icon: Activity,
+      color: 'text-indigo-600',
+    },
+    {
+      label: 'System Health',
+      value: '99.8%',
+      change: '+0.1%',
+      icon: TrendingUp,
+      color: 'text-emerald-600',
+    },
   ]
 
   const recentActivities = [
-    { org: 'RCMP Ontario', action: 'New organization created', time: '5 minutes ago', type: 'success' },
-    { org: 'Toronto Police', action: 'Bulk user import completed', time: '12 minutes ago', type: 'info' },
+    {
+      org: 'RCMP Ontario',
+      action: 'New organization created',
+      time: '5 minutes ago',
+      type: 'success',
+    },
+    {
+      org: 'Toronto Police',
+      action: 'Bulk user import completed',
+      time: '12 minutes ago',
+      type: 'info',
+    },
     { org: 'System', action: 'Database backup completed', time: '1 hour ago', type: 'success' },
-    { org: 'Vancouver PD', action: 'AI model training started', time: '2 hours ago', type: 'warning' },
+    {
+      org: 'Vancouver PD',
+      action: 'AI model training started',
+      time: '2 hours ago',
+      type: 'warning',
+    },
     { org: 'System', action: 'Security scan completed', time: '3 hours ago', type: 'success' },
   ]
 
   return (
-    <div className="container-custom pt-20 pb-8">
+    <div className="container-custom pb-8 pt-20">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Platform Administration</h1>
-        <p className="mt-2 text-gray-600">
-          Monitor and manage the entire ABR Insights platform
-        </p>
+        <p className="mt-2 text-gray-600">Monitor and manage the entire ABR Insights platform</p>
       </div>
 
       {/* Stats Grid */}
@@ -40,7 +83,10 @@ export default function AdminDashboardPage() {
         {stats.map((stat) => {
           const Icon = stat.icon
           return (
-            <div key={stat.label} className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+            <div
+              key={stat.label}
+              className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
+            >
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">{stat.label}</p>
@@ -96,15 +142,18 @@ export default function AdminDashboardPage() {
         <h2 className="mb-4 text-xl font-semibold text-gray-900">Recent Activity</h2>
         <div className="space-y-4">
           {recentActivities.map((activity, index) => (
-            <div key={index} className="flex items-center justify-between border-b border-gray-100 pb-4 last:border-0">
+            <div
+              key={index}
+              className="flex items-center justify-between border-b border-gray-100 pb-4 last:border-0"
+            >
               <div className="flex items-center gap-3">
                 <div
                   className={`h-2 w-2 rounded-full ${
                     activity.type === 'success'
                       ? 'bg-green-500'
                       : activity.type === 'warning'
-                      ? 'bg-yellow-500'
-                      : 'bg-blue-500'
+                        ? 'bg-yellow-500'
+                        : 'bg-blue-500'
                   }`}
                 />
                 <div>

@@ -3,7 +3,7 @@ import { Database, Search, Filter, Download, RefreshCw } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Data Explorer | Analytics | ABR Insights',
-  description: 'Explore and analyze your data'
+  description: 'Explore and analyze your data',
 }
 
 export default function DataExplorerPage() {
@@ -63,9 +63,7 @@ export default function DataExplorerPage() {
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Data Explorer</h1>
-          <p className="mt-2 text-gray-600">
-            Explore and analyze your platform data
-          </p>
+          <p className="mt-2 text-gray-600">Explore and analyze your platform data</p>
         </div>
         <div className="flex gap-3">
           <button className="btn-outline flex items-center gap-2">
@@ -82,7 +80,10 @@ export default function DataExplorerPage() {
       {/* Data Sets */}
       <div className="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {dataSets.map((dataset) => (
-          <div key={dataset.name} className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+          <div
+            key={dataset.name}
+            className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
+          >
             <div className="flex items-center gap-3">
               <div className="rounded-full bg-primary-50 p-3">
                 <Database className="h-5 w-5 text-primary-600" />
@@ -100,7 +101,7 @@ export default function DataExplorerPage() {
       {/* Query Builder */}
       <div className="mb-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
         <h2 className="mb-4 text-lg font-semibold text-gray-900">Query Builder</h2>
-        
+
         <div className="space-y-4">
           {/* Data Source */}
           <div className="grid gap-4 md:grid-cols-2">
@@ -135,20 +136,14 @@ export default function DataExplorerPage() {
             <div className="flex-1">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="search"
-                  placeholder="Search data..."
-                  className="input w-full pl-10"
-                />
+                <input type="search" placeholder="Search data..." className="input w-full pl-10" />
               </div>
             </div>
             <button className="btn-outline flex items-center gap-2">
               <Filter className="h-4 w-4" />
               Add Filter
             </button>
-            <button className="btn-primary">
-              Run Query
-            </button>
+            <button className="btn-primary">Run Query</button>
           </div>
         </div>
       </div>
@@ -159,9 +154,7 @@ export default function DataExplorerPage() {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-semibold text-gray-900">Query Results</h2>
-              <p className="text-sm text-gray-600">
-                Showing {sampleData.length} of 12,847 results
-              </p>
+              <p className="text-sm text-gray-600">Showing {sampleData.length} of 12,847 results</p>
             </div>
             <div className="flex items-center gap-2">
               <select className="input text-sm" aria-label="Results per page">
@@ -179,7 +172,11 @@ export default function DataExplorerPage() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                  <input type="checkbox" className="rounded border-gray-300" aria-label="Select all rows" />
+                  <input
+                    type="checkbox"
+                    className="rounded border-gray-300"
+                    aria-label="Select all rows"
+                  />
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                   User ID
@@ -208,15 +205,23 @@ export default function DataExplorerPage() {
               {sampleData.map((row) => (
                 <tr key={row.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4">
-                    <input type="checkbox" className="rounded border-gray-300" aria-label={`Select ${row.email}`} />
+                    <input
+                      type="checkbox"
+                      className="rounded border-gray-300"
+                      aria-label={`Select ${row.email}`}
+                    />
                   </td>
-                  <td className="px-6 py-4 text-sm font-mono text-gray-900">{row.userId}</td>
+                  <td className="px-6 py-4 font-mono text-sm text-gray-900">{row.userId}</td>
                   <td className="px-6 py-4 text-sm text-gray-900">{row.email}</td>
                   <td className="px-6 py-4 text-sm text-gray-900">{row.role}</td>
                   <td className="px-6 py-4 text-sm text-gray-900">{row.organization}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600 whitespace-nowrap">{row.lastActive}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900 text-center">{row.coursesCompleted}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900 text-center">{row.casesViewed}</td>
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
+                    {row.lastActive}
+                  </td>
+                  <td className="px-6 py-4 text-center text-sm text-gray-900">
+                    {row.coursesCompleted}
+                  </td>
+                  <td className="px-6 py-4 text-center text-sm text-gray-900">{row.casesViewed}</td>
                 </tr>
               ))}
             </tbody>
@@ -227,7 +232,8 @@ export default function DataExplorerPage() {
         <div className="border-t border-gray-200 p-4">
           <div className="flex items-center justify-between">
             <p className="text-sm text-gray-600">
-              Showing <span className="font-medium">1-4</span> of <span className="font-medium">12,847</span> results
+              Showing <span className="font-medium">1-4</span> of{' '}
+              <span className="font-medium">12,847</span> results
             </p>
             <div className="flex gap-2">
               <button className="btn-outline" disabled>
@@ -238,9 +244,7 @@ export default function DataExplorerPage() {
               <button className="btn-outline">3</button>
               <span className="flex items-center px-2">...</span>
               <button className="btn-outline">128</button>
-              <button className="btn-primary">
-                Next
-              </button>
+              <button className="btn-primary">Next</button>
             </div>
           </div>
         </div>

@@ -49,7 +49,7 @@ const initialFormData: CaseFormData = {
   outcomes: [''],
   tags: [''],
   url: '',
-  pdf_url: ''
+  pdf_url: '',
 }
 
 const PROVINCES = [
@@ -66,7 +66,7 @@ const PROVINCES = [
   { value: 'YT', label: 'Yukon' },
   { value: 'NT', label: 'Northwest Territories' },
   { value: 'NU', label: 'Nunavut' },
-  { value: 'Federal', label: 'Federal' }
+  { value: 'Federal', label: 'Federal' },
 ]
 
 export default function EditCasePage() {
@@ -85,7 +85,9 @@ export default function EditCasePage() {
   }, [])
 
   const checkAuth = async () => {
-    const { data: { user: currentUser } } = await supabase.auth.getUser()
+    const {
+      data: { user: currentUser },
+    } = await supabase.auth.getUser()
     if (!currentUser) {
       router.push('/auth/login')
       return
@@ -97,7 +99,7 @@ export default function EditCasePage() {
       .eq('id', currentUser.id)
       .single()
 
-    const isAdmin = 
+    const isAdmin =
       profileData?.role === 'super_admin' ||
       profileData?.role === 'org_admin' ||
       profileData?.role === 'compliance_officer' ||
@@ -120,7 +122,7 @@ export default function EditCasePage() {
         .select('*')
         .eq('id', caseId)
         .single()
-      
+
       if (fetchError) throw fetchError
       if (!caseData) {
         setError('Case not found')
@@ -141,23 +143,25 @@ export default function EditCasePage() {
         full_text: caseData.full_text || '',
         decision: caseData.decision || '',
         primary_category: caseData.primary_category || '',
-        subcategories: Array.isArray(caseData.subcategories) && caseData.subcategories.length > 0 
-          ? caseData.subcategories 
-          : [''],
-        key_issues: Array.isArray(caseData.key_issues) && caseData.key_issues.length > 0 
-          ? caseData.key_issues 
-          : [''],
-        remedies: Array.isArray(caseData.remedies) && caseData.remedies.length > 0 
-          ? caseData.remedies 
-          : [''],
-        outcomes: Array.isArray(caseData.outcomes) && caseData.outcomes.length > 0 
-          ? caseData.outcomes 
-          : [''],
-        tags: Array.isArray(caseData.tags) && caseData.tags.length > 0 
-          ? caseData.tags 
-          : [''],
+        subcategories:
+          Array.isArray(caseData.subcategories) && caseData.subcategories.length > 0
+            ? caseData.subcategories
+            : [''],
+        key_issues:
+          Array.isArray(caseData.key_issues) && caseData.key_issues.length > 0
+            ? caseData.key_issues
+            : [''],
+        remedies:
+          Array.isArray(caseData.remedies) && caseData.remedies.length > 0
+            ? caseData.remedies
+            : [''],
+        outcomes:
+          Array.isArray(caseData.outcomes) && caseData.outcomes.length > 0
+            ? caseData.outcomes
+            : [''],
+        tags: Array.isArray(caseData.tags) && caseData.tags.length > 0 ? caseData.tags : [''],
         url: caseData.url || '',
-        pdf_url: caseData.pdf_url || ''
+        pdf_url: caseData.pdf_url || '',
       })
     } catch (err) {
       console.error('Error loading case:', err)
@@ -209,14 +213,14 @@ export default function EditCasePage() {
         full_text: formData.full_text,
         decision: formData.decision,
         primary_category: formData.primary_category,
-        subcategories: formData.subcategories.filter(item => item.trim() !== ''),
-        key_issues: formData.key_issues.filter(item => item.trim() !== ''),
-        remedies: formData.remedies.filter(item => item.trim() !== ''),
-        outcomes: formData.outcomes.filter(item => item.trim() !== ''),
-        tags: formData.tags.filter(item => item.trim() !== ''),
+        subcategories: formData.subcategories.filter((item) => item.trim() !== ''),
+        key_issues: formData.key_issues.filter((item) => item.trim() !== ''),
+        remedies: formData.remedies.filter((item) => item.trim() !== ''),
+        outcomes: formData.outcomes.filter((item) => item.trim() !== ''),
+        tags: formData.tags.filter((item) => item.trim() !== ''),
         url: formData.url,
         pdf_url: formData.pdf_url,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       }
 
       const { error: updateError } = await supabase
@@ -237,9 +241,9 @@ export default function EditCasePage() {
   const addArrayItem = (field: keyof CaseFormData) => {
     const value = formData[field]
     if (Array.isArray(value)) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        [field]: [...value, '']
+        [field]: [...value, ''],
       }))
     }
   }
@@ -247,9 +251,9 @@ export default function EditCasePage() {
   const removeArrayItem = (field: keyof CaseFormData, index: number) => {
     const value = formData[field]
     if (Array.isArray(value)) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        [field]: value.filter((_, i) => i !== index)
+        [field]: value.filter((_, i) => i !== index),
       }))
     }
   }
@@ -259,18 +263,18 @@ export default function EditCasePage() {
     if (Array.isArray(value)) {
       const updated = [...value]
       updated[index] = newValue
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        [field]: updated
+        [field]: updated,
       }))
     }
   }
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-50 via-white to-blue-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-purple-600"></div>
           <p className="text-gray-600">Loading case...</p>
         </div>
       </div>
@@ -279,71 +283,68 @@ export default function EditCasePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
           <Link
             href="/admin/cases"
-            className="inline-flex items-center text-purple-600 hover:text-purple-700 mb-4"
+            className="mb-4 inline-flex items-center text-purple-600 hover:text-purple-700"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Cases
           </Link>
           <h1 className="text-3xl font-bold text-gray-900">Edit Tribunal Case</h1>
-          <p className="text-gray-600 mt-2">Update case information</p>
+          <p className="mt-2 text-gray-600">Update case information</p>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+          <div className="mb-6 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
+            <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600" />
             <p className="text-red-800">{error}</p>
           </div>
         )}
 
         {/* Form */}
-        <div className="bg-white rounded-xl shadow-lg p-8">
+        <div className="rounded-xl bg-white p-8 shadow-lg">
           {/* Basic Information */}
           <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Basic Information</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <h2 className="mb-4 text-xl font-semibold text-gray-900">Basic Information</h2>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="mb-2 block text-sm font-medium text-gray-700">
                   Case Number *
                 </label>
                 <input
                   type="text"
                   value={formData.case_number}
-                  onChange={(e) => setFormData(prev => ({ ...prev, case_number: e.target.value }))}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, case_number: e.target.value }))
+                  }
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   placeholder="e.g., 2023 HRTO 456"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Citation
-                </label>
+                <label className="mb-2 block text-sm font-medium text-gray-700">Citation</label>
                 <input
                   type="text"
                   value={formData.citation}
-                  onChange={(e) => setFormData(prev => ({ ...prev, citation: e.target.value }))}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  onChange={(e) => setFormData((prev) => ({ ...prev, citation: e.target.value }))}
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   placeholder="Full case citation"
                 />
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Case Title *
-                </label>
+                <label className="mb-2 block text-sm font-medium text-gray-700">Case Title *</label>
                 <input
                   type="text"
                   value={formData.case_title}
-                  onChange={(e) => setFormData(prev => ({ ...prev, case_title: e.target.value }))}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  onChange={(e) => setFormData((prev) => ({ ...prev, case_title: e.target.value }))}
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   placeholder="e.g., Smith v. ABC Corporation"
                   required
                 />
@@ -353,35 +354,42 @@ export default function EditCasePage() {
 
           {/* Tribunal Information */}
           <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Tribunal Information</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <h2 className="mb-4 text-xl font-semibold text-gray-900">Tribunal Information</h2>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="mb-2 block text-sm font-medium text-gray-700">
                   Tribunal Name *
                 </label>
                 <input
                   type="text"
                   value={formData.tribunal_name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, tribunal_name: e.target.value }))}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, tribunal_name: e.target.value }))
+                  }
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   placeholder="e.g., Human Rights Tribunal of Ontario"
                   required
                 />
               </div>
 
               <div>
-                <label htmlFor="tribunal-province" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="tribunal-province"
+                  className="mb-2 block text-sm font-medium text-gray-700"
+                >
                   Province/Territory
                 </label>
                 <select
                   id="tribunal-province"
                   value={formData.tribunal_province}
-                  onChange={(e) => setFormData(prev => ({ ...prev, tribunal_province: e.target.value }))}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, tribunal_province: e.target.value }))
+                  }
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 >
                   <option value="">Select Province/Territory</option>
-                  {PROVINCES.map(province => (
+                  {PROVINCES.map((province) => (
                     <option key={province.value} value={province.value}>
                       {province.label}
                     </option>
@@ -390,29 +398,39 @@ export default function EditCasePage() {
               </div>
 
               <div>
-                <label htmlFor="decision-date" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="decision-date"
+                  className="mb-2 block text-sm font-medium text-gray-700"
+                >
                   Decision Date *
                 </label>
                 <input
                   id="decision-date"
                   type="date"
                   value={formData.decision_date}
-                  onChange={(e) => setFormData(prev => ({ ...prev, decision_date: e.target.value }))}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, decision_date: e.target.value }))
+                  }
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   required
                 />
               </div>
 
               <div>
-                <label htmlFor="filing-date" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="filing-date"
+                  className="mb-2 block text-sm font-medium text-gray-700"
+                >
                   Filing Date
                 </label>
                 <input
                   id="filing-date"
                   type="date"
                   value={formData.filing_date}
-                  onChange={(e) => setFormData(prev => ({ ...prev, filing_date: e.target.value }))}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, filing_date: e.target.value }))
+                  }
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </div>
             </div>
@@ -420,31 +438,27 @@ export default function EditCasePage() {
 
           {/* Parties */}
           <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Parties</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <h2 className="mb-4 text-xl font-semibold text-gray-900">Parties</h2>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Applicant
-                </label>
+                <label className="mb-2 block text-sm font-medium text-gray-700">Applicant</label>
                 <input
                   type="text"
                   value={formData.applicant}
-                  onChange={(e) => setFormData(prev => ({ ...prev, applicant: e.target.value }))}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  onChange={(e) => setFormData((prev) => ({ ...prev, applicant: e.target.value }))}
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   placeholder="Applicant name"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Respondent
-                </label>
+                <label className="mb-2 block text-sm font-medium text-gray-700">Respondent</label>
                 <input
                   type="text"
                   value={formData.respondent}
-                  onChange={(e) => setFormData(prev => ({ ...prev, respondent: e.target.value }))}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  onChange={(e) => setFormData((prev) => ({ ...prev, respondent: e.target.value }))}
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   placeholder="Respondent name"
                 />
               </div>
@@ -453,44 +467,38 @@ export default function EditCasePage() {
 
           {/* Case Content */}
           <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Case Content</h2>
-            
+            <h2 className="mb-4 text-xl font-semibold text-gray-900">Case Content</h2>
+
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Summary
-                </label>
+                <label className="mb-2 block text-sm font-medium text-gray-700">Summary</label>
                 <textarea
                   value={formData.summary}
-                  onChange={(e) => setFormData(prev => ({ ...prev, summary: e.target.value }))}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, summary: e.target.value }))}
                   rows={4}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   placeholder="Brief summary of the case"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Full Text
-                </label>
+                <label className="mb-2 block text-sm font-medium text-gray-700">Full Text</label>
                 <textarea
                   value={formData.full_text}
-                  onChange={(e) => setFormData(prev => ({ ...prev, full_text: e.target.value }))}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, full_text: e.target.value }))}
                   rows={8}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   placeholder="Complete case text"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Decision
-                </label>
+                <label className="mb-2 block text-sm font-medium text-gray-700">Decision</label>
                 <textarea
                   value={formData.decision}
-                  onChange={(e) => setFormData(prev => ({ ...prev, decision: e.target.value }))}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, decision: e.target.value }))}
                   rows={4}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   placeholder="Tribunal's decision"
                 />
               </div>
@@ -499,25 +507,27 @@ export default function EditCasePage() {
 
           {/* Classification */}
           <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Classification</h2>
-            
+            <h2 className="mb-4 text-xl font-semibold text-gray-900">Classification</h2>
+
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="mb-2 block text-sm font-medium text-gray-700">
                   Primary Category
                 </label>
                 <input
                   type="text"
                   value={formData.primary_category}
-                  onChange={(e) => setFormData(prev => ({ ...prev, primary_category: e.target.value }))}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, primary_category: e.target.value }))
+                  }
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   placeholder="e.g., Human Rights, Labour Relations"
                 />
               </div>
 
               {/* Subcategories */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="mb-2 block text-sm font-medium text-gray-700">
                   Subcategories
                 </label>
                 <div className="space-y-2">
@@ -527,17 +537,17 @@ export default function EditCasePage() {
                         type="text"
                         value={item}
                         onChange={(e) => updateArrayItem('subcategories', index, e.target.value)}
-                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                         placeholder="Subcategory"
                       />
                       {formData.subcategories.length > 1 && (
                         <button
                           type="button"
                           onClick={() => removeArrayItem('subcategories', index)}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                          className="rounded-lg p-2 text-red-600 hover:bg-red-50"
                           aria-label="Remove subcategory"
                         >
-                          <X className="w-5 h-5" />
+                          <X className="h-5 w-5" />
                         </button>
                       )}
                     </div>
@@ -547,7 +557,7 @@ export default function EditCasePage() {
                     onClick={() => addArrayItem('subcategories')}
                     className="flex items-center gap-2 text-purple-600 hover:text-purple-700"
                   >
-                    <Plus className="w-4 h-4" />
+                    <Plus className="h-4 w-4" />
                     Add Subcategory
                   </button>
                 </div>
@@ -555,9 +565,7 @@ export default function EditCasePage() {
 
               {/* Key Issues */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Key Issues
-                </label>
+                <label className="mb-2 block text-sm font-medium text-gray-700">Key Issues</label>
                 <div className="space-y-2">
                   {formData.key_issues.map((item, index) => (
                     <div key={index} className="flex gap-2">
@@ -565,17 +573,17 @@ export default function EditCasePage() {
                         type="text"
                         value={item}
                         onChange={(e) => updateArrayItem('key_issues', index, e.target.value)}
-                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                         placeholder="Key issue or legal question"
                       />
                       {formData.key_issues.length > 1 && (
                         <button
                           type="button"
                           onClick={() => removeArrayItem('key_issues', index)}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                          className="rounded-lg p-2 text-red-600 hover:bg-red-50"
                           aria-label="Remove key issue"
                         >
-                          <X className="w-5 h-5" />
+                          <X className="h-5 w-5" />
                         </button>
                       )}
                     </div>
@@ -585,7 +593,7 @@ export default function EditCasePage() {
                     onClick={() => addArrayItem('key_issues')}
                     className="flex items-center gap-2 text-purple-600 hover:text-purple-700"
                   >
-                    <Plus className="w-4 h-4" />
+                    <Plus className="h-4 w-4" />
                     Add Key Issue
                   </button>
                 </div>
@@ -593,9 +601,7 @@ export default function EditCasePage() {
 
               {/* Remedies */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Remedies
-                </label>
+                <label className="mb-2 block text-sm font-medium text-gray-700">Remedies</label>
                 <div className="space-y-2">
                   {formData.remedies.map((item, index) => (
                     <div key={index} className="flex gap-2">
@@ -603,17 +609,17 @@ export default function EditCasePage() {
                         type="text"
                         value={item}
                         onChange={(e) => updateArrayItem('remedies', index, e.target.value)}
-                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                         placeholder="Remedy granted"
                       />
                       {formData.remedies.length > 1 && (
                         <button
                           type="button"
                           onClick={() => removeArrayItem('remedies', index)}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                          className="rounded-lg p-2 text-red-600 hover:bg-red-50"
                           aria-label="Remove remedy"
                         >
-                          <X className="w-5 h-5" />
+                          <X className="h-5 w-5" />
                         </button>
                       )}
                     </div>
@@ -623,7 +629,7 @@ export default function EditCasePage() {
                     onClick={() => addArrayItem('remedies')}
                     className="flex items-center gap-2 text-purple-600 hover:text-purple-700"
                   >
-                    <Plus className="w-4 h-4" />
+                    <Plus className="h-4 w-4" />
                     Add Remedy
                   </button>
                 </div>
@@ -631,9 +637,7 @@ export default function EditCasePage() {
 
               {/* Outcomes */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Outcomes
-                </label>
+                <label className="mb-2 block text-sm font-medium text-gray-700">Outcomes</label>
                 <div className="space-y-2">
                   {formData.outcomes.map((item, index) => (
                     <div key={index} className="flex gap-2">
@@ -641,17 +645,17 @@ export default function EditCasePage() {
                         type="text"
                         value={item}
                         onChange={(e) => updateArrayItem('outcomes', index, e.target.value)}
-                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                         placeholder="Case outcome"
                       />
                       {formData.outcomes.length > 1 && (
                         <button
                           type="button"
                           onClick={() => removeArrayItem('outcomes', index)}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                          className="rounded-lg p-2 text-red-600 hover:bg-red-50"
                           aria-label="Remove outcome"
                         >
-                          <X className="w-5 h-5" />
+                          <X className="h-5 w-5" />
                         </button>
                       )}
                     </div>
@@ -661,7 +665,7 @@ export default function EditCasePage() {
                     onClick={() => addArrayItem('outcomes')}
                     className="flex items-center gap-2 text-purple-600 hover:text-purple-700"
                   >
-                    <Plus className="w-4 h-4" />
+                    <Plus className="h-4 w-4" />
                     Add Outcome
                   </button>
                 </div>
@@ -671,7 +675,7 @@ export default function EditCasePage() {
 
           {/* Tags */}
           <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Tags</h2>
+            <h2 className="mb-4 text-xl font-semibold text-gray-900">Tags</h2>
             <div className="space-y-2">
               {formData.tags.map((tag, index) => (
                 <div key={index} className="flex gap-2">
@@ -679,17 +683,17 @@ export default function EditCasePage() {
                     type="text"
                     value={tag}
                     onChange={(e) => updateArrayItem('tags', index, e.target.value)}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                     placeholder="Tag"
                   />
                   {formData.tags.length > 1 && (
                     <button
                       type="button"
                       onClick={() => removeArrayItem('tags', index)}
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                      className="rounded-lg p-2 text-red-600 hover:bg-red-50"
                       aria-label="Remove tag"
                     >
-                      <X className="w-5 h-5" />
+                      <X className="h-5 w-5" />
                     </button>
                   )}
                 </div>
@@ -699,7 +703,7 @@ export default function EditCasePage() {
                 onClick={() => addArrayItem('tags')}
                 className="flex items-center gap-2 text-purple-600 hover:text-purple-700"
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="h-4 w-4" />
                 Add Tag
               </button>
             </div>
@@ -707,31 +711,27 @@ export default function EditCasePage() {
 
           {/* URLs */}
           <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Resources</h2>
-            
+            <h2 className="mb-4 text-xl font-semibold text-gray-900">Resources</h2>
+
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Case URL
-                </label>
+                <label className="mb-2 block text-sm font-medium text-gray-700">Case URL</label>
                 <input
                   type="url"
                   value={formData.url}
-                  onChange={(e) => setFormData(prev => ({ ...prev, url: e.target.value }))}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  onChange={(e) => setFormData((prev) => ({ ...prev, url: e.target.value }))}
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   placeholder="https://example.com/cases/123"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  PDF URL
-                </label>
+                <label className="mb-2 block text-sm font-medium text-gray-700">PDF URL</label>
                 <input
                   type="url"
                   value={formData.pdf_url}
-                  onChange={(e) => setFormData(prev => ({ ...prev, pdf_url: e.target.value }))}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  onChange={(e) => setFormData((prev) => ({ ...prev, pdf_url: e.target.value }))}
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   placeholder="https://example.com/cases/123.pdf"
                 />
               </div>
@@ -739,11 +739,11 @@ export default function EditCasePage() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-4 pt-6 border-t">
+          <div className="flex gap-4 border-t pt-6">
             <button
               type="button"
               onClick={() => router.push('/admin/cases')}
-              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+              className="rounded-lg border border-gray-300 px-6 py-3 text-gray-700 hover:bg-gray-50"
               disabled={isSaving}
             >
               Cancel
@@ -751,16 +751,15 @@ export default function EditCasePage() {
             <button
               type="button"
               onClick={handleSubmit}
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 disabled:opacity-50"
+              className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-3 text-white hover:from-purple-700 hover:to-blue-700 disabled:opacity-50"
               disabled={isSaving}
             >
-              <Save className="w-4 h-4" />
+              <Save className="h-4 w-4" />
               {isSaving ? 'Updating...' : 'Update Case'}
             </button>
           </div>
         </div>
       </div>
-
     </div>
   )
 }

@@ -6,17 +6,17 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 const supabase = createClient(supabaseUrl, supabaseServiceKey, {
   auth: {
     autoRefreshToken: false,
-    persistSession: false
-  }
+    persistSession: false,
+  },
 })
 
 async function checkTestUsers() {
   console.log('🔍 Checking test users in auth.users...\n')
-  
+
   // Query using admin API to list users
   const { data: users, error } = await supabase.auth.admin.listUsers({
     page: 1,
-    perPage: 100
+    perPage: 100,
   })
 
   if (error) {
@@ -24,11 +24,11 @@ async function checkTestUsers() {
     return
   }
 
-  const testUsers = users.users.filter(u => u.email?.includes('@abr-insights.com'))
-  
+  const testUsers = users.users.filter((u) => u.email?.includes('@abr-insights.com'))
+
   console.log(`Found ${testUsers.length} test users:\n`)
-  
-  testUsers.forEach(user => {
+
+  testUsers.forEach((user) => {
     console.log(`📧 ${user.email}`)
     console.log(`   ID: ${user.id}`)
     console.log(`   Confirmed: ${user.email_confirmed_at ? '✅' : '❌'}`)
@@ -39,10 +39,10 @@ async function checkTestUsers() {
 
   // Try to sign in with one of the test users
   console.log('\n🔐 Testing authentication with learner@abr-insights.com...')
-  
+
   const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
     email: 'learner@abr-insights.com',
-    password: 'TestPass123!'
+    password: 'TestPass123!',
   })
 
   if (authError) {

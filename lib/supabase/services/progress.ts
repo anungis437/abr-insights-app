@@ -68,7 +68,7 @@ export class ProgressService {
         course_id: courseId,
         enrolled_at: new Date().toISOString(),
         progress_percentage: 0,
-        certificate_issued: false
+        certificate_issued: false,
       })
       .select()
       .single()
@@ -108,7 +108,7 @@ export class ProgressService {
       query = query.limit(options.limit)
     }
     if (options?.offset) {
-      query = query.range(options.offset, (options.offset + (options.limit || 10)) - 1)
+      query = query.range(options.offset, options.offset + (options.limit || 10) - 1)
     }
 
     const { data, error, count } = await query
@@ -142,13 +142,13 @@ export class ProgressService {
       .eq('course_id', courseId)
       .is('deleted_at', null)
 
-    const completedLessons = lessons.filter(l => l.completed_at !== null).length
+    const completedLessons = lessons.filter((l) => l.completed_at !== null).length
 
     return {
       enrollment,
       lessons: lessons as LessonProgress[],
       completedLessons,
-      totalLessons: totalLessons || 0
+      totalLessons: totalLessons || 0,
     }
   }
 
@@ -171,7 +171,7 @@ export class ProgressService {
         .from('lesson_progress')
         .update({
           started_at: existing.started_at || new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .eq('id', existing.id)
         .select()
@@ -189,7 +189,7 @@ export class ProgressService {
         lesson_id: lessonId,
         course_id: courseId,
         started_at: new Date().toISOString(),
-        time_spent_seconds: 0
+        time_spent_seconds: 0,
       })
       .select()
       .single()
@@ -212,7 +212,7 @@ export class ProgressService {
       .update({
         completed_at: new Date().toISOString(),
         quiz_score: quizScore,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq('user_id', userId)
       .eq('lesson_id', lessonId)
@@ -230,13 +230,18 @@ export class ProgressService {
   /**
    * Update lesson position (for video progress)
    */
-  async updateLessonPosition(userId: string, lessonId: string, positionSeconds: number, timeSpentSeconds: number) {
+  async updateLessonPosition(
+    userId: string,
+    lessonId: string,
+    positionSeconds: number,
+    timeSpentSeconds: number
+  ) {
     const { data, error } = await this.supabase
       .from('lesson_progress')
       .update({
         last_position_seconds: positionSeconds,
         time_spent_seconds: timeSpentSeconds,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq('user_id', userId)
       .eq('lesson_id', lessonId)
@@ -255,7 +260,7 @@ export class ProgressService {
       .from('lesson_progress')
       .update({
         notes,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq('user_id', userId)
       .eq('lesson_id', lessonId)
@@ -274,7 +279,7 @@ export class ProgressService {
       .from('enrollments')
       .update({
         last_accessed_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq('user_id', userId)
       .eq('course_id', courseId)
@@ -298,7 +303,7 @@ export class ProgressService {
         .from('enrollments')
         .update({
           started_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .eq('user_id', userId)
         .eq('course_id', courseId)
@@ -331,7 +336,7 @@ export class ProgressService {
     // Update enrollment
     const updateData: Partial<CourseEnrollment> = {
       progress_percentage: progressPercentage,
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
     }
 
     // Mark as completed if 100%
@@ -359,12 +364,12 @@ export class ProgressService {
         .from('enrollments')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', userId)
-        .not('completed_at', 'is', null)
+        .not('completed_at', 'is', null),
     ])
 
     return {
       totalEnrollments: enrollments.count || 0,
-      completedCourses: completedCourses.count || 0
+      completedCourses: completedCourses.count || 0,
     }
   }
 
@@ -376,7 +381,7 @@ export class ProgressService {
       .from('enrollments')
       .update({
         certificate_issued: true,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq('user_id', userId)
       .eq('course_id', courseId)
@@ -390,4 +395,3 @@ export class ProgressService {
 
 // Export singleton instance
 export const progressService = new ProgressService()
-

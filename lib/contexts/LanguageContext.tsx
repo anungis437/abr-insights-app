@@ -35,7 +35,9 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
     async function loadLanguagePreference() {
       try {
         const supabase = createClient()
-        const { data: { user } } = await supabase.auth.getUser()
+        const {
+          data: { user },
+        } = await supabase.auth.getUser()
 
         if (user) {
           // Try to get from user profile
@@ -73,13 +75,12 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
 
       // Update user profile if logged in
       const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
 
       if (user) {
-        await supabase
-          .from('profiles')
-          .update({ language: lang })
-          .eq('id', user.id)
+        await supabase.from('profiles').update({ language: lang }).eq('id', user.id)
       }
     } catch (error) {
       console.error('Error setting language:', error)
@@ -91,18 +92,21 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
     await setLanguage(newLang)
   }, [language, setLanguage])
 
-  const t = useCallback((key: string, params?: Record<string, string>): string => {
-    let translation = translations[language][key] || translations.en[key] || key
+  const t = useCallback(
+    (key: string, params?: Record<string, string>): string => {
+      let translation = translations[language][key] || translations.en[key] || key
 
-    // Replace parameters
-    if (params) {
-      Object.keys(params).forEach(paramKey => {
-        translation = translation.replace(`{${paramKey}}`, params[paramKey])
-      })
-    }
+      // Replace parameters
+      if (params) {
+        Object.keys(params).forEach((paramKey) => {
+          translation = translation.replace(`{${paramKey}}`, params[paramKey])
+        })
+      }
 
-    return translation
-  }, [language])
+      return translation
+    },
+    [language]
+  )
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage, toggleLanguage, t, isLoading }}>
@@ -130,7 +134,7 @@ const translations: Record<Language, Record<string, string>> = {
     'nav.leaderboard': 'Leaderboard',
     'nav.dashboard': 'Dashboard',
     'nav.profile': 'Profile',
-    
+
     // Common
     'common.loading': 'Loading...',
     'common.error': 'Error',
@@ -149,7 +153,7 @@ const translations: Record<Language, Record<string, string>> = {
     'common.back': 'Back',
     'common.next': 'Next',
     'common.previous': 'Previous',
-    
+
     // Dashboard
     'dashboard.welcome': 'Welcome back, {name}!',
     'dashboard.overview': "Here's your learning progress overview",
@@ -157,7 +161,7 @@ const translations: Record<Language, Record<string, string>> = {
     'dashboard.stats.courses_completed': 'Courses Completed',
     'dashboard.stats.total_points': 'Total Points',
     'dashboard.stats.achievements': 'Achievements Earned',
-    
+
     // Learning Dashboard
     'learning.analytics': 'Learning Analytics',
     'learning.total_watch_time': 'Total Watch Time',
@@ -179,7 +183,7 @@ const translations: Record<Language, Record<string, string>> = {
     'learning.note_taking_activity': 'Note-Taking Activity',
     'learning.notes_created': 'Notes Created',
     'learning.notes_per_lesson': 'Notes per Lesson',
-    
+
     // Video Player
     'player.play': 'Play',
     'player.pause': 'Pause',
@@ -197,7 +201,7 @@ const translations: Record<Language, Record<string, string>> = {
     'player.completing': 'Completing...',
     'player.keyboard_shortcuts': 'Keyboard Shortcuts',
     'player.resume_notification': 'Resuming from where you left off',
-    
+
     // Notes
     'notes.title': 'Lesson Notes',
     'notes.add': 'Add Note',
@@ -210,7 +214,7 @@ const translations: Record<Language, Record<string, string>> = {
     'notes.edit': 'Edit',
     'notes.delete': 'Delete',
     'notes.timestamp': 'Timestamp',
-    
+
     // Courses
     'courses.title': 'Courses',
     'courses.browse': 'Browse Courses',
@@ -223,18 +227,18 @@ const translations: Record<Language, Record<string, string>> = {
     'courses.duration': 'Duration',
     'courses.level': 'Level',
     'courses.instructor': 'Instructor',
-    
+
     // Activity Types
     'activity.watched': 'Watched',
     'activity.completed': 'Completed',
     'activity.added_note': 'Added note',
-    
+
     // Time
     'time.just_now': 'Just now',
     'time.minutes_ago': '{count}m ago',
     'time.hours_ago': '{count}h ago',
     'time.days_ago': '{count}d ago',
-    
+
     // Language Toggle
     'language.english': 'English',
     'language.french': 'Français',
@@ -250,7 +254,7 @@ const translations: Record<Language, Record<string, string>> = {
     'nav.leaderboard': 'Classement',
     'nav.dashboard': 'Tableau de bord',
     'nav.profile': 'Profil',
-    
+
     // Common
     'common.loading': 'Chargement...',
     'common.error': 'Erreur',
@@ -269,17 +273,17 @@ const translations: Record<Language, Record<string, string>> = {
     'common.back': 'Retour',
     'common.next': 'Suivant',
     'common.previous': 'Précédent',
-    
+
     // Dashboard
     'dashboard.welcome': 'Bon retour, {name}!',
-    'dashboard.overview': 'Voici votre aperçu de progression d\'apprentissage',
+    'dashboard.overview': "Voici votre aperçu de progression d'apprentissage",
     'dashboard.stats.courses_enrolled': 'Cours inscrits',
     'dashboard.stats.courses_completed': 'Cours complétés',
     'dashboard.stats.total_points': 'Points totaux',
     'dashboard.stats.achievements': 'Réalisations obtenues',
-    
+
     // Learning Dashboard
-    'learning.analytics': 'Analytiques d\'apprentissage',
+    'learning.analytics': "Analytiques d'apprentissage",
     'learning.total_watch_time': 'Temps de visionnage total',
     'learning.lessons_started': '{count} leçons commencées',
     'learning.lessons_completed': 'Leçons complétées',
@@ -299,7 +303,7 @@ const translations: Record<Language, Record<string, string>> = {
     'learning.note_taking_activity': 'Activité de prise de notes',
     'learning.notes_created': 'Notes créées',
     'learning.notes_per_lesson': 'Notes par leçon',
-    
+
     // Video Player
     'player.play': 'Lecture',
     'player.pause': 'Pause',
@@ -307,7 +311,7 @@ const translations: Record<Language, Record<string, string>> = {
     'player.unmute': 'Activer le son',
     'player.fullscreen': 'Plein écran',
     'player.exit_fullscreen': 'Quitter le plein écran',
-    'player.picture_in_picture': 'Image dans l\'image',
+    'player.picture_in_picture': "Image dans l'image",
     'player.speed': 'Vitesse',
     'player.volume': 'Volume',
     'player.transcript': 'Transcription',
@@ -317,48 +321,48 @@ const translations: Record<Language, Record<string, string>> = {
     'player.completing': 'Finalisation...',
     'player.keyboard_shortcuts': 'Raccourcis clavier',
     'player.resume_notification': 'Reprise là où vous vous êtes arrêté',
-    
+
     // Notes
     'notes.title': 'Notes de leçon',
     'notes.add': 'Ajouter une note',
     'notes.placeholder': 'Prendre une note à {time}...',
     'notes.export': 'Exporter les notes',
-    'notes.no_notes': 'Aucune note pour l\'instant',
+    'notes.no_notes': "Aucune note pour l'instant",
     'notes.create_prompt': 'Cliquez sur "Ajouter une note" pour créer votre première note.',
     'notes.save': 'Enregistrer la note',
     'notes.cancel': 'Annuler',
     'notes.edit': 'Modifier',
     'notes.delete': 'Supprimer',
     'notes.timestamp': 'Horodatage',
-    
+
     // Courses
     'courses.title': 'Cours',
     'courses.browse': 'Parcourir les cours',
     'courses.my_courses': 'Mes cours',
-    'courses.enroll': 'S\'inscrire',
+    'courses.enroll': "S'inscrire",
     'courses.start': 'Commencer le cours',
-    'courses.continue': 'Continuer l\'apprentissage',
+    'courses.continue': "Continuer l'apprentissage",
     'courses.complete': 'Cours terminé',
     'courses.lessons': '{count} leçons',
     'courses.duration': 'Durée',
     'courses.level': 'Niveau',
     'courses.instructor': 'Instructeur',
-    
+
     // Activity Types
     'activity.watched': 'Visionné',
     'activity.completed': 'Terminé',
     'activity.added_note': 'Note ajoutée',
-    
+
     // Time
-    'time.just_now': 'À l\'instant',
+    'time.just_now': "À l'instant",
     'time.minutes_ago': 'il y a {count}m',
     'time.hours_ago': 'il y a {count}h',
     'time.days_ago': 'il y a {count}j',
-    
+
     // Language Toggle
     'language.english': 'English',
     'language.french': 'Français',
     'language.switch_to_french': 'Passer au français',
     'language.switch_to_english': 'Switch to English',
-  }
+  },
 }

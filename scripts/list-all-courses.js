@@ -10,18 +10,18 @@ async function listAllCourses() {
     .from('courses')
     .select('slug, title, category_id')
     .order('created_at')
-  
+
   console.log('\n=== ALL COURSES ===\n')
-  
+
   courses.forEach((c, i) => {
     console.log(`${i + 1}. ${c.title}`)
     console.log(`   Slug: ${c.slug}`)
     console.log(`   Category ID: ${c.category_id || 'NOT SET'}`)
   })
-  
+
   console.log(`\n Total: ${courses.length} courses`)
-  console.log(`With categories: ${courses.filter(c => c.category_id).length}`)
-  console.log(`Without categories: ${courses.filter(c => !c.category_id).length}`)
+  console.log(`With categories: ${courses.filter((c) => c.category_id).length}`)
+  console.log(`Without categories: ${courses.filter((c) => !c.category_id).length}`)
 }
 
 listAllCourses().catch(console.error)

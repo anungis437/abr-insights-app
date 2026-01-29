@@ -1,17 +1,23 @@
 /**
  * Compliance Reports Service
- * 
+ *
  * Generates compliance reports for audit logs
  * Supports scheduled and on-demand reporting
  * Multiple export formats (PDF, CSV, JSON, XLSX)
- * 
+ *
  * @module lib/services/compliance-reports
  */
 
 import { createClient } from '@/lib/supabase/server'
 
 // Report types
-type ReportType = 'audit_summary' | 'security_incidents' | 'data_access' | 'user_activity' | 'compliance_check' | 'custom'
+type ReportType =
+  | 'audit_summary'
+  | 'security_incidents'
+  | 'data_access'
+  | 'user_activity'
+  | 'compliance_check'
+  | 'custom'
 
 // Report formats
 type ReportFormat = 'pdf' | 'csv' | 'json' | 'xlsx'
@@ -47,7 +53,7 @@ interface ReportResult {
 
 /**
  * Generate compliance report
- * 
+ *
  * Creates report in compliance_reports table
  * Returns statistics and report ID
  */
@@ -60,14 +66,11 @@ export async function generateReport(
 
   try {
     // Get audit log statistics
-    const { data: stats, error: statsError } = await supabase.rpc(
-      'get_audit_log_statistics',
-      {
-        p_organization_id: params.organizationId,
-        p_start_date: params.startDate.toISOString(),
-        p_end_date: params.endDate.toISOString(),
-      }
-    )
+    const { data: stats, error: statsError } = await supabase.rpc('get_audit_log_statistics', {
+      p_organization_id: params.organizationId,
+      p_start_date: params.startDate.toISOString(),
+      p_end_date: params.endDate.toISOString(),
+    })
 
     if (statsError) {
       throw new Error(`Failed to get statistics: ${statsError.message}`)
@@ -175,7 +178,7 @@ export async function generateReport(
 
 /**
  * Schedule recurring report
- * 
+ *
  * Creates compliance report with recurrence schedule
  */
 export async function scheduleReport(
@@ -221,7 +224,7 @@ export async function scheduleReport(
 
 /**
  * Export report to file
- * 
+ *
  * Creates audit_log_exports record with approval workflow
  */
 export async function exportReport(
@@ -245,9 +248,10 @@ export async function exportReport(
     }
 
     // Determine if approval required (high/critical compliance events)
-    const requiresApproval = report.filters?.complianceLevel?.some(
-      (level: string) => level === 'high' || level === 'critical'
-    ) ?? false
+    const requiresApproval =
+      report.filters?.complianceLevel?.some(
+        (level: string) => level === 'high' || level === 'critical'
+      ) ?? false
 
     // Create export record
     const { data: exportRecord, error: exportError } = await supabase
@@ -284,7 +288,7 @@ export async function exportReport(
 
 /**
  * Approve export request
- * 
+ *
  * Marks export as approved and generates download URL
  */
 export async function approveExport(
@@ -343,10 +347,7 @@ export async function getReport(reportId: string): Promise<unknown> {
 /**
  * List reports for organization
  */
-export async function listReports(
-  organizationId: string,
-  limit = 50
-): Promise<unknown[]> {
+export async function listReports(organizationId: string, limit = 50): Promise<unknown[]> {
   const supabase = await createClient()
 
   const { data, error } = await supabase

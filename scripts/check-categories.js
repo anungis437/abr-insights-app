@@ -7,14 +7,14 @@ const supabase = createClient(
 
 async function checkCategories() {
   const { data, error } = await supabase.from('content_categories').select('*')
-  
+
   if (error) {
     console.error('Error:', error)
     return
   }
-  
+
   console.log(`\nFound ${data.length} categories:\n`)
-  data.forEach(c => {
+  data.forEach((c) => {
     console.log(`  - ${c.name} (${c.slug})`)
     console.log(`    Type: ${c.content_type || 'N/A'}`)
   })

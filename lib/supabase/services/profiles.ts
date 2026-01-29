@@ -59,17 +59,15 @@ export interface UpdateProfileData {
  * Get current user's profile
  */
 export async function getCurrentProfile() {
-  const { data: { user } } = await supabase.auth.getUser()
-  
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
   if (!user) {
     return null
   }
 
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single()
+  const { data, error } = await supabase.from('profiles').select('*').eq('id', user.id).single()
 
   if (error) {
     console.error('Error fetching profile:', error)
@@ -83,11 +81,7 @@ export async function getCurrentProfile() {
  * Get profile by user ID
  */
 export async function getProfileById(userId: string) {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', userId)
-    .single()
+  const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single()
 
   if (error) {
     console.error('Error fetching profile:', error)
@@ -101,8 +95,10 @@ export async function getProfileById(userId: string) {
  * Update current user's profile
  */
 export async function updateProfile(updates: UpdateProfileData) {
-  const { data: { user } } = await supabase.auth.getUser()
-  
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
   if (!user) {
     throw new Error('Not authenticated')
   }
@@ -126,8 +122,10 @@ export async function updateProfile(updates: UpdateProfileData) {
  * Upload avatar image
  */
 export async function uploadAvatar(file: File) {
-  const { data: { user } } = await supabase.auth.getUser()
-  
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
   if (!user) {
     throw new Error('Not authenticated')
   }
@@ -136,21 +134,19 @@ export async function uploadAvatar(file: File) {
   const fileName = `${user.id}-${Date.now()}.${fileExt}`
   const filePath = `avatars/${fileName}`
 
-  const { error: uploadError } = await supabase.storage
-    .from('public')
-    .upload(filePath, file, {
-      cacheControl: '3600',
-      upsert: false
-    })
+  const { error: uploadError } = await supabase.storage.from('public').upload(filePath, file, {
+    cacheControl: '3600',
+    upsert: false,
+  })
 
   if (uploadError) {
     console.error('Error uploading avatar:', uploadError)
     throw uploadError
   }
 
-  const { data: { publicUrl } } = supabase.storage
-    .from('public')
-    .getPublicUrl(filePath)
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from('public').getPublicUrl(filePath)
 
   // Update profile with new avatar URL
   await updateProfile({ avatar_url: publicUrl })
@@ -166,25 +162,27 @@ export async function updateNotificationPreferences(preferences: {
   push?: boolean
   in_app?: boolean
 }) {
-  const { data: { user } } = await supabase.auth.getUser()
-  
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
   if (!user) {
     throw new Error('Not authenticated')
   }
 
   const currentProfile = await getCurrentProfile()
-  
+
   if (!currentProfile) {
     throw new Error('Profile not found')
   }
 
   const updatedPreferences = {
     ...currentProfile.notification_preferences,
-    ...preferences
+    ...preferences,
   }
 
-  return await updateProfile({ 
-    notification_preferences: updatedPreferences 
+  return await updateProfile({
+    notification_preferences: updatedPreferences,
   })
 }
 
@@ -192,8 +190,10 @@ export async function updateNotificationPreferences(preferences: {
  * Update last activity timestamp
  */
 export async function updateLastActivity() {
-  const { data: { user } } = await supabase.auth.getUser()
-  
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
   if (!user) {
     return
   }

@@ -7,7 +7,7 @@ import {
   createTrainingJob,
   updateTrainingJob,
   deployModel,
-  getTrainingStatistics
+  getTrainingStatistics,
 } from '@/lib/ai/training-service'
 
 export const maxDuration = 300
@@ -21,22 +21,22 @@ export const GET = withRateLimit(
       const searchParams = request.nextUrl.searchParams
       const status = searchParams.get('status')
       const getStats = searchParams.get('stats') === 'true'
-      
+
       if (getStats) {
         const stats = await getTrainingStatistics()
         return NextResponse.json(stats)
       }
-      
+
       const jobs = await getTrainingJobs({
-        status: status || undefined
+        status: status || undefined,
       })
-      
+
       return NextResponse.json(jobs)
     },
     {
       requireAuth: true,
       requireOrg: false,
-      permissions: ['admin.ai.manage']
+      permissions: ['admin.ai.manage'],
     }
   )
 )
@@ -56,17 +56,14 @@ export const POST = withRateLimit(
         validation_data_url,
         hyperparameters,
         notes,
-        version
+        version,
       } = body
-      
+
       // Validate required fields
       if (!job_name || !base_model || !feedback_ids || !training_data_url) {
-        return NextResponse.json(
-          { error: 'Missing required fields' },
-          { status: 400 }
-        )
+        return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
       }
-      
+
       // Create the training job
       const job = await createTrainingJob({
         job_name,
@@ -83,15 +80,17 @@ export const POST = withRateLimit(
         hyperparameters: hyperparameters || {
           n_epochs: 3,
           batch_size: 8,
-          learning_rate_multiplier: 1.0
+          learning_rate_multiplier: 1.0,
         },
         started_at: null,
         completed_at: null,
-        training_log: [{
-          timestamp: new Date().toISOString(),
-          event: 'job_created',
-          message: 'Training job created and data prepared'
-        }],
+        training_log: [
+          {
+            timestamp: new Date().toISOString(),
+            event: 'job_created',
+            message: 'Training job created and data prepared',
+          },
+        ],
         training_metrics: {},
         validation_metrics: {},
         is_deployed: false,
@@ -99,15 +98,15 @@ export const POST = withRateLimit(
         deployed_by: null,
         created_by: context.user!.id,
         notes: notes || null,
-        error_message: null
+        error_message: null,
       })
-      
+
       return NextResponse.json(job, { status: 201 })
     },
     {
       requireAuth: true,
       requireOrg: false,
-      permissions: ['admin.ai.manage']
+      permissions: ['admin.ai.manage'],
     }
   )
 )
@@ -119,18 +118,18 @@ export const PATCH = withRateLimit(
     async (request, context) => {
       const body = await request.json()
       const { id, ...updates } = body
-      
+
       if (!id) {
         return NextResponse.json({ error: 'Job ID required' }, { status: 400 })
       }
-      
+
       const job = await updateTrainingJob(id, updates)
       return NextResponse.json(job)
     },
     {
       requireAuth: true,
       requireOrg: false,
-      permissions: ['admin.ai.manage']
+      permissions: ['admin.ai.manage'],
     }
   )
 )

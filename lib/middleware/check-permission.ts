@@ -1,20 +1,20 @@
 /**
  * RBAC Middleware - Route Protection with Permission Checks
- * 
+ *
  * Higher-order function for protecting routes with permission requirements
- * 
+ *
  * Usage in API routes:
  * ```typescript
  * import { withPermission } from '@/lib/middleware/check-permission'
- * 
+ *
  * async function handler(request: NextRequest) {
  *   // Your protected logic here
  * }
- * 
+ *
  * export const GET = withPermission(handler, 'read_content')
  * export const POST = withPermission(handler, 'create_content', 'Course', '123')
  * ```
- * 
+ *
  * @module lib/middleware/check-permission
  */
 
@@ -26,7 +26,7 @@ type RouteHandler = (request: NextRequest) => Promise<NextResponse>
 
 /**
  * Permission check middleware
- * 
+ *
  * Wraps route handlers to require specific permissions
  * Returns 401 if not authenticated, 403 if permission denied
  */
@@ -93,7 +93,7 @@ export function withPermission(
 
 /**
  * Multiple permission check (requires ALL permissions)
- * 
+ *
  * Use when route requires multiple permissions
  */
 export function withPermissions(
@@ -164,7 +164,7 @@ export function withPermissions(
 
 /**
  * Any permission check (requires ANY ONE permission)
- * 
+ *
  * Use when route can be accessed with any of several permissions
  */
 export function withAnyPermission(
@@ -239,7 +239,7 @@ export function withAnyPermission(
 
 /**
  * Dynamic permission check (extract resource from request)
- * 
+ *
  * Use when resource ID comes from request (URL params, body, etc.)
  */
 export function withDynamicPermission(

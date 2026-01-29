@@ -1,10 +1,10 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { 
-  createCertificateFromQuiz, 
+import {
+  createCertificateFromQuiz,
   updateCertificatePDF,
-  Certificate 
+  Certificate,
 } from '@/lib/services/certificates'
 import { uploadCertificatePDF } from '@/lib/utils/pdf-storage'
 import { redirect } from 'next/navigation'
@@ -23,21 +23,25 @@ export async function generateCertificateAction(
 }> {
   try {
     const supabase = await createClient()
-    
+
     // Get authenticated user
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
+
     if (authError || !user) {
       return {
         success: false,
-        error: 'Authentication required'
+        error: 'Authentication required',
       }
     }
 
     // Get quiz attempt with relations
     const { data: attempt, error: attemptError } = await supabase
       .from('quiz_attempts')
-      .select(`
+      .select(
+        `
         *,
         quiz:quizzes(
           *,
@@ -49,7 +53,8 @@ export async function generateCertificateAction(
             )
           )
         )
-      `)
+      `
+      )
       .eq('id', quizAttemptId)
       .eq('user_id', user.id)
       .single()
@@ -57,7 +62,7 @@ export async function generateCertificateAction(
     if (attemptError || !attempt) {
       return {
         success: false,
-        error: 'Quiz attempt not found'
+        error: 'Quiz attempt not found',
       }
     }
 
@@ -65,7 +70,7 @@ export async function generateCertificateAction(
     if (!attempt.passed) {
       return {
         success: false,
-        error: 'Quiz must be passed to receive a certificate'
+        error: 'Quiz must be passed to receive a certificate',
       }
     }
 
@@ -79,21 +84,17 @@ export async function generateCertificateAction(
     if (existingCert) {
       return {
         success: false,
-        error: `Certificate already exists: ${existingCert.certificate_number}`
+        error: `Certificate already exists: ${existingCert.certificate_number}`,
       }
     }
 
     // Create certificate
-    const certificate = await createCertificateFromQuiz(
-      user.id,
-      quizAttemptId,
-      recipientName
-    )
+    const certificate = await createCertificateFromQuiz(user.id, quizAttemptId, recipientName)
 
     if (!certificate) {
       return {
         success: false,
-        error: 'Failed to create certificate'
+        error: 'Failed to create certificate',
       }
     }
 
@@ -101,7 +102,7 @@ export async function generateCertificateAction(
     const courseTitle = (attempt as any).quiz?.lesson?.module?.course?.title || 'Course'
     const uploadResult = await uploadCertificatePDF(certificate, {
       courseTitle,
-      organizationName: 'ABR Insights'
+      organizationName: 'ABR Insights',
     })
 
     if (uploadResult.error) {
@@ -110,11 +111,7 @@ export async function generateCertificateAction(
       // Certificate is still valid, user can download it later
     } else {
       // Update certificate with PDF URLs
-      await updateCertificatePDF(
-        certificate.id,
-        uploadResult.pdf_url,
-        uploadResult.pdf_file_path
-      )
+      await updateCertificatePDF(certificate.id, uploadResult.pdf_url, uploadResult.pdf_file_path)
     }
 
     return {
@@ -122,14 +119,14 @@ export async function generateCertificateAction(
       certificate: {
         ...certificate,
         pdf_url: uploadResult.pdf_url,
-        pdf_file_path: uploadResult.pdf_file_path
-      }
+        pdf_file_path: uploadResult.pdf_file_path,
+      },
     }
   } catch (error) {
     console.error('Error generating certificate:', error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     }
   }
 }
@@ -138,33 +135,36 @@ export async function generateCertificateAction(
  * Regenerate certificate PDF
  * Useful if PDF generation failed initially or needs to be updated
  */
-export async function regenerateCertificatePDFAction(
-  certificateId: string
-): Promise<{
+export async function regenerateCertificatePDFAction(certificateId: string): Promise<{
   success: boolean
   pdf_url?: string
   error?: string
 }> {
   try {
     const supabase = await createClient()
-    
+
     // Get authenticated user
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
+
     if (authError || !user) {
       return {
         success: false,
-        error: 'Authentication required'
+        error: 'Authentication required',
       }
     }
 
     // Get certificate with relations
     const { data: certificate, error: certError } = await supabase
       .from('certificates')
-      .select(`
+      .select(
+        `
         *,
         course:courses(id, title, slug)
-      `)
+      `
+      )
       .eq('id', certificateId)
       .eq('user_id', user.id)
       .single()
@@ -172,7 +172,7 @@ export async function regenerateCertificatePDFAction(
     if (certError || !certificate) {
       return {
         success: false,
-        error: 'Certificate not found'
+        error: 'Certificate not found',
       }
     }
 
@@ -180,32 +180,28 @@ export async function regenerateCertificatePDFAction(
     const courseTitle = (certificate as any).course?.title || 'Course'
     const uploadResult = await uploadCertificatePDF(certificate as Certificate, {
       courseTitle,
-      organizationName: 'ABR Insights'
+      organizationName: 'ABR Insights',
     })
 
     if (uploadResult.error) {
       return {
         success: false,
-        error: uploadResult.error
+        error: uploadResult.error,
       }
     }
 
     // Update certificate with PDF URLs
-    await updateCertificatePDF(
-      certificate.id,
-      uploadResult.pdf_url,
-      uploadResult.pdf_file_path
-    )
+    await updateCertificatePDF(certificate.id, uploadResult.pdf_url, uploadResult.pdf_file_path)
 
     return {
       success: true,
-      pdf_url: uploadResult.pdf_url
+      pdf_url: uploadResult.pdf_url,
     }
   } catch (error) {
     console.error('Error regenerating certificate PDF:', error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     }
   }
 }

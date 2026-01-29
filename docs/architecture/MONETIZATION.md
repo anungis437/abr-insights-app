@@ -5,11 +5,9 @@ Last updated: 2025-11-05
 
 ## Overview
 
-
 This document defines the monetization strategy for ABR Insights in Canada using Stripe (CAD). It includes pricing tiers, tax handling (GST/HST/PST/QST), feature gating, onboarding/billing flows, webhook handling, testing guidance, and data mappings to the application's subscription schema.
 
 ## Goals
-
 
 - Provide clear, competitive CAD pricing for Free, Professional, and Enterprise tiers.
 - Ensure Canadian tax compliance (GST/HST/PST/QST) via Stripe Tax.
@@ -19,7 +17,6 @@ This document defines the monetization strategy for ABR Insights in Canada using
 - Support auditability and reconciliation (invoices, webhooks, logs).
 
 ## Pricing & Feature Matrix (recommended)
-
 
 - Free (CAD $0 / mo)
   - 1 user
@@ -51,7 +48,6 @@ This document defines the monetization strategy for ABR Insights in Canada using
 
 ## Taxes & Compliance
 
-
 - Use Stripe Tax to calculate taxes automatically at checkout and on invoices.
 - Canada-specific guidance:
   - GST (5%) applies federally.
@@ -65,7 +61,6 @@ This document defines the monetization strategy for ABR Insights in Canada using
   - Include tax breakdown on invoices and store the applied tax rates in `invoices` table (columns for GST/HST/QST/PST cents are in schema).
 
 ## Subscription Model & Seats
-
 
 - Organization-level subscriptions (one subscription row per `organization_id`) — already modeled in `subscriptions` and `subscription_seats`.
 - Seat allocation flow:
@@ -149,7 +144,6 @@ Important Webhook Events to Handle
 
 ## DB Mapping & Reconciliation
 
-
 - On `checkout.session.completed` and `customer.subscription.created` store:
   - `subscriptions.stripe_subscription_id`
   - `stripe_customer_id`
@@ -165,14 +159,12 @@ Important Webhook Events to Handle
 
 ## Enterprise & Procurement
 
-
 - For enterprise customers who require PO-based billing:
   - Offer `invoiced` billing (off-session) using `billing` set to `send_invoice` and `payment_settings` accordingly.
   - Create a manual Agreement record in `metadata` and support invoice approval workflow.
 - Provide quota-based pricing and custom terms stored in `subscriptions.metadata`.
 
 ## Reporting & Reconciliation
-
 
 - Reconcile Stripe payouts to bank statements weekly.
 - Record accounting entries exported to CSV for finance (invoices, refunds, taxes).
@@ -181,14 +173,12 @@ Important Webhook Events to Handle
 
 ## Operational Considerations
 
-
 - Webhook retry: idempotency + store event IDs to prevent duplicate processing.
 - Offline payments: handle `incomplete`/`incomplete_expired` statuses gracefully.
 - Notification flows: emails on trial ending, payment failed, invoice paid, plan changes.
 - Graceful downgrades: when downgrading to fewer seats, mark seats as "available" and notify admins to reassign.
 
 ## Implementation Roadmap (High level)
-
 
 Week 1: Stripe account setup, tax config, product/price creation, basic checkout integration (professional tier)
 Week 2: Subscription persistence, seat allocation, portal integration, webhook handler
@@ -197,7 +187,6 @@ Week 4: Metered billing, usage tracking, enterprise invoicing
 Week 5: QA & Playwright E2E tests, reconciliation scripts, deploy to staging
 
 ## Appendix
-
 
 - Stripe docs: <https://stripe.com/docs>
 - Stripe Tax: <https://stripe.com/docs/tax>

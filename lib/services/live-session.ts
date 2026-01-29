@@ -1,13 +1,13 @@
 /**
  * Live Learning Service
- * 
+ *
  * Comprehensive service for live learning sessions including:
  * - WebRTC video conferencing with peer connections
  * - Supabase Realtime messaging and Q&A
  * - Breakout room management
  * - Session recording capabilities
  * - Collaborative whiteboard state management
- * 
+ *
  * Architecture:
  * - Simple Peer for WebRTC abstraction
  * - Supabase Realtime for signaling and messaging
@@ -222,10 +222,7 @@ export class LiveSessionService {
    */
   async leaveSession(sessionId: string, participantId: string): Promise<void> {
     // Remove participant
-    await this.supabaseClient
-      .from('session_participants')
-      .delete()
-      .eq('id', participantId)
+    await this.supabaseClient.from('session_participants').delete().eq('id', participantId)
 
     // Decrement count
     await this.supabaseClient.rpc('decrement_session_participants', { session_id: sessionId })
@@ -297,7 +294,9 @@ export class LiveSessionService {
   /**
    * Start local media stream
    */
-  async startMediaStream(constraints: MediaStreamConstraints = { video: true, audio: true }): Promise<MediaStream> {
+  async startMediaStream(
+    constraints: MediaStreamConstraints = { video: true, audio: true }
+  ): Promise<MediaStream> {
     try {
       this.localStream = await navigator.mediaDevices.getUserMedia(constraints)
       return this.localStream
@@ -682,10 +681,7 @@ export async function createBreakoutRooms(
 /**
  * Assign participant to breakout room
  */
-export async function assignToBreakoutRoom(
-  participantId: string,
-  roomId: string
-): Promise<void> {
+export async function assignToBreakoutRoom(participantId: string, roomId: string): Promise<void> {
   // Using imported supabase instance
 
   await supabase
@@ -713,10 +709,5 @@ export async function closeBreakoutRooms(sessionId: string): Promise<void> {
     .eq('session_id', sessionId)
 
   // Delete breakout rooms
-  await supabase
-    .from('breakout_rooms')
-    .delete()
-    .eq('session_id', sessionId)
+  await supabase.from('breakout_rooms').delete().eq('session_id', sessionId)
 }
-
-

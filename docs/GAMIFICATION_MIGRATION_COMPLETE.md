@@ -14,12 +14,15 @@ Successfully migrated the gamification system from the basic schema (migration 0
 ## What Was Fixed
 
 ### Problem
+
 - **Migration 004** created basic gamification tables (`achievements`, `user_achievements`, `user_points`)
-- **Migrations 009-011** (SKIP_*) expected different, more comprehensive schemas
+- **Migrations 009-011** (SKIP\_\*) expected different, more comprehensive schemas
 - Direct conflict: Different column names, different structures, couldn't apply new migrations
 
 ### Solution
+
 Created two new migrations that:
+
 1. **20250116000005_migrate_gamification_schema.sql**
    - Added new columns to existing `achievements` table (tier, requirement_type, etc.)
    - Enhanced `user_achievements` with progress tracking and social features
@@ -37,6 +40,7 @@ Created two new migrations that:
 ## Deployed Tables (20 Total)
 
 ### Core Gamification (6 tables)
+
 - ✅ `achievements` - Enhanced with tier, requirement_type, badges
 - ✅ `user_achievements` - Enhanced with progress, notifications, sharing
 - ✅ `user_points` - Transformed to aggregate balance structure
@@ -45,16 +49,19 @@ Created two new migrations that:
 - ✅ `user_streaks` - NEW
 
 ### Points & Rewards (4 tables)
+
 - ✅ `points_sources` - NEW
 - ✅ `points_transactions` - NEW
 - ✅ `rewards_catalog` - NEW
 - ✅ `user_rewards` - NEW
 
 ### Leaderboards (2 tables)
+
 - ✅ `leaderboards` - NEW
 - ✅ `leaderboard_entries` - NEW
 
 ### Social Features (8 tables)
+
 - ✅ `user_profiles_extended` - NEW
 - ✅ `user_follows` - NEW
 - ✅ `study_buddies` - NEW
@@ -69,10 +76,13 @@ Created two new migrations that:
 ## Key Schema Changes
 
 ### Achievements Table
+
 **Before (004):**
+
 - `type`, `category`, `rarity`, `criteria` (JSONB)
 
 **After (005):**
+
 - `tier`, `tier_level`, `category_id` (FK)
 - `requirement_type`, `requirement_config` (JSONB)
 - `badge_color`, `badge_svg`
@@ -80,19 +90,23 @@ Created two new migrations that:
 - `unlocks_content`, `unlocked_content_ids`
 
 ### User Points Table
+
 **Before (004):** Transaction log structure
+
 ```sql
 user_id, points, action_type, reference_id, multiplier
 ```
 
 **After (005):** Aggregate balance structure
+
 ```sql
-user_id, total_points_earned, total_points_spent, 
+user_id, total_points_earned, total_points_spent,
 current_balance (computed), lifetime_rank,
 points_this_week, points_this_month, points_this_year
 ```
 
-**Migration:** 
+**Migration:**
+
 - Renamed old table to `user_points_transactions_legacy`
 - Created new aggregate structure
 - Migrated all transaction data to `points_transactions` table
@@ -104,14 +118,14 @@ points_this_week, points_this_month, points_this_year
 
 **Total Applied:** 30 migrations
 
-| Migration | Status | Description |
-|-----------|--------|-------------|
-| 000-004 | ✅ Applied | Base schema |
-| 010-019 | ✅ Applied | Seed data, features |
-| 20250115000001-008 | ✅ Applied | Phase 9 features |
-| 20250116000001-004 | ✅ Applied | Phase 10 (SSO, RBAC, audit) |
+| Migration          | Status         | Description                     |
+| ------------------ | -------------- | ------------------------------- |
+| 000-004            | ✅ Applied     | Base schema                     |
+| 010-019            | ✅ Applied     | Seed data, features             |
+| 20250115000001-008 | ✅ Applied     | Phase 9 features                |
+| 20250116000001-004 | ✅ Applied     | Phase 10 (SSO, RBAC, audit)     |
 | **20250116000005** | ✅ **Applied** | **Gamification schema upgrade** |
-| **20250116000006** | ✅ **Applied** | **Social features** |
+| **20250116000006** | ✅ **Applied** | **Social features**             |
 
 ---
 
@@ -156,14 +170,18 @@ points_this_week, points_this_month, points_this_year
 ## What's Next
 
 ### Cleanup (Optional)
+
 The following files can be safely removed as they've been superseded:
+
 - `SKIP_20250115000009_gamification_achievements.sql`
 - `SKIP_20250115000010_gamification_points_rewards.sql`
 - `SKIP_20250115000011_gamification_social.sql`
 - `cleanup_incomplete_tables.sql`
 
 ### Data Population
+
 Now that the schema is complete, you can:
+
 1. Seed achievement categories
 2. Create default achievements
 3. Set up points sources
@@ -171,7 +189,9 @@ Now that the schema is complete, you can:
 5. Create initial leaderboards
 
 ### Feature Implementation
+
 All gamification features are now ready for implementation:
+
 - ✅ Achievement system with tiers and badges
 - ✅ Points earning and spending
 - ✅ Leaderboards and rankings

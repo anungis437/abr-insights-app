@@ -6,20 +6,28 @@ const supabase = createClient(
 )
 
 async function assignRemaining() {
-  const { data: legalCat } = await supabase.from('content_categories').select('id').eq('slug', 'legal-framework').single()
-  const { data: advocacyCat } = await supabase.from('content_categories').select('id').eq('slug', 'allyship-advocacy').single()
-  
+  const { data: legalCat } = await supabase
+    .from('content_categories')
+    .select('id')
+    .eq('slug', 'legal-framework')
+    .single()
+  const { data: advocacyCat } = await supabase
+    .from('content_categories')
+    .select('id')
+    .eq('slug', 'allyship-advocacy')
+    .single()
+
   const updates = [
     { slug: 'anti-racism-educators', category_id: legalCat.id, name: 'Anti-Racism for Educators' },
     { slug: 'environmental-racism', category_id: advocacyCat.id, name: 'Environmental Racism' },
-    { slug: 'recruitment-retention', category_id: legalCat.id, name: 'Recruitment and Retention' }
+    { slug: 'recruitment-retention', category_id: legalCat.id, name: 'Recruitment and Retention' },
   ]
-  
+
   for (const u of updates) {
     await supabase.from('courses').update({ category_id: u.category_id }).eq('slug', u.slug)
     console.log(`✅ Updated: ${u.name}`)
   }
-  
+
   console.log('\n✅ All courses now have categories!')
 }
 

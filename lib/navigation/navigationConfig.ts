@@ -1,9 +1,9 @@
-import { 
-  LayoutDashboard, 
-  BookOpen, 
-  BarChart3, 
-  Users, 
-  Settings, 
+import {
+  LayoutDashboard,
+  BookOpen,
+  BarChart3,
+  Users,
+  Settings,
   Shield,
   FileText,
   TrendingUp,
@@ -13,10 +13,10 @@ import {
   GraduationCap,
   Search,
   Home,
-  type LucideIcon
+  type LucideIcon,
 } from 'lucide-react'
 
-export type UserRole = 
+export type UserRole =
   | 'super_admin'
   | 'compliance_officer'
   | 'org_admin'
@@ -50,27 +50,27 @@ export type NavigationConfig = {
 
 // Public navigation - Marketing focused
 const publicNavigation: NavLink[] = [
-  { 
-    label: 'About', 
+  {
+    label: 'About',
     href: '/about',
-    description: 'Learn about ABR Insights'
+    description: 'Learn about ABR Insights',
   },
-  { 
-    label: 'Courses', 
+  {
+    label: 'Courses',
     href: '/courses',
     icon: GraduationCap,
-    description: 'Browse our course catalog'
+    description: 'Browse our course catalog',
   },
-  { 
-    label: 'Cases', 
+  {
+    label: 'Cases',
     href: '/cases',
     icon: FileText,
-    description: 'Explore our case database'
+    description: 'Explore our case database',
   },
-  { 
-    label: 'Pricing', 
+  {
+    label: 'Pricing',
     href: '/pricing',
-    description: 'View pricing plans'
+    description: 'View pricing plans',
   },
   {
     label: 'Resources',
@@ -81,17 +81,17 @@ const publicNavigation: NavLink[] = [
       { label: 'FAQ', href: '/faq' },
       { label: 'Help Center', href: '/help' },
       { label: 'Contact', href: '/contact' },
-    ]
-  }
+    ],
+  },
 ]
 
 // Base navigation for all authenticated users
 const authenticatedBaseNavigation: NavLink[] = [
-  { 
-    label: 'Dashboard', 
+  {
+    label: 'Dashboard',
     href: '/dashboard',
     icon: LayoutDashboard,
-    description: 'View your dashboard'
+    description: 'View your dashboard',
   },
   {
     label: 'Learning',
@@ -102,7 +102,7 @@ const authenticatedBaseNavigation: NavLink[] = [
       { label: 'My Courses', href: '/training', icon: BookOpen },
       { label: 'Browse Catalog', href: '/courses', icon: Search },
       { label: 'My Progress', href: '/dashboard', icon: TrendingUp },
-    ]
+    ],
   },
   {
     label: 'Cases',
@@ -113,18 +113,18 @@ const authenticatedBaseNavigation: NavLink[] = [
       { label: 'Explore Cases', href: '/cases/explore' },
       { label: 'Browse All', href: '/cases/browse' },
       { label: 'Tribunal Cases', href: '/tribunal-cases' },
-    ]
-  }
+    ],
+  },
 ]
 
 // Role-specific navigation additions
 const roleSpecificNavigation: Record<UserRole, NavLink[]> = {
   learner: [],
-  
+
   viewer: [],
-  
+
   guest: [],
-  
+
   educator: [
     {
       label: 'Content',
@@ -135,10 +135,10 @@ const roleSpecificNavigation: Record<UserRole, NavLink[]> = {
         { label: 'Create Course', href: '/admin/courses/create' },
         { label: 'My Courses', href: '/admin/courses' },
         { label: 'Content Library', href: '/resources' },
-      ]
-    }
+      ],
+    },
   ],
-  
+
   analyst: [
     {
       label: 'Analytics',
@@ -149,16 +149,16 @@ const roleSpecificNavigation: Record<UserRole, NavLink[]> = {
         { label: 'Dashboard', href: '/analytics' },
         { label: 'Create Report', href: '/analytics/create' },
         { label: 'Data Explorer', href: '/analytics/explore' },
-      ]
+      ],
     },
-    { 
-      label: 'Team', 
-      href: '/team', 
+    {
+      label: 'Team',
+      href: '/team',
       icon: Users,
-      description: 'Manage your team'
-    }
+      description: 'Manage your team',
+    },
   ],
-  
+
   investigator: [
     {
       label: 'Analytics',
@@ -169,22 +169,22 @@ const roleSpecificNavigation: Record<UserRole, NavLink[]> = {
         { label: 'Dashboard', href: '/analytics' },
         { label: 'Case Analysis', href: '/analytics/cases' },
         { label: 'Data Explorer', href: '/analytics/explore' },
-      ]
+      ],
     },
-    { 
-      label: 'Team', 
-      href: '/team', 
+    {
+      label: 'Team',
+      href: '/team',
       icon: Users,
-      description: 'Manage your team'
-    }
+      description: 'Manage your team',
+    },
   ],
-  
+
   org_admin: [
-    { 
-      label: 'Team', 
-      href: '/team', 
+    {
+      label: 'Team',
+      href: '/team',
       icon: Users,
-      description: 'Manage your team'
+      description: 'Manage your team',
     },
     {
       label: 'Admin',
@@ -195,10 +195,10 @@ const roleSpecificNavigation: Record<UserRole, NavLink[]> = {
         { label: 'Team Management', href: '/admin/team', icon: Users },
         { label: 'Org Settings', href: '/admin/org-settings', icon: Building2 },
         { label: 'Usage Analytics', href: '/admin/analytics', icon: BarChart3 },
-      ]
-    }
+      ],
+    },
   ],
-  
+
   compliance_officer: [
     {
       label: 'Compliance',
@@ -210,16 +210,16 @@ const roleSpecificNavigation: Record<UserRole, NavLink[]> = {
         { label: 'Flagged Cases', href: '/cases/flagged' },
         { label: 'Compliance Reports', href: '/admin/compliance' },
         { label: 'Team Activity', href: '/admin/team-activity' },
-      ]
+      ],
     },
-    { 
-      label: 'Analytics', 
-      href: '/analytics', 
+    {
+      label: 'Analytics',
+      href: '/analytics',
       icon: BarChart3,
-      description: 'View analytics'
-    }
+      description: 'View analytics',
+    },
   ],
-  
+
   super_admin: [
     {
       label: 'Admin',
@@ -243,9 +243,9 @@ const roleSpecificNavigation: Record<UserRole, NavLink[]> = {
         { label: 'Org Settings', href: '/admin/org-settings', icon: Settings },
         { label: 'Permissions', href: '/admin/permissions', icon: Shield },
         { label: 'SSO Config', href: '/admin/sso-config', icon: Settings },
-      ]
-    }
-  ]
+      ],
+    },
+  ],
 }
 
 // User menu dropdown (appears when clicking user avatar/name)
@@ -261,9 +261,9 @@ export const navigationConfig: NavigationConfig = {
   public: publicNavigation,
   authenticated: {
     base: authenticatedBaseNavigation,
-    byRole: roleSpecificNavigation
+    byRole: roleSpecificNavigation,
   },
-  userMenu: userMenuItems
+  userMenu: userMenuItems,
 }
 
 /**
@@ -274,7 +274,7 @@ export function getNavigationForRole(role: UserRole | null): NavLink[] {
   if (!role || role === 'guest') {
     return publicNavigation
   }
-  
+
   const roleNav = roleSpecificNavigation[role] || []
   return [...authenticatedBaseNavigation, ...roleNav]
 }
@@ -282,22 +282,26 @@ export function getNavigationForRole(role: UserRole | null): NavLink[] {
 /**
  * Check if a user has access to a specific navigation item
  */
-export function canAccessNavItem(item: NavLink, role: UserRole | null, isAuthenticated: boolean): boolean {
+export function canAccessNavItem(
+  item: NavLink,
+  role: UserRole | null,
+  isAuthenticated: boolean
+): boolean {
   // Public items are always accessible
   if (!item.requiresAuth) {
     return true
   }
-  
+
   // Auth required but user not authenticated
   if (!isAuthenticated) {
     return false
   }
-  
+
   // No role restrictions - all authenticated users can access
   if (!item.allowedRoles || item.allowedRoles.length === 0) {
     return true
   }
-  
+
   // Check if user's role is in allowed roles
   return role ? item.allowedRoles.includes(role) : false
 }

@@ -28,7 +28,7 @@ export default function CourseDetailPage() {
   const params = useParams()
   const router = useRouter()
   const slug = params?.slug as string
-  
+
   const [course, setCourse] = useState<Course | null>(null)
   const [category, setCategory] = useState<Category | null>(null)
   const [loading, setLoading] = useState(true)
@@ -42,7 +42,7 @@ export default function CourseDetailPage() {
 
       try {
         setLoading(true)
-        
+
         // Fetch course by slug
         const { data: courseData, error: courseError } = await supabase
           .from('courses')
@@ -106,9 +106,12 @@ export default function CourseDetailPage() {
     return (
       <div className="min-h-screen bg-gray-50 pt-20">
         <div className="container mx-auto px-4 py-8">
-          <div className="mx-auto max-w-2xl text-center py-20">
+          <div className="mx-auto max-w-2xl py-20 text-center">
             <h1 className="mb-4 text-3xl font-bold text-gray-900">Course Not Found</h1>
-            <p className="mb-8 text-gray-600">{error || 'The course you&apos;re looking for doesn&apos;t exist or has been removed.'}</p>
+            <p className="mb-8 text-gray-600">
+              {error ||
+                'The course you&apos;re looking for doesn&apos;t exist or has been removed.'}
+            </p>
             <Link href="/courses" className="btn-primary inline-flex items-center gap-2">
               <ArrowRight className="h-5 w-5 rotate-180" />
               Back to Courses
@@ -127,7 +130,9 @@ export default function CourseDetailPage() {
           <div className="mx-auto max-w-4xl">
             {/* Breadcrumb */}
             <div className="mb-4 flex items-center gap-2 text-sm text-primary-100">
-              <Link href="/courses" className="hover:text-white">Courses</Link>
+              <Link href="/courses" className="hover:text-white">
+                Courses
+              </Link>
               <span>/</span>
               {category && (
                 <>
@@ -153,7 +158,7 @@ export default function CourseDetailPage() {
             </div>
 
             <h1 className="mb-4 text-3xl font-bold md:text-4xl">{course.title}</h1>
-            
+
             {course.description && (
               <p className="mb-6 text-lg text-primary-50">{course.description}</p>
             )}
@@ -186,9 +191,11 @@ export default function CourseDetailPage() {
                 <h2 className="mb-4 text-2xl font-bold text-gray-900">About This Course</h2>
                 <div className="prose max-w-none">
                   {course.description ? (
-                    <p className="text-gray-700 leading-relaxed">{course.description}</p>
+                    <p className="leading-relaxed text-gray-700">{course.description}</p>
                   ) : (
-                    <p className="text-gray-600">No detailed description available for this course.</p>
+                    <p className="text-gray-600">
+                      No detailed description available for this course.
+                    </p>
                   )}
                 </div>
               </div>
@@ -197,19 +204,23 @@ export default function CourseDetailPage() {
                 <h2 className="mb-4 text-2xl font-bold text-gray-900">What You&apos;ll Learn</h2>
                 <ul className="space-y-3">
                   <li className="flex items-start gap-3">
-                    <CheckCircle className="h-5 w-5 flex-shrink-0 text-green-600 mt-0.5" />
+                    <CheckCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600" />
                     <span className="text-gray-700">Understanding key concepts and principles</span>
                   </li>
                   <li className="flex items-start gap-3">
-                    <CheckCircle className="h-5 w-5 flex-shrink-0 text-green-600 mt-0.5" />
-                    <span className="text-gray-700">Practical application in workplace scenarios</span>
+                    <CheckCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600" />
+                    <span className="text-gray-700">
+                      Practical application in workplace scenarios
+                    </span>
                   </li>
                   <li className="flex items-start gap-3">
-                    <CheckCircle className="h-5 w-5 flex-shrink-0 text-green-600 mt-0.5" />
-                    <span className="text-gray-700">Evidence-based strategies and best practices</span>
+                    <CheckCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600" />
+                    <span className="text-gray-700">
+                      Evidence-based strategies and best practices
+                    </span>
                   </li>
                   <li className="flex items-start gap-3">
-                    <CheckCircle className="h-5 w-5 flex-shrink-0 text-green-600 mt-0.5" />
+                    <CheckCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600" />
                     <span className="text-gray-700">Tools and resources for ongoing learning</span>
                   </li>
                 </ul>
@@ -220,15 +231,19 @@ export default function CourseDetailPage() {
             <div className="lg:col-span-1">
               <div className="card sticky top-24">
                 <h3 className="mb-4 text-lg font-bold text-gray-900">Course Details</h3>
-                
-                <div className="space-y-4 mb-6">
+
+                <div className="mb-6 space-y-4">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-600">Duration</span>
-                    <span className="font-medium text-gray-900">{formatDuration(course.estimated_duration_minutes)}</span>
+                    <span className="font-medium text-gray-900">
+                      {formatDuration(course.estimated_duration_minutes)}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-600">Level</span>
-                    <span className="font-medium text-gray-900 capitalize">{course.level || 'All levels'}</span>
+                    <span className="font-medium capitalize text-gray-900">
+                      {course.level || 'All levels'}
+                    </span>
                   </div>
                   {category && (
                     <div className="flex items-center justify-between text-sm">
@@ -242,9 +257,9 @@ export default function CourseDetailPage() {
                   </div>
                 </div>
 
-                <button 
+                <button
                   onClick={() => router.push(`/courses/${course.slug}/player`)}
-                  className="btn-primary w-full flex items-center justify-center gap-2"
+                  className="btn-primary flex w-full items-center justify-center gap-2"
                 >
                   <PlayCircle className="h-5 w-5" />
                   Start Course
@@ -259,9 +274,9 @@ export default function CourseDetailPage() {
 
           {/* Back to Courses */}
           <div className="mt-8">
-            <Link 
-              href="/courses" 
-              className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 font-medium"
+            <Link
+              href="/courses"
+              className="inline-flex items-center gap-2 font-medium text-primary-600 hover:text-primary-700"
             >
               <ArrowRight className="h-5 w-5 rotate-180" />
               Back to all courses
@@ -272,5 +287,3 @@ export default function CourseDetailPage() {
     </div>
   )
 }
-
-

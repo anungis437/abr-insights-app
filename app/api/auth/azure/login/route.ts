@@ -1,8 +1,8 @@
 /**
  * Azure AD B2C Login Initiation API Route
- * 
+ *
  * Initiates OAuth 2.0 authorization code flow with Azure AD B2C
- * 
+ *
  * @route POST /api/auth/azure/login
  * @access Public
  */
@@ -18,10 +18,7 @@ export async function POST(request: NextRequest) {
     const { organizationSlug } = body
 
     if (!organizationSlug) {
-      return NextResponse.json(
-        { error: 'Organization slug is required' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Organization slug is required' }, { status: 400 })
     }
 
     // Initialize Azure AD service for organization
@@ -44,11 +41,7 @@ export async function POST(request: NextRequest) {
     const redirectUri = `${baseUrl}/api/auth/azure/callback`
 
     // Get authorization URL
-    const authUrl = await azureADService.getAuthorizationUrl(
-      redirectUri,
-      state,
-      organizationSlug
-    )
+    const authUrl = await azureADService.getAuthorizationUrl(redirectUri, state, organizationSlug)
 
     return NextResponse.json({
       authUrl,
@@ -105,10 +98,7 @@ export async function GET(request: NextRequest) {
     console.error('[Azure AD Login] Error:', error)
 
     return NextResponse.redirect(
-      new URL(
-        `/login?error=${encodeURIComponent('azure_ad_error')}`,
-        request.url
-      )
+      new URL(`/login?error=${encodeURIComponent('azure_ad_error')}`, request.url)
     )
   }
 }

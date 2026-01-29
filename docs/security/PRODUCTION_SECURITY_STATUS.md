@@ -10,6 +10,7 @@
 ## ✅ Phase 0: Discovery & Baseline (COMPLETE)
 
 ### Deliverables
+
 - [x] `docs/engineering/baseline-findings.md` - Comprehensive security audit identifying critical gaps
 - [x] Discovered 27+ API routes requiring protection
 - [x] Identified split-brain RBAC problem (profiles.role vs permissions system)
@@ -17,6 +18,7 @@
 - [x] Documented service role key usage (mostly appropriate)
 
 ### Key Findings
+
 - **0%** of AI endpoints had authentication
 - No rate limiting on any route
 - No AI usage audit trail
@@ -28,10 +30,11 @@
 ## ✅ Phase 1: Critical Security Fixes (COMPLETE)
 
 ### Infrastructure Created
+
 1. **Authentication System** (`lib/auth/serverAuth.ts`)
    - `requireSession()` - Validate Supabase sessions
    - `requireUser()` - Get authenticated user
-   - `requireOrgContext()` - Resolve & validate org membership  
+   - `requireOrgContext()` - Resolve & validate org membership
    - `requirePermission()` - Check specific permissions
    - Custom error types: `AuthError`, `PermissionError`, `OrgContextError`
 
@@ -54,30 +57,34 @@
    - `ai_usage_analytics` view with cost estimates
 
 ### API Routes Secured
+
 - ✅ `/api/ai/chat` - Auth + permission (`ai.chat.use` OR `admin.ai.manage`)
 - ✅ `/api/ai/coach` - Auth + permission (`ai.coach.use` OR `admin.ai.manage`)
 - ✅ `/api/embeddings/generate` - Auth + admin-only (`admin.ai.manage`)
 - ✅ All protected routes log usage to `ai_usage_logs`
 
 ### Documentation
+
 - ✅ `docs/engineering/baseline-findings.md` - Security audit (1,100 lines)
 - ✅ `docs/security/api-protection-matrix.md` - API status matrix (850 lines)
 - ✅ `docs/security/phase1-implementation-summary.md` - Implementation guide (1,000 lines)
 
 ### Metrics
-| Metric | Before | After | Change |
-|--------|--------|-------|--------|
-| **API Protection** | 0% | 41% | +41% |
-| **AI Endpoints Secured** | 0/5 | 3/5 | +60% |
-| **Embeddings Secured** | 0/3 | 1/3 | +33% |
-| **Audit Trail** | ❌ None | ✅ Complete | ✅ |
-| **Permission System** | ❌ Ad-hoc | ✅ Centralized | ✅ |
+
+| Metric                   | Before    | After          | Change |
+| ------------------------ | --------- | -------------- | ------ |
+| **API Protection**       | 0%        | 41%            | +41%   |
+| **AI Endpoints Secured** | 0/5       | 3/5            | +60%   |
+| **Embeddings Secured**   | 0/3       | 1/3            | +33%   |
+| **Audit Trail**          | ❌ None   | ✅ Complete    | ✅     |
+| **Permission System**    | ❌ Ad-hoc | ✅ Centralized | ✅     |
 
 ---
 
 ## 📋 Phase 2: Rate Limiting & Remaining Routes (NEXT)
 
 ### Priority 1: Rate Limiting Infrastructure
+
 **Estimated Time:** 1-2 days
 
 - [ ] Create `lib/security/rateLimit.ts` with token bucket algorithm
@@ -87,6 +94,7 @@
 - [ ] Store state in Redis (or in-memory for MVP)
 
 **Rate Limits to Implement:**
+
 - AI Chat: 30 req/min/user, 120 req/min/org
 - AI Coach: 20 req/min/user, 80 req/min/org
 - Embeddings Generate: 2 req/hour/org
@@ -94,6 +102,7 @@
 - Public Forms: 5 req/min/IP
 
 ### Priority 2: Secure Remaining AI Endpoints
+
 **Estimated Time:** 1 day
 
 - [ ] `/api/ai/feedback` - Auth + permission (`ai.feedback.submit`)
@@ -103,6 +112,7 @@
 - [ ] Update API protection matrix
 
 ### Priority 3: Secure Embeddings Search
+
 **Estimated Time:** 1 day
 
 - [ ] `/api/embeddings/search-cases` - Auth + permission (`cases.search` OR `embeddings.search`)
@@ -111,6 +121,7 @@
 - [ ] Add usage logging (for cost tracking)
 
 ### Priority 4: Bot Protection for Public Forms
+
 **Estimated Time:** 1 day
 
 - [ ] Add Cloudflare Turnstile to `/api/contact`
@@ -126,15 +137,19 @@
 ## 📋 Phase 3: RBAC Unification (HIGH PRIORITY)
 
 ### Current Problem
+
 **Split-Brain RBAC:**
+
 - Migration 015 uses `profiles.role IN ('super_admin', 'org_admin')` in RLS policies
 - RBAC tables exist (`roles`, `permissions`, `role_permissions`, `user_roles`) but underutilized
 - No consistent permission checking pattern across codebase
 
 ### Solution
+
 **Estimated Time:** 3-4 days
 
 #### Step 1: Permission Seed Data (1 day)
+
 - [ ] Create `migrations/020_seed_permissions.sql`
 - [ ] Add all required permissions to `permissions` table:
   - `ai.chat.use`, `ai.coach.use`, `ai.feedback.submit`
@@ -148,12 +163,14 @@
   - **Super Admin**: All permissions + `admin.ai.manage`
 
 #### Step 2: Migrate RLS Policies (2 days)
+
 - [ ] Create `migrations/021_migrate_rls_to_permissions.sql`
 - [ ] Replace all `profiles.role IN (...)` checks with permission-based checks
 - [ ] Update migration 015 policies to use `check_user_permission()`
 - [ ] Test thoroughly with different roles
 
 #### Step 3: Documentation (1 day)
+
 - [ ] Create `docs/security/rbac-standard.md`
 - [ ] Document permission naming convention
 - [ ] Document role hierarchy
@@ -165,20 +182,24 @@
 ## 📋 Phase 4: Multi-Tenant Isolation Tests (CRITICAL)
 
 ### Current Gap
+
 - No automated tests verifying tenant boundaries
 - Manual testing only
 - Risk of data leakage between orgs
 
 ### Solution
+
 **Estimated Time:** 2-3 days
 
 #### Step 1: Test Framework Setup (1 day)
+
 - [ ] Create `tests/security/tenant-isolation.spec.ts` (Playwright)
 - [ ] Set up two test organizations (OrgA, OrgB)
 - [ ] Create test users in each org with various roles
 - [ ] Create test data scoped to each org
 
 #### Step 2: Core Isolation Tests (1-2 days)
+
 - [ ] Test: OrgA user cannot read OrgB data
 - [ ] Test: OrgA user cannot update OrgB data
 - [ ] Test: OrgA user cannot delete OrgB data
@@ -187,6 +208,7 @@
 - [ ] Test: Permission checks respect org context
 
 #### Step 3: CI/CD Integration (1 day)
+
 - [ ] Add tests to GitHub Actions workflow
 - [ ] Run on every PR to protected branches
 - [ ] Block merge if tests fail
@@ -197,6 +219,7 @@
 ## 📋 Phase 5: AI Governance Features (NICE-TO-HAVE)
 
 ### Citation Tracking
+
 **Estimated Time:** 2 days
 
 - [ ] Modify AI prompt to request citations
@@ -206,6 +229,7 @@
 - [ ] Track citation accuracy
 
 ### Cost Controls
+
 **Estimated Time:** 3 days
 
 - [ ] Add `ai_cost_budgets` table (per org, per month)
@@ -215,6 +239,7 @@
 - [ ] Send email alerts at 80% and 100% of budget
 
 ### Hallucination Detection
+
 **Estimated Time:** 5 days
 
 - [ ] Research hallucination detection methods
@@ -228,20 +253,24 @@
 ## 📋 Phase 6: Pricing & Subscription Enforcement
 
 ### Current Gap
+
 - Stripe products exist but no enforcement
 - No pricing page in application
 - All users have same access regardless of subscription
 
 ### Solution
+
 **Estimated Time:** 5-7 days
 
 #### Step 1: Pricing Page (1 day)
+
 - [ ] Create `app/pricing/page.tsx`
 - [ ] Show Professional ($29.99/mo) vs Enterprise ($99.99/mo)
 - [ ] List features per plan
 - [ ] Add CTA buttons linking to `/api/stripe/checkout`
 
 #### Step 2: Subscription → Permission Mapping (2-3 days)
+
 - [ ] Create `subscriptions` table linking user/org to Stripe subscription
 - [ ] Update Stripe webhook to populate `subscriptions` table
 - [ ] Add subscription tier check to permission middleware
@@ -251,12 +280,14 @@
 - [ ] Add upgrade prompts when limits reached
 
 #### Step 3: Plan Features Matrix (2 days)
+
 - [ ] Document feature → plan mapping
 - [ ] Update API guards to check subscription tier
 - [ ] Add `/api/subscription/features` endpoint
 - [ ] Create `useSubscriptionFeatures()` hook for client-side gating
 
 #### Step 4: Testing (1-2 days)
+
 - [ ] Test subscription creation flow
 - [ ] Test feature enforcement per plan
 - [ ] Test upgrade/downgrade flows
@@ -267,6 +298,7 @@
 ## 📋 Phase 7: Production Readiness Gate
 
 ### Checklist
+
 **Estimated Time:** 3-5 days
 
 - [ ] Security
@@ -311,6 +343,7 @@
 ## 🎯 Recommended Execution Order
 
 ### Sprint 1 (Week 1): Core Security Completion
+
 1. **Day 1-2:** Implement rate limiting infrastructure
 2. **Day 3:** Secure remaining AI endpoints
 3. **Day 4:** Secure embeddings search + bot protection
@@ -321,6 +354,7 @@
 ---
 
 ### Sprint 2 (Week 2): RBAC & Tenant Isolation
+
 1. **Day 1:** Seed permissions data
 2. **Day 2-3:** Migrate RLS policies to permission-based
 3. **Day 4:** Create tenant isolation tests
@@ -331,6 +365,7 @@
 ---
 
 ### Sprint 3 (Week 3): Pricing & Subscription Enforcement
+
 1. **Day 1:** Create pricing page
 2. **Day 2-3:** Implement subscription → permission mapping
 3. **Day 4:** Test subscription flows
@@ -341,6 +376,7 @@
 ---
 
 ### Sprint 4 (Week 4): Production Readiness
+
 1. **Day 1:** Load testing and performance optimization
 2. **Day 2:** Set up monitoring (Sentry, Azure Monitor)
 3. **Day 3:** Configure cost alerts and uptime monitoring
@@ -354,6 +390,7 @@
 ## 📊 Current Status Summary
 
 ### Completed ✅
+
 - Phase 0: Discovery & baseline security audit
 - Phase 1: Critical API protection infrastructure
 - Authentication & authorization system
@@ -363,9 +400,11 @@
 - Comprehensive security documentation
 
 ### In Progress 🔄
+
 - Nothing currently active
 
 ### Pending ❌
+
 - Rate limiting (HIGH PRIORITY)
 - Remaining route protection (5 routes)
 - RBAC unification (technical debt)
@@ -374,13 +413,14 @@
 - Production monitoring (observability)
 
 ### Risk Assessment
-| Risk | Severity | Mitigation Status | Priority |
-|------|----------|-------------------|----------|
-| AI endpoint abuse | 🟡 MEDIUM | Auth added, rate limit pending | P1 |
-| Cost blowup | 🟡 MEDIUM | Usage logging added, limits pending | P1 |
-| Data leakage | 🔴 HIGH | RLS exists, tests pending | P1 |
-| RBAC confusion | 🟡 MEDIUM | Infrastructure ready, migration pending | P2 |
-| Revenue leakage | 🟡 MEDIUM | Stripe ready, enforcement pending | P2 |
+
+| Risk              | Severity  | Mitigation Status                       | Priority |
+| ----------------- | --------- | --------------------------------------- | -------- |
+| AI endpoint abuse | 🟡 MEDIUM | Auth added, rate limit pending          | P1       |
+| Cost blowup       | 🟡 MEDIUM | Usage logging added, limits pending     | P1       |
+| Data leakage      | 🔴 HIGH   | RLS exists, tests pending               | P1       |
+| RBAC confusion    | 🟡 MEDIUM | Infrastructure ready, migration pending | P2       |
+| Revenue leakage   | 🟡 MEDIUM | Stripe ready, enforcement pending       | P2       |
 
 **Overall Risk:** 🟡 **MEDIUM** (reduced from 🔴 HIGH after Phase 1)
 
@@ -389,6 +429,7 @@
 ## 🚀 Quick Start for Next Developer
 
 ### To Continue Phase 2:
+
 ```bash
 # 1. Pull latest changes
 git pull origin main
@@ -404,6 +445,7 @@ touch lib/security/rateLimit.ts
 ```
 
 ### To Test Current Security:
+
 ```bash
 # Test unauthenticated request (should return 401)
 curl http://localhost:3001/api/ai/chat \
@@ -420,6 +462,7 @@ curl http://localhost:3001/api/ai/chat \
 ```
 
 ### To View AI Usage Logs:
+
 ```sql
 -- Via Supabase Dashboard SQL Editor
 SELECT
@@ -440,6 +483,7 @@ LIMIT 50;
 ## 📞 Support & Questions
 
 **Documentation:**
+
 - Security Audit: `/docs/engineering/baseline-findings.md`
 - API Protection Matrix: `/docs/security/api-protection-matrix.md`
 - Phase 1 Summary: `/docs/security/phase1-implementation-summary.md`

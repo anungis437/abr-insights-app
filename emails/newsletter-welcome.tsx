@@ -14,11 +14,9 @@ interface NewsletterWelcomeEmailProps {
   firstName?: string
 }
 
-export default function NewsletterWelcomeEmail({
-  firstName,
-}: NewsletterWelcomeEmailProps) {
+export default function NewsletterWelcomeEmail({ firstName }: NewsletterWelcomeEmailProps) {
   const displayName = firstName || 'there'
-  
+
   return (
     <Html>
       <Head />
@@ -26,49 +24,53 @@ export default function NewsletterWelcomeEmail({
       <Body style={main}>
         <Container style={container}>
           <Heading style={h1}>Welcome to ABR Insights! 🎉</Heading>
-          
+
+          <Text style={text}>Hi {displayName},</Text>
+
           <Text style={text}>
-            Hi {displayName},
+            Thank you for subscribing to the ABR Insights newsletter! We&apos;re excited to have you
+            join our community committed to advancing anti-racism and human rights excellence.
           </Text>
-          
-          <Text style={text}>
-            Thank you for subscribing to the ABR Insights newsletter! We&apos;re excited to have you join our community committed to advancing anti-racism and human rights excellence.
-          </Text>
-          
+
           <Section style={highlightBox}>
-            <Text style={highlightTitle}>
-              What to expect from us:
-            </Text>
+            <Text style={highlightTitle}>What to expect from us:</Text>
             <Text style={highlightText}>
-              ✓ Latest updates on anti-racism training and resources<br />
-              ✓ Case law insights and tribunal decision analyses<br />
-              ✓ Best practices for workplace equity and inclusion<br />
-              ✓ Exclusive content and early access to new courses<br />
-              ✓ Tips from human rights experts
+              ✓ Latest updates on anti-racism training and resources
+              <br />
+              ✓ Case law insights and tribunal decision analyses
+              <br />
+              ✓ Best practices for workplace equity and inclusion
+              <br />
+              ✓ Exclusive content and early access to new courses
+              <br />✓ Tips from human rights experts
             </Text>
           </Section>
-          
+
           <Text style={text}>
-            Our newsletter is published monthly, delivering valuable insights directly to your inbox. We respect your time and privacy&mdash;no spam, just quality content.
+            Our newsletter is published monthly, delivering valuable insights directly to your
+            inbox. We respect your time and privacy&mdash;no spam, just quality content.
           </Text>
-          
+
           <Section style={buttonContainer}>
             <Button style={button} href="https://abrinsights.ca/training">
               Explore Our Training
             </Button>
           </Section>
-          
+
           <Text style={text}>
-            Have questions or feedback? Simply reply to this email&mdash;we&apos;d love to hear from you!
+            Have questions or feedback? Simply reply to this email&mdash;we&apos;d love to hear from
+            you!
           </Text>
-          
+
           <Text style={text}>
-            Best regards,<br />
+            Best regards,
+            <br />
             The ABR Insights Team
           </Text>
-          
+
           <Text style={footer}>
-            © {new Date().getFullYear()} ABR Insights. All rights reserved.<br />
+            © {new Date().getFullYear()} ABR Insights. All rights reserved.
+            <br />
             You&apos;re receiving this because you subscribed to our newsletter.
           </Text>
         </Container>

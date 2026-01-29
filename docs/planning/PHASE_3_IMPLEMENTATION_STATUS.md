@@ -8,6 +8,7 @@
 ## ✅ Completed Tasks
 
 ### 1. Permission Hooks & Client-Side Utils
+
 - ✅ **usePermissions Hook** ([lib/hooks/usePermissions.ts](lib/hooks/usePermissions.ts))
   - Fetches and caches user permissions
   - Real-time permission checking
@@ -21,6 +22,7 @@
   - Loading and fallback states
 
 ### 2. Server-Side Permission Checking
+
 - ✅ **Permission Utilities** ([lib/auth/permissions.ts](lib/auth/permissions.ts))
   - `checkPermission()` - Single permission check
   - `checkAnyPermission()` - Check multiple with OR logic
@@ -29,12 +31,14 @@
   - `getCurrentUserContext()` - Get user + org context
 
 ### 3. API Route Updates
+
 - ✅ **Admin Permissions API** ([app/api/admin/permissions/route.ts](app/api/admin/permissions/route.ts))
   - Updated to use `requireAnyPermission()`
   - Removed hardcoded role checks
   - Now uses permission-based access control
 
 ### 4. Demo & Testing
+
 - ✅ **Permissions Demo Page** ([app/admin/permissions-demo/page.tsx](app/admin/permissions-demo/page.tsx))
   - Interactive permission testing
   - Shows active user permissions
@@ -47,6 +51,7 @@
 ## 🚧 In Progress
 
 ### Bug Fixes & Improvements
+
 - ⏳ Fixed gamification table errors (achievements, user_achievements, user_points)
 - ⏳ Added missing columns to user_points table
 - ⏳ Fixed Sign Out navigation for all roles
@@ -59,9 +64,11 @@
 ## 📋 Next Steps
 
 ### Priority 1: API Route Migration (Estimated: 2-3 days)
+
 Update remaining API routes to use permission checking:
 
 **Routes to Update:**
+
 - [ ] `/api/courses/**` - Course management endpoints
 - [ ] `/api/enrollments/**` - Enrollment operations
 - [ ] `/api/quizzes/**` - Quiz management
@@ -70,22 +77,25 @@ Update remaining API routes to use permission checking:
 - [ ] `/api/admin/roles/**` - Role management
 
 **Pattern to Follow:**
+
 ```typescript
 import { requireAnyPermission } from '@/lib/auth/permissions'
 
 export async function POST(request: Request) {
   const check = await requireAnyPermission(['courses.create', 'courses.manage'])
   if (check instanceof NextResponse) return check
-  
+
   // Proceed with operation
   // RLS policies will provide additional protection
 }
 ```
 
 ### Priority 2: Update Components (Estimated: 2-3 days)
+
 Add permission checks to UI components:
 
 **Components to Update:**
+
 - [ ] `components/courses/CourseCard.tsx` - Show/hide edit/delete buttons
 - [ ] `components/courses/CourseActions.tsx` - Permission-based actions
 - [ ] `components/dashboard/AdminPanel.tsx` - Admin widgets
@@ -93,6 +103,7 @@ Add permission checks to UI components:
 - [ ] `lib/navigation/sidebarConfig.ts` - Permission-based nav items
 
 **Example Pattern:**
+
 ```tsx
 import { Protected } from '@/components/shared/Protected'
 
@@ -102,12 +113,12 @@ export function CourseCard({ course }) {
       <CardContent>
         {/* Always visible */}
         <CourseInfo course={course} />
-        
+
         {/* Permission-protected */}
         <Protected anyPermissions={['courses.update', 'courses.manage']}>
           <EditButton courseId={course.id} />
         </Protected>
-        
+
         <Protected permission="courses.delete">
           <DeleteButton courseId={course.id} />
         </Protected>
@@ -118,6 +129,7 @@ export function CourseCard({ course }) {
 ```
 
 ### Priority 3: Permission Management UI (Estimated: 2 days)
+
 Create admin interfaces for permission management:
 
 - [ ] `/admin/permissions` - Browse all 106 permissions
@@ -126,9 +138,11 @@ Create admin interfaces for permission management:
 - [ ] `/admin/roles/[id]` - Edit role permissions
 
 ### Priority 4: Testing & Validation (Estimated: 2 days)
+
 Comprehensive testing of permission system:
 
 **Test Categories:**
+
 - [ ] Multi-tenant isolation tests
 - [ ] Permission inheritance tests (roles → users)
 - [ ] RLS policy validation
@@ -160,21 +174,19 @@ import { Protected } from '@/components/shared/Protected'
 
 export function MyComponent() {
   const { hasPermission, loading } = usePermissions()
-  
+
   if (loading) return <Skeleton />
-  
+
   return (
     <div>
       {/* Method 1: Direct check */}
-      {hasPermission('courses.create') && (
-        <CreateButton />
-      )}
-      
+      {hasPermission('courses.create') && <CreateButton />}
+
       {/* Method 2: Protected component */}
       <Protected permission="courses.delete">
         <DeleteButton />
       </Protected>
-      
+
       {/* Method 3: Multiple permissions */}
       <Protected anyPermissions={['courses.update', 'courses.manage']}>
         <EditButton />
@@ -194,7 +206,7 @@ export async function POST(request: Request) {
   // Method 1: Require specific permission (auto returns 403)
   const check = await requirePermission('courses.create')
   if (check instanceof NextResponse) return check
-  
+
   // Proceed with operation
   const body = await request.json()
   // ...
@@ -204,11 +216,11 @@ export async function POST(request: Request) {
 export async function updateCourse(courseId: string, updates: any) {
   // Method 2: Check permission manually
   const check = await checkAnyPermission(['courses.update', 'courses.manage'])
-  
+
   if (!check.allowed) {
     return { error: 'Insufficient permissions' }
   }
-  
+
   // Update course (RLS will provide additional protection)
   const supabase = await createClient()
   const { data, error } = await supabase
@@ -217,7 +229,7 @@ export async function updateCourse(courseId: string, updates: any) {
     .eq('id', courseId)
     .select()
     .single()
-    
+
   return { data, error }
 }
 ```

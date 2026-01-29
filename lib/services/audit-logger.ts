@@ -1,13 +1,13 @@
 /**
  * Audit Logging Service
- * 
+ *
  * Enterprise-grade audit logging with:
  * - Automatic event classification
  * - Compliance level assignment
  * - Blockchain-style hash chain
  * - Multi-tenant isolation
  * - PIPEDA/SOC2/ISO27001 compliance
- * 
+ *
  * @module lib/services/audit-logger
  */
 
@@ -54,7 +54,7 @@ interface AuditLogEntry {
 
 /**
  * Log a generic audit event
- * 
+ *
  * All audit events flow through this function
  * Automatically generates hash chain for tamper detection
  */
@@ -104,7 +104,7 @@ export async function logEvent(entry: AuditLogEntry): Promise<void> {
 
 /**
  * Log authentication events
- * 
+ *
  * Tracks login, logout, SSO, password changes, etc.
  */
 export async function logAuthEvent(
@@ -116,13 +116,11 @@ export async function logAuthEvent(
   userAgent?: string
 ): Promise<void> {
   // Authentication events are always high compliance
-  const complianceLevel: ComplianceLevel = action.includes('failed') || action.includes('unauthorized')
-    ? 'critical'
-    : 'high'
+  const complianceLevel: ComplianceLevel =
+    action.includes('failed') || action.includes('unauthorized') ? 'critical' : 'high'
 
-  const severity: Severity = action.includes('failed') || action.includes('unauthorized')
-    ? 'warning'
-    : 'info'
+  const severity: Severity =
+    action.includes('failed') || action.includes('unauthorized') ? 'warning' : 'info'
 
   await logEvent({
     organizationId,
@@ -141,7 +139,7 @@ export async function logAuthEvent(
 
 /**
  * Log authorization events
- * 
+ *
  * Tracks permission checks, role changes, access denials
  */
 export async function logAuthorizationEvent(
@@ -175,7 +173,7 @@ export async function logAuthorizationEvent(
 
 /**
  * Log data access events
- * 
+ *
  * Tracks reading of sensitive data
  */
 export async function logDataAccess(
@@ -213,7 +211,7 @@ export async function logDataAccess(
 
 /**
  * Log data modification events
- * 
+ *
  * Tracks create, update, delete operations
  */
 export async function logDataModification(
@@ -254,7 +252,7 @@ export async function logDataModification(
 
 /**
  * Log configuration changes
- * 
+ *
  * Tracks system configuration, settings, feature flags
  */
 export async function logConfigurationChange(
@@ -284,7 +282,7 @@ export async function logConfigurationChange(
 
 /**
  * Log admin actions
- * 
+ *
  * Tracks privileged operations by administrators
  */
 export async function logAdminAction(
@@ -314,7 +312,7 @@ export async function logAdminAction(
 
 /**
  * Log user management events
- * 
+ *
  * Tracks user creation, updates, role changes, deletions
  */
 export async function logUserManagement(
@@ -343,7 +341,7 @@ export async function logUserManagement(
 
 /**
  * Log security events
- * 
+ *
  * Tracks security incidents, threats, suspicious activities
  */
 export async function logSecurityEvent(
@@ -370,7 +368,7 @@ export async function logSecurityEvent(
 
 /**
  * Log compliance events
- * 
+ *
  * Tracks compliance-related actions like audits, reports, exports
  */
 export async function logComplianceEvent(
@@ -396,7 +394,7 @@ export async function logComplianceEvent(
 
 /**
  * Log system events
- * 
+ *
  * Tracks system-level events like startup, shutdown, errors
  */
 export async function logSystemEvent(

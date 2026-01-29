@@ -1,6 +1,6 @@
 /**
  * API Route Guards - Higher-order functions for protecting Next.js API routes
- * 
+ *
  * Usage:
  *   export const POST = withAuth(
  *     withOrg(
@@ -10,7 +10,7 @@
  *       })
  *     )
  *   );
- * 
+ *
  * Or composeable:
  *   const handler = async (req, ctx) => { ... };
  *   export const POST = guardedRoute(handler, {
@@ -21,7 +21,7 @@
  *   });
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server'
 import {
   requireSession,
   requireOrgContext,
@@ -29,18 +29,18 @@ import {
   requireAnyPermission,
   AuthError,
   PermissionError,
-  OrgContextError
-} from '@/lib/auth/serverAuth';
-import type { Session, User } from '@supabase/supabase-js';
+  OrgContextError,
+} from '@/lib/auth/serverAuth'
+import type { Session, User } from '@supabase/supabase-js'
 
 /**
  * Extended context passed to guarded handlers
  */
 export interface GuardedContext {
-  session?: Session;
-  user?: User;
-  organizationId?: string;
-  permissions?: string[];
+  session?: Session
+  user?: User
+  organizationId?: string
+  permissions?: string[]
 }
 
 /**
@@ -49,7 +49,7 @@ export interface GuardedContext {
 export type GuardedHandler = (
   request: NextRequest,
   context: GuardedContext
-) => Promise<NextResponse> | NextResponse;
+) => Promise<NextResponse> | NextResponse
 
 /**
  * Error response formatter
@@ -59,22 +59,22 @@ function errorResponse(error: Error): NextResponse {
     return NextResponse.json(
       {
         error: error.message,
-        code: error.code
+        code: error.code,
       },
       { status: error.statusCode }
-    );
+    )
   }
-  
+
   // Log unexpected errors
-  console.error('[API Guard] Unexpected error:', error);
-  
+  console.error('[API Guard] Unexpected error:', error)
+
   return NextResponse.json(
     {
       error: 'Internal server error',
-      code: 'INTERNAL_ERROR'
+      code: 'INTERNAL_ERROR',
     },
     { status: 500 }
-  );
+  )
 }
 
 /**
@@ -83,17 +83,17 @@ function errorResponse(error: Error): NextResponse {
 export function withAuth(handler: GuardedHandler): GuardedHandler {
   return async (request: NextRequest, context: GuardedContext = {}) => {
     try {
-      const session = await requireSession(request);
-      
+      const session = await requireSession(request)
+
       return await handler(request, {
         ...context,
         session,
-        user: session.user
-      });
+        user: session.user,
+      })
     } catch (error) {
-      return errorResponse(error as Error);
+      return errorResponse(error as Error)
     }
-  };
+  }
 }
 
 /**
@@ -104,42 +104,39 @@ export function withOrg(handler: GuardedHandler): GuardedHandler {
   return async (request: NextRequest, context: GuardedContext = {}) => {
     try {
       if (!context.user) {
-        throw new AuthError('withOrg must be used after withAuth');
+        throw new AuthError('withOrg must be used after withAuth')
       }
-      
-      const organizationId = await requireOrgContext(context.user, request);
-      
+
+      const organizationId = await requireOrgContext(context.user, request)
+
       return await handler(request, {
         ...context,
-        organizationId
-      });
+        organizationId,
+      })
     } catch (error) {
-      return errorResponse(error as Error);
+      return errorResponse(error as Error)
     }
-  };
+  }
 }
 
 /**
  * Permission guard - ensures user has a specific permission
  * Must be used AFTER withAuth and withOrg
  */
-export function withPermission(
-  permissionSlug: string,
-  handler: GuardedHandler
-): GuardedHandler {
+export function withPermission(permissionSlug: string, handler: GuardedHandler): GuardedHandler {
   return async (request: NextRequest, context: GuardedContext = {}) => {
     try {
       if (!context.user || !context.organizationId) {
-        throw new AuthError('withPermission must be used after withAuth and withOrg');
+        throw new AuthError('withPermission must be used after withAuth and withOrg')
       }
-      
-      await requirePermission(context.user.id, context.organizationId, permissionSlug);
-      
-      return await handler(request, context);
+
+      await requirePermission(context.user.id, context.organizationId, permissionSlug)
+
+      return await handler(request, context)
     } catch (error) {
-      return errorResponse(error as Error);
+      return errorResponse(error as Error)
     }
-  };
+  }
 }
 
 /**
@@ -152,54 +149,51 @@ export function withAnyPermission(
   return async (request: NextRequest, context: GuardedContext = {}) => {
     try {
       if (!context.user || !context.organizationId) {
-        throw new AuthError('withAnyPermission must be used after withAuth and withOrg');
+        throw new AuthError('withAnyPermission must be used after withAuth and withOrg')
       }
-      
-      await requireAnyPermission(context.user.id, context.organizationId, permissionSlugs);
-      
-      return await handler(request, context);
+
+      await requireAnyPermission(context.user.id, context.organizationId, permissionSlugs)
+
+      return await handler(request, context)
     } catch (error) {
-      return errorResponse(error as Error);
+      return errorResponse(error as Error)
     }
-  };
+  }
 }
 
 /**
  * Composeable guard with all options
  */
 export interface GuardOptions {
-  requireAuth?: boolean;
-  requireOrg?: boolean;
-  permissions?: string[];
-  anyPermissions?: string[]; // OR logic for permissions
+  requireAuth?: boolean
+  requireOrg?: boolean
+  permissions?: string[]
+  anyPermissions?: string[] // OR logic for permissions
 }
 
-export function guardedRoute(
-  handler: GuardedHandler,
-  options: GuardOptions = {}
-): GuardedHandler {
-  let guardedHandler = handler;
-  
+export function guardedRoute(handler: GuardedHandler, options: GuardOptions = {}): GuardedHandler {
+  let guardedHandler = handler
+
   // Apply guards in reverse order (innermost first)
   if (options.permissions && options.permissions.length > 0) {
     for (const permission of options.permissions) {
-      guardedHandler = withPermission(permission, guardedHandler);
+      guardedHandler = withPermission(permission, guardedHandler)
     }
   }
-  
+
   if (options.anyPermissions && options.anyPermissions.length > 0) {
-    guardedHandler = withAnyPermission(options.anyPermissions, guardedHandler);
+    guardedHandler = withAnyPermission(options.anyPermissions, guardedHandler)
   }
-  
+
   if (options.requireOrg) {
-    guardedHandler = withOrg(guardedHandler);
+    guardedHandler = withOrg(guardedHandler)
   }
-  
+
   if (options.requireAuth) {
-    guardedHandler = withAuth(guardedHandler);
+    guardedHandler = withAuth(guardedHandler)
   }
-  
-  return guardedHandler;
+
+  return guardedHandler
 }
 
 /**
@@ -209,16 +203,16 @@ export function publicRoute(handler: GuardedHandler): GuardedHandler {
   return async (request: NextRequest, context: GuardedContext = {}) => {
     try {
       // Try to get session, but don't fail if it doesn't exist
-      const session = await requireSession(request).catch(() => null);
-      
+      const session = await requireSession(request).catch(() => null)
+
       if (session) {
-        context.session = session;
-        context.user = session.user;
+        context.session = session
+        context.user = session.user
       }
-      
-      return await handler(request, context);
+
+      return await handler(request, context)
     } catch (error) {
-      return errorResponse(error as Error);
+      return errorResponse(error as Error)
     }
-  };
+  }
 }

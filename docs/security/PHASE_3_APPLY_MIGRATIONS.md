@@ -4,7 +4,7 @@
 
 ## Problem Fixed ✅
 
-The original migration 021 tried to create functions in the `auth` schema, but Supabase doesn't allow this via the Dashboard. 
+The original migration 021 tried to create functions in the `auth` schema, but Supabase doesn't allow this via the Dashboard.
 
 **Solution:** Created `021_permission_based_rls_functions_v2.sql` that uses the `public` schema instead.
 
@@ -27,6 +27,7 @@ Go to: **https://supabase.com/dashboard/project/zdcmugkafbczvxcyofiz/sql**
 5. Click **"Run"** button (or press Ctrl+Enter)
 
 **Expected Output:**
+
 ```
 ✓ CREATE FUNCTION (x11)
 ✓ NOTICE: Testing permission functions
@@ -50,6 +51,7 @@ Go to: **https://supabase.com/dashboard/project/zdcmugkafbczvxcyofiz/sql**
 5. Click **"Run"** button
 
 **Expected Output:**
+
 ```
 ✓ ALTER TABLE ... ENABLE ROW LEVEL SECURITY (x10)
 ✓ DROP POLICY ... (old role-based policies removed)
@@ -61,6 +63,7 @@ Go to: **https://supabase.com/dashboard/project/zdcmugkafbczvxcyofiz/sql**
 **Time:** ~15-20 seconds
 
 **Tables Migrated (10):**
+
 - profiles
 - organizations
 - user_roles
@@ -85,6 +88,7 @@ Go to: **https://supabase.com/dashboard/project/zdcmugkafbczvxcyofiz/sql**
 5. Click **"Run"** button
 
 **Expected Output:**
+
 ```
 ✓ DROP POLICY ... (x140+)
 ✓ CREATE POLICY ... (x140+)
@@ -94,6 +98,7 @@ Go to: **https://supabase.com/dashboard/project/zdcmugkafbczvxcyofiz/sql**
 **Time:** ~30-45 seconds (largest migration)
 
 **Tables Migrated (20):**
+
 - enrollments
 - lesson_progress
 - quiz_attempts
@@ -163,7 +168,7 @@ BEGIN
     FROM profiles
     WHERE organization_id IS NOT NULL
     LIMIT 1;
-    
+
     IF v_user_id IS NOT NULL THEN
         v_result := public.has_permission(v_user_id, v_org_id, 'courses.read');
         RAISE NOTICE 'Permission check successful! Result: %', v_result;
@@ -177,20 +182,25 @@ END $$;
 ## Troubleshooting
 
 ### Error: "function public.has_permission does not exist"
+
 **Cause:** Migration 021_v2 not applied
 **Fix:** Apply migration 021_v2 first
 
 ### Error: "relation does not exist"
+
 **Cause:** Table referenced in policy doesn't exist
 **Fix:** Check table name in error, ensure it exists in your database
 
 ### Error: "syntax error at or near..."
+
 **Cause:** Incomplete SQL copied
 **Fix:** Ensure you copied the ENTIRE file contents
 
 ### Policies created but tests fail
+
 **Cause:** RLS functions not working correctly
-**Fix:** 
+**Fix:**
+
 1. Check functions exist: `SELECT proname FROM pg_proc WHERE proname LIKE '%permission%'`
 2. Re-run migration 021_v2 if functions missing
 
@@ -198,13 +208,13 @@ END $$;
 
 ## What Changed from Original Migration 021?
 
-| Original | Fixed (V2) |
-|----------|-----------|
-| `auth.has_permission()` | `public.has_permission()` |
-| `auth.has_any_permission()` | `public.has_any_permission()` |
-| `auth.is_admin()` | `public.is_admin()` |
+| Original                      | Fixed (V2)                      |
+| ----------------------------- | ------------------------------- |
+| `auth.has_permission()`       | `public.has_permission()`       |
+| `auth.has_any_permission()`   | `public.has_any_permission()`   |
+| `auth.is_admin()`             | `public.is_admin()`             |
 | `auth.user_organization_id()` | `public.user_organization_id()` |
-| ... | ... (all 11 functions) |
+| ...                           | ... (all 11 functions)          |
 
 **Security:** Still uses `SECURITY DEFINER STABLE` - same security, different schema!
 
@@ -213,6 +223,7 @@ END $$;
 ## After Migration Success
 
 ### 1. Run Test Suite
+
 ```bash
 npm run test -- tenant-isolation.test.ts
 ```
@@ -220,6 +231,7 @@ npm run test -- tenant-isolation.test.ts
 Expected: **29 tests pass** ✅
 
 ### 2. Test Permission UI
+
 ```bash
 npm run dev
 ```
@@ -237,8 +249,8 @@ Check a few key queries:
 
 ```sql
 -- Can users see only their own organization's data?
-SELECT id, organization_id 
-FROM profiles 
+SELECT id, organization_id
+FROM profiles
 WHERE id = auth.uid();
 
 -- Are permission checks working?
@@ -256,7 +268,7 @@ SELECT public.has_permission(
 ✅ **Migration 020:** Already applied (106 permissions seeded)  
 ⏳ **Migration 021 V2:** Apply now (11 permission functions)  
 ⏳ **Migration 022:** Apply now (10 critical tables)  
-⏳ **Migration 023:** Apply now (20 feature tables)  
+⏳ **Migration 023:** Apply now (20 feature tables)
 
 **Total Time:** ~1 minute  
 **Risk Level:** Low (read-only users unaffected, RLS already enabled)  
@@ -267,6 +279,7 @@ SELECT public.has_permission(
 ## Need Help?
 
 See detailed documentation:
+
 - [PHASE_3_COMPLETE.md](./PHASE_3_COMPLETE.md)
 - [PHASE_3_MIGRATION_STATUS.md](./PHASE_3_MIGRATION_STATUS.md)
 

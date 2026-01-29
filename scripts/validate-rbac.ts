@@ -9,7 +9,9 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
 if (!supabaseServiceKey) {
   console.error('❌ Error: SUPABASE_SERVICE_ROLE_KEY required for RBAC validation')
-  console.error('   Get from: https://supabase.com/dashboard/project/nuywgvbkgdvngrysqdul/settings/api')
+  console.error(
+    '   Get from: https://supabase.com/dashboard/project/nuywgvbkgdvngrysqdul/settings/api'
+  )
   process.exit(1)
 }
 
@@ -42,7 +44,7 @@ const permissionsMatrix: RolePermissions[] = [
       automated_training_config: { select: true, insert: true, update: true, delete: true },
       tribunal_cases: { select: true, insert: false, update: false, delete: false },
       ingestion_jobs: { select: true, insert: true, update: true, delete: false },
-    }
+    },
   },
   {
     role: 'compliance_officer',
@@ -56,7 +58,7 @@ const permissionsMatrix: RolePermissions[] = [
       automated_training_config: { select: true, insert: true, update: true, delete: true },
       tribunal_cases: { select: true, insert: false, update: false, delete: false },
       ingestion_jobs: { select: true, insert: true, update: true, delete: false },
-    }
+    },
   },
   {
     role: 'org_admin',
@@ -70,7 +72,7 @@ const permissionsMatrix: RolePermissions[] = [
       automated_training_config: { select: true, insert: true, update: true, delete: true },
       tribunal_cases: { select: true, insert: false, update: false, delete: false },
       ingestion_jobs: { select: true, insert: true, update: true, delete: false },
-    }
+    },
   },
   {
     role: 'analyst',
@@ -84,7 +86,7 @@ const permissionsMatrix: RolePermissions[] = [
       automated_training_config: { select: false, insert: false, update: false, delete: false },
       tribunal_cases: { select: true, insert: false, update: false, delete: false },
       ingestion_jobs: { select: true, insert: false, update: false, delete: false },
-    }
+    },
   },
   {
     role: 'learner',
@@ -98,7 +100,7 @@ const permissionsMatrix: RolePermissions[] = [
       automated_training_config: { select: false, insert: false, update: false, delete: false },
       tribunal_cases: { select: true, insert: false, update: false, delete: false },
       ingestion_jobs: { select: false, insert: false, update: false, delete: false },
-    }
+    },
   },
 ]
 
@@ -151,7 +153,7 @@ async function validateRBAC() {
 
   if (testAccounts && testAccounts.length > 0) {
     console.log('✅ Test accounts found:')
-    testAccounts.forEach(account => {
+    testAccounts.forEach((account) => {
       console.log(`  • ${account.email} - ${account.role} (${account.full_name})`)
     })
   } else {

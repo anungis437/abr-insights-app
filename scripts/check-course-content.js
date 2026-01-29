@@ -41,17 +41,19 @@ async function checkCourseContent() {
     console.log(`   Slug: ${course.slug}`)
     console.log(`   Modules: ${modules?.length || 0}`)
     console.log(`   Lessons: ${lessons?.length || 0}`)
-    
+
     if (modules && modules.length > 0) {
       console.log(`   Module details:`)
       for (const module of modules) {
-        const moduleLessons = lessons?.filter(l => l.module_number === module.sort_order) || []
+        const moduleLessons = lessons?.filter((l) => l.module_number === module.sort_order) || []
         console.log(`     - ${module.title} (${moduleLessons.length} lessons)`)
       }
     }
-    
+
     if (lessons && lessons.length > 0) {
-      console.log(`   Content types: ${[...new Set(lessons.map(l => l.content_type))].join(', ')}`)
+      console.log(
+        `   Content types: ${[...new Set(lessons.map((l) => l.content_type))].join(', ')}`
+      )
     } else {
       console.log(`   ⚠️  NO LESSONS - Course is empty!`)
     }
@@ -59,7 +61,9 @@ async function checkCourseContent() {
   }
 }
 
-checkCourseContent().then(() => process.exit(0)).catch(err => {
-  console.error(err)
-  process.exit(1)
-})
+checkCourseContent()
+  .then(() => process.exit(0))
+  .catch((err) => {
+    console.error(err)
+    process.exit(1)
+  })

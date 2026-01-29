@@ -12,27 +12,39 @@ export const runtime = 'edge'
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { 
-  User, Mail, Briefcase, Building2, Globe, Bell, Save, Camera,
-  Trophy, Star, TrendingUp, Users as UsersIcon, Flame, Award
+import {
+  User,
+  Mail,
+  Briefcase,
+  Building2,
+  Globe,
+  Bell,
+  Save,
+  Camera,
+  Trophy,
+  Star,
+  TrendingUp,
+  Users as UsersIcon,
+  Flame,
+  Award,
 } from 'lucide-react'
-import { 
-  getCurrentProfile, 
-  updateProfile, 
+import {
+  getCurrentProfile,
+  updateProfile,
   uploadAvatar,
   updateNotificationPreferences,
   type Profile,
-  type UpdateProfileData 
+  type UpdateProfileData,
 } from '@/lib/supabase/services/profiles'
 import { createClient } from '@/lib/supabase/client'
 import { gamificationService } from '@/lib/services/gamification'
 import { socialService } from '@/lib/services/social'
 import { AchievementList, UserStreaks } from '@/components/achievements'
-import type { 
-  UserAchievement, 
-  UserStreak, 
-  UserLevel, 
-  PointsSummary 
+import type {
+  UserAchievement,
+  UserStreak,
+  UserLevel,
+  PointsSummary,
 } from '@/lib/services/gamification'
 import type { SocialSummary } from '@/lib/services/social'
 
@@ -43,8 +55,8 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [formData, setFormData] = useState<UpdateProfileData>({})
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
-  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
-  
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+
   // Gamification state
   const [achievements, setAchievements] = useState<UserAchievement[]>([])
   const [streaks, setStreaks] = useState<UserStreak[]>([])
@@ -56,7 +68,9 @@ export default function ProfilePage() {
   async function checkAuthAndLoadData() {
     if (typeof window === 'undefined') return
     const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
     if (!user) {
       router.push('/auth/login?redirect=/profile')
@@ -69,7 +83,7 @@ export default function ProfilePage() {
   async function loadProfile() {
     try {
       const profileData = await getCurrentProfile()
-      
+
       if (profileData) {
         setProfile(profileData)
         setFormData({
@@ -81,7 +95,7 @@ export default function ProfilePage() {
           language: profileData.language,
           timezone: profileData.timezone,
         })
-        
+
         // Load gamification data
         await loadGamificationData(profileData.id)
       }
@@ -97,20 +111,14 @@ export default function ProfilePage() {
     setLoadingGamification(true)
     try {
       // Load achievements, streaks, level, points, and social data in parallel
-      const [
-        achievementsData,
-        streaksData,
-        levelData,
-        pointsData,
-        socialData
-      ] = await Promise.all([
+      const [achievementsData, streaksData, levelData, pointsData, socialData] = await Promise.all([
         gamificationService.getUserAchievements(userId),
         gamificationService.getUserStreaks(userId),
         gamificationService.getUserLevel(userId),
         gamificationService.getUserPointsSummary(userId),
-        socialService.getUserSocialSummary(userId)
+        socialService.getUserSocialSummary(userId),
       ])
-      
+
       setAchievements(achievementsData)
       setStreaks(streaksData)
       setUserLevel(levelData)
@@ -170,12 +178,12 @@ export default function ProfilePage() {
 
     try {
       const publicUrl = await uploadAvatar(file)
-      
+
       // Update local state
       if (profile) {
         setProfile({ ...profile, avatar_url: publicUrl })
       }
-      
+
       setMessage({ type: 'success', text: 'Avatar updated successfully!' })
     } catch (error) {
       console.error('Error uploading avatar:', error)
@@ -197,9 +205,11 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">        <div className="container-custom py-20">
+      <div className="min-h-screen bg-gray-50">
+        {' '}
+        <div className="container-custom py-20">
           <div className="mx-auto max-w-4xl text-center">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-600 border-t-transparent mx-auto" />
+            <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-primary-600 border-t-transparent" />
             <p className="mt-4 text-gray-600">Loading profile...</p>
           </div>
         </div>
@@ -220,52 +230,50 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-16">      
+    <div className="min-h-screen bg-gray-50 pt-16">
       <div className="container-custom py-12">
         <div className="mx-auto max-w-4xl">
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900">Profile Settings</h1>
-            <p className="mt-2 text-gray-600">
-              Manage your personal information and preferences
-            </p>
+            <p className="mt-2 text-gray-600">Manage your personal information and preferences</p>
           </div>
 
           {/* Message */}
           {message && (
-            <div className={`mb-6 rounded-lg p-4 ${
-              message.type === 'success' 
-                ? 'bg-green-50 text-green-800' 
-                : 'bg-red-50 text-red-800'
-            }`}>
+            <div
+              className={`mb-6 rounded-lg p-4 ${
+                message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
+              }`}
+            >
               {message.text}
             </div>
           )}
 
           {/* Gamification Stats */}
           {!loadingGamification && (
-            <div className="mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
               {/* Level Card */}
-              <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg p-6 text-white shadow-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <Trophy className="w-8 h-8" />
+              <div className="rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 p-6 text-white shadow-lg">
+                <div className="mb-2 flex items-center justify-between">
+                  <Trophy className="h-8 w-8" />
                   <span className="text-sm font-medium opacity-90">Level</span>
                 </div>
-                <div className="text-4xl font-bold mb-1">
-                  {userLevel?.current_level || 1}
-                </div>
+                <div className="mb-1 text-4xl font-bold">{userLevel?.current_level || 1}</div>
                 <div className="text-sm opacity-90">
-                  {userLevel ? `${userLevel.current_xp.toLocaleString()} / ${userLevel.xp_for_next_level.toLocaleString()} XP` : '0 XP'}
+                  {userLevel
+                    ? `${userLevel.current_xp.toLocaleString()} / ${userLevel.xp_for_next_level.toLocaleString()} XP`
+                    : '0 XP'}
                 </div>
               </div>
 
               {/* Points Card */}
-              <div className="bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg p-6 text-white shadow-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <Star className="w-8 h-8" />
+              <div className="rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 p-6 text-white shadow-lg">
+                <div className="mb-2 flex items-center justify-between">
+                  <Star className="h-8 w-8" />
                   <span className="text-sm font-medium opacity-90">Points</span>
                 </div>
-                <div className="text-4xl font-bold mb-1">
+                <div className="mb-1 text-4xl font-bold">
                   {pointsSummary?.total_earned.toLocaleString() || 0}
                 </div>
                 <div className="text-sm opacity-90">
@@ -274,30 +282,27 @@ export default function ProfilePage() {
               </div>
 
               {/* Achievements Card */}
-              <div className="bg-gradient-to-br from-teal-500 to-teal-600 rounded-lg p-6 text-white shadow-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <Award className="w-8 h-8" />
+              <div className="rounded-lg bg-gradient-to-br from-teal-500 to-teal-600 p-6 text-white shadow-lg">
+                <div className="mb-2 flex items-center justify-between">
+                  <Award className="h-8 w-8" />
                   <span className="text-sm font-medium opacity-90">Achievements</span>
                 </div>
-                <div className="text-4xl font-bold mb-1">
-                  {achievements.length}
-                </div>
-                <div className="text-sm opacity-90">
-                  badges earned
-                </div>
+                <div className="mb-1 text-4xl font-bold">{achievements.length}</div>
+                <div className="text-sm opacity-90">badges earned</div>
               </div>
 
               {/* Social Card */}
-              <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-6 text-white shadow-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <UsersIcon className="w-8 h-8" />
+              <div className="rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 p-6 text-white shadow-lg">
+                <div className="mb-2 flex items-center justify-between">
+                  <UsersIcon className="h-8 w-8" />
                   <span className="text-sm font-medium opacity-90">Connections</span>
                 </div>
-                <div className="text-4xl font-bold mb-1">
+                <div className="mb-1 text-4xl font-bold">
                   {(socialSummary?.followers_count || 0) + (socialSummary?.following_count || 0)}
                 </div>
                 <div className="text-sm opacity-90">
-                  {socialSummary?.followers_count || 0} followers · {socialSummary?.following_count || 0} following
+                  {socialSummary?.followers_count || 0} followers ·{' '}
+                  {socialSummary?.following_count || 0} following
                 </div>
               </div>
             </div>
@@ -306,8 +311,8 @@ export default function ProfilePage() {
           {/* Streaks Section */}
           {!loadingGamification && streaks.length > 0 && (
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <Flame className="w-6 h-6 text-orange-500" />
+              <h2 className="mb-4 flex items-center gap-2 text-2xl font-bold text-gray-900">
+                <Flame className="h-6 w-6 text-orange-500" />
                 Your Streaks
               </h2>
               <UserStreaks streaks={streaks} />
@@ -317,22 +322,18 @@ export default function ProfilePage() {
           {/* Achievements Section */}
           {!loadingGamification && achievements.length > 0 && (
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <Trophy className="w-6 h-6 text-yellow-500" />
+              <h2 className="mb-4 flex items-center gap-2 text-2xl font-bold text-gray-900">
+                <Trophy className="h-6 w-6 text-yellow-500" />
                 Your Achievements
               </h2>
-              <AchievementList 
-                achievements={achievements} 
-                showFilters={true}
-                columns={4}
-              />
+              <AchievementList achievements={achievements} showFilters={true} columns={4} />
             </div>
           )}
 
           {/* Avatar Section */}
           <div className="mb-6 rounded-lg bg-white p-6 shadow-sm">
             <h2 className="mb-4 text-xl font-semibold text-gray-900">Profile Photo</h2>
-            
+
             <div className="flex items-center gap-6">
               <div className="relative">
                 {profile.avatar_url ? (
@@ -349,7 +350,7 @@ export default function ProfilePage() {
                     <User className="h-12 w-12" />
                   </div>
                 )}
-                
+
                 {uploadingAvatar && (
                   <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black bg-opacity-50">
                     <div className="h-6 w-6 animate-spin rounded-full border-2 border-white border-t-transparent" />
@@ -370,9 +371,7 @@ export default function ProfilePage() {
                     disabled={uploadingAvatar}
                   />
                 </label>
-                <p className="mt-2 text-sm text-gray-500">
-                  JPG, PNG or GIF. Max size 2MB.
-                </p>
+                <p className="mt-2 text-sm text-gray-500">JPG, PNG or GIF. Max size 2MB.</p>
               </div>
             </div>
           </div>
@@ -380,13 +379,14 @@ export default function ProfilePage() {
           {/* Personal Information */}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="rounded-lg bg-white p-6 shadow-sm">
-              <h2 className="mb-4 text-xl font-semibold text-gray-900">
-                Personal Information
-              </h2>
+              <h2 className="mb-4 text-xl font-semibold text-gray-900">Personal Information</h2>
 
               <div className="grid gap-6 md:grid-cols-2">
                 <div>
-                  <label htmlFor="first_name" className="mb-2 block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="first_name"
+                    className="mb-2 block text-sm font-medium text-gray-700"
+                  >
                     First Name
                   </label>
                   <input
@@ -400,7 +400,10 @@ export default function ProfilePage() {
                 </div>
 
                 <div>
-                  <label htmlFor="last_name" className="mb-2 block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="last_name"
+                    className="mb-2 block text-sm font-medium text-gray-700"
+                  >
                     Last Name
                   </label>
                   <input
@@ -414,7 +417,10 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="md:col-span-2">
-                  <label htmlFor="display_name" className="mb-2 block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="display_name"
+                    className="mb-2 block text-sm font-medium text-gray-700"
+                  >
                     Display Name
                   </label>
                   <input
@@ -428,9 +434,7 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="mb-2 block text-sm font-medium text-gray-700">
-                    Email
-                  </label>
+                  <label className="mb-2 block text-sm font-medium text-gray-700">Email</label>
                   <div className="flex items-center gap-2 text-gray-600">
                     <Mail className="h-5 w-5" />
                     <span>{profile.email}</span>
@@ -446,13 +450,14 @@ export default function ProfilePage() {
 
             {/* Professional Information */}
             <div className="rounded-lg bg-white p-6 shadow-sm">
-              <h2 className="mb-4 text-xl font-semibold text-gray-900">
-                Professional Information
-              </h2>
+              <h2 className="mb-4 text-xl font-semibold text-gray-900">Professional Information</h2>
 
               <div className="grid gap-6 md:grid-cols-2">
                 <div>
-                  <label htmlFor="job_title" className="mb-2 block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="job_title"
+                    className="mb-2 block text-sm font-medium text-gray-700"
+                  >
                     <Briefcase className="mr-1 inline h-4 w-4" />
                     Job Title
                   </label>
@@ -467,7 +472,10 @@ export default function ProfilePage() {
                 </div>
 
                 <div>
-                  <label htmlFor="department" className="mb-2 block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="department"
+                    className="mb-2 block text-sm font-medium text-gray-700"
+                  >
                     <Building2 className="mr-1 inline h-4 w-4" />
                     Department
                   </label>
@@ -492,13 +500,18 @@ export default function ProfilePage() {
 
               <div className="grid gap-6 md:grid-cols-2">
                 <div>
-                  <label htmlFor="language" className="mb-2 block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="language"
+                    className="mb-2 block text-sm font-medium text-gray-700"
+                  >
                     Language
                   </label>
                   <select
                     id="language"
                     value={formData.language || 'en'}
-                    onChange={(e) => setFormData({ ...formData, language: e.target.value as 'en' | 'fr' })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, language: e.target.value as 'en' | 'fr' })
+                    }
                     className="input-field"
                   >
                     <option value="en">English</option>
@@ -507,7 +520,10 @@ export default function ProfilePage() {
                 </div>
 
                 <div>
-                  <label htmlFor="timezone" className="mb-2 block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="timezone"
+                    className="mb-2 block text-sm font-medium text-gray-700"
+                  >
                     Timezone
                   </label>
                   <select
@@ -569,11 +585,7 @@ export default function ProfilePage() {
 
             {/* Save Button */}
             <div className="flex justify-end">
-              <button
-                type="submit"
-                disabled={saving}
-                className="btn-primary"
-              >
+              <button type="submit" disabled={saving} className="btn-primary">
                 {saving ? (
                   <>
                     <div className="mr-2 h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
@@ -589,6 +601,7 @@ export default function ProfilePage() {
             </div>
           </form>
         </div>
-      </div>    </div>
+      </div>{' '}
+    </div>
   )
 }

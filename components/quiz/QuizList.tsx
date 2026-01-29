@@ -56,9 +56,8 @@ export function QuizList({ courseId, lessonId, userId }: QuizListProps) {
         const quizzesWithAttempts = await Promise.all(
           quizzesData.map(async (quiz) => {
             const attempts = await getUserQuizAttempts(userId, quiz.id)
-            const best_score = attempts.length > 0
-              ? Math.max(...attempts.map((a) => a.score || 0))
-              : undefined
+            const best_score =
+              attempts.length > 0 ? Math.max(...attempts.map((a) => a.score || 0)) : undefined
             const attempts_remaining = quiz.max_attempts - attempts.length
             const last_attempt = attempts.length > 0 ? attempts[0] : undefined
             const can_retake = attempts_remaining > 0 && (!last_attempt || !last_attempt.passed)
@@ -91,11 +90,11 @@ export function QuizList({ courseId, lessonId, userId }: QuizListProps) {
         {[1, 2, 3].map((i) => (
           <Card key={i} className="animate-pulse">
             <CardHeader>
-              <div className="h-6 bg-gray-200 rounded w-3/4 mb-2" />
-              <div className="h-4 bg-gray-200 rounded w-1/2" />
+              <div className="mb-2 h-6 w-3/4 rounded bg-gray-200" />
+              <div className="h-4 w-1/2 rounded bg-gray-200" />
             </CardHeader>
             <CardContent>
-              <div className="h-20 bg-gray-200 rounded" />
+              <div className="h-20 rounded bg-gray-200" />
             </CardContent>
           </Card>
         ))}
@@ -107,7 +106,7 @@ export function QuizList({ courseId, lessonId, userId }: QuizListProps) {
     return (
       <Card>
         <CardContent className="pt-6 text-center">
-          <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+          <FileText className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
           <p className="text-muted-foreground">No quizzes available at this time.</p>
         </CardContent>
       </Card>
@@ -133,28 +132,28 @@ function QuizCard({ quiz, userId }: { quiz: QuizWithAttempts; userId: string }) 
   if (hasPassed) {
     statusBadge = (
       <Badge variant="default" className="bg-green-600">
-        <CheckCircle2 className="h-3 w-3 mr-1" />
+        <CheckCircle2 className="mr-1 h-3 w-3" />
         Passed
       </Badge>
     )
   } else if (quiz.attempts_remaining === 0) {
     statusBadge = (
       <Badge variant="destructive">
-        <XCircle className="h-3 w-3 mr-1" />
+        <XCircle className="mr-1 h-3 w-3" />
         Failed
       </Badge>
     )
   } else if (hasAttempted) {
     statusBadge = (
       <Badge variant="secondary">
-        <AlertTriangle className="h-3 w-3 mr-1" />
+        <AlertTriangle className="mr-1 h-3 w-3" />
         In Progress
       </Badge>
     )
   } else {
     statusBadge = (
       <Badge variant="outline">
-        <PlayCircle className="h-3 w-3 mr-1" />
+        <PlayCircle className="mr-1 h-3 w-3" />
         Not Started
       </Badge>
     )
@@ -176,10 +175,8 @@ function QuizCard({ quiz, userId }: { quiz: QuizWithAttempts; userId: string }) 
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <CardTitle className="text-lg">{quiz.title}</CardTitle>
-            <div className="mt-1 text-sm text-muted-foreground">
-              {quiz.quiz_type === 'certification' && (
-                <Trophy className="h-4 w-4 inline mr-1" />
-              )}
+            <div className="text-muted-foreground mt-1 text-sm">
+              {quiz.quiz_type === 'certification' && <Trophy className="mr-1 inline h-4 w-4" />}
               {quiz.quiz_type}
             </div>
           </div>
@@ -190,7 +187,7 @@ function QuizCard({ quiz, userId }: { quiz: QuizWithAttempts; userId: string }) 
       <CardContent className="space-y-4">
         {/* Description */}
         {quiz.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2">{quiz.description}</p>
+          <p className="text-muted-foreground line-clamp-2 text-sm">{quiz.description}</p>
         )}
 
         {/* Quiz Details */}
@@ -232,7 +229,7 @@ function QuizCard({ quiz, userId }: { quiz: QuizWithAttempts; userId: string }) 
 
         {/* Last Attempt Info */}
         {quiz.last_attempt && (
-          <div className="text-xs text-muted-foreground">
+          <div className="text-muted-foreground text-xs">
             Last attempt: {new Date(quiz.last_attempt.started_at).toLocaleDateString()} •{' '}
             {quiz.last_attempt.score?.toFixed(1)}%
           </div>
@@ -240,8 +237,8 @@ function QuizCard({ quiz, userId }: { quiz: QuizWithAttempts; userId: string }) 
 
         {/* Availability Warning */}
         {!available && (
-          <div className="p-2 bg-orange-50 border border-orange-200 rounded text-sm text-orange-900">
-            <Clock className="h-4 w-4 inline mr-1" />
+          <div className="rounded border border-orange-200 bg-orange-50 p-2 text-sm text-orange-900">
+            <Clock className="mr-1 inline h-4 w-4" />
             {quiz.available_from && new Date(quiz.available_from) > new Date()
               ? `Available from ${new Date(quiz.available_from).toLocaleDateString()}`
               : 'No longer available'}
@@ -252,9 +249,7 @@ function QuizCard({ quiz, userId }: { quiz: QuizWithAttempts; userId: string }) 
         <div className="flex gap-2">
           {quiz.can_retake && available ? (
             <Link href={`/courses/quiz/${quiz.id}`} className="flex-1">
-              <Button className="w-full">
-                {hasAttempted ? 'Retry Quiz' : 'Start Quiz'}
-              </Button>
+              <Button className="w-full">{hasAttempted ? 'Retry Quiz' : 'Start Quiz'}</Button>
             </Link>
           ) : hasPassed ? (
             <Link href={`/courses/quiz/${quiz.id}/results`} className="flex-1">
@@ -270,9 +265,7 @@ function QuizCard({ quiz, userId }: { quiz: QuizWithAttempts; userId: string }) 
 
           {hasAttempted && (
             <Link href={`/courses/quiz/${quiz.id}/history`}>
-              <Button variant="outline">
-                History
-              </Button>
+              <Button variant="outline">History</Button>
             </Link>
           )}
         </div>

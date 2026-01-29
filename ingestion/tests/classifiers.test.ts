@@ -1,162 +1,171 @@
 /**
  * Classifiers - Unit Tests
- * 
+ *
  * Tests for rule-based, AI-powered, and combined classification systems.
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { RuleBasedClassifier } from '../src/classifiers/rule-based';
-import { AIClassifier } from '../src/classifiers/ai-classifier';
-import { CombinedClassifier } from '../src/classifiers/combined';
-import type { DecisionContent, RuleBasedClassification, AIClassification } from '../src/types';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { RuleBasedClassifier } from '../src/classifiers/rule-based'
+import { AIClassifier } from '../src/classifiers/ai-classifier'
+import { CombinedClassifier } from '../src/classifiers/combined'
+import type { DecisionContent, RuleBasedClassification, AIClassification } from '../src/types'
 
 describe('RuleBasedClassifier', () => {
-  let classifier: RuleBasedClassifier;
+  let classifier: RuleBasedClassifier
 
   beforeEach(() => {
-    classifier = new RuleBasedClassifier();
-  });
+    classifier = new RuleBasedClassifier()
+  })
 
   describe('classify', () => {
     it('should classify race discrimination case with high confidence', async () => {
       const content: DecisionContent = {
         url: 'https://test.com/case1',
         htmlContent: '<html></html>',
-        fullText: 'The applicant alleges discrimination based on race and colour. The respondent made racist comments about Black employees and denied promotions based on racial grounds.',
+        fullText:
+          'The applicant alleges discrimination based on race and colour. The respondent made racist comments about Black employees and denied promotions based on racial grounds.',
         textLength: 150,
         caseTitle: 'Smith v. Company A',
-        decisionDate: new Date('2024-01-15')
-      };
+        decisionDate: new Date('2024-01-15'),
+      }
 
-      const result = await classifier.classify(content);
+      const result = await classifier.classify(content)
 
-      expect(result.isRaceRelated).toBe(true);
-      expect(result.isAntiBlackLikely).toBe(true);
-      expect(result.confidence).toBeGreaterThan(0.7);
-      expect(result.groundsDetected).toContain('race');
-    });
+      expect(result.isRaceRelated).toBe(true)
+      expect(result.isAntiBlackLikely).toBe(true)
+      expect(result.confidence).toBeGreaterThan(0.7)
+      expect(result.groundsDetected).toContain('race')
+    })
 
     it('should detect multiple discrimination grounds', async () => {
       const content: DecisionContent = {
         url: 'https://test.com/case2',
         htmlContent: '<html></html>',
-        fullText: 'The tribunal found discrimination on the grounds of race, gender, and disability. The applicant, a Black woman with a disability, was denied accommodation and faced harassment.',
+        fullText:
+          'The tribunal found discrimination on the grounds of race, gender, and disability. The applicant, a Black woman with a disability, was denied accommodation and faced harassment.',
         textLength: 160,
-        caseTitle: 'Jones v. Organization B'
-      };
+        caseTitle: 'Jones v. Organization B',
+      }
 
-      const result = await classifier.classify(content);
+      const result = await classifier.classify(content)
 
-      expect(result.isRaceRelated).toBe(true);
-      expect(result.groundsDetected).toContain('race');
-      expect(result.groundsDetected).toContain('sex');
-      expect(result.groundsDetected).toContain('disability');
-      expect(result.groundsDetected.length).toBeGreaterThanOrEqual(3);
-    });
+      expect(result.isRaceRelated).toBe(true)
+      expect(result.groundsDetected).toContain('race')
+      expect(result.groundsDetected).toContain('sex')
+      expect(result.groundsDetected).toContain('disability')
+      expect(result.groundsDetected.length).toBeGreaterThanOrEqual(3)
+    })
 
     it('should recognize anti-Black racism specific keywords', async () => {
       const content: DecisionContent = {
         url: 'https://test.com/case3',
         htmlContent: '<html></html>',
-        fullText: 'This case involves anti-Black racism and systemic discrimination against Black employees. The workplace culture perpetuated anti-Black stereotypes and racial profiling.',
+        fullText:
+          'This case involves anti-Black racism and systemic discrimination against Black employees. The workplace culture perpetuated anti-Black stereotypes and racial profiling.',
         textLength: 140,
-        caseTitle: 'Williams v. Employer C'
-      };
+        caseTitle: 'Williams v. Employer C',
+      }
 
-      const result = await classifier.classify(content);
+      const result = await classifier.classify(content)
 
-      expect(result.isRaceRelated).toBe(true);
-      expect(result.isAntiBlackLikely).toBe(true);
-      expect(result.confidence).toBeGreaterThan(0.8); // Higher confidence for specific keywords
-      expect(result.keywordMatches.blackKeywords.length).toBeGreaterThan(0);
-      expect(result.keywordMatches.blackKeywords.some(kw => kw.includes('black'))).toBe(true);
-    });
+      expect(result.isRaceRelated).toBe(true)
+      expect(result.isAntiBlackLikely).toBe(true)
+      expect(result.confidence).toBeGreaterThan(0.8) // Higher confidence for specific keywords
+      expect(result.keywordMatches.blackKeywords.length).toBeGreaterThan(0)
+      expect(result.keywordMatches.blackKeywords.some((kw) => kw.includes('black'))).toBe(true)
+    })
 
     it('should classify irrelevant case with low confidence', async () => {
       const content: DecisionContent = {
         url: 'https://test.com/case4',
         htmlContent: '<html></html>',
-        fullText: 'This is a contract dispute regarding payment terms. The parties disagree about the interpretation of clause 3.2 and seek damages for breach of contract.',
+        fullText:
+          'This is a contract dispute regarding payment terms. The parties disagree about the interpretation of clause 3.2 and seek damages for breach of contract.',
         textLength: 120,
-        caseTitle: 'ABC Corp v. XYZ Ltd'
-      };
+        caseTitle: 'ABC Corp v. XYZ Ltd',
+      }
 
-      const result = await classifier.classify(content);
+      const result = await classifier.classify(content)
 
-      expect(result.isRaceRelated).toBe(false);
-      expect(result.confidence).toBeLessThan(0.3);
-      expect(result.groundsDetected).toHaveLength(0);
-    });
+      expect(result.isRaceRelated).toBe(false)
+      expect(result.confidence).toBeLessThan(0.3)
+      expect(result.groundsDetected).toHaveLength(0)
+    })
 
     it('should handle edge case: employment without discrimination', async () => {
       const content: DecisionContent = {
         url: 'https://test.com/case5',
         htmlContent: '<html></html>',
-        fullText: 'The applicant was terminated for performance reasons. The employer provided documentation of performance issues over six months. No discrimination alleged.',
+        fullText:
+          'The applicant was terminated for performance reasons. The employer provided documentation of performance issues over six months. No discrimination alleged.',
         textLength: 130,
-        caseTitle: 'Employee v. Company'
-      };
+        caseTitle: 'Employee v. Company',
+      }
 
-      const result = await classifier.classify(content);
+      const result = await classifier.classify(content)
 
-      expect(result.isRaceRelated).toBe(false);
-      expect(result.groundsDetected).toHaveLength(0);
-    });
+      expect(result.isRaceRelated).toBe(false)
+      expect(result.groundsDetected).toHaveLength(0)
+    })
 
     it('should detect colour as separate ground', async () => {
       const content: DecisionContent = {
         url: 'https://test.com/case6',
         htmlContent: '<html></html>',
-        fullText: 'The applicant experienced discrimination based on skin colour and was subjected to colourism in the workplace.',
+        fullText:
+          'The applicant experienced discrimination based on skin colour and was subjected to colourism in the workplace.',
         textLength: 100,
-        caseTitle: 'Test v. Employer'
-      };
+        caseTitle: 'Test v. Employer',
+      }
 
-      const result = await classifier.classify(content);
+      const result = await classifier.classify(content)
 
-      expect(result.isRaceRelated).toBe(true);
-      expect(result.groundsDetected).toContain('colour');
-    });
+      expect(result.isRaceRelated).toBe(true)
+      expect(result.groundsDetected).toContain('colour')
+    })
 
     it('should handle French language content', async () => {
       const content: DecisionContent = {
         url: 'https://test.com/case7',
         htmlContent: '<html></html>',
-        fullText: 'Le demandeur allègue une discrimination fondée sur la race. Le tribunal constate des actes de racisme et de discrimination raciale.',
+        fullText:
+          'Le demandeur allègue une discrimination fondée sur la race. Le tribunal constate des actes de racisme et de discrimination raciale.',
         textLength: 110,
         caseTitle: 'Cas de discrimination',
-        language: 'fr'
-      };
+        language: 'fr',
+      }
 
-      const result = await classifier.classify(content);
+      const result = await classifier.classify(content)
 
-      expect(result.isRaceRelated).toBe(true);
-      expect(result.groundsDetected).toContain('race');
-    });
+      expect(result.isRaceRelated).toBe(true)
+      expect(result.groundsDetected).toContain('race')
+    })
 
     it('should calculate confidence based on keyword density', async () => {
       const highDensity: DecisionContent = {
         url: 'https://test.com/case8',
         htmlContent: '<html></html>',
-        fullText: 'Race discrimination race racism racial race-based discrimination anti-Black racism systemic racism racial harassment racial profiling race discrimination.',
+        fullText:
+          'Race discrimination race racism racial race-based discrimination anti-Black racism systemic racism racial harassment racial profiling race discrimination.',
         textLength: 150,
-        caseTitle: 'High Density Case'
-      };
+        caseTitle: 'High Density Case',
+      }
 
       const lowDensity: DecisionContent = {
         url: 'https://test.com/case9',
         htmlContent: '<html></html>',
-        fullText: 'This lengthy decision discusses many aspects of the employment relationship, including policies, procedures, and outcomes. One mention of race appears in passing.',
+        fullText:
+          'This lengthy decision discusses many aspects of the employment relationship, including policies, procedures, and outcomes. One mention of race appears in passing.',
         textLength: 150,
-        caseTitle: 'Low Density Case'
-      };
+        caseTitle: 'Low Density Case',
+      }
 
-      const highResult = await classifier.classify(highDensity);
-      const lowResult = await classifier.classify(lowDensity);
+      const highResult = await classifier.classify(highDensity)
+      const lowResult = await classifier.classify(lowDensity)
 
-      expect(highResult.confidence).toBeGreaterThan(lowResult.confidence);
-    });
-  });
+      expect(highResult.confidence).toBeGreaterThan(lowResult.confidence)
+    })
+  })
 
   describe('edge cases', () => {
     it('should handle empty text', async () => {
@@ -164,68 +173,70 @@ describe('RuleBasedClassifier', () => {
         url: 'https://test.com/empty',
         htmlContent: '<html></html>',
         fullText: '',
-        textLength: 0
-      };
+        textLength: 0,
+      }
 
-      const result = await classifier.classify(content);
+      const result = await classifier.classify(content)
 
-      expect(result.isRaceRelated).toBe(false);
-      expect(result.confidence).toBe(0);
-    });
+      expect(result.isRaceRelated).toBe(false)
+      expect(result.confidence).toBe(0)
+    })
 
     it('should handle very short text', async () => {
       const content: DecisionContent = {
         url: 'https://test.com/short',
         htmlContent: '<html></html>',
         fullText: 'Race.',
-        textLength: 5
-      };
+        textLength: 5,
+      }
 
-      const result = await classifier.classify(content);
+      const result = await classifier.classify(content)
 
-      expect(result.confidence).toBeLessThan(0.5); // Low confidence for short text
-    });
+      expect(result.confidence).toBeLessThan(0.5) // Low confidence for short text
+    })
 
     it('should handle very long text efficiently', async () => {
-      const longText = 'This is a case about employment. '.repeat(1000) + ' The applicant alleges race discrimination.';
+      const longText =
+        'This is a case about employment. '.repeat(1000) +
+        ' The applicant alleges race discrimination.'
       const content: DecisionContent = {
         url: 'https://test.com/long',
         htmlContent: '<html></html>',
         fullText: longText,
-        textLength: longText.length
-      };
+        textLength: longText.length,
+      }
 
-      const startTime = Date.now();
-      const result = await classifier.classify(content);
-      const elapsed = Date.now() - startTime;
+      const startTime = Date.now()
+      const result = await classifier.classify(content)
+      const elapsed = Date.now() - startTime
 
-      expect(result.isRaceRelated).toBe(true);
-      expect(elapsed).toBeLessThan(1000); // Should complete quickly
-    });
-  });
-});
+      expect(result.isRaceRelated).toBe(true)
+      expect(elapsed).toBeLessThan(1000) // Should complete quickly
+    })
+  })
+})
 
 describe('AIClassifier', () => {
-  let classifier: AIClassifier;
-  let mockOpenAI: any;
+  let classifier: AIClassifier
+  let mockOpenAI: any
 
   beforeEach(() => {
     // Mock OpenAI client
     mockOpenAI = {
       chat: {
         completions: {
-          create: vi.fn()
-        }
-      }
-    };
+          create: vi.fn(),
+        },
+      },
+    }
 
-    classifier = new AIClassifier();
+    classifier = new AIClassifier()
     // Inject mock (would need to expose this in actual implementation)
-  });
+  })
 
   afterEach(() => {
-    vi.restoreAllMocks();
-  });
+    vi.restoreAllMocks()
+  })
 
   describe('classify', () => {
     it('should call OpenAI API with correct parameters', async () => {
@@ -233,86 +244,89 @@ describe('AIClassifier', () => {
         url: 'https://test.com/case1',
         htmlContent: '<html></html>',
         fullText: 'Test case about race discrimination.',
-        textLength: 40
-      };
+        textLength: 40,
+      }
 
       const mockResponse = {
-        choices: [{
-          message: {
-            content: JSON.stringify({
-              isRelevant: true,
-              primaryGround: 'race',
-              allGrounds: ['race'],
-              confidence: 0.85,
-              reasoning: 'Clear race discrimination case'
-            })
-          }
-        }]
-      };
+        choices: [
+          {
+            message: {
+              content: JSON.stringify({
+                isRelevant: true,
+                primaryGround: 'race',
+                allGrounds: ['race'],
+                confidence: 0.85,
+                reasoning: 'Clear race discrimination case',
+              }),
+            },
+          },
+        ],
+      }
 
-      mockOpenAI.chat.completions.create.mockResolvedValueOnce(mockResponse);
+      mockOpenAI.chat.completions.create.mockResolvedValueOnce(mockResponse)
 
       // This test would require actual implementation adjustment to inject mock
       // For now, testing the structure
-      expect(classifier).toBeInstanceOf(AIClassifier);
-    });
+      expect(classifier).toBeInstanceOf(AIClassifier)
+    })
 
     it('should handle API errors gracefully', async () => {
       const content: DecisionContent = {
         url: 'https://test.com/case2',
         htmlContent: '<html></html>',
         fullText: 'Test content.',
-        textLength: 13
-      };
+        textLength: 13,
+      }
 
       // Would mock API failure and verify error handling
-      expect(true).toBe(true);
-    });
+      expect(true).toBe(true)
+    })
 
     it('should truncate very long text before sending to API', async () => {
-      const longText = 'A'.repeat(50000);
+      const longText = 'A'.repeat(50000)
       const content: DecisionContent = {
         url: 'https://test.com/long',
         htmlContent: '<html></html>',
         fullText: longText,
-        textLength: longText.length
-      };
+        textLength: longText.length,
+      }
 
       // Would verify text truncation logic
-      expect(content.textLength).toBeGreaterThan(10000);
-    });
-  });
-});
+      expect(content.textLength).toBeGreaterThan(10000)
+    })
+  })
+})
 
 describe('CombinedClassifier', () => {
-  let classifier: CombinedClassifier;
-  let mockRuleBasedClassifier: RuleBasedClassifier;
-  let mockAIClassifier: AIClassifier;
+  let classifier: CombinedClassifier
+  let mockRuleBasedClassifier: RuleBasedClassifier
+  let mockAIClassifier: AIClassifier
 
   beforeEach(() => {
-    mockRuleBasedClassifier = new RuleBasedClassifier();
-    mockAIClassifier = new AIClassifier();
-    classifier = new CombinedClassifier();
+    mockRuleBasedClassifier = new RuleBasedClassifier()
+    mockAIClassifier = new AIClassifier()
+    classifier = new CombinedClassifier()
     // Ensure AI is disabled in tests to prevent hanging
-    process.env.AI_ENABLED = 'false';
-  });
+    process.env.AI_ENABLED = 'false'
+  })
 
   describe('classify', () => {
     it('should combine rule-based results when AI is disabled', async () => {
       const content: DecisionContent = {
         url: 'https://test.com/case1',
         htmlContent: '<html></html>',
-        fullText: 'The applicant alleges race discrimination and racial harassment in the workplace.',
+        fullText:
+          'The applicant alleges race discrimination and racial harassment in the workplace.',
         textLength: 80,
-        caseTitle: 'Combined Test Case'
-      };
+        caseTitle: 'Combined Test Case',
+      }
 
-      const result = await classifier.classify(content);
+      const result = await classifier.classify(content)
 
-      expect(result).toHaveProperty('ruleBasedResult');
-      expect(result).toHaveProperty('finalConfidence');
-      expect(result).toHaveProperty('finalCategory');
-    }, 5000); // 5 second timeout
+      expect(result).toHaveProperty('ruleBasedResult')
+      expect(result).toHaveProperty('finalConfidence')
+      expect(result).toHaveProperty('finalCategory')
+    }, 5000) // 5 second timeout
 
     it('should flag for review when confidence is low', async () => {
       const ambiguousCase: DecisionContent = {
@@ -320,30 +334,31 @@ describe('CombinedClassifier', () => {
         htmlContent: '<html></html>',
         fullText: 'Employment case with passing mention of diverse workplace.',
         textLength: 60,
-        caseTitle: 'Ambiguous Case'
-      };
+        caseTitle: 'Ambiguous Case',
+      }
 
-      const result = await classifier.classify(ambiguousCase);
-      
+      const result = await classifier.classify(ambiguousCase)
+
       // Low confidence cases should be flagged for review
       if (result.finalConfidence < 0.7) {
-        expect(result.needsReview).toBe(true);
+        expect(result.needsReview).toBe(true)
       }
-    }, 5000);
+    }, 5000)
 
     it('should have higher confidence for clear cases', async () => {
       const strongCase: DecisionContent = {
         url: 'https://test.com/strong',
         htmlContent: '<html></html>',
-        fullText: 'This is a clear case of anti-Black racism and race discrimination. The tribunal finds systemic racial discrimination.',
+        fullText:
+          'This is a clear case of anti-Black racism and race discrimination. The tribunal finds systemic racial discrimination.',
         textLength: 110,
-        caseTitle: 'Strong Case'
-      };
+        caseTitle: 'Strong Case',
+      }
 
-      const result = await classifier.classify(strongCase);
+      const result = await classifier.classify(strongCase)
 
-      expect(result.finalConfidence).toBeGreaterThan(0.7);
-    }, 5000);
+      expect(result.finalConfidence).toBeGreaterThan(0.7)
+    }, 5000)
 
     it('should work with rule-based only when AI is disabled', async () => {
       const content: DecisionContent = {
@@ -351,16 +366,16 @@ describe('CombinedClassifier', () => {
         htmlContent: '<html></html>',
         fullText: 'Race discrimination case.',
         textLength: 25,
-        caseTitle: 'Test Case'
-      };
+        caseTitle: 'Test Case',
+      }
 
-      const result = await classifier.classify(content);
-      
+      const result = await classifier.classify(content)
+
       // Should always have rule-based result
-      expect(result.ruleBasedResult).toBeDefined();
-      expect(result.finalCategory).toBeDefined();
-    }, 5000);
-  });
+      expect(result.ruleBasedResult).toBeDefined()
+      expect(result.finalCategory).toBeDefined()
+    }, 5000)
+  })
 
   describe('integration', () => {
     it('should process cases efficiently', async () => {
@@ -369,29 +384,28 @@ describe('CombinedClassifier', () => {
         htmlContent: '<html></html>',
         fullText: 'Standard race discrimination case for performance testing.',
         textLength: 55,
-        caseTitle: 'Performance Test'
-      };
+        caseTitle: 'Performance Test',
+      }
 
-      const startTime = Date.now();
-      const result = await classifier.classify(content);
-      const elapsed = Date.now() - startTime;
+      const startTime = Date.now()
+      const result = await classifier.classify(content)
+      const elapsed = Date.now() - startTime
 
-      expect(result).toBeDefined();
-      expect(elapsed).toBeLessThan(1000); // Should be fast with AI disabled
-    }, 5000);
+      expect(result).toBeDefined()
+      expect(elapsed).toBeLessThan(1000) // Should be fast with AI disabled
+    }, 5000)
 
     it('should handle multiple classifications', async () => {
       const cases = [
         { url: 'case1', htmlContent: '', fullText: 'Race discrimination case 1.', textLength: 27 },
         { url: 'case2', htmlContent: '', fullText: 'Race discrimination case 2.', textLength: 27 },
         { url: 'case3', htmlContent: '', fullText: 'Race discrimination case 3.', textLength: 27 },
-      ];
+      ]
 
       for (const caseData of cases) {
-        const result = await classifier.classify(caseData);
-        expect(result).toBeDefined();
+        const result = await classifier.classify(caseData)
+        expect(result).toBeDefined()
       }
-    }, 10000);
-  });
-});
-
+    }, 10000)
+  })
+})

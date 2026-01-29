@@ -4,18 +4,18 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { logger } from '@/lib/utils/logger'
-import { 
-  Scale, 
-  Plus, 
-  Search, 
-  Filter, 
-  Edit3, 
-  Trash2, 
+import {
+  Scale,
+  Plus,
+  Search,
+  Filter,
+  Edit3,
+  Trash2,
   Eye,
   FileText,
   Calendar,
   BookmarkPlus,
-  TrendingUp
+  TrendingUp,
 } from 'lucide-react'
 
 interface TribunalCase {
@@ -48,8 +48,10 @@ export default function AdminCasesPage() {
     const checkAuthAndLoadCases = async () => {
       const supabase = createClient()
       // Check auth
-      const { data: { user: currentUser } } = await supabase.auth.getUser()
-      
+      const {
+        data: { user: currentUser },
+      } = await supabase.auth.getUser()
+
       logger.auth('Current user check', { userId: currentUser?.id, email: currentUser?.email })
       if (!currentUser) {
         logger.auth('No user found, redirecting to login')
@@ -71,7 +73,7 @@ export default function AdminCasesPage() {
         logger.error('Profile fetch error', profileError)
       }
 
-      const isAdmin = 
+      const isAdmin =
         profileData?.role === 'super_admin' ||
         profileData?.role === 'org_admin' ||
         profileData?.role === 'compliance_officer' ||
@@ -111,27 +113,28 @@ export default function AdminCasesPage() {
 
     // Search filter
     if (searchQuery) {
-      filtered = filtered.filter(c => 
-        c.case_title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        c.case_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        c.tribunal_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        c.summary?.toLowerCase().includes(searchQuery.toLowerCase())
+      filtered = filtered.filter(
+        (c) =>
+          c.case_title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          c.case_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          c.tribunal_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          c.summary?.toLowerCase().includes(searchQuery.toLowerCase())
       )
     }
 
     // Tribunal filter
     if (filterTribunal !== 'all') {
-      filtered = filtered.filter(c => c.tribunal_name === filterTribunal)
+      filtered = filtered.filter((c) => c.tribunal_name === filterTribunal)
     }
 
     // Category filter
     if (filterCategory !== 'all') {
-      filtered = filtered.filter(c => c.primary_category === filterCategory)
+      filtered = filtered.filter((c) => c.primary_category === filterCategory)
     }
 
     // Language filter
     if (filterLanguage !== 'all') {
-      filtered = filtered.filter(c => c.language === filterLanguage)
+      filtered = filtered.filter((c) => c.language === filterLanguage)
     }
 
     setFilteredCases(filtered)
@@ -143,66 +146,63 @@ export default function AdminCasesPage() {
     }
 
     const supabase = createClient()
-    const { error } = await supabase
-      .from('tribunal_cases')
-      .delete()
-      .eq('id', caseId)
+    const { error } = await supabase.from('tribunal_cases').delete().eq('id', caseId)
 
     if (!error) {
-      setCases(cases.filter(c => c.id !== caseId))
+      setCases(cases.filter((c) => c.id !== caseId))
     }
   }
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-purple-600"></div>
       </div>
     )
   }
 
   // Calculate stats
-  const tribunals = [...new Set(cases.map(c => c.tribunal_name))].filter(Boolean)
-  const categories = [...new Set(cases.map(c => c.primary_category))].filter(Boolean)
+  const tribunals = [...new Set(cases.map((c) => c.tribunal_name))].filter(Boolean)
+  const categories = [...new Set(cases.map((c) => c.primary_category))].filter(Boolean)
   const stats = {
     total: cases.length,
     tribunals: tribunals.length,
     categories: categories.length,
     totalViews: cases.reduce((sum, c) => sum + (c.views_count || 0), 0),
-    totalBookmarks: cases.reduce((sum, c) => sum + (c.bookmarks_count || 0), 0)
+    totalBookmarks: cases.reduce((sum, c) => sum + (c.bookmarks_count || 0), 0),
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">      
+    <div className="flex min-h-screen flex-col bg-gray-50">
       <main className="flex-1 pt-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+        <div className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="mb-8">
-            <div className="flex items-center justify-between mb-6">
+            <div className="mb-6 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <Scale className="w-7 h-7 text-white" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-blue-600 shadow-lg">
+                  <Scale className="h-7 w-7 text-white" />
                 </div>
                 <div>
                   <h1 className="text-3xl font-bold text-gray-900">Case Management</h1>
-                  <p className="text-gray-600 mt-1">Manage tribunal cases and legal content</p>
+                  <p className="mt-1 text-gray-600">Manage tribunal cases and legal content</p>
                 </div>
               </div>
               <button
                 onClick={() => router.push('/admin/cases/create')}
-                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:shadow-lg transition-all flex items-center gap-2"
+                className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-3 text-white transition-all hover:shadow-lg"
               >
-                <Plus className="w-5 h-5" />
+                <Plus className="h-5 w-5" />
                 Add Case
               </button>
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-5 gap-4 mb-6">
-              <div className="bg-white p-4 rounded-xl border border-gray-200">
+            <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-5">
+              <div className="rounded-xl border border-gray-200 bg-white p-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <FileText className="w-5 h-5 text-purple-600" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100">
+                    <FileText className="h-5 w-5 text-purple-600" />
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
@@ -211,10 +211,10 @@ export default function AdminCasesPage() {
                 </div>
               </div>
 
-              <div className="bg-white p-4 rounded-xl border border-gray-200">
+              <div className="rounded-xl border border-gray-200 bg-white p-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <Scale className="w-5 h-5 text-blue-600" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
+                    <Scale className="h-5 w-5 text-blue-600" />
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-gray-900">{stats.tribunals}</div>
@@ -223,10 +223,10 @@ export default function AdminCasesPage() {
                 </div>
               </div>
 
-              <div className="bg-white p-4 rounded-xl border border-gray-200">
+              <div className="rounded-xl border border-gray-200 bg-white p-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                    <Filter className="w-5 h-5 text-green-600" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100">
+                    <Filter className="h-5 w-5 text-green-600" />
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-gray-900">{stats.categories}</div>
@@ -235,10 +235,10 @@ export default function AdminCasesPage() {
                 </div>
               </div>
 
-              <div className="bg-white p-4 rounded-xl border border-gray-200">
+              <div className="rounded-xl border border-gray-200 bg-white p-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-                    <Eye className="w-5 h-5 text-indigo-600" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-100">
+                    <Eye className="h-5 w-5 text-indigo-600" />
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-gray-900">{stats.totalViews}</div>
@@ -247,10 +247,10 @@ export default function AdminCasesPage() {
                 </div>
               </div>
 
-              <div className="bg-white p-4 rounded-xl border border-gray-200">
+              <div className="rounded-xl border border-gray-200 bg-white p-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
-                    <BookmarkPlus className="w-5 h-5 text-yellow-600" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-yellow-100">
+                    <BookmarkPlus className="h-5 w-5 text-yellow-600" />
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-gray-900">{stats.totalBookmarks}</div>
@@ -261,18 +261,18 @@ export default function AdminCasesPage() {
             </div>
 
             {/* Search and Filters */}
-            <div className="bg-white p-4 rounded-xl border border-gray-200">
+            <div className="rounded-xl border border-gray-200 bg-white p-4">
               <div className="flex flex-wrap gap-4">
                 {/* Search */}
-                <div className="flex-1 min-w-[300px]">
+                <div className="min-w-[300px] flex-1">
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                     <input
                       type="text"
                       placeholder="Search cases..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full rounded-lg border border-gray-200 py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-purple-500"
                     />
                   </div>
                 </div>
@@ -281,12 +281,14 @@ export default function AdminCasesPage() {
                 <select
                   value={filterTribunal}
                   onChange={(e) => setFilterTribunal(e.target.value)}
-                  className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   aria-label="Filter cases by tribunal"
                 >
                   <option value="all">All Tribunals</option>
-                  {tribunals.map(tribunal => (
-                    <option key={tribunal} value={tribunal}>{tribunal}</option>
+                  {tribunals.map((tribunal) => (
+                    <option key={tribunal} value={tribunal}>
+                      {tribunal}
+                    </option>
                   ))}
                 </select>
 
@@ -294,12 +296,14 @@ export default function AdminCasesPage() {
                 <select
                   value={filterCategory}
                   onChange={(e) => setFilterCategory(e.target.value)}
-                  className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   aria-label="Filter cases by category"
                 >
                   <option value="all">All Categories</option>
-                  {categories.map(category => (
-                    <option key={category} value={category}>{category}</option>
+                  {categories.map((category) => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
                   ))}
                 </select>
 
@@ -307,7 +311,7 @@ export default function AdminCasesPage() {
                 <select
                   value={filterLanguage}
                   onChange={(e) => setFilterLanguage(e.target.value)}
-                  className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   aria-label="Filter cases by language"
                 >
                   <option value="all">All Languages</option>
@@ -321,49 +325,56 @@ export default function AdminCasesPage() {
           {/* Cases List */}
           <div className="space-y-4">
             {filteredCases.length === 0 ? (
-              <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
-                <Scale className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <div className="rounded-xl border border-gray-200 bg-white p-12 text-center">
+                <Scale className="mx-auto mb-4 h-12 w-12 text-gray-400" />
                 <p className="text-gray-600">No cases found</p>
               </div>
             ) : (
               filteredCases.map((tribunalCase) => (
-                <div key={tribunalCase.id} className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                <div
+                  key={tribunalCase.id}
+                  className="rounded-xl border border-gray-200 bg-white p-6 transition-shadow hover:shadow-md"
+                >
                   <div className="flex gap-6">
                     {/* Icon */}
                     <div className="flex-shrink-0">
-                      <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-blue-100 rounded-lg flex items-center justify-center">
-                        <Scale className="w-8 h-8 text-purple-600" />
+                      <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-gradient-to-br from-purple-100 to-blue-100">
+                        <Scale className="h-8 w-8 text-purple-600" />
                       </div>
                     </div>
 
                     {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between mb-2">
+                    <div className="min-w-0 flex-1">
+                      <div className="mb-2 flex items-start justify-between">
                         <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <h3 className="text-xl font-semibold text-gray-900">{tribunalCase.case_title}</h3>
-                            <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
+                          <div className="mb-2 flex items-center gap-3">
+                            <h3 className="text-xl font-semibold text-gray-900">
+                              {tribunalCase.case_title}
+                            </h3>
+                            <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">
                               {tribunalCase.case_number}
                             </span>
                             {tribunalCase.language && (
-                              <span className="px-2 py-1 bg-gray-100 text-gray-800 text-xs font-medium rounded-full uppercase">
+                              <span className="rounded-full bg-gray-100 px-2 py-1 text-xs font-medium uppercase text-gray-800">
                                 {tribunalCase.language}
                               </span>
                             )}
                           </div>
-                          <p className="text-gray-600 text-sm line-clamp-2">{tribunalCase.summary}</p>
+                          <p className="line-clamp-2 text-sm text-gray-600">
+                            {tribunalCase.summary}
+                          </p>
                         </div>
                       </div>
 
                       {/* Meta Info */}
-                      <div className="flex items-center gap-6 text-sm text-gray-600 mb-4">
+                      <div className="mb-4 flex items-center gap-6 text-sm text-gray-600">
                         <span className="flex items-center gap-1">
-                          <Scale className="w-4 h-4" />
+                          <Scale className="h-4 w-4" />
                           {tribunalCase.tribunal_name}
                         </span>
                         {tribunalCase.decision_date && (
                           <span className="flex items-center gap-1">
-                            <Calendar className="w-4 h-4" />
+                            <Calendar className="h-4 w-4" />
                             {new Date(tribunalCase.decision_date).toLocaleDateString()}
                           </span>
                         )}
@@ -371,11 +382,11 @@ export default function AdminCasesPage() {
                           <span className="capitalize">{tribunalCase.primary_category}</span>
                         )}
                         <span className="flex items-center gap-1">
-                          <Eye className="w-4 h-4" />
+                          <Eye className="h-4 w-4" />
                           {tribunalCase.views_count || 0} views
                         </span>
                         <span className="flex items-center gap-1">
-                          <BookmarkPlus className="w-4 h-4" />
+                          <BookmarkPlus className="h-4 w-4" />
                           {tribunalCase.bookmarks_count || 0} bookmarks
                         </span>
                       </div>
@@ -384,23 +395,23 @@ export default function AdminCasesPage() {
                       <div className="flex items-center gap-3">
                         <button
                           onClick={() => router.push(`/cases/${tribunalCase.id}`)}
-                          className="px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors flex items-center gap-2"
+                          className="flex items-center gap-2 rounded-lg bg-purple-100 px-4 py-2 text-purple-700 transition-colors hover:bg-purple-200"
                         >
-                          <Eye className="w-4 h-4" />
+                          <Eye className="h-4 w-4" />
                           View
                         </button>
                         <button
                           onClick={() => router.push(`/admin/cases/${tribunalCase.id}/edit`)}
-                          className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2"
+                          className="flex items-center gap-2 rounded-lg bg-gray-100 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-200"
                         >
-                          <Edit3 className="w-4 h-4" />
+                          <Edit3 className="h-4 w-4" />
                           Edit
                         </button>
                         <button
                           onClick={() => handleDelete(tribunalCase.id)}
-                          className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors flex items-center gap-2 ml-auto"
+                          className="ml-auto flex items-center gap-2 rounded-lg bg-red-100 px-4 py-2 text-red-700 transition-colors hover:bg-red-200"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="h-4 w-4" />
                           Delete
                         </button>
                       </div>
@@ -411,6 +422,7 @@ export default function AdminCasesPage() {
             )}
           </div>
         </div>
-      </main>    </div>
+      </main>{' '}
+    </div>
   )
 }

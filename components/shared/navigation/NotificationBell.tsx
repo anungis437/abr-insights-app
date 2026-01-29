@@ -19,7 +19,7 @@ type NotificationBellProps = {
 
 export default function NotificationBell({ isMobile = false }: NotificationBellProps) {
   const [open, setOpen] = useState(false)
-  
+
   // Mock notifications - will be replaced with real data later
   const notifications: Notification[] = [
     {
@@ -28,7 +28,7 @@ export default function NotificationBell({ isMobile = false }: NotificationBellP
       message: 'Ethics 101 has been assigned to you',
       time: '2 hours ago',
       read: false,
-      href: '/training'
+      href: '/training',
     },
     {
       id: '2',
@@ -36,7 +36,7 @@ export default function NotificationBell({ isMobile = false }: NotificationBellP
       message: 'You earned the "Case Explorer" badge!',
       time: '1 day ago',
       read: false,
-      href: '/achievements'
+      href: '/achievements',
     },
     {
       id: '3',
@@ -44,11 +44,11 @@ export default function NotificationBell({ isMobile = false }: NotificationBellP
       message: 'Your Q4 analysis report is complete',
       time: '2 days ago',
       read: true,
-      href: '/analytics'
-    }
+      href: '/analytics',
+    },
   ]
 
-  const unreadCount = notifications.filter(n => !n.read).length
+  const unreadCount = notifications.filter((n) => !n.read).length
 
   if (isMobile) {
     // Mobile: Link to notifications page
@@ -113,7 +113,7 @@ export default function NotificationBell({ isMobile = false }: NotificationBellP
                       {!notification.read && (
                         <div className="mt-1.5 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" />
                       )}
-                      <div className="flex-1 min-w-0">
+                      <div className="min-w-0 flex-1">
                         <p className="text-sm font-medium text-gray-900">{notification.title}</p>
                         <p className="mt-1 text-xs text-gray-600">{notification.message}</p>
                         <p className="mt-1 text-xs text-gray-400">{notification.time}</p>
@@ -123,9 +123,7 @@ export default function NotificationBell({ isMobile = false }: NotificationBellP
                 ))}
               </div>
             ) : (
-              <div className="px-4 py-8 text-center text-sm text-gray-500">
-                No notifications
-              </div>
+              <div className="px-4 py-8 text-center text-sm text-gray-500">No notifications</div>
             )}
           </div>
 

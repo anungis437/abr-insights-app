@@ -90,7 +90,7 @@ export function QuizPlayer({ quiz, userId, onComplete }: QuizPlayerProps) {
       const attempt = await startQuizAttempt(quiz.id, userId)
       if (attempt) {
         setAttemptId(attempt.id)
-        
+
         // Initialize timer if quiz has time limit
         if (quiz.time_limit_minutes) {
           setTimeRemaining(quiz.time_limit_minutes * 60)
@@ -244,7 +244,7 @@ export function QuizPlayer({ quiz, userId, onComplete }: QuizPlayerProps) {
     try {
       // Get user's full name from their profile or use a default
       const recipientName = userId // This should be replaced with actual user name
-      
+
       const result = await generateCertificateAction(attemptId, recipientName)
 
       if (result.success && result.certificate) {
@@ -277,7 +277,7 @@ export function QuizPlayer({ quiz, userId, onComplete }: QuizPlayerProps) {
   // Render results view
   if (showResults && attemptResults) {
     return (
-      <div className="max-w-4xl mx-auto p-6">
+      <div className="mx-auto max-w-4xl p-6">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -288,20 +288,18 @@ export function QuizPlayer({ quiz, userId, onComplete }: QuizPlayerProps) {
               )}
               Quiz Complete
             </CardTitle>
-            <div className="text-sm text-muted-foreground">
+            <div className="text-muted-foreground text-sm">
               Attempt {attemptResults.attempt_number} of {quiz.max_attempts}
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Score Summary */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <Card>
                 <CardContent className="pt-6">
                   <div className="text-center">
-                    <div className="text-3xl font-bold">
-                      {attemptResults.score?.toFixed(1)}%
-                    </div>
-                    <div className="text-sm text-muted-foreground">Final Score</div>
+                    <div className="text-3xl font-bold">{attemptResults.score?.toFixed(1)}%</div>
+                    <div className="text-muted-foreground text-sm">Final Score</div>
                   </div>
                 </CardContent>
               </Card>
@@ -312,7 +310,7 @@ export function QuizPlayer({ quiz, userId, onComplete }: QuizPlayerProps) {
                     <div className="text-3xl font-bold">
                       {attemptResults.points_earned}/{attemptResults.points_possible}
                     </div>
-                    <div className="text-sm text-muted-foreground">Points</div>
+                    <div className="text-muted-foreground text-sm">Points</div>
                   </div>
                 </CardContent>
               </Card>
@@ -323,7 +321,7 @@ export function QuizPlayer({ quiz, userId, onComplete }: QuizPlayerProps) {
                     <div className="text-3xl font-bold">
                       {Math.floor((attemptResults.time_spent_seconds || 0) / 60)}m
                     </div>
-                    <div className="text-sm text-muted-foreground">Time Spent</div>
+                    <div className="text-muted-foreground text-sm">Time Spent</div>
                   </div>
                 </CardContent>
               </Card>
@@ -331,10 +329,10 @@ export function QuizPlayer({ quiz, userId, onComplete }: QuizPlayerProps) {
 
             {/* Pass/Fail Status */}
             <div
-              className={`p-4 rounded-lg ${
+              className={`rounded-lg p-4 ${
                 attemptResults.passed
-                  ? 'bg-green-50 border border-green-200'
-                  : 'bg-red-50 border border-red-200'
+                  ? 'border border-green-200 bg-green-50'
+                  : 'border border-red-200 bg-red-50'
               }`}
             >
               <div className="flex items-center gap-2">
@@ -358,33 +356,34 @@ export function QuizPlayer({ quiz, userId, onComplete }: QuizPlayerProps) {
 
             {/* Certificate Generation */}
             {attemptResults.passed && quiz.quiz_type === 'certification' && (
-              <div className="p-4 rounded-lg bg-purple-50 border border-purple-200">
+              <div className="rounded-lg border border-purple-200 bg-purple-50 p-4">
                 <div className="flex items-start gap-3">
-                  <Award className="h-6 w-6 text-purple-600 flex-shrink-0 mt-1" />
+                  <Award className="mt-1 h-6 w-6 flex-shrink-0 text-purple-600" />
                   <div className="flex-1">
-                    <h3 className="font-semibold text-purple-900 mb-2">
+                    <h3 className="mb-2 font-semibold text-purple-900">
                       {certificate ? 'Certificate Ready!' : 'Earn Your Certificate'}
                     </h3>
                     {certificate ? (
                       <div className="space-y-3">
                         <p className="text-sm text-purple-800">
-                          Your certificate has been generated. Certificate #{certificate.certificate_number}
+                          Your certificate has been generated. Certificate #
+                          {certificate.certificate_number}
                         </p>
                         <div className="flex gap-2">
                           <Button
-                            className="px-3 py-1.5 h-8 text-sm"
+                            className="h-8 px-3 py-1.5 text-sm"
                             onClick={() => router.push(`/certificates/${certificate.id}`)}
                           >
-                            <Award className="h-4 w-4 mr-2" />
+                            <Award className="mr-2 h-4 w-4" />
                             View Certificate
                           </Button>
                           {certificate.pdf_url && (
                             <Button
                               variant="outline"
-                              className="px-3 py-1.5 h-8 text-sm"
+                              className="h-8 px-3 py-1.5 text-sm"
                               onClick={() => window.open(certificate.pdf_url, '_blank')}
                             >
-                              <Download className="h-4 w-4 mr-2" />
+                              <Download className="mr-2 h-4 w-4" />
                               Download PDF
                             </Button>
                           )}
@@ -393,10 +392,11 @@ export function QuizPlayer({ quiz, userId, onComplete }: QuizPlayerProps) {
                     ) : (
                       <div className="space-y-3">
                         <p className="text-sm text-purple-800">
-                          You&apos;ve successfully completed this quiz! Generate your certificate to commemorate your achievement.
+                          You&apos;ve successfully completed this quiz! Generate your certificate to
+                          commemorate your achievement.
                         </p>
                         <Button
-                          className="px-3 py-1.5 h-8 text-sm"
+                          className="h-8 px-3 py-1.5 text-sm"
                           onClick={handleGenerateCertificate}
                           disabled={generatingCertificate}
                         >
@@ -404,7 +404,7 @@ export function QuizPlayer({ quiz, userId, onComplete }: QuizPlayerProps) {
                             <>Generating...</>
                           ) : (
                             <>
-                              <Award className="h-4 w-4 mr-2" />
+                              <Award className="mr-2 h-4 w-4" />
                               Generate Certificate
                             </>
                           )}
@@ -430,7 +430,7 @@ export function QuizPlayer({ quiz, userId, onComplete }: QuizPlayerProps) {
                   return (
                     <Card key={question.id}>
                       <CardHeader>
-                        <CardTitle className="text-base flex items-center gap-2">
+                        <CardTitle className="flex items-center gap-2 text-base">
                           Question {index + 1}
                           {response?.is_correct ? (
                             <CheckCircle2 className="h-5 w-5 text-green-600" />
@@ -443,12 +443,12 @@ export function QuizPlayer({ quiz, userId, onComplete }: QuizPlayerProps) {
                         <div className="space-y-2">
                           <p className="font-medium">{question.question_text}</p>
                           {response && (
-                            <div className="text-sm text-muted-foreground">
+                            <div className="text-muted-foreground text-sm">
                               Your answer: {JSON.stringify(response.answer_data)}
                             </div>
                           )}
                           {quiz.show_explanations && question.explanation && (
-                            <div className="mt-2 p-3 bg-blue-50 rounded border border-blue-200">
+                            <div className="mt-2 rounded border border-blue-200 bg-blue-50 p-3">
                               <p className="text-sm text-blue-900">{question.explanation}</p>
                             </div>
                           )}
@@ -480,11 +480,11 @@ export function QuizPlayer({ quiz, userId, onComplete }: QuizPlayerProps) {
   // Render quiz attempt view
   if (!attemptId || !canAttempt) {
     return (
-      <div className="max-w-4xl mx-auto p-6">
+      <div className="mx-auto max-w-4xl p-6">
         <Card>
           <CardHeader>
             <CardTitle>Quiz Unavailable</CardTitle>
-            <div className="text-sm text-muted-foreground mt-1">
+            <div className="text-muted-foreground mt-1 text-sm">
               {!canAttempt
                 ? 'You have reached the maximum number of attempts for this quiz.'
                 : 'Unable to start quiz attempt.'}
@@ -501,23 +501,21 @@ export function QuizPlayer({ quiz, userId, onComplete }: QuizPlayerProps) {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="mx-auto max-w-4xl p-6">
       {/* Quiz Header */}
       <Card className="mb-6">
         <CardHeader>
           <div className="flex items-start justify-between">
             <div>
               <CardTitle>{quiz.title}</CardTitle>
-              <div className="text-sm text-muted-foreground mt-1">
+              <div className="text-muted-foreground mt-1 text-sm">
                 Attempt {(quiz.user_attempts?.length || 0) + 1} of {quiz.max_attempts}
               </div>
             </div>
             {timeRemaining !== null && (
               <div
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
-                  timeRemaining < 300
-                    ? 'bg-red-100 text-red-900'
-                    : 'bg-blue-100 text-blue-900'
+                className={`flex items-center gap-2 rounded-lg px-4 py-2 ${
+                  timeRemaining < 300 ? 'bg-red-100 text-red-900' : 'bg-blue-100 text-blue-900'
                 }`}
               >
                 <Clock className="h-5 w-5" />
@@ -546,7 +544,7 @@ export function QuizPlayer({ quiz, userId, onComplete }: QuizPlayerProps) {
             <CardTitle className="text-lg">
               Question {currentQuestionIndex + 1}
               {currentQuestion.time_limit_seconds && (
-                <span className="ml-2 text-sm text-muted-foreground">
+                <span className="text-muted-foreground ml-2 text-sm">
                   ({currentQuestion.time_limit_seconds}s time limit)
                 </span>
               )}
@@ -559,7 +557,7 @@ export function QuizPlayer({ quiz, userId, onComplete }: QuizPlayerProps) {
               <Flag className="h-4 w-4" />
             </Button>
           </div>
-          <div className="text-sm text-muted-foreground mt-1">
+          <div className="text-muted-foreground mt-1 text-sm">
             {currentQuestion.points} point{currentQuestion.points !== 1 ? 's' : ''} •{' '}
             {currentQuestion.difficulty_level}
           </div>
@@ -581,7 +579,7 @@ export function QuizPlayer({ quiz, userId, onComplete }: QuizPlayerProps) {
           onClick={() => goToQuestion(currentQuestionIndex - 1)}
           disabled={currentQuestionIndex === 0}
         >
-          <ChevronLeft className="h-4 w-4 mr-2" />
+          <ChevronLeft className="mr-2 h-4 w-4" />
           Previous
         </Button>
 
@@ -592,18 +590,18 @@ export function QuizPlayer({ quiz, userId, onComplete }: QuizPlayerProps) {
               <button
                 key={index}
                 onClick={() => goToQuestion(index)}
-                className={`w-8 h-8 rounded text-xs font-medium transition-colors ${
+                className={`h-8 w-8 rounded text-xs font-medium transition-colors ${
                   index === currentQuestionIndex
                     ? 'bg-primary text-primary-foreground'
                     : answers[quiz.questions[index].id]
-                    ? 'bg-green-100 text-green-900 hover:bg-green-200'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      ? 'bg-green-100 text-green-900 hover:bg-green-200'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
                 aria-label={`Go to question ${index + 1}`}
               >
                 {index + 1}
                 {answers[quiz.questions[index].id]?.flagged && (
-                  <Flag className="h-3 w-3 inline ml-0.5" />
+                  <Flag className="ml-0.5 inline h-3 w-3" />
                 )}
               </button>
             ))}
@@ -616,7 +614,7 @@ export function QuizPlayer({ quiz, userId, onComplete }: QuizPlayerProps) {
               'Submitting...'
             ) : (
               <>
-                <Send className="h-4 w-4 mr-2" />
+                <Send className="mr-2 h-4 w-4" />
                 Submit Quiz
               </>
             )}
@@ -624,7 +622,7 @@ export function QuizPlayer({ quiz, userId, onComplete }: QuizPlayerProps) {
         ) : (
           <Button onClick={() => goToQuestion(currentQuestionIndex + 1)}>
             Next
-            <ChevronRight className="h-4 w-4 ml-2" />
+            <ChevronRight className="ml-2 h-4 w-4" />
           </Button>
         )}
       </div>

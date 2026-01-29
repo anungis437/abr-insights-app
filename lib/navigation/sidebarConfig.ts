@@ -26,7 +26,7 @@ import {
   Activity,
   Trophy,
   LogOut,
-  type LucideIcon
+  type LucideIcon,
 } from 'lucide-react'
 
 export type UserRole =
@@ -460,6 +460,6 @@ export function getSidebarNavigation(role: UserRole | null): SidebarNavItem[] {
   if (!role) {
     return guestNav
   }
-  
+
   return sidebarNavigationByRole[role] || learnerNav
 }

@@ -1,6 +1,6 @@
 /**
  * Performance Optimization Utilities
- * 
+ *
  * Comprehensive utilities for optimizing web performance:
  * - Lazy loading with Intersection Observer
  * - Code splitting helpers
@@ -30,10 +30,7 @@ export function createLazyLoader(
   callback: (entry: IntersectionObserverEntry) => void,
   options: LazyLoadOptions = {}
 ): IntersectionObserver {
-  const {
-    rootMargin = '50px',
-    threshold = 0.1,
-  } = options
+  const { rootMargin = '50px', threshold = 0.1 } = options
 
   return new IntersectionObserver(
     (entries) => {
@@ -50,25 +47,26 @@ export function createLazyLoader(
 /**
  * Lazy load images with blur placeholder
  */
-export function lazyLoadImage(img: HTMLImageElement, src: string, options: LazyLoadOptions = {}): void {
-  const observer = createLazyLoader(
-    (entry) => {
-      const image = entry.target as HTMLImageElement
-      image.src = src
-      
-      image.onload = () => {
-        image.classList.add('loaded')
-        options.onLoad?.()
-        observer.disconnect()
-      }
-      
-      image.onerror = () => {
-        options.onError?.()
-        observer.disconnect()
-      }
-    },
-    options
-  )
+export function lazyLoadImage(
+  img: HTMLImageElement,
+  src: string,
+  options: LazyLoadOptions = {}
+): void {
+  const observer = createLazyLoader((entry) => {
+    const image = entry.target as HTMLImageElement
+    image.src = src
+
+    image.onload = () => {
+      image.classList.add('loaded')
+      options.onLoad?.()
+      observer.disconnect()
+    }
+
+    image.onerror = () => {
+      options.onError?.()
+      observer.disconnect()
+    }
+  }, options)
 
   observer.observe(img)
 }
@@ -76,28 +74,29 @@ export function lazyLoadImage(img: HTMLImageElement, src: string, options: LazyL
 /**
  * Lazy load background images
  */
-export function lazyLoadBackground(element: HTMLElement, imageUrl: string, options: LazyLoadOptions = {}): void {
-  const observer = createLazyLoader(
-    (entry) => {
-      const el = entry.target as HTMLElement
-      const img = new Image()
-      
-      img.onload = () => {
-        el.style.backgroundImage = `url(${imageUrl})`
-        el.classList.add('loaded')
-        options.onLoad?.()
-        observer.disconnect()
-      }
-      
-      img.onerror = () => {
-        options.onError?.()
-        observer.disconnect()
-      }
-      
-      img.src = imageUrl
-    },
-    options
-  )
+export function lazyLoadBackground(
+  element: HTMLElement,
+  imageUrl: string,
+  options: LazyLoadOptions = {}
+): void {
+  const observer = createLazyLoader((entry) => {
+    const el = entry.target as HTMLElement
+    const img = new Image()
+
+    img.onload = () => {
+      el.style.backgroundImage = `url(${imageUrl})`
+      el.classList.add('loaded')
+      options.onLoad?.()
+      observer.disconnect()
+    }
+
+    img.onerror = () => {
+      options.onError?.()
+      observer.disconnect()
+    }
+
+    img.src = imageUrl
+  }, options)
 
   observer.observe(element)
 }
@@ -184,12 +183,7 @@ export interface ImageOptimizationOptions {
  * Generate optimized image URL (for Next.js Image Optimization API)
  */
 export function getOptimizedImageUrl(src: string, options: ImageOptimizationOptions = {}): string {
-  const {
-    width,
-    height,
-    quality = 75,
-    format = 'webp',
-  } = options
+  const { width, height, quality = 75, format = 'webp' } = options
 
   // If using Next.js Image Optimization
   const params = new URLSearchParams()
@@ -215,7 +209,7 @@ export function generateBlurPlaceholder(width: number = 10, height: number = 10)
       <rect width="${width}" height="${height}" fill="#ccc" filter="url(#blur)" />
     </svg>
   `
-  
+
   return `data:image/svg+xml;base64,${btoa(svg)}`
 }
 
@@ -223,9 +217,7 @@ export function generateBlurPlaceholder(width: number = 10, height: number = 10)
  * Get responsive image srcset
  */
 export function getResponsiveSrcSet(src: string, sizes: number[]): string {
-  return sizes
-    .map((size) => `${getOptimizedImageUrl(src, { width: size })} ${size}w`)
-    .join(', ')
+  return sizes.map((size) => `${getOptimizedImageUrl(src, { width: size })} ${size}w`).join(', ')
 }
 
 // =====================================================
@@ -251,15 +243,15 @@ export function preloadResource(href: string, options: PreloadOptions): void {
   link.rel = 'preload'
   link.href = href
   link.as = options.as
-  
+
   if (options.crossOrigin) {
     link.crossOrigin = options.crossOrigin
   }
-  
+
   if (options.type) {
     link.type = options.type
   }
-  
+
   if (options.media) {
     link.media = options.media
   }
@@ -302,7 +294,7 @@ export function preconnect(domain: string, crossOrigin: boolean = false): void {
   const link = document.createElement('link')
   link.rel = 'preconnect'
   link.href = domain
-  
+
   if (crossOrigin) {
     link.crossOrigin = 'anonymous'
   }
@@ -339,7 +331,9 @@ export interface PerformanceMetrics {
 /**
  * Measure Core Web Vitals
  */
-export function measureWebVitals(callback: (metric: { name: string; value: number }) => void): void {
+export function measureWebVitals(
+  callback: (metric: { name: string; value: number }) => void
+): void {
   if (typeof window === 'undefined' || !('PerformanceObserver' in window)) return
 
   try {
@@ -447,7 +441,7 @@ export function logBundleSize(): void {
   if (typeof window === 'undefined' || process.env.NODE_ENV !== 'development') return
 
   const resources = performance.getEntriesByType('resource') as PerformanceResourceTiming[]
-  
+
   const scripts = resources.filter((r) => r.name.includes('.js'))
   const styles = resources.filter((r) => r.name.includes('.css'))
   const images = resources.filter((r) => /\.(jpg|jpeg|png|gif|webp|svg)/.test(r.name))
@@ -460,7 +454,7 @@ export function logBundleSize(): void {
     scripts: `${(totalScriptSize / 1024).toFixed(2)} KB (${scripts.length} files)`,
     styles: `${(totalStyleSize / 1024).toFixed(2)} KB (${styles.length} files)`,
     images: `${(totalImageSize / 1024).toFixed(2)} KB (${images.length} files)`,
-    total: `${((totalScriptSize + totalStyleSize + totalImageSize) / 1024).toFixed(2)} KB`
+    total: `${((totalScriptSize + totalStyleSize + totalImageSize) / 1024).toFixed(2)} KB`,
   })
 }
 

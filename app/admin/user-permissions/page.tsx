@@ -4,15 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { PermissionGate } from '@/components/shared/PermissionGate'
-import { 
-  Shield, 
-  Search, 
-  Plus,
-  Trash2,
-  CheckCircle,
-  Users,
-  Building
-} from 'lucide-react'
+import { Shield, Search, Plus, Trash2, CheckCircle, Users, Building } from 'lucide-react'
 
 interface UserPermission {
   id: string
@@ -60,7 +52,8 @@ export default function ManageUserPermissionsPage() {
       // Load user permissions with user and permission details
       const { data: permData, error: permError } = await supabase
         .from('user_permissions')
-        .select(`
+        .select(
+          `
           *,
           profiles!user_permissions_user_id_fkey (
             display_name,
@@ -71,7 +64,8 @@ export default function ManageUserPermissionsPage() {
             description,
             category
           )
-        `)
+        `
+        )
         .order('created_at', { ascending: false })
 
       if (permError) throw permError
@@ -99,13 +93,11 @@ export default function ManageUserPermissionsPage() {
     }
 
     const supabase = createClient()
-    const { error } = await supabase
-      .from('user_permissions')
-      .insert({
-        user_id: selectedUserId,
-        permission_id: selectedPermissionId,
-        organization_id: null
-      })
+    const { error } = await supabase.from('user_permissions').insert({
+      user_id: selectedUserId,
+      permission_id: selectedPermissionId,
+      organization_id: null,
+    })
 
     if (error) {
       console.error('Error assigning permission:', error)
@@ -122,10 +114,7 @@ export default function ManageUserPermissionsPage() {
     if (!confirm('Are you sure you want to revoke this permission?')) return
 
     const supabase = createClient()
-    const { error } = await supabase
-      .from('user_permissions')
-      .delete()
-      .eq('id', permissionId)
+    const { error } = await supabase.from('user_permissions').delete().eq('id', permissionId)
 
     if (error) {
       console.error('Error revoking permission:', error)
@@ -136,23 +125,24 @@ export default function ManageUserPermissionsPage() {
   }
 
   const filteredPermissions = userPermissions.filter((up) => {
-    const matchesSearch = !searchQuery || 
+    const matchesSearch =
+      !searchQuery ||
       up.profiles?.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       up.profiles?.display_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       up.permissions?.name.toLowerCase().includes(searchQuery.toLowerCase())
-    
+
     const matchesCategory = filterCategory === 'all' || up.permissions?.category === filterCategory
 
     return matchesSearch && matchesCategory
   })
 
-  const categories = Array.from(new Set(allPermissions.map(p => p.category)))
+  const categories = Array.from(new Set(allPermissions.map((p) => p.category)))
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-purple-600"></div>
           <p className="text-gray-600">Loading permissions...</p>
         </div>
       </div>
@@ -160,48 +150,52 @@ export default function ManageUserPermissionsPage() {
   }
 
   return (
-    <PermissionGate 
+    <PermissionGate
       permission={['permissions.manage', 'users.manage']}
       requireAny
       denied={
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex min-h-screen items-center justify-center bg-gray-50">
           <div className="text-center">
-            <Shield className="w-16 h-16 text-red-600 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h2>
-            <p className="text-gray-600">You don&apos;t have permission to manage user permissions.</p>
+            <Shield className="mx-auto mb-4 h-16 w-16 text-red-600" />
+            <h2 className="mb-2 text-2xl font-bold text-gray-900">Access Denied</h2>
+            <p className="text-gray-600">
+              You don&apos;t have permission to manage user permissions.
+            </p>
           </div>
         </div>
       }
     >
-      <div className="min-h-screen bg-gray-50 pt-20 pb-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gray-50 pb-12 pt-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="mb-8">
-            <div className="flex items-center justify-between mb-6">
+            <div className="mb-6 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <Shield className="w-7 h-7 text-white" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-blue-600 shadow-lg">
+                  <Shield className="h-7 w-7 text-white" />
                 </div>
                 <div>
                   <h1 className="text-3xl font-bold text-gray-900">User Permissions</h1>
-                  <p className="text-gray-600 mt-1">Manage individual user permission assignments</p>
+                  <p className="mt-1 text-gray-600">
+                    Manage individual user permission assignments
+                  </p>
                 </div>
               </div>
               <button
                 onClick={() => setShowAssignDialog(true)}
-                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:shadow-lg transition-all flex items-center gap-2"
+                className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-3 text-white transition-all hover:shadow-lg"
               >
-                <Plus className="w-5 h-5" />
+                <Plus className="h-5 w-5" />
                 Assign Permission
               </button>
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-              <div className="bg-white p-4 rounded-xl border border-gray-200">
+            <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <div className="rounded-xl border border-gray-200 bg-white p-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <Users className="w-5 h-5 text-purple-600" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100">
+                    <Users className="h-5 w-5 text-purple-600" />
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-gray-900">{userPermissions.length}</div>
@@ -209,10 +203,10 @@ export default function ManageUserPermissionsPage() {
                   </div>
                 </div>
               </div>
-              <div className="bg-white p-4 rounded-xl border border-gray-200">
+              <div className="rounded-xl border border-gray-200 bg-white p-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <Shield className="w-5 h-5 text-blue-600" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
+                    <Shield className="h-5 w-5 text-blue-600" />
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-gray-900">{allPermissions.length}</div>
@@ -220,10 +214,10 @@ export default function ManageUserPermissionsPage() {
                   </div>
                 </div>
               </div>
-              <div className="bg-white p-4 rounded-xl border border-gray-200">
+              <div className="rounded-xl border border-gray-200 bg-white p-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                    <CheckCircle className="w-5 h-5 text-green-600" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100">
+                    <CheckCircle className="h-5 w-5 text-green-600" />
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-gray-900">{categories.length}</div>
@@ -234,26 +228,28 @@ export default function ManageUserPermissionsPage() {
             </div>
 
             {/* Filters */}
-            <div className="bg-white p-4 rounded-xl border border-gray-200 mb-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="mb-6 rounded-xl border border-gray-200 bg-white p-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 transform text-gray-400" />
                   <input
                     type="text"
                     placeholder="Search by user or permission..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full rounded-lg border border-gray-200 py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
                 </div>
                 <select
                   value={filterCategory}
                   onChange={(e) => setFilterCategory(e.target.value)}
-                  className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 >
                   <option value="all">All Categories</option>
                   {categories.map((cat) => (
-                    <option key={cat} value={cat}>{cat}</option>
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -263,18 +259,21 @@ export default function ManageUserPermissionsPage() {
           {/* Permissions List */}
           <div className="space-y-4">
             {filteredPermissions.length === 0 ? (
-              <div className="bg-white p-8 rounded-xl border border-gray-200 text-center">
-                <Shield className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+              <div className="rounded-xl border border-gray-200 bg-white p-8 text-center">
+                <Shield className="mx-auto mb-3 h-12 w-12 text-gray-400" />
                 <p className="text-gray-600">No user permissions found</p>
               </div>
             ) : (
               filteredPermissions.map((up) => (
-                <div key={up.id} className="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg transition-all">
+                <div
+                  key={up.id}
+                  className="rounded-xl border border-gray-200 bg-white p-6 transition-all hover:shadow-lg"
+                >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-600 rounded-lg flex items-center justify-center">
-                          <Users className="w-5 h-5 text-white" />
+                      <div className="mb-2 flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-blue-600">
+                          <Users className="h-5 w-5 text-white" />
                         </div>
                         <div>
                           <h3 className="text-lg font-semibold text-gray-900">
@@ -285,19 +284,19 @@ export default function ManageUserPermissionsPage() {
                       </div>
                       <div className="ml-13 space-y-2">
                         <div className="flex items-center gap-2">
-                          <Shield className="w-4 h-4 text-purple-600" />
+                          <Shield className="h-4 w-4 text-purple-600" />
                           <span className="font-medium text-gray-900">{up.permissions?.name}</span>
                         </div>
                         {up.permissions?.description && (
                           <p className="text-sm text-gray-600">{up.permissions.description}</p>
                         )}
                         <div className="flex items-center gap-3 text-sm text-gray-600">
-                          <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full">
+                          <span className="rounded-full bg-blue-100 px-2 py-1 text-blue-800">
                             {up.permissions?.category}
                           </span>
                           {up.organization_id && (
                             <span className="flex items-center gap-1">
-                              <Building className="w-4 h-4" />
+                              <Building className="h-4 w-4" />
                               Organization Scoped
                             </span>
                           )}
@@ -306,9 +305,9 @@ export default function ManageUserPermissionsPage() {
                     </div>
                     <button
                       onClick={() => handleRevokePermission(up.id)}
-                      className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors flex items-center gap-2"
+                      className="flex items-center gap-2 rounded-lg bg-red-100 px-4 py-2 text-red-700 transition-colors hover:bg-red-200"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="h-4 w-4" />
                       Revoke
                     </button>
                   </div>
@@ -322,25 +321,25 @@ export default function ManageUserPermissionsPage() {
       {/* Assign Permission Dialog */}
       {showAssignDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
-          <div className="bg-white rounded-xl shadow-xl p-8 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">Assign Permission to User</h2>
+          <div className="w-full max-w-md rounded-xl bg-white p-8 shadow-xl">
+            <h2 className="mb-4 text-xl font-bold">Assign Permission to User</h2>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">User ID</label>
+                <label className="mb-2 block text-sm font-medium text-gray-700">User ID</label>
                 <input
                   type="text"
                   value={selectedUserId}
                   onChange={(e) => setSelectedUserId(e.target.value)}
                   placeholder="Enter user UUID"
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Permission</label>
+                <label className="mb-2 block text-sm font-medium text-gray-700">Permission</label>
                 <select
                   value={selectedPermissionId}
                   onChange={(e) => setSelectedPermissionId(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 >
                   <option value="">Select permission...</option>
                   {allPermissions.map((perm) => (
@@ -350,16 +349,16 @@ export default function ManageUserPermissionsPage() {
                   ))}
                 </select>
               </div>
-              <div className="flex items-center gap-3 mt-6">
+              <div className="mt-6 flex items-center gap-3">
                 <button
                   onClick={() => setShowAssignDialog(false)}
-                  className="flex-1 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="flex-1 rounded-lg border border-gray-200 px-4 py-2 transition-colors hover:bg-gray-50"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleAssignPermission}
-                  className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:shadow-lg transition-all"
+                  className="flex-1 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 px-4 py-2 text-white transition-all hover:shadow-lg"
                 >
                   Assign
                 </button>

@@ -8,7 +8,12 @@ export default function NotFound() {
   const quickLinks = [
     { href: '/', label: 'Home', icon: Home, description: 'Return to homepage' },
     { href: '/courses', label: 'Courses', icon: Search, description: 'Browse training courses' },
-    { href: '/cases', label: 'Case Explorer', icon: FileQuestion, description: 'Search case database' },
+    {
+      href: '/cases',
+      label: 'Case Explorer',
+      icon: FileQuestion,
+      description: 'Search case database',
+    },
     { href: '/contact', label: 'Contact', icon: Mail, description: 'Get in touch' },
   ]
 
@@ -37,11 +42,10 @@ export default function NotFound() {
           </div>
 
           {/* Error Message */}
-          <h2 className="mb-4 text-3xl font-bold text-gray-900 md:text-4xl">
-            Page Not Found
-          </h2>
+          <h2 className="mb-4 text-3xl font-bold text-gray-900 md:text-4xl">Page Not Found</h2>
           <p className="mb-8 text-lg text-gray-600">
-            Sorry, we couldn&apos;t find the page you&apos;re looking for. It might have been moved, deleted, or the URL might be incorrect.
+            Sorry, we couldn&apos;t find the page you&apos;re looking for. It might have been moved,
+            deleted, or the URL might be incorrect.
           </p>
 
           {/* Quick Links */}
@@ -77,19 +81,14 @@ export default function NotFound() {
           <div className="rounded-xl border border-gray-200 bg-white p-6 text-left shadow-sm">
             <h3 className="mb-2 font-semibold text-gray-900">Need More Help?</h3>
             <p className="mb-4 text-sm text-gray-600">
-              If you believe this is an error or need assistance finding what you&apos;re looking for, our support team is here to help.
+              If you believe this is an error or need assistance finding what you&apos;re looking
+              for, our support team is here to help.
             </p>
             <div className="flex flex-col gap-3 sm:flex-row">
-              <Link
-                href="/contact"
-                className="btn-primary flex-1 text-center"
-              >
+              <Link href="/contact" className="btn-primary flex-1 text-center">
                 Contact Support
               </Link>
-              <Link
-                href="/faq"
-                className="btn-secondary flex-1 text-center"
-              >
+              <Link href="/faq" className="btn-secondary flex-1 text-center">
                 View FAQ
               </Link>
             </div>

@@ -1,9 +1,9 @@
 /**
  * Apply a single migration file to Supabase using SQL query
- * 
+ *
  * Usage:
  *   node scripts/apply-migration.mjs 013_testimonials.sql
- * 
+ *
  * Requirements:
  *   - Set SUPABASE_DB_PASSWORD in .env.local or environment
  *   - Uses direct PostgreSQL connection
@@ -24,7 +24,7 @@ const dbConfig = {
   database: 'postgres',
   user: 'postgres',
   password: process.env.SUPABASE_DB_PASSWORD,
-  ssl: { rejectUnauthorized: false }
+  ssl: { rejectUnauthorized: false },
 }
 
 if (!process.env.SUPABASE_DB_PASSWORD) {
@@ -43,26 +43,25 @@ if (!migrationFile) {
 
 async function applyMigration() {
   const migrationPath = join(__dirname, '..', 'supabase', 'migrations', migrationFile)
-  
+
   let client
-  
+
   try {
     // Read migration file
     console.log(`📄 Reading ${migrationFile}...`)
     const sql = readFileSync(migrationPath, 'utf-8')
-    
+
     // Connect to database
     console.log('🔌 Connecting to Supabase...')
     client = new pg.Client(dbConfig)
     await client.connect()
     console.log('✅ Connected')
-    
+
     // Execute migration
     console.log(`⚙️  Executing migration...`)
     await client.query(sql)
-    
+
     console.log(`✅ ${migrationFile} applied successfully!`)
-    
   } catch (err) {
     console.error(`❌ Error applying migration:`)
     console.error(err.message)

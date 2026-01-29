@@ -6,7 +6,10 @@ const supabase = createClient(
 )
 
 async function createModule(courseId, moduleData) {
-  const slug = moduleData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+  const slug = moduleData.title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
   const { data, error } = await supabase
     .from('course_modules')
     .insert({
@@ -16,7 +19,7 @@ async function createModule(courseId, moduleData) {
       description: moduleData.description,
       module_number: moduleData.sort_order,
       sort_order: moduleData.sort_order,
-      is_published: true
+      is_published: true,
     })
     .select()
     .single()
@@ -42,7 +45,7 @@ async function createLesson(courseId, moduleId, lessonData) {
       lesson_number: lessonData.lesson_number,
       sort_order: lessonData.sort_order,
       is_published: true,
-      is_preview: lessonData.is_preview || false
+      is_preview: lessonData.is_preview || false,
     })
     .select()
     .single()
@@ -52,15 +55,22 @@ async function createLesson(courseId, moduleId, lessonData) {
 
 async function populateCourse5() {
   console.log('\n📚 Course 5: Leadership for Racial Equity')
-  
-  const { data: course } = await supabase.from('courses').select('id').eq('slug', 'leadership-equity').single()
-  if (!course) { console.log('❌ Course not found'); return }
+
+  const { data: course } = await supabase
+    .from('courses')
+    .select('id')
+    .eq('slug', 'leadership-equity')
+    .single()
+  if (!course) {
+    console.log('❌ Course not found')
+    return
+  }
 
   // Module 1: Organizational Change
   const m1 = await createModule(course.id, {
     title: 'Leading Organizational Change for Racial Equity',
     description: 'Understanding how to drive systemic change within organizations.',
-    sort_order: 1
+    sort_order: 1,
   })
 
   await createLesson(course.id, m1.id, {
@@ -70,11 +80,14 @@ async function populateCourse5() {
     content_type: 'video',
     content_url: 'https://example.com/videos/case-for-equity.mp4',
     video_duration_seconds: 780,
-    module_number: 1, lesson_number: 1, sort_order: 1, is_preview: true
+    module_number: 1,
+    lesson_number: 1,
+    sort_order: 1,
+    is_preview: true,
   })
 
   await createLesson(course.id, m1.id, {
-    title: 'Assessing Your Organization\'s Current State',
+    title: "Assessing Your Organization's Current State",
     slug: 'assessing-current-state',
     description: 'Tools and frameworks for conducting a racial equity audit.',
     content_type: 'article',
@@ -169,7 +182,9 @@ Create specific, measurable goals based on assessment results.
 2. What are the biggest gaps in your current understanding?
 3. Who needs to be involved in the assessment process?
 4. How will you ensure findings lead to action rather than reports that sit on shelves?`,
-    module_number: 1, lesson_number: 2, sort_order: 2
+    module_number: 1,
+    lesson_number: 2,
+    sort_order: 2,
   })
 
   await createLesson(course.id, m1.id, {
@@ -179,7 +194,9 @@ Create specific, measurable goals based on assessment results.
     content_type: 'video',
     content_url: 'https://example.com/videos/change-management.mp4',
     video_duration_seconds: 660,
-    module_number: 1, lesson_number: 3, sort_order: 3
+    module_number: 1,
+    lesson_number: 3,
+    sort_order: 3,
   })
 
   console.log('✅ Module 1: 3 lessons')
@@ -188,7 +205,7 @@ Create specific, measurable goals based on assessment results.
   const m2 = await createModule(course.id, {
     title: 'Developing Anti-Racist Policies and Practices',
     description: 'Creating and implementing policies that advance racial equity.',
-    sort_order: 2
+    sort_order: 2,
   })
 
   await createLesson(course.id, m2.id, {
@@ -198,7 +215,9 @@ Create specific, measurable goals based on assessment results.
     content_type: 'video',
     content_url: 'https://example.com/videos/policy-review.mp4',
     video_duration_seconds: 720,
-    module_number: 2, lesson_number: 1, sort_order: 1
+    module_number: 2,
+    lesson_number: 1,
+    sort_order: 1,
   })
 
   await createLesson(course.id, m2.id, {
@@ -344,7 +363,9 @@ Watch out for:
 2. How can you involve Black employees in policy review and development?
 3. What accountability mechanisms are needed to ensure policies are followed?
 4. How often should policies be reviewed and updated?`,
-    module_number: 2, lesson_number: 2, sort_order: 2
+    module_number: 2,
+    lesson_number: 2,
+    sort_order: 2,
   })
 
   await createLesson(course.id, m2.id, {
@@ -354,7 +375,9 @@ Watch out for:
     content_type: 'video',
     content_url: 'https://example.com/videos/policy-implementation.mp4',
     video_duration_seconds: 600,
-    module_number: 2, lesson_number: 3, sort_order: 3
+    module_number: 2,
+    lesson_number: 3,
+    sort_order: 3,
   })
 
   await createLesson(course.id, m2.id, {
@@ -370,10 +393,11 @@ Watch out for:
             'Equality means everyone gets the same thing; equity means everyone gets what they need',
             'Equality is newer; equity is an older concept',
             'Equality applies to race; equity applies to gender',
-            'They mean the same thing'
+            'They mean the same thing',
           ],
           correct_answer: 0,
-          explanation: 'Equality treats everyone the same, which may not address different needs or barriers. Equity recognizes that people start from different places and provides what each person needs to achieve fair outcomes.'
+          explanation:
+            'Equality treats everyone the same, which may not address different needs or barriers. Equity recognizes that people start from different places and provides what each person needs to achieve fair outcomes.',
         },
         {
           question: 'Which of the following is a red flag in a workplace policy?',
@@ -381,27 +405,31 @@ Watch out for:
             'Specific examples of prohibited conduct',
             'Clear reporting procedures with timelines',
             'Subjective language like "professional appearance" without definition',
-            'Regular review and update schedule'
+            'Regular review and update schedule',
           ],
           correct_answer: 2,
-          explanation: 'Subjective terms like "professional appearance" can be interpreted through cultural biases and enforced discriminately. Policies should use objective, clearly defined criteria.'
+          explanation:
+            'Subjective terms like "professional appearance" can be interpreted through cultural biases and enforced discriminately. Policies should use objective, clearly defined criteria.',
         },
         {
           question: 'Why should Black employees be involved in policy development?',
           options: [
-            'It\'s legally required',
+            "It's legally required",
             'They can identify barriers and unintended consequences that others might miss',
             'To check for grammar and spelling errors',
-            'So they can\'t complain later'
+            "So they can't complain later",
           ],
           correct_answer: 1,
-          explanation: 'Black employees have lived experience with racism and can identify issues that others might overlook. Their input helps create more effective policies and demonstrates genuine commitment to equity.'
-        }
+          explanation:
+            'Black employees have lived experience with racism and can identify issues that others might overlook. Their input helps create more effective policies and demonstrates genuine commitment to equity.',
+        },
       ],
       passing_score: 75,
-      time_limit_minutes: 10
+      time_limit_minutes: 10,
     },
-    module_number: 2, lesson_number: 4, sort_order: 4
+    module_number: 2,
+    lesson_number: 4,
+    sort_order: 4,
   })
 
   console.log('✅ Module 2: 4 lessons')
@@ -410,7 +438,7 @@ Watch out for:
   const m3 = await createModule(course.id, {
     title: 'Building and Sustaining an Inclusive Culture',
     description: 'Creating workplace environments where Black employees thrive.',
-    sort_order: 3
+    sort_order: 3,
   })
 
   await createLesson(course.id, m3.id, {
@@ -569,7 +597,9 @@ Building inclusive culture is ongoing work, not a destination. It requires:
 2. What would Black employees say about the culture?
 3. What's one concrete step you could take this month to build more inclusive culture?
 4. Who are your allies in this work?`,
-    module_number: 3, lesson_number: 1, sort_order: 1
+    module_number: 3,
+    lesson_number: 1,
+    sort_order: 1,
   })
 
   await createLesson(course.id, m3.id, {
@@ -579,7 +609,9 @@ Building inclusive culture is ongoing work, not a destination. It requires:
     content_type: 'video',
     content_url: 'https://example.com/videos/supporting-ergs.mp4',
     video_duration_seconds: 540,
-    module_number: 3, lesson_number: 2, sort_order: 2
+    module_number: 3,
+    lesson_number: 2,
+    sort_order: 2,
   })
 
   await createLesson(course.id, m3.id, {
@@ -593,12 +625,13 @@ Building inclusive culture is ongoing work, not a destination. It requires:
           question: 'What is the key limitation of focusing only on diversity without inclusion?',
           options: [
             'It costs too much money',
-            'It brings in Black employees but doesn\'t create an environment where they can thrive',
+            "It brings in Black employees but doesn't create an environment where they can thrive",
             'It violates employment laws',
-            'It takes too much time'
+            'It takes too much time',
           ],
           correct_answer: 1,
-          explanation: 'Diversity (representation) without inclusion means Black employees may be hired but face barriers to advancement, belonging, and success. True equity requires both diverse representation and inclusive culture.'
+          explanation:
+            'Diversity (representation) without inclusion means Black employees may be hired but face barriers to advancement, belonging, and success. True equity requires both diverse representation and inclusive culture.',
         },
         {
           question: 'Which approach demonstrates genuine leadership commitment to racial equity?',
@@ -606,10 +639,11 @@ Building inclusive culture is ongoing work, not a destination. It requires:
             'Sending a statement after a racial justice incident',
             'Hosting a lunch-and-learn during Black History Month',
             'Conducting a racial equity audit and transparently sharing results and action plans',
-            'Hiring a Chief Diversity Officer'
+            'Hiring a Chief Diversity Officer',
           ],
           correct_answer: 2,
-          explanation: 'Genuine commitment involves assessing current state, being transparent about findings, and taking concrete action. Statements and one-time events without systemic change are performative.'
+          explanation:
+            'Genuine commitment involves assessing current state, being transparent about findings, and taking concrete action. Statements and one-time events without systemic change are performative.',
         },
         {
           question: 'What is a key principle for writing inclusive policies?',
@@ -617,27 +651,32 @@ Building inclusive culture is ongoing work, not a destination. It requires:
             'Use legal jargon to ensure enforceability',
             'Keep policies vague to allow flexibility',
             'Use specific, objective criteria and avoid subjective terms like "culture fit"',
-            'Focus only on what is prohibited, not what is encouraged'
+            'Focus only on what is prohibited, not what is encouraged',
           ],
           correct_answer: 2,
-          explanation: 'Inclusive policies should use clear, specific, objective language that reduces bias. Subjective terms can be interpreted through cultural biases and enforced discriminately.'
+          explanation:
+            'Inclusive policies should use clear, specific, objective language that reduces bias. Subjective terms can be interpreted through cultural biases and enforced discriminately.',
         },
         {
-          question: 'How can leaders measure whether culture is truly inclusive for Black employees?',
+          question:
+            'How can leaders measure whether culture is truly inclusive for Black employees?',
           options: [
             'Count the number of Black employees hired',
             'Track multiple metrics including retention, promotion, engagement, and qualitative feedback from Black employees',
             'Ask white employees if they see any problems',
-            'Check if there have been any formal complaints'
+            'Check if there have been any formal complaints',
           ],
           correct_answer: 1,
-          explanation: 'Measuring inclusive culture requires multiple indicators: quantitative metrics (retention, promotion, pay equity), qualitative data (employee feedback, exit interviews), and behavioral observations. Hiring alone doesn\'t reflect inclusion.'
-        }
+          explanation:
+            "Measuring inclusive culture requires multiple indicators: quantitative metrics (retention, promotion, pay equity), qualitative data (employee feedback, exit interviews), and behavioral observations. Hiring alone doesn't reflect inclusion.",
+        },
       ],
       passing_score: 80,
-      time_limit_minutes: 20
+      time_limit_minutes: 20,
     },
-    module_number: 3, lesson_number: 3, sort_order: 3
+    module_number: 3,
+    lesson_number: 3,
+    sort_order: 3,
   })
 
   console.log('✅ Module 3: 3 lessons')
@@ -646,15 +685,22 @@ Building inclusive culture is ongoing work, not a destination. It requires:
 
 async function populateCourse6() {
   console.log('📚 Course 6: Measuring and Reporting on Racial Equity')
-  
-  const { data: course } = await supabase.from('courses').select('id').eq('slug', 'data-driven-equity').single()
-  if (!course) { console.log('❌ Course not found'); return }
+
+  const { data: course } = await supabase
+    .from('courses')
+    .select('id')
+    .eq('slug', 'data-driven-equity')
+    .single()
+  if (!course) {
+    console.log('❌ Course not found')
+    return
+  }
 
   // Module 1: Data Collection
   const m1 = await createModule(course.id, {
     title: 'Equity Data Collection and Ethics',
     description: 'Best practices for collecting and handling racial demographic data.',
-    sort_order: 1
+    sort_order: 1,
   })
 
   await createLesson(course.id, m1.id, {
@@ -664,7 +710,10 @@ async function populateCourse6() {
     content_type: 'video',
     content_url: 'https://example.com/videos/why-measure.mp4',
     video_duration_seconds: 600,
-    module_number: 1, lesson_number: 1, sort_order: 1, is_preview: true
+    module_number: 1,
+    lesson_number: 1,
+    sort_order: 1,
+    is_preview: true,
   })
 
   await createLesson(course.id, m1.id, {
@@ -846,7 +895,9 @@ If data reveals disparities, acknowledge them honestly and commit to action.
 2. What concerns might Black employees have about sharing this information?
 3. How can you build trust through transparency and action?
 4. What would you do if data revealed significant disparities?`,
-    module_number: 1, lesson_number: 2, sort_order: 2
+    module_number: 1,
+    lesson_number: 2,
+    sort_order: 2,
   })
 
   await createLesson(course.id, m1.id, {
@@ -856,7 +907,9 @@ If data reveals disparities, acknowledge them honestly and commit to action.
     content_type: 'video',
     content_url: 'https://example.com/videos/data-privacy.mp4',
     video_duration_seconds: 480,
-    module_number: 1, lesson_number: 3, sort_order: 3
+    module_number: 1,
+    lesson_number: 3,
+    sort_order: 3,
   })
 
   console.log('✅ Module 1: 3 lessons')
@@ -865,7 +918,7 @@ If data reveals disparities, acknowledge them honestly and commit to action.
   const m2 = await createModule(course.id, {
     title: 'Key Equity Metrics and Analysis',
     description: 'Essential metrics for tracking racial equity progress.',
-    sort_order: 2
+    sort_order: 2,
   })
 
   await createLesson(course.id, m2.id, {
@@ -1052,7 +1105,9 @@ When you find disparities, ask why:
 2. Where do you predict you might find disparities?
 3. What would you do if you found significant gaps in promotion rates?
 4. How often should these metrics be reviewed?`,
-    module_number: 2, lesson_number: 1, sort_order: 1
+    module_number: 2,
+    lesson_number: 1,
+    sort_order: 1,
   })
 
   await createLesson(course.id, m2.id, {
@@ -1062,7 +1117,9 @@ When you find disparities, ask why:
     content_type: 'video',
     content_url: 'https://example.com/videos/analyzing-data.mp4',
     video_duration_seconds: 720,
-    module_number: 2, lesson_number: 2, sort_order: 2
+    module_number: 2,
+    lesson_number: 2,
+    sort_order: 2,
   })
 
   await createLesson(course.id, m2.id, {
@@ -1075,13 +1132,14 @@ When you find disparities, ask why:
         {
           question: 'Why is it important to track representation by level, not just overall?',
           options: [
-            'It\'s required by law',
+            "It's required by law",
             'It reveals whether Black employees can advance or are concentrated at lower levels',
             'It makes the reports longer',
-            'It\'s easier to calculate'
+            "It's easier to calculate",
           ],
           correct_answer: 1,
-          explanation: 'Overall representation can mask inequity. An organization might have good overall representation but if Black employees are concentrated at entry level and absent from leadership, that indicates barriers to advancement.'
+          explanation:
+            'Overall representation can mask inequity. An organization might have good overall representation but if Black employees are concentrated at entry level and absent from leadership, that indicates barriers to advancement.',
         },
         {
           question: 'What does high voluntary turnover among Black employees typically indicate?',
@@ -1089,27 +1147,32 @@ When you find disparities, ask why:
             'Black employees are less committed',
             'The organization is doing a good job of hiring',
             'Black employees may not feel included or see opportunities for advancement',
-            'Salaries are too high'
+            'Salaries are too high',
           ],
           correct_answer: 2,
-          explanation: 'High voluntary turnover among Black employees often signals issues with inclusion, belonging, advancement opportunities, or experiencing discrimination. It\'s a red flag that requires investigation.'
+          explanation:
+            "High voluntary turnover among Black employees often signals issues with inclusion, belonging, advancement opportunities, or experiencing discrimination. It's a red flag that requires investigation.",
         },
         {
-          question: 'When analyzing pay equity, why is it important to compare employees in the same role and level?',
+          question:
+            'When analyzing pay equity, why is it important to compare employees in the same role and level?',
           options: [
-            'It\'s easier',
-            'It\'s required by law',
-            'To ensure you\'re comparing similar jobs and isolating any unexplained gaps',
-            'To make the organization look better'
+            "It's easier",
+            "It's required by law",
+            "To ensure you're comparing similar jobs and isolating any unexplained gaps",
+            'To make the organization look better',
           ],
           correct_answer: 2,
-          explanation: 'Pay equity analysis must compare like-to-like (same role, level, location, experience) to determine if there are unexplained gaps based on race. Comparing across different roles doesn\'t reveal pay discrimination.'
-        }
+          explanation:
+            "Pay equity analysis must compare like-to-like (same role, level, location, experience) to determine if there are unexplained gaps based on race. Comparing across different roles doesn't reveal pay discrimination.",
+        },
       ],
       passing_score: 75,
-      time_limit_minutes: 10
+      time_limit_minutes: 10,
     },
-    module_number: 2, lesson_number: 3, sort_order: 3
+    module_number: 2,
+    lesson_number: 3,
+    sort_order: 3,
   })
 
   console.log('✅ Module 2: 3 lessons')
@@ -1118,7 +1181,7 @@ When you find disparities, ask why:
   const m3 = await createModule(course.id, {
     title: 'Reporting and Accountability',
     description: 'Communicating equity data and driving accountability.',
-    sort_order: 3
+    sort_order: 3,
   })
 
   await createLesson(course.id, m3.id, {
@@ -1128,7 +1191,9 @@ When you find disparities, ask why:
     content_type: 'video',
     content_url: 'https://example.com/videos/equity-reports.mp4',
     video_duration_seconds: 660,
-    module_number: 3, lesson_number: 1, sort_order: 1
+    module_number: 3,
+    lesson_number: 1,
+    sort_order: 1,
   })
 
   await createLesson(course.id, m3.id, {
@@ -1372,7 +1437,9 @@ Even without requirements, consider publishing:
 2. What would it take for your organization to commit to full transparency?
 3. If you published your data tomorrow, what would be the hardest numbers to share? Why?
 4. How could transparency accelerate progress in your organization?`,
-    module_number: 3, lesson_number: 2, sort_order: 2
+    module_number: 3,
+    lesson_number: 2,
+    sort_order: 2,
   })
 
   await createLesson(course.id, m3.id, {
@@ -1385,13 +1452,14 @@ Even without requirements, consider publishing:
         {
           question: 'What is the most important reason to collect demographic data?',
           options: [
-            'It\'s required by law',
+            "It's required by law",
             'To identify disparities and track progress toward equity',
             'To fill out government forms',
-            'To look good in marketing materials'
+            'To look good in marketing materials',
           ],
           correct_answer: 1,
-          explanation: 'While some data collection may be legally required, the primary purpose should be to identify where disparities exist, track whether interventions are working, and hold the organization accountable for progress.'
+          explanation:
+            'While some data collection may be legally required, the primary purpose should be to identify where disparities exist, track whether interventions are working, and hold the organization accountable for progress.',
         },
         {
           question: 'What is a key principle for collecting race data ethically?',
@@ -1399,38 +1467,44 @@ Even without requirements, consider publishing:
             'Make it mandatory so you get complete data',
             'Collect as much detail as possible',
             'Be transparent about purpose and use, make it voluntary, and ensure confidentiality',
-            'Only collect what\'s legally required'
+            "Only collect what's legally required",
           ],
           correct_answer: 2,
-          explanation: 'Ethical data collection requires transparency about why you\'re collecting and how it will be used, voluntary participation with option to decline, and strong confidentiality protections. Building trust is essential.'
+          explanation:
+            "Ethical data collection requires transparency about why you're collecting and how it will be used, voluntary participation with option to decline, and strong confidentiality protections. Building trust is essential.",
         },
         {
           question: 'Why is transparency about equity data important?',
           options: [
-            'It\'s required by law',
+            "It's required by law",
             'It builds trust, drives accountability, and enables benchmarking',
             'It makes the organization look good',
-            'It\'s easier than keeping it private'
+            "It's easier than keeping it private",
           ],
           correct_answer: 1,
-          explanation: 'Transparency builds trust with employees and stakeholders, creates accountability for progress, allows comparison with other organizations, and demonstrates genuine commitment beyond words.'
+          explanation:
+            'Transparency builds trust with employees and stakeholders, creates accountability for progress, allows comparison with other organizations, and demonstrates genuine commitment beyond words.',
         },
         {
-          question: 'When sharing data that shows significant disparities, what is the most important element to include?',
+          question:
+            'When sharing data that shows significant disparities, what is the most important element to include?',
           options: [
             'Explanations for why the disparities exist',
-            'Comparisons showing you\'re better than competitors',
-            'Specific actions you\'re taking to address the disparities with timelines and accountability',
-            'Apologies and statements of regret'
+            "Comparisons showing you're better than competitors",
+            "Specific actions you're taking to address the disparities with timelines and accountability",
+            'Apologies and statements of regret',
           ],
           correct_answer: 2,
-          explanation: 'While context and acknowledgment matter, the most critical element is explaining what concrete actions you\'re taking to address disparities, with specific timelines and clear accountability. Data without action is meaningless.'
-        }
+          explanation:
+            "While context and acknowledgment matter, the most critical element is explaining what concrete actions you're taking to address disparities, with specific timelines and clear accountability. Data without action is meaningless.",
+        },
       ],
       passing_score: 80,
-      time_limit_minutes: 15
+      time_limit_minutes: 15,
     },
-    module_number: 3, lesson_number: 3, sort_order: 3
+    module_number: 3,
+    lesson_number: 3,
+    sort_order: 3,
   })
 
   console.log('✅ Module 3: 3 lessons')
@@ -1442,7 +1516,7 @@ Promise.all([populateCourse5(), populateCourse6()])
   .then(() => {
     console.log('✅ All courses complete!')
   })
-  .catch(error => {
+  .catch((error) => {
     console.error('❌ Error:', error)
     process.exit(1)
   })

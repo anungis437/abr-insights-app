@@ -7,23 +7,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { 
-  StickyNote, 
-  Plus, 
-  Trash2, 
-  Edit2, 
-  Download, 
-  Clock,
-  Save,
-  X
-} from 'lucide-react'
+import { StickyNote, Plus, Trash2, Edit2, Download, Clock, Save, X } from 'lucide-react'
 import type { LessonNote } from '@/lib/types/courses'
 import {
   getLessonNotes,
   createLessonNote,
   updateLessonNote,
   deleteLessonNote,
-  exportLessonNotesAsText
+  exportLessonNotesAsText,
 } from '@/lib/services/lesson-notes'
 
 interface NotesPanelProps {
@@ -41,7 +32,7 @@ export default function NotesPanel({
   userId,
   currentTime,
   onSeekTo,
-  isVisible = true
+  isVisible = true,
 }: NotesPanelProps) {
   const [notes, setNotes] = useState<LessonNote[]>([])
   const [newNoteText, setNewNoteText] = useState('')
@@ -60,7 +51,7 @@ export default function NotesPanel({
 
   const loadNotes = async () => {
     if (!userId || !lessonId) return
-    
+
     try {
       setIsLoading(true)
       const data = await getLessonNotes(userId, lessonId)
@@ -81,9 +72,9 @@ export default function NotesPanel({
         lesson_id: lessonId,
         enrollment_id: enrollmentId,
         note_text: newNoteText.trim(),
-        timestamp_seconds: Math.floor(currentTime)
+        timestamp_seconds: Math.floor(currentTime),
       })
-      
+
       setNotes([...notes, newNote].sort((a, b) => a.timestamp_seconds - b.timestamp_seconds))
       setNewNoteText('')
     } catch (error) {
@@ -99,10 +90,10 @@ export default function NotesPanel({
     try {
       setIsSaving(true)
       const updatedNote = await updateLessonNote(noteId, {
-        note_text: editingText.trim()
+        note_text: editingText.trim(),
       })
-      
-      setNotes(notes.map(n => n.id === noteId ? updatedNote : n))
+
+      setNotes(notes.map((n) => (n.id === noteId ? updatedNote : n)))
       setEditingNoteId(null)
       setEditingText('')
     } catch (error) {
@@ -117,7 +108,7 @@ export default function NotesPanel({
 
     try {
       await deleteLessonNote(noteId)
-      setNotes(notes.filter(n => n.id !== noteId))
+      setNotes(notes.filter((n) => n.id !== noteId))
     } catch (error) {
       console.error('Failed to delete note:', error)
     }
@@ -153,49 +144,49 @@ export default function NotesPanel({
   if (!isVisible) return null
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
+    <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+      <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
         <div className="flex items-center gap-2">
-          <StickyNote className="w-5 h-5 text-blue-600" />
+          <StickyNote className="h-5 w-5 text-blue-600" />
           <h3 className="font-medium text-gray-900">Lesson Notes</h3>
           <span className="text-sm text-gray-500">({notes.length})</span>
         </div>
         {notes.length > 0 && (
           <button
             onClick={handleExportNotes}
-            className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1"
+            className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700"
             aria-label="Export notes"
           >
-            <Download className="w-4 h-4" />
+            <Download className="h-4 w-4" />
             Export
           </button>
         )}
       </div>
 
       {/* New Note Input */}
-      <div className="p-4 border-b border-gray-200 bg-gray-50">
+      <div className="border-b border-gray-200 bg-gray-50 p-4">
         <div className="flex items-start gap-2">
           <div className="flex-1">
             <textarea
               value={newNoteText}
               onChange={(e) => setNewNoteText(e.target.value)}
               placeholder="Add a note at current timestamp..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
               rows={3}
               maxLength={5000}
             />
             <div className="mt-2 flex items-center justify-between">
-              <span className="text-xs text-gray-500 flex items-center gap-1">
-                <Clock className="w-3 h-3" />
+              <span className="flex items-center gap-1 text-xs text-gray-500">
+                <Clock className="h-3 w-3" />
                 {formatTimestamp(Math.floor(currentTime))}
               </span>
               <button
                 onClick={handleCreateNote}
                 disabled={!newNoteText.trim() || isSaving}
-                className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center gap-1"
+                className="flex items-center gap-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300"
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="h-4 w-4" />
                 Add Note
               </button>
             </div>
@@ -204,20 +195,18 @@ export default function NotesPanel({
       </div>
 
       {/* Notes List */}
-      <div className="p-4 space-y-3 max-h-96 overflow-y-auto">
+      <div className="max-h-96 space-y-3 overflow-y-auto p-4">
         {isLoading ? (
-          <div className="text-center py-8 text-gray-500">
-            Loading notes...
-          </div>
+          <div className="py-8 text-center text-gray-500">Loading notes...</div>
         ) : notes.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
+          <div className="py-8 text-center text-gray-500">
             No notes yet. Add your first note above!
           </div>
         ) : (
           notes.map((note) => (
             <div
               key={note.id}
-              className="bg-white border border-gray-200 rounded-lg p-3 hover:border-blue-300 transition-colors"
+              className="rounded-lg border border-gray-200 bg-white p-3 transition-colors hover:border-blue-300"
             >
               {editingNoteId === note.id ? (
                 // Edit Mode
@@ -225,7 +214,7 @@ export default function NotesPanel({
                   <textarea
                     value={editingText}
                     onChange={(e) => setEditingText(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                     rows={3}
                     maxLength={5000}
                     aria-label="Edit note text"
@@ -239,14 +228,14 @@ export default function NotesPanel({
                       className="px-3 py-1 text-sm text-gray-600 hover:text-gray-900"
                       aria-label="Cancel editing"
                     >
-                      <X className="w-4 h-4" />
+                      <X className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => handleUpdateNote(note.id)}
                       disabled={isSaving}
-                      className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 disabled:bg-gray-300 flex items-center gap-1"
+                      className="flex items-center gap-1 rounded bg-blue-600 px-3 py-1 text-sm text-white hover:bg-blue-700 disabled:bg-gray-300"
                     >
-                      <Save className="w-4 h-4" />
+                      <Save className="h-4 w-4" />
                       Save
                     </button>
                   </div>
@@ -254,13 +243,13 @@ export default function NotesPanel({
               ) : (
                 // View Mode
                 <>
-                  <div className="flex items-start justify-between gap-2 mb-2">
+                  <div className="mb-2 flex items-start justify-between gap-2">
                     <button
                       onClick={() => handleSeekToNote(note.timestamp_seconds)}
-                      className="text-sm font-medium text-blue-600 hover:text-blue-700 flex items-center gap-1"
+                      className="flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700"
                       aria-label={`Jump to ${formatTimestamp(note.timestamp_seconds)}`}
                     >
-                      <Clock className="w-3 h-3" />
+                      <Clock className="h-3 w-3" />
                       {formatTimestamp(note.timestamp_seconds)}
                     </button>
                     <div className="flex items-center gap-1">
@@ -272,27 +261,25 @@ export default function NotesPanel({
                         className="p-1 text-gray-400 hover:text-blue-600"
                         aria-label="Edit note"
                       >
-                        <Edit2 className="w-4 h-4" />
+                        <Edit2 className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => handleDeleteNote(note.id)}
                         className="p-1 text-gray-400 hover:text-red-600"
                         aria-label="Delete note"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-700 whitespace-pre-wrap">
-                    {note.note_text}
-                  </p>
+                  <p className="whitespace-pre-wrap text-sm text-gray-700">{note.note_text}</p>
                   <div className="mt-2 text-xs text-gray-400">
                     {new Date(note.created_at).toLocaleDateString('en-US', {
                       month: 'short',
                       day: 'numeric',
                       year: 'numeric',
                       hour: 'numeric',
-                      minute: '2-digit'
+                      minute: '2-digit',
                     })}
                   </div>
                 </>

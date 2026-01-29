@@ -1,22 +1,21 @@
-import * as React from "react";
-import type { ButtonHTMLAttributes } from "react";
+import * as React from 'react'
+import type { ButtonHTMLAttributes } from 'react'
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "default" | "outline" | "ghost" | "secondary" | "destructive";
+  variant?: 'default' | 'outline' | 'ghost' | 'secondary' | 'destructive'
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className = "", variant = "default", ...props }, ref) => {
-    let base = "px-4 py-2 rounded font-medium focus:outline-none transition-colors";
-    let variantClass = "";
-    if (variant === "default") variantClass = "bg-purple-600 text-white hover:bg-purple-700";
-    if (variant === "outline") variantClass = "border border-gray-300 bg-white text-gray-900 hover:bg-gray-50";
-    if (variant === "ghost") variantClass = "bg-transparent text-purple-700 hover:bg-purple-50";
-    if (variant === "secondary") variantClass = "bg-gray-200 text-gray-900 hover:bg-gray-300";
-    if (variant === "destructive") variantClass = "bg-red-600 text-white hover:bg-red-700";
-    return (
-      <button ref={ref} className={`${base} ${variantClass} ${className}`} {...props} />
-    );
+  ({ className = '', variant = 'default', ...props }, ref) => {
+    let base = 'px-4 py-2 rounded font-medium focus:outline-none transition-colors'
+    let variantClass = ''
+    if (variant === 'default') variantClass = 'bg-purple-600 text-white hover:bg-purple-700'
+    if (variant === 'outline')
+      variantClass = 'border border-gray-300 bg-white text-gray-900 hover:bg-gray-50'
+    if (variant === 'ghost') variantClass = 'bg-transparent text-purple-700 hover:bg-purple-50'
+    if (variant === 'secondary') variantClass = 'bg-gray-200 text-gray-900 hover:bg-gray-300'
+    if (variant === 'destructive') variantClass = 'bg-red-600 text-white hover:bg-red-700'
+    return <button ref={ref} className={`${base} ${variantClass} ${className}`} {...props} />
   }
-);
-Button.displayName = "Button";
+)
+Button.displayName = 'Button'

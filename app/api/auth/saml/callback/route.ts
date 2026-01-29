@@ -1,8 +1,8 @@
 /**
  * SAML SSO Assertion Consumer Service (ACS) Endpoint
- * 
+ *
  * Receives and validates SAML assertions from IdP
- * 
+ *
  * Flow:
  * 1. Receive SAML response from IdP (POST binding)
  * 2. Validate relay state
@@ -13,13 +13,13 @@
  * 7. Update Supabase auth session
  * 8. Log login attempt
  * 9. Redirect to dashboard
- * 
+ *
  * Security:
  * - Validates SAML signature with X.509 certificate
  * - Validates assertion expiration and conditions
  * - Validates audience restriction
  * - Logs all attempts for audit trail
- * 
+ *
  * @route /api/auth/saml/callback
  */
 
@@ -41,9 +41,7 @@ export async function POST(request: NextRequest) {
     const relayState = formData.get('RelayState') as string
 
     if (!samlResponse) {
-      return NextResponse.redirect(
-        new URL('/login?error=missing_saml_response', request.url)
-      )
+      return NextResponse.redirect(new URL('/login?error=missing_saml_response', request.url))
     }
 
     // Validate relay state
@@ -52,9 +50,7 @@ export async function POST(request: NextRequest) {
 
     if (!storedRelayState || storedRelayState !== relayState) {
       console.error('[SAML Callback] Relay state mismatch')
-      return NextResponse.redirect(
-        new URL('/login?error=invalid_relay_state', request.url)
-      )
+      return NextResponse.redirect(new URL('/login?error=invalid_relay_state', request.url))
     }
 
     // Parse relay state
@@ -62,9 +58,7 @@ export async function POST(request: NextRequest) {
     organizationSlug = relayStateData.organizationSlug
 
     if (!organizationSlug) {
-      return NextResponse.redirect(
-        new URL('/login?error=missing_organization', request.url)
-      )
+      return NextResponse.redirect(new URL('/login?error=missing_organization', request.url))
     }
 
     // Get SAML service
@@ -102,7 +96,8 @@ export async function POST(request: NextRequest) {
     const userId = await samlService.provisionUser(attributes, organization.id)
 
     // Create enterprise session
-    const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
+    const ipAddress =
+      request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
     const userAgent = request.headers.get('user-agent') || 'unknown'
 
     await samlService.createSession({
@@ -165,7 +160,10 @@ export async function POST(request: NextRequest) {
             .single()
 
           if (ssoProvider) {
-            const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
+            const ipAddress =
+              request.headers.get('x-forwarded-for') ||
+              request.headers.get('x-real-ip') ||
+              'unknown'
             const userAgent = request.headers.get('user-agent') || 'unknown'
 
             await samlService.logLoginAttempt(
@@ -199,7 +197,5 @@ export async function POST(request: NextRequest) {
 
 // SAML IdP can also initiate login (IdP-initiated flow)
 export async function GET(request: NextRequest) {
-  return NextResponse.redirect(
-    new URL('/login?error=use_post_binding', request.url)
-  )
+  return NextResponse.redirect(new URL('/login?error=use_post_binding', request.url))
 }

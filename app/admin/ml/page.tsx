@@ -2,7 +2,7 @@
 
 /**
  * Admin ML Management Page
- * 
+ *
  * Comprehensive interface for managing ML features:
  * - Embedding generation and monitoring
  * - Semantic similarity search testing
@@ -34,7 +34,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Loader2, AlertCircle, CheckCircle2, XCircle, Database, Brain, Search, TrendingUp } from 'lucide-react'
+import {
+  Loader2,
+  AlertCircle,
+  CheckCircle2,
+  XCircle,
+  Database,
+  Brain,
+  Search,
+  TrendingUp,
+} from 'lucide-react'
 
 interface EmbeddingJob {
   id: string
@@ -159,9 +168,8 @@ export default function AdminMLPage() {
     setSearchResults([])
 
     try {
-      const endpoint = searchType === 'cases' 
-        ? '/api/embeddings/search-cases'
-        : '/api/embeddings/search-courses'
+      const endpoint =
+        searchType === 'cases' ? '/api/embeddings/search-cases' : '/api/embeddings/search-courses'
 
       const response = await fetch(endpoint, {
         method: 'POST',
@@ -222,9 +230,9 @@ export default function AdminMLPage() {
   // =====================================================
 
   return (
-    <div className="container mx-auto pt-20 pb-8 px-4">
+    <div className="container mx-auto px-4 pb-8 pt-20">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">ML Features Management</h1>
+        <h1 className="mb-2 text-3xl font-bold">ML Features Management</h1>
         <p className="text-muted-foreground">
           Manage embeddings, semantic search, and outcome prediction models
         </p>
@@ -239,7 +247,7 @@ export default function AdminMLPage() {
       )}
 
       {success && (
-        <Alert className="mb-6 bg-green-50 text-green-900 border-green-200">
+        <Alert className="mb-6 border-green-200 bg-green-50 text-green-900">
           <CheckCircle2 className="h-4 w-4" />
           <AlertTitle>Success</AlertTitle>
           <AlertDescription>{success}</AlertDescription>
@@ -249,19 +257,19 @@ export default function AdminMLPage() {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="embeddings">
-            <Database className="w-4 h-4 mr-2" />
+            <Database className="mr-2 h-4 w-4" />
             Embeddings
           </TabsTrigger>
           <TabsTrigger value="search">
-            <Search className="w-4 h-4 mr-2" />
+            <Search className="mr-2 h-4 w-4" />
             Search Test
           </TabsTrigger>
           <TabsTrigger value="predictions">
-            <Brain className="w-4 h-4 mr-2" />
+            <Brain className="mr-2 h-4 w-4" />
             Predictions
           </TabsTrigger>
           <TabsTrigger value="analytics">
-            <TrendingUp className="w-4 h-4 mr-2" />
+            <TrendingUp className="mr-2 h-4 w-4" />
             Analytics
           </TabsTrigger>
         </TabsList>
@@ -281,9 +289,12 @@ export default function AdminMLPage() {
                   {coverageStats.map((stat: any, idx: number) => (
                     <div key={idx} className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="font-medium capitalize">{stat.entity_type.replace('_', ' ')}</span>
-                        <span className="text-sm text-muted-foreground">
-                          {stat.embedded_entities}/{stat.total_entities} ({stat.coverage_percentage}%)
+                        <span className="font-medium capitalize">
+                          {stat.entity_type.replace('_', ' ')}
+                        </span>
+                        <span className="text-muted-foreground text-sm">
+                          {stat.embedded_entities}/{stat.total_entities} ({stat.coverage_percentage}
+                          %)
                         </span>
                       </div>
                       <Progress value={stat.coverage_percentage} />
@@ -295,10 +306,7 @@ export default function AdminMLPage() {
               )}
 
               <div className="mt-6 flex gap-4">
-                <Button
-                  onClick={() => generateEmbeddings('cases')}
-                  disabled={loading}
-                >
+                <Button onClick={() => generateEmbeddings('cases')} disabled={loading}>
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Generate Case Embeddings
                 </Button>
@@ -342,10 +350,13 @@ export default function AdminMLPage() {
                         <TableCell>
                           <Badge
                             variant={
-                              job.status === 'completed' ? 'default' :
-                              job.status === 'failed' ? 'destructive' :
-                              job.status === 'running' ? 'secondary' :
-                              'outline'
+                              job.status === 'completed'
+                                ? 'default'
+                                : job.status === 'failed'
+                                  ? 'destructive'
+                                  : job.status === 'running'
+                                    ? 'secondary'
+                                    : 'outline'
                             }
                           >
                             {job.status}
@@ -368,14 +379,12 @@ export default function AdminMLPage() {
                             ? `${Math.round(job.metrics.durationSeconds)}s`
                             : '-'}
                         </TableCell>
-                        <TableCell>
-                          {new Date(job.created_at).toLocaleString()}
-                        </TableCell>
+                        <TableCell>{new Date(job.created_at).toLocaleString()}</TableCell>
                       </TableRow>
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center text-muted-foreground">
+                      <TableCell colSpan={5} className="text-muted-foreground text-center">
                         No embedding jobs found
                       </TableCell>
                     </TableRow>
@@ -399,10 +408,7 @@ export default function AdminMLPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="searchType">Search Type</Label>
-                  <Select
-                    value={searchType}
-                    onValueChange={(value: any) => setSearchType(value)}
-                  >
+                  <Select value={searchType} onValueChange={(value: any) => setSearchType(value)}>
                     <SelectTrigger id="searchType">
                       <SelectValue />
                     </SelectTrigger>
@@ -460,7 +466,7 @@ export default function AdminMLPage() {
                                 {result.case_title || result.course_title}
                               </h4>
                               {result.tribunal_name && (
-                                <p className="text-sm text-muted-foreground mt-1">
+                                <p className="text-muted-foreground mt-1 text-sm">
                                   {result.tribunal_name}
                                 </p>
                               )}
@@ -486,15 +492,13 @@ export default function AdminMLPage() {
 
         {/* Predictions Tab */}
         <TabsContent value="predictions" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             <Card>
               <CardHeader>
                 <CardTitle>Total Predictions</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-4xl font-bold">
-                  {predictionStats?.totalPredictions || 0}
-                </p>
+                <p className="text-4xl font-bold">{predictionStats?.totalPredictions || 0}</p>
               </CardContent>
             </Card>
 
@@ -503,9 +507,7 @@ export default function AdminMLPage() {
                 <CardTitle>Validated Predictions</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-4xl font-bold">
-                  {predictionStats?.validatedPredictions || 0}
-                </p>
+                <p className="text-4xl font-bold">{predictionStats?.validatedPredictions || 0}</p>
               </CardContent>
             </Card>
 
@@ -532,27 +534,27 @@ export default function AdminMLPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                   <div>
-                    <p className="text-sm text-muted-foreground">Precision</p>
+                    <p className="text-muted-foreground text-sm">Precision</p>
                     <p className="text-2xl font-bold">
                       {Math.round((modelPerformance.precision || 0) * 100)}%
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Recall</p>
+                    <p className="text-muted-foreground text-sm">Recall</p>
                     <p className="text-2xl font-bold">
                       {Math.round((modelPerformance.recall || 0) * 100)}%
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">F1 Score</p>
+                    <p className="text-muted-foreground text-sm">F1 Score</p>
                     <p className="text-2xl font-bold">
                       {Math.round((modelPerformance.f1Score || 0) * 100)}%
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">AUC-ROC</p>
+                    <p className="text-muted-foreground text-sm">AUC-ROC</p>
                     <p className="text-2xl font-bold">
                       {Math.round((modelPerformance.aucRoc || 0) * 100)}%
                     </p>
@@ -568,46 +570,44 @@ export default function AdminMLPage() {
           <Card>
             <CardHeader>
               <CardTitle>ML Features Overview</CardTitle>
-              <CardDescription>
-                Summary of all ML capabilities and their status
-              </CardDescription>
+              <CardDescription>Summary of all ML capabilities and their status</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="flex items-center justify-between rounded-lg border p-4">
                   <div>
                     <h4 className="font-medium">Vector Embeddings</h4>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       Azure OpenAI text-embedding-3-large (1536 dimensions)
                     </p>
                   </div>
                   <CheckCircle2 className="text-green-500" />
                 </div>
 
-                <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="flex items-center justify-between rounded-lg border p-4">
                   <div>
                     <h4 className="font-medium">Semantic Similarity Search</h4>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       HNSW index for fast approximate nearest neighbor search
                     </p>
                   </div>
                   <CheckCircle2 className="text-green-500" />
                 </div>
 
-                <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="flex items-center justify-between rounded-lg border p-4">
                   <div>
                     <h4 className="font-medium">Outcome Prediction</h4>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       Statistical ensemble model with confidence scoring
                     </p>
                   </div>
                   <CheckCircle2 className="text-green-500" />
                 </div>
 
-                <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="flex items-center justify-between rounded-lg border p-4">
                   <div>
                     <h4 className="font-medium">Continuous Learning</h4>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       Models improve from validated predictions feedback
                     </p>
                   </div>

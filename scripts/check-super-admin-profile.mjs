@@ -16,8 +16,8 @@ async function checkSuperAdminProfile() {
 
   // Get the auth user
   const { data: authUsers } = await supabase.auth.admin.listUsers()
-  const superAdmin = authUsers.users.find(u => u.email === 'super_admin@abr-insights.com')
-  
+  const superAdmin = authUsers.users.find((u) => u.email === 'super_admin@abr-insights.com')
+
   if (!superAdmin) {
     console.log('Super admin user not found!')
     return
@@ -53,7 +53,7 @@ async function checkSuperAdminProfile() {
     console.log('Roles Error:', rolesError)
   } else {
     console.log('\nUser Roles:')
-    roles.forEach(r => {
+    roles.forEach((r) => {
       console.log('  Role:', r.roles.name)
       console.log('  Organization ID:', r.organization_id)
       console.log('  Is Primary:', r.is_primary)
@@ -63,7 +63,7 @@ async function checkSuperAdminProfile() {
 
 checkSuperAdminProfile()
   .then(() => process.exit(0))
-  .catch(err => {
+  .catch((err) => {
     console.error('Error:', err)
     process.exit(1)
   })

@@ -11,6 +11,7 @@
 **Migration Complexity**: ⚠️ **SIGNIFICANT (8-12 weeks, 2-3 developers)**
 
 This is a **complete architectural overhaul** involving:
+
 - Backend rewrite from Supabase functions → Django REST Framework
 - Auth migration from Supabase Auth → Django + Azure AD B2C
 - Database migration from Supabase PostgreSQL → Azure PostgreSQL
@@ -29,6 +30,7 @@ This is a **complete architectural overhaul** involving:
 Based on codebase analysis:
 
 #### 1. **Authentication & Authorization** (HIGH IMPACT)
+
 - **Supabase Auth** used throughout (`@supabase/auth-helpers-nextjs`, `@supabase/ssr`)
 - Row-Level Security (RLS) policies in 40+ migrations
 - 9 role types: super_admin, compliance_officer, org_admin, analyst, investigator, educator, learner, viewer, guest
@@ -36,12 +38,14 @@ Based on codebase analysis:
 - Session management across client/server components
 
 **Files Affected**: ~150 files
+
 - `lib/supabase/client.ts`, `lib/supabase/server.ts`, `lib/supabase/middleware.ts`
 - `lib/auth/*` (8 files)
 - `middleware.ts` (route protection)
 - All API routes using `createClient()`
 
 #### 2. **Database Layer** (HIGH IMPACT)
+
 - **40 migrations** in `supabase/migrations/`
 - Complex schema: 50+ tables
   - Core: profiles, organizations, teams, subscriptions
@@ -56,12 +60,14 @@ Based on codebase analysis:
 - Database functions/stored procedures: 15+
 - RLS policies: 100+ across all tables
 
-**Files Affected**: 
+**Files Affected**:
+
 - 40 SQL migration files
 - 22 service files in `lib/services/*`
 - 100+ scripts in `scripts/` directory
 
 #### 3. **Real-time Features** (MEDIUM IMPACT)
+
 - Supabase Realtime for:
   - Live leaderboard updates
   - Chat notifications
@@ -71,6 +77,7 @@ Based on codebase analysis:
 **Files Affected**: ~20 files using subscriptions
 
 #### 4. **Storage** (LOW-MEDIUM IMPACT)
+
 - Supabase Storage for:
   - User avatars
   - Course thumbnails/videos
@@ -81,6 +88,7 @@ Based on codebase analysis:
 **Migration Path**: Azure Blob Storage
 
 #### 5. **Edge Functions / Serverless** (LOW IMPACT)
+
 - Currently using Next.js API routes (not Supabase Edge Functions)
 - 24 API routes in `app/api/`
 - Minimal migration needed (just database client changes)
@@ -92,6 +100,7 @@ Based on codebase analysis:
 ### Phase 1: Infrastructure Setup (2 weeks, 80-120 hours)
 
 #### 1.1 Azure Resources Provisioning
+
 ```
 ✓ Azure Resource Group (staging + production)
 ✓ Azure PostgreSQL Flexible Server (with High Availability for prod)
@@ -108,6 +117,7 @@ Based on codebase analysis:
 **Environment Configuration**: Dev, Staging, Production
 
 #### 1.2 Django Project Scaffolding
+
 ```python
 # Project structure
 backend/
@@ -135,6 +145,7 @@ backend/
 ```
 
 **Key Dependencies**:
+
 ```txt
 Django==5.0+
 djangorestframework==3.14+
@@ -154,6 +165,7 @@ gunicorn==21.2+                 # WSGI server
 ```
 
 **Estimated Effort**: 80 hours
+
 - Infrastructure as Code: 24 hours
 - Django setup & configuration: 32 hours
 - CI/CD pipeline: 24 hours
@@ -163,6 +175,7 @@ gunicorn==21.2+                 # WSGI server
 ### Phase 2: Database Migration (2-3 weeks, 120-180 hours)
 
 #### 2.1 Schema Translation
+
 - Convert 40 Supabase migrations to Django ORM models
 - Recreate indexes, constraints, triggers
 - pgvector extension setup for embeddings
@@ -171,6 +184,7 @@ gunicorn==21.2+                 # WSGI server
 **Complexity**: 50+ Django models
 
 Example translation:
+
 ```python
 # From Supabase SQL
 CREATE TABLE profiles (
@@ -197,9 +211,11 @@ class Profile(models.Model):
 ```
 
 #### 2.2 RLS Policy Conversion
+
 Supabase RLS → Django permissions framework
 
 **Example**:
+
 ```sql
 -- Supabase RLS
 CREATE POLICY "Users can update own profile"
@@ -218,6 +234,7 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
 **Files to Create**: 15+ permission classes
 
 #### 2.3 Data Migration Scripts
+
 - Export existing data from Supabase
 - Transform data format (UUID handling, JSON fields, etc.)
 - Import to Azure PostgreSQL
@@ -226,6 +243,7 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
 **Critical**: Zero-downtime migration strategy needed for production
 
 **Estimated Effort**: 140 hours
+
 - Model creation: 60 hours
 - RLS → Permissions: 40 hours
 - Data migration scripts: 40 hours
@@ -240,6 +258,7 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
 **To**: Django + Azure AD B2C + JWT
 
 Components needed:
+
 ```python
 # accounts/authentication.py
 - Custom User model
@@ -253,21 +272,25 @@ Components needed:
 ```
 
 #### 3.2 Frontend Auth Updates
+
 Update ~150 files using Supabase auth:
 
 ```typescript
 // Before (Supabase)
 const supabase = createClient()
-const { data: { user } } = await supabase.auth.getUser()
+const {
+  data: { user },
+} = await supabase.auth.getUser()
 
 // After (Django)
 const response = await fetch('/api/auth/me', {
-  headers: { 'Authorization': `Bearer ${token}` }
+  headers: { Authorization: `Bearer ${token}` },
 })
 const user = await response.json()
 ```
 
 **New Frontend Auth Service**:
+
 ```typescript
 // lib/auth/django-client.ts
 class DjangoAuthClient {
@@ -281,12 +304,14 @@ class DjangoAuthClient {
 ```
 
 #### 3.3 Middleware Updates
+
 - Update `middleware.ts` for new auth flow
 - CSRF protection
 - CORS configuration
 - Rate limiting
 
 **Estimated Effort**: 120 hours
+
 - Django auth backend: 50 hours
 - Frontend integration: 50 hours
 - Testing & edge cases: 20 hours
@@ -296,9 +321,11 @@ class DjangoAuthClient {
 ### Phase 4: API Development (3-4 weeks, 180-240 hours)
 
 #### 4.1 REST API Endpoints
+
 Recreate all 24 API routes as Django REST Framework views:
 
 **Major API Groups**:
+
 1. **Accounts & Auth** (10 endpoints)
    - Profile CRUD
    - Organization management
@@ -338,16 +365,17 @@ Recreate all 24 API routes as Django REST Framework views:
 **Total**: ~80 API endpoints
 
 #### 4.2 Serializers & Validation
+
 ```python
 # Example for course serializer
 class CourseSerializer(serializers.ModelSerializer):
     lessons = LessonSerializer(many=True, read_only=True)
     progress = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = Course
         fields = '__all__'
-        
+
     def get_progress(self, obj):
         # Complex business logic from Supabase service
         pass
@@ -356,10 +384,12 @@ class CourseSerializer(serializers.ModelSerializer):
 **Estimated**: 40+ complex serializers
 
 #### 4.3 OpenAPI Documentation
+
 - Auto-generate with drf-spectacular
 - Replace existing API docs
 
 **Estimated Effort**: 200 hours
+
 - Endpoint implementation: 120 hours
 - Serializers & validation: 40 hours
 - Testing: 40 hours
@@ -369,6 +399,7 @@ class CourseSerializer(serializers.ModelSerializer):
 ### Phase 5: Business Logic Migration (2 weeks, 100-140 hours)
 
 #### 5.1 Service Layer
+
 Migrate 22 service files from `lib/services/`:
 
 ```python
@@ -377,17 +408,18 @@ class CourseService:
     def get_user_progress(self, user_id, course_id):
         """Port from lib/services/courses-enhanced.ts"""
         pass
-        
+
     def calculate_completion(self, user_id, course_id):
         """Complex calculation with quizzes, watch time, etc."""
         pass
-        
+
     def award_certificate(self, user_id, course_id):
         """Certificate generation + CE credits"""
         pass
 ```
 
 **Services to Port**:
+
 - Course gamification (complex point calculations)
 - Quiz validation (advanced scoring)
 - Certificate generation (PDF with QR codes)
@@ -398,7 +430,9 @@ class CourseService:
 - Audit logging
 
 #### 5.2 Background Tasks
+
 Implement with Celery:
+
 ```python
 # tasks.py
 @celery_app.task
@@ -430,17 +464,19 @@ def update_leaderboards():
 **Options**:
 
 A. **Django Channels + WebSockets**
+
 ```python
 # consumers.py
 class LeaderboardConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         await self.channel_layer.group_add("leaderboard", self.channel_name)
-        
+
     async def leaderboard_update(self, event):
         await self.send(text_data=json.dumps(event["data"]))
 ```
 
 B. **Server-Sent Events (SSE)** - Simpler
+
 ```python
 # views.py
 def leaderboard_stream(request):
@@ -457,6 +493,7 @@ C. **Polling with Redis Pub/Sub** - Easiest
 **Recommendation**: Start with Redis Pub/Sub, migrate to Channels if needed
 
 **Features to Reimplement**:
+
 - Live leaderboard (20 files)
 - Chat notifications (8 files)
 - Progress sync (12 files)
@@ -469,6 +506,7 @@ C. **Polling with Redis Pub/Sub** - Easiest
 ### Phase 7: Storage Migration (1 week, 40-60 hours)
 
 #### 7.1 Azure Blob Storage Setup
+
 ```python
 # core/storage.py
 from azure.storage.blob import BlobServiceClient
@@ -480,17 +518,18 @@ class AzureBlobStorage(Storage):
             account_url=settings.AZURE_STORAGE_URL,
             credential=settings.AZURE_STORAGE_KEY
         )
-        
+
     def save(self, name, content):
         # Upload to Azure Blob
         pass
-        
+
     def url(self, name):
         # Return CDN URL
         pass
 ```
 
 #### 7.2 Media Migration
+
 - Migrate existing files from Supabase Storage
 - Update URLs in database
 - Configure CDN
@@ -504,6 +543,7 @@ class AzureBlobStorage(Storage):
 ### Phase 8: Testing & Quality Assurance (2 weeks, 100-140 hours)
 
 #### 8.1 Test Suite
+
 ```python
 backend/tests/
 ├── unit/
@@ -521,12 +561,14 @@ backend/tests/
 **Coverage Target**: 85%+
 
 #### 8.2 Performance Testing
+
 - Load testing (locust/k6)
 - Database query optimization
 - Caching strategy (Redis)
 - API response times (<200ms p95)
 
 #### 8.3 Security Audit
+
 - OWASP Top 10 compliance
 - Penetration testing
 - Dependency vulnerability scan
@@ -541,6 +583,7 @@ backend/tests/
 #### 9.1 Performance Optimizations
 
 **Database**:
+
 - Query optimization (Django Debug Toolbar)
 - Connection pooling (pgbouncer)
 - Read replicas for analytics
@@ -548,6 +591,7 @@ backend/tests/
 - Index optimization
 
 **Caching Strategy**:
+
 ```python
 # 3-tier caching
 - L1: Django cache framework (Redis)
@@ -556,6 +600,7 @@ backend/tests/
 ```
 
 **API Performance**:
+
 - Pagination (cursor-based for large datasets)
 - Field selection (sparse fieldsets)
 - Response compression (gzip)
@@ -572,6 +617,7 @@ backend/tests/
 ```
 
 **Key Metrics**:
+
 - API response times (p50, p95, p99)
 - Error rates
 - Database query performance
@@ -581,11 +627,13 @@ backend/tests/
 #### 9.3 Scalability
 
 **Horizontal Scaling**:
+
 - Stateless API servers (scale out)
 - Celery workers (auto-scaling)
 - PostgreSQL connection pooling
 
 **Database Optimization**:
+
 - Partition large tables (tribunal_cases, embeddings)
 - Archive old data
 - Optimize embeddings queries (HNSW indexes)
@@ -605,6 +653,7 @@ settings/production.py:
 ```
 
 **Azure Security**:
+
 - Managed Identity for service-to-service auth
 - Key Vault for secrets
 - Network Security Groups
@@ -632,16 +681,16 @@ jobs:
     - Run integration tests
     - Security scan
     - Linting (black, flake8, mypy)
-    
+
   build:
     - Build Docker image
     - Push to Azure Container Registry
-    
+
   deploy-staging:
     - Deploy to App Service (staging)
     - Run smoke tests
     - Database migrations
-    
+
   deploy-production:
     - Requires manual approval
     - Blue-green deployment
@@ -683,21 +732,22 @@ module "app_service" {
 
 ## 📊 Total Effort Summary
 
-| Phase | Duration | Hours | Priority |
-|-------|----------|-------|----------|
-| 1. Infrastructure Setup | 2 weeks | 80-120 | Critical |
-| 2. Database Migration | 2-3 weeks | 120-180 | Critical |
-| 3. Authentication | 2 weeks | 100-140 | Critical |
-| 4. API Development | 3-4 weeks | 180-240 | Critical |
-| 5. Business Logic | 2 weeks | 100-140 | High |
-| 6. Real-time Features | 1-2 weeks | 60-100 | Medium |
-| 7. Storage Migration | 1 week | 40-60 | Medium |
-| 8. Testing & QA | 2 weeks | 100-140 | High |
-| 9. Optimizations | 1-2 weeks | 80-120 | High |
-| 10. Deployment & DevOps | 1 week | 60-80 | Critical |
-| **TOTAL** | **8-12 weeks** | **920-1,320 hours** | - |
+| Phase                   | Duration       | Hours               | Priority |
+| ----------------------- | -------------- | ------------------- | -------- |
+| 1. Infrastructure Setup | 2 weeks        | 80-120              | Critical |
+| 2. Database Migration   | 2-3 weeks      | 120-180             | Critical |
+| 3. Authentication       | 2 weeks        | 100-140             | Critical |
+| 4. API Development      | 3-4 weeks      | 180-240             | Critical |
+| 5. Business Logic       | 2 weeks        | 100-140             | High     |
+| 6. Real-time Features   | 1-2 weeks      | 60-100              | Medium   |
+| 7. Storage Migration    | 1 week         | 40-60               | Medium   |
+| 8. Testing & QA         | 2 weeks        | 100-140             | High     |
+| 9. Optimizations        | 1-2 weeks      | 80-120              | High     |
+| 10. Deployment & DevOps | 1 week         | 60-80               | Critical |
+| **TOTAL**               | **8-12 weeks** | **920-1,320 hours** | -        |
 
 **Team Composition**:
+
 - 1 Senior Backend Engineer (Django expert)
 - 1 Full-stack Engineer (Django + Next.js)
 - 1 DevOps Engineer (Azure specialist)
@@ -712,7 +762,7 @@ module "app_service" {
 ### High-Risk Areas
 
 1. **Data Loss During Migration**
-   - **Mitigation**: 
+   - **Mitigation**:
      - Full database backups before migration
      - Parallel run period (2 weeks)
      - Rollback plan tested in staging
@@ -748,6 +798,7 @@ module "app_service" {
 ## 💰 Cost Analysis
 
 ### Development Costs
+
 - **3 Engineers × 12 weeks × 40 hours/week**: ~$180,000 - $240,000 USD
 - **QA Engineer (part-time)**: ~$20,000 USD
 - **Total Development**: ~$200,000 - $260,000 USD
@@ -755,6 +806,7 @@ module "app_service" {
 ### Infrastructure Costs (Monthly)
 
 #### Staging Environment
+
 - Azure App Service (B2): $70/month
 - Azure PostgreSQL (Burstable): $50/month
 - Azure Storage (50GB): $10/month
@@ -762,6 +814,7 @@ module "app_service" {
 - **Staging Total**: ~$150/month
 
 #### Production Environment
+
 - Azure App Service (P2v3, 2 instances): $350/month
 - Azure PostgreSQL (General Purpose, 4 vCores, HA): $400/month
 - Azure Storage (500GB + CDN): $80/month
@@ -774,6 +827,7 @@ module "app_service" {
 **Annual Infrastructure**: ~$16,000/year
 
 **Savings vs Supabase**:
+
 - Supabase Pro (with scale): ~$1,000-2,000/month
 - Net difference: Break-even to 30% savings at scale
 
@@ -782,6 +836,7 @@ module "app_service" {
 ## 🎯 Production-Ready Requirements
 
 ### 1. Scalability
+
 - [x] Horizontal scaling for API (App Service)
 - [x] Database read replicas
 - [x] Celery auto-scaling
@@ -789,6 +844,7 @@ module "app_service" {
 - [x] Connection pooling
 
 ### 2. Security
+
 - [x] HTTPS everywhere
 - [x] Azure Key Vault for secrets
 - [x] Managed Identity for Azure services
@@ -800,6 +856,7 @@ module "app_service" {
 - [x] CSRF tokens
 
 ### 3. Monitoring
+
 - [x] Application Insights (APM)
 - [x] Error tracking (Sentry)
 - [x] Performance metrics
@@ -808,18 +865,21 @@ module "app_service" {
 - [x] Uptime monitoring
 
 ### 4. Backup & Recovery
+
 - [x] Automated daily backups (7-day retention)
 - [x] Point-in-time recovery (PITR)
 - [x] Disaster recovery plan
 - [x] Tested restore procedures
 
 ### 5. High Availability
+
 - [x] Database: HA with read replicas (prod)
 - [x] App Service: Multiple instances with load balancer
 - [x] Redis: Cluster mode
 - [x] Multi-region failover (optional, adds cost)
 
 ### 6. Performance
+
 - [x] API response time: <200ms p95
 - [x] Database queries: <100ms average
 - [x] Cache hit ratio: >70%
@@ -827,6 +887,7 @@ module "app_service" {
 - [x] Uptime SLA: 99.9%
 
 ### 7. Compliance
+
 - [x] GDPR compliance
 - [x] Data encryption at rest
 - [x] Data encryption in transit
@@ -835,6 +896,7 @@ module "app_service" {
 - [x] Data retention policies
 
 ### 8. Developer Experience
+
 - [x] OpenAPI/Swagger documentation
 - [x] Postman collection
 - [x] Local development with Docker
@@ -846,30 +908,31 @@ module "app_service" {
 ## 🚀 Recommended Approach
 
 ### Option A: Full Migration (Recommended if committed to Django long-term)
+
 - **Timeline**: 12-14 weeks
 - **Cost**: $200K-260K + infrastructure
 - **Risk**: High initially, low long-term
 - **Benefits**: Full control, predictable costs, Azure ecosystem integration
 
 ### Option B: Hybrid Approach (Lower Risk)
+
 1. **Phase 1**: Keep Supabase, move compute to Django (6 weeks)
    - Django handles business logic
    - Supabase remains as database + auth
    - Lower risk, faster delivery
-   
 2. **Phase 2**: Migrate database (4 weeks)
    - Move to Azure PostgreSQL
    - Maintain Supabase auth temporarily
-   
 3. **Phase 3**: Replace auth (2 weeks)
    - Final migration to Django auth
 
 **Total**: 12 weeks but with working product at each phase
 
 ### Option C: Stay with Supabase (Least Effort)
+
 - **Timeline**: 0 weeks
 - **Cost**: $0 + current Supabase costs
-- **Consideration**: 
+- **Consideration**:
   - Supabase is production-ready
   - PostgreSQL-based (standard SQL)
   - Built-in security (RLS)
@@ -929,6 +992,7 @@ module "app_service" {
 ### Alternative: Optimize Current Stack
 
 If the goal is performance/cost:
+
 - Add caching layer (Redis)
 - Optimize database queries
 - Use Supabase connection pooling

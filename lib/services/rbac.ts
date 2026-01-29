@@ -1,13 +1,13 @@
 /**
  * RBAC Service Layer
- * 
+ *
  * Enterprise-grade Role-Based Access Control with:
  * - Resource-level permissions
  * - Role hierarchy with inheritance
  * - User-specific permission overrides
  * - In-memory and database caching
  * - Compliance audit trail
- * 
+ *
  * @module lib/services/rbac
  */
 
@@ -45,13 +45,13 @@ const CACHE_TTL_MS = 3600 * 1000 // 1 hour (matches DB cache)
 
 /**
  * Check if user has a specific permission
- * 
+ *
  * Evaluates permission considering:
  * - Role-based permissions with inheritance
  * - User-specific overrides (grant/deny/elevate)
  * - Resource-level scoping
  * - Public permissions
- * 
+ *
  * Uses database function for authoritative check
  */
 export async function checkPermission(
@@ -96,13 +96,13 @@ export async function checkPermission(
 
 /**
  * Get all permissions for a user
- * 
+ *
  * Returns flattened list of permissions from:
  * - Direct role assignments
  * - Role hierarchy (parent roles)
  * - User overrides
  * - Public permissions
- * 
+ *
  * Uses cached results when available
  */
 export async function getUserPermissions(
@@ -147,7 +147,7 @@ export async function getUserPermissions(
 
 /**
  * Get effective permissions with caching
- * 
+ *
  * Same as getUserPermissions but explicitly uses cache
  * Use this for hot paths where performance is critical
  */
@@ -157,7 +157,7 @@ export async function getEffectivePermissions(userId: string): Promise<UserPermi
 
 /**
  * Assign a permission to a user or role
- * 
+ *
  * Creates a resource_permissions record
  * Automatically invalidates cache
  */
@@ -232,7 +232,7 @@ export async function assignPermission(
 
 /**
  * Revoke a permission from a user or role
- * 
+ *
  * Deletes resource_permissions record
  * Automatically invalidates cache
  */
@@ -312,7 +312,7 @@ export async function revokePermission(
 
 /**
  * Create a permission override for a user
- * 
+ *
  * Allows temporary or exceptional permission grants/denials
  * Requires approval workflow for compliance
  */
@@ -395,7 +395,7 @@ export async function createPermissionOverride(
 
 /**
  * Approve a permission override
- * 
+ *
  * Marks override as approved and activates it
  */
 export async function approvePermissionOverride(
@@ -451,7 +451,7 @@ export async function approvePermissionOverride(
 
 /**
  * Get user roles with inheritance
- * 
+ *
  * Returns all roles assigned to user, including parent roles
  */
 export async function getUserRolesWithInheritance(userId: string): Promise<string[]> {
@@ -476,7 +476,7 @@ export async function getUserRolesWithInheritance(userId: string): Promise<strin
 
 /**
  * Clear permission cache for a user
- * 
+ *
  * Forces fresh permission computation on next check
  */
 export function clearPermissionCache(userId: string): void {
@@ -485,7 +485,7 @@ export function clearPermissionCache(userId: string): void {
 
 /**
  * Clear all permission caches
- * 
+ *
  * Use sparingly - invalidates all in-memory caches
  */
 export function clearAllPermissionCaches(): void {

@@ -1,30 +1,30 @@
 #!/usr/bin/env node
-import pkg from 'pg';
-const { Client } = pkg;
-import { config } from 'dotenv';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import pkg from 'pg'
+const { Client } = pkg
+import { config } from 'dotenv'
+import { fileURLToPath } from 'url'
+import { dirname, join } from 'path'
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
-config({ path: join(__dirname, '.env.local') });
+config({ path: join(__dirname, '.env.local') })
 
-const databaseUrl = process.env.DATABASE_URL;
+const databaseUrl = process.env.DATABASE_URL
 
 if (!databaseUrl) {
-  console.error('❌ Missing DATABASE_URL in .env.local');
-  process.exit(1);
+  console.error('❌ Missing DATABASE_URL in .env.local')
+  process.exit(1)
 }
 
 const client = new Client({
   connectionString: databaseUrl,
-  ssl: { rejectUnauthorized: false }
-});
+  ssl: { rejectUnauthorized: false },
+})
 
-await client.connect();
+await client.connect()
 
-console.log('🔍 Checking user_points table structure...\n');
+console.log('🔍 Checking user_points table structure...\n')
 
 try {
   // Get column information
@@ -34,17 +34,24 @@ try {
     WHERE table_schema = 'public' 
     AND table_name = 'user_points'
     ORDER BY ordinal_position;
-  `);
-  
-  console.log('✅ Columns in user_points table:');
-  result.rows.forEach(row => {
-    const check = ['total_points', 'course_points', 'engagement_points', 'achievement_points', 'bonus_points'].includes(row.column_name) ? '✅' : '  ';
-    console.log(`   ${check} ${row.column_name} (${row.data_type})`);
-  });
-  
+  `)
+
+  console.log('✅ Columns in user_points table:')
+  result.rows.forEach((row) => {
+    const check = [
+      'total_points',
+      'course_points',
+      'engagement_points',
+      'achievement_points',
+      'bonus_points',
+    ].includes(row.column_name)
+      ? '✅'
+      : '  '
+    console.log(`   ${check} ${row.column_name} (${row.data_type})`)
+  })
 } catch (error) {
-  console.error('❌ Error:', error.message);
-  process.exit(1);
+  console.error('❌ Error:', error.message)
+  process.exit(1)
 } finally {
-  await client.end();
+  await client.end()
 }

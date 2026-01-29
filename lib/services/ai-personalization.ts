@@ -1,9 +1,9 @@
 /**
  * AI-Powered Personalization Service
- * 
+ *
  * Provides intelligent learning path recommendations, adaptive content delivery,
  * completion time predictions, and smart notifications based on user behavior.
- * 
+ *
  * Features:
  * - Learning path recommendations (skill-based, progress-based)
  * - Adaptive content difficulty adjustment
@@ -102,7 +102,8 @@ export async function analyzeUserSkillProfile(userId: string): Promise<UserSkill
   // Fetch user's course progress and quiz attempts
   const { data: progressData } = await supabase
     .from('user_course_progress')
-    .select(`
+    .select(
+      `
       *,
       courses (
         id,
@@ -110,7 +111,8 @@ export async function analyzeUserSkillProfile(userId: string): Promise<UserSkill
         category,
         difficulty
       )
-    `)
+    `
+    )
     .eq('user_id', userId)
 
   const { data: quizAttempts } = await supabase
@@ -124,29 +126,32 @@ export async function analyzeUserSkillProfile(userId: string): Promise<UserSkill
   }
 
   // Calculate average quiz score
-  const avgQuizScore = quizAttempts.length > 0
-    ? quizAttempts.reduce((acc: number, attempt: any) => acc + attempt.score, 0) / quizAttempts.length
-    : 0
+  const avgQuizScore =
+    quizAttempts.length > 0
+      ? quizAttempts.reduce((acc: number, attempt: any) => acc + attempt.score, 0) /
+        quizAttempts.length
+      : 0
 
   // Analyze skill areas (by course category)
   const skillAreas: Record<string, { scores: number[]; modules: number }> = {}
-  
+
   progressData.forEach((progress: any) => {
     const category = (progress.courses as any)?.category || 'general'
     if (!skillAreas[category]) {
       skillAreas[category] = { scores: [], modules: 0 }
     }
-    
+
     // Find quiz attempts for this course
-    const courseQuizzes = quizAttempts.filter(
-      (attempt: any) => attempt.quiz_id?.startsWith(progress.course_id)
+    const courseQuizzes = quizAttempts.filter((attempt: any) =>
+      attempt.quiz_id?.startsWith(progress.course_id)
     )
-    
+
     if (courseQuizzes.length > 0) {
-      const avgScore = courseQuizzes.reduce((acc: number, q: any) => acc + q.score, 0) / courseQuizzes.length
+      const avgScore =
+        courseQuizzes.reduce((acc: number, q: any) => acc + q.score, 0) / courseQuizzes.length
       skillAreas[category].scores.push(avgScore)
     }
-    
+
     skillAreas[category].modules++
   })
 
@@ -155,10 +160,11 @@ export async function analyzeUserSkillProfile(userId: string): Promise<UserSkill
   const weaknesses: SkillArea[] = []
 
   Object.entries(skillAreas).forEach(([skill, data]) => {
-    const avgScore = data.scores.length > 0
-      ? data.scores.reduce((acc, score) => acc + score, 0) / data.scores.length
-      : 0
-    
+    const avgScore =
+      data.scores.length > 0
+        ? data.scores.reduce((acc, score) => acc + score, 0) / data.scores.length
+        : 0
+
     const confidence = Math.min(data.scores.length / 5, 1) // More data = higher confidence
 
     const skillArea: SkillArea = {
@@ -178,18 +184,20 @@ export async function analyzeUserSkillProfile(userId: string): Promise<UserSkill
 
   // Calculate learning pace
   const completedCourses = progressData.filter((p: any) => p.progress_percentage === 100)
-  const avgTimePerModule = completedCourses.length > 0
-    ? completedCourses.reduce((acc: number, p: any) => {
-        const timeTaken = p.last_accessed_at
-          ? new Date(p.last_accessed_at).getTime() - new Date(p.enrollment_date).getTime()
-          : 0
-        return acc + timeTaken
-      }, 0) / completedCourses.length / (1000 * 60) // Convert to minutes
-    : 60 // Default 60 minutes
+  const avgTimePerModule =
+    completedCourses.length > 0
+      ? completedCourses.reduce((acc: number, p: any) => {
+          const timeTaken = p.last_accessed_at
+            ? new Date(p.last_accessed_at).getTime() - new Date(p.enrollment_date).getTime()
+            : 0
+          return acc + timeTaken
+        }, 0) /
+        completedCourses.length /
+        (1000 * 60) // Convert to minutes
+      : 60 // Default 60 minutes
 
-  const learningPace: 'fast' | 'moderate' | 'slow' = 
-    avgTimePerModule < 30 ? 'fast' :
-    avgTimePerModule < 60 ? 'moderate' : 'slow'
+  const learningPace: 'fast' | 'moderate' | 'slow' =
+    avgTimePerModule < 30 ? 'fast' : avgTimePerModule < 60 ? 'moderate' : 'slow'
 
   // Calculate consistency score (based on regular engagement)
   const recentProgress = progressData.filter((p: any) => {
@@ -211,9 +219,16 @@ export async function analyzeUserSkillProfile(userId: string): Promise<UserSkill
     averageQuizScore: avgQuizScore,
     averageTimePerModule: avgTimePerModule,
     consistencyScore,
-    lastActiveDate: progressData.length > 0
-      ? new Date(Math.max(...progressData.map((p: any) => new Date(p.last_accessed_at || p.enrollment_date).getTime())))
-      : new Date(),
+    lastActiveDate:
+      progressData.length > 0
+        ? new Date(
+            Math.max(
+              ...progressData.map((p: any) =>
+                new Date(p.last_accessed_at || p.enrollment_date).getTime()
+              )
+            )
+          )
+        : new Date(),
   }
 }
 
@@ -232,10 +247,7 @@ export async function generateLearningPathRecommendations(
   const skillProfile = await analyzeUserSkillProfile(userId)
 
   // Fetch all available courses
-  const { data: courses } = await supabase
-    .from('courses')
-    .select('*')
-    .eq('published', true)
+  const { data: courses } = await supabase.from('courses').select('*').eq('published', true)
 
   if (!courses) return []
 
@@ -256,8 +268,9 @@ export async function generateLearningPathRecommendations(
       const potentialSkillGains: string[] = []
 
       // Match with weaknesses (high priority)
-      const weaknessMatch = skillProfile.weaknesses.find((w: any) => 
-        course.category === w.skill || course.title.toLowerCase().includes(w.skill.toLowerCase())
+      const weaknessMatch = skillProfile.weaknesses.find(
+        (w: any) =>
+          course.category === w.skill || course.title.toLowerCase().includes(w.skill.toLowerCase())
       )
       if (weaknessMatch) {
         relevanceScore += 30
@@ -266,8 +279,9 @@ export async function generateLearningPathRecommendations(
       }
 
       // Match with strengths (medium priority - advanced content)
-      const strengthMatch = skillProfile.strengths.find((s) =>
-        course.category === s.skill || course.title.toLowerCase().includes(s.skill.toLowerCase())
+      const strengthMatch = skillProfile.strengths.find(
+        (s) =>
+          course.category === s.skill || course.title.toLowerCase().includes(s.skill.toLowerCase())
       )
       if (strengthMatch && course.difficulty === 'advanced') {
         relevanceScore += 20
@@ -334,14 +348,17 @@ export async function generateAdaptiveContentSuggestions(
     .limit(5)
 
   if (!quizAttempts || quizAttempts.length === 0) {
-    return [{
-      action: 'continue',
-      moduleId: currentModuleId,
-      reason: 'Continue at your own pace',
-    }]
+    return [
+      {
+        action: 'continue',
+        moduleId: currentModuleId,
+        reason: 'Continue at your own pace',
+      },
+    ]
   }
 
-  const avgRecentScore = quizAttempts.reduce((acc: number, q: any) => acc + q.score, 0) / quizAttempts.length
+  const avgRecentScore =
+    quizAttempts.reduce((acc: number, q: any) => acc + q.score, 0) / quizAttempts.length
 
   const suggestions: AdaptiveContentSuggestion[] = []
 
@@ -380,7 +397,7 @@ export async function generateAdaptiveContentSuggestions(
     suggestions.push({
       action: 'continue',
       moduleId: currentModuleId,
-      reason: 'You\'re progressing well. Continue with the course.',
+      reason: "You're progressing well. Continue with the course.",
       supplementalContent: [
         {
           type: 'reading',
@@ -408,11 +425,7 @@ export async function predictCompletionTime(
   // Using imported supabase instance
 
   // Fetch course details
-  const { data: course } = await supabase
-    .from('courses')
-    .select('*')
-    .eq('id', courseId)
-    .single()
+  const { data: course } = await supabase.from('courses').select('*').eq('id', courseId).single()
 
   // Fetch user's progress
   const { data: progress } = await supabase
@@ -438,9 +451,9 @@ export async function predictCompletionTime(
   const estimatedHoursRemaining = remainingModules * hoursPerModule
 
   // Calculate estimated completion date
-  const averageHoursPerWeek = skillProfile.consistencyScore >= 70 ? 5 : 
-                               skillProfile.consistencyScore >= 40 ? 3 : 1
-  
+  const averageHoursPerWeek =
+    skillProfile.consistencyScore >= 70 ? 5 : skillProfile.consistencyScore >= 40 ? 3 : 1
+
   const weeksToComplete = estimatedHoursRemaining / averageHoursPerWeek
   const daysToComplete = weeksToComplete * 7
 
@@ -562,7 +575,8 @@ export async function generateSmartNotifications(userId: string): Promise<SmartN
   const now = new Date()
 
   // Check for inactivity
-  const daysSinceLastActive = (now.getTime() - skillProfile.lastActiveDate.getTime()) / (1000 * 60 * 60 * 24)
+  const daysSinceLastActive =
+    (now.getTime() - skillProfile.lastActiveDate.getTime()) / (1000 * 60 * 60 * 24)
 
   if (daysSinceLastActive >= 7 && daysSinceLastActive < 14) {
     // Gentle reminder for 1-week inactivity
@@ -595,13 +609,15 @@ export async function generateSmartNotifications(userId: string): Promise<SmartN
   // Fetch user's in-progress courses
   const { data: inProgressCourses } = await supabase
     .from('user_course_progress')
-    .select(`
+    .select(
+      `
       *,
       courses (
         id,
         title
       )
-    `)
+    `
+    )
     .eq('user_id', userId)
     .gt('progress_percentage', 0)
     .lt('progress_percentage', 100)
@@ -624,7 +640,7 @@ export async function generateSmartNotifications(userId: string): Promise<SmartN
 
   // Get personalized recommendations
   const recommendations = await generateLearningPathRecommendations(userId, 3)
-  
+
   if (recommendations.length > 0 && skillProfile.consistencyScore >= 70) {
     // Suggest new courses for consistent learners
     const topRecommendation = recommendations[0]
@@ -644,4 +660,3 @@ export async function generateSmartNotifications(userId: string): Promise<SmartN
 
   return notifications.sort((a: any, b: any) => a.scheduledFor.getTime() - b.scheduledFor.getTime())
 }
-

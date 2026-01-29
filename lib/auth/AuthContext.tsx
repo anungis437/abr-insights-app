@@ -51,11 +51,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Fetch user profile from profiles table
   const fetchProfile = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single()
+    const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single()
 
     if (error) {
       // eslint-disable-next-line no-console
@@ -70,7 +66,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const initAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession()
+        const {
+          data: { session },
+        } = await supabase.auth.getSession()
         setSession(session)
         setUser(session?.user ?? null)
 
@@ -81,9 +79,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // Update last_login_at
           await supabase
             .from('profiles')
-            .update({ 
+            .update({
               last_login_at: new Date().toISOString(),
-              last_activity_at: new Date().toISOString()
+              last_activity_at: new Date().toISOString(),
             })
             .eq('id', session.user.id)
         }
@@ -98,26 +96,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     initAuth()
 
     // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event: any, session: any) => {
-        setSession(session)
-        setUser(session?.user ?? null)
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event: any, session: any) => {
+      setSession(session)
+      setUser(session?.user ?? null)
 
-        if (session?.user) {
-          const profile = await fetchProfile(session.user.id)
-          setProfile(profile)
-        } else {
-          setProfile(null)
-        }
-
-        if (event === 'SIGNED_IN') {
-          router.refresh()
-        } else if (event === 'SIGNED_OUT') {
-          router.push('/')
-          router.refresh()
-        }
+      if (session?.user) {
+        const profile = await fetchProfile(session.user.id)
+        setProfile(profile)
+      } else {
+        setProfile(null)
       }
-    )
+
+      if (event === 'SIGNED_IN') {
+        router.refresh()
+      } else if (event === 'SIGNED_OUT') {
+        router.push('/')
+        router.refresh()
+      }
+    })
 
     return () => {
       subscription.unsubscribe()
@@ -147,16 +145,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Create profile if signup successful
     if (data.user && !error) {
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          id: data.user.id,
-          email: data.user.email!,
-          first_name: metadata?.first_name || null,
-          last_name: metadata?.last_name || null,
-          display_name: metadata?.display_name || null,
-          status: 'active',
-        })
+      const { error: profileError } = await supabase.from('profiles').insert({
+        id: data.user.id,
+        email: data.user.email!,
+        first_name: metadata?.first_name || null,
+        last_name: metadata?.last_name || null,
+        display_name: metadata?.display_name || null,
+        status: 'active',
+      })
 
       if (profileError) {
         // eslint-disable-next-line no-console

@@ -269,15 +269,15 @@ export function useNetworkInformation(): NetworkState {
     window.addEventListener('offline', updateNetworkState)
 
     if ('connection' in navigator) {
-      (navigator as any).connection.addEventListener('change', updateNetworkState)
+      ;(navigator as any).connection.addEventListener('change', updateNetworkState)
     }
 
     return () => {
       window.removeEventListener('online', updateNetworkState)
       window.removeEventListener('offline', updateNetworkState)
-      
+
       if ('connection' in navigator) {
-        (navigator as any).connection.removeEventListener('change', updateNetworkState)
+        ;(navigator as any).connection.removeEventListener('change', updateNetworkState)
       }
     }
   }, [])

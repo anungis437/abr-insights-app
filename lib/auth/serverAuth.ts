@@ -1,15 +1,15 @@
 /**
  * Server-side authentication utilities for API routes
- * 
+ *
  * Usage:
  *   const session = await requireSession(request);
  *   const orgId = await requireOrgContext(session.user.id, request);
  *   await requirePermission(session.user.id, orgId, 'ai.chat.use');
  */
 
-import { NextRequest } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
-import type { Session, User } from '@supabase/supabase-js';
+import { NextRequest } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
+import type { Session, User } from '@supabase/supabase-js'
 
 export class AuthError extends Error {
   constructor(
@@ -17,22 +17,22 @@ export class AuthError extends Error {
     public statusCode: number = 401,
     public code: string = 'AUTH_ERROR'
   ) {
-    super(message);
-    this.name = 'AuthError';
+    super(message)
+    this.name = 'AuthError'
   }
 }
 
 export class PermissionError extends AuthError {
   constructor(message: string = 'Insufficient permissions') {
-    super(message, 403, 'PERMISSION_DENIED');
-    this.name = 'PermissionError';
+    super(message, 403, 'PERMISSION_DENIED')
+    this.name = 'PermissionError'
   }
 }
 
 export class OrgContextError extends AuthError {
   constructor(message: string = 'Invalid organization context') {
-    super(message, 403, 'INVALID_ORG_CONTEXT');
-    this.name = 'OrgContextError';
+    super(message, 403, 'INVALID_ORG_CONTEXT')
+    this.name = 'OrgContextError'
   }
 }
 
@@ -41,15 +41,18 @@ export class OrgContextError extends AuthError {
  * @throws {AuthError} If session is invalid or missing
  */
 export async function requireSession(request: NextRequest): Promise<Session> {
-  const supabase = await createClient();
-  
-  const { data: { session }, error } = await supabase.auth.getSession();
-  
+  const supabase = await createClient()
+
+  const {
+    data: { session },
+    error,
+  } = await supabase.auth.getSession()
+
   if (error || !session) {
-    throw new AuthError('Authentication required', 401, 'NO_SESSION');
+    throw new AuthError('Authentication required', 401, 'NO_SESSION')
   }
-  
-  return session;
+
+  return session
 }
 
 /**
@@ -57,8 +60,8 @@ export async function requireSession(request: NextRequest): Promise<Session> {
  * @throws {AuthError} If user is not authenticated
  */
 export async function requireUser(request: NextRequest): Promise<User> {
-  const session = await requireSession(request);
-  return session.user;
+  const session = await requireSession(request)
+  return session.user
 }
 
 /**
@@ -67,63 +70,60 @@ export async function requireUser(request: NextRequest): Promise<User> {
  *   1. Request header: X-Organization-Id
  *   2. Query param: ?organization_id=...
  *   3. User's default organization from profile
- * 
+ *
  * @throws {OrgContextError} If organization context cannot be resolved or user lacks access
  */
-export async function requireOrgContext(
-  user: User,
-  request: NextRequest
-): Promise<string> {
-  const supabase = await createClient();
-  
+export async function requireOrgContext(user: User, request: NextRequest): Promise<string> {
+  const supabase = await createClient()
+
   // Try header first
-  let orgId: string | null = request.headers.get('X-Organization-Id');
-  
+  let orgId: string | null = request.headers.get('X-Organization-Id')
+
   // Try query param
   if (!orgId) {
-    const url = new URL(request.url);
-    orgId = url.searchParams.get('organization_id');
+    const url = new URL(request.url)
+    orgId = url.searchParams.get('organization_id')
   }
-  
+
   // Fall back to user's default organization
   if (!orgId) {
     const { data: profile, error } = await supabase
       .from('profiles')
       .select('organization_id')
       .eq('id', user.id)
-      .single();
-    
+      .single()
+
     if (error || !profile?.organization_id) {
-      throw new OrgContextError('User has no organization assigned');
+      throw new OrgContextError('User has no organization assigned')
     }
-    
-    orgId = profile.organization_id;
+
+    orgId = profile.organization_id
   }
-  
+
   // At this point, orgId must be non-null or an error was thrown
   if (!orgId) {
-    throw new OrgContextError('Organization ID could not be resolved');
+    throw new OrgContextError('Organization ID could not be resolved')
   }
-  
+
   // Verify user has access to this organization
   const { data: membership, error: membershipError } = await supabase
     .from('user_roles')
     .select('id')
     .eq('user_id', user.id)
     .eq('organization_id', orgId)
-    .single();
-  
+    .single()
+
   if (membershipError || !membership) {
-    throw new OrgContextError(`User does not have access to organization: ${orgId}`);
+    throw new OrgContextError(`User does not have access to organization: ${orgId}`)
   }
-  
-  return orgId;
+
+  return orgId
 }
 
 /**
  * Check if user has a specific permission in the given organization
  * Uses the RBAC permission system (roles → permissions)
- * 
+ *
  * @throws {PermissionError} If user lacks the required permission
  */
 export async function requirePermission(
@@ -131,26 +131,23 @@ export async function requirePermission(
   organizationId: string,
   permissionSlug: string
 ): Promise<void> {
-  const supabase = await createClient();
-  
+  const supabase = await createClient()
+
   // Call RPC function to check effective permissions
   // This resolves user → roles → permissions in one query
-  const { data: hasPermission, error } = await supabase.rpc(
-    'check_user_permission',
-    {
-      p_user_id: userId,
-      p_organization_id: organizationId,
-      p_permission_slug: permissionSlug
-    }
-  );
-  
+  const { data: hasPermission, error } = await supabase.rpc('check_user_permission', {
+    p_user_id: userId,
+    p_organization_id: organizationId,
+    p_permission_slug: permissionSlug,
+  })
+
   if (error) {
-    console.error('Permission check failed:', error);
-    throw new AuthError('Permission check failed', 500, 'PERMISSION_CHECK_ERROR');
+    console.error('Permission check failed:', error)
+    throw new AuthError('Permission check failed', 500, 'PERMISSION_CHECK_ERROR')
   }
-  
+
   if (!hasPermission) {
-    throw new PermissionError(`Missing required permission: ${permissionSlug}`);
+    throw new PermissionError(`Missing required permission: ${permissionSlug}`)
   }
 }
 
@@ -163,24 +160,21 @@ export async function requireAnyPermission(
   organizationId: string,
   permissionSlugs: string[]
 ): Promise<void> {
-  const supabase = await createClient();
-  
+  const supabase = await createClient()
+
   for (const slug of permissionSlugs) {
-    const { data: hasPermission } = await supabase.rpc(
-      'check_user_permission',
-      {
-        p_user_id: userId,
-        p_organization_id: organizationId,
-        p_permission_slug: slug
-      }
-    );
-    
+    const { data: hasPermission } = await supabase.rpc('check_user_permission', {
+      p_user_id: userId,
+      p_organization_id: organizationId,
+      p_permission_slug: slug,
+    })
+
     if (hasPermission) {
-      return; // User has at least one permission
+      return // User has at least one permission
     }
   }
-  
-  throw new PermissionError(`Missing any of required permissions: ${permissionSlugs.join(', ')}`);
+
+  throw new PermissionError(`Missing any of required permissions: ${permissionSlugs.join(', ')}`)
 }
 
 /**
@@ -193,7 +187,7 @@ export async function requireAllPermissions(
   permissionSlugs: string[]
 ): Promise<void> {
   for (const slug of permissionSlugs) {
-    await requirePermission(userId, organizationId, slug);
+    await requirePermission(userId, organizationId, slug)
   }
 }
 
@@ -201,15 +195,11 @@ export async function requireAllPermissions(
  * Check if user is a super admin (bypasses org context)
  */
 export async function isSuperAdmin(userId: string): Promise<boolean> {
-  const supabase = await createClient();
-  
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', userId)
-    .single();
-  
-  return profile?.role === 'super_admin';
+  const supabase = await createClient()
+
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', userId).single()
+
+  return profile?.role === 'super_admin'
 }
 
 /**
@@ -219,20 +209,17 @@ export async function getUserPermissions(
   userId: string,
   organizationId: string
 ): Promise<string[]> {
-  const supabase = await createClient();
-  
-  const { data: permissions, error } = await supabase.rpc(
-    'get_user_permissions',
-    {
-      p_user_id: userId,
-      p_organization_id: organizationId
-    }
-  );
-  
+  const supabase = await createClient()
+
+  const { data: permissions, error } = await supabase.rpc('get_user_permissions', {
+    p_user_id: userId,
+    p_organization_id: organizationId,
+  })
+
   if (error) {
-    console.error('Failed to fetch user permissions:', error);
-    return [];
+    console.error('Failed to fetch user permissions:', error)
+    return []
   }
-  
-  return permissions || [];
+
+  return permissions || []
 }

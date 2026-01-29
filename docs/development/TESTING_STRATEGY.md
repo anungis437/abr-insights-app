@@ -54,8 +54,8 @@ export default defineConfig({
       provider: 'c8',
       reporter: ['text', 'html'],
       lines: 80,
-    }
-  }
+    },
+  },
 })
 ```
 
@@ -102,7 +102,7 @@ export default defineConfig({
   projects: [
     { name: 'Chromium', use: { browserName: 'chromium' } },
     { name: 'Firefox', use: { browserName: 'firefox' } },
-    { name: 'WebKit', use: { browserName: 'webkit' } }
+    { name: 'WebKit', use: { browserName: 'webkit' } },
   ],
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 2 : undefined,

@@ -6,6 +6,7 @@
 ## Summary
 
 The permission system has been fully implemented across all layers of the application:
+
 - ✅ **API Routes**: 100% Protected (30+ routes)
 - ✅ **UI Components**: 100% Protected (Admin components gated)
 - ✅ **Infrastructure**: Complete (hooks, utilities, guards)
@@ -18,6 +19,7 @@ The permission system has been fully implemented across all layers of the applic
 ### Protected Routes with `requirePermission()` / `requireAnyPermission()`
 
 #### Admin Routes (10 routes)
+
 - ✅ `/api/admin/ml/coverage-stats` - requireAnyPermission(['ai.view', 'ai.manage', 'admin.ai.manage'])
 - ✅ `/api/admin/ml/embedding-jobs` - requireAnyPermission(['ai.view', 'ai.manage', 'admin.ai.manage'])
 - ✅ `/api/admin/ml/model-performance` - requireAnyPermission(['ai.view', 'ai.manage', 'admin.ai.manage'])
@@ -26,10 +28,12 @@ The permission system has been fully implemented across all layers of the applic
 - ✅ `/api/admin/roles` - requireAnyPermission(['admin.roles.view', 'admin.roles.manage'])
 
 #### Stripe/Subscription Routes (2 routes) - **NEWLY PROTECTED**
+
 - ✅ `/api/stripe/checkout` - requireAnyPermission(['subscription.manage', 'admin.manage'])
 - ✅ `/api/stripe/portal` - requireAnyPermission(['subscription.view', 'subscription.manage', 'admin.manage'])
 
 #### AI Routes (5 routes)
+
 - ✅ `/api/ai/chat` - guardedRoute with permissions check
 - ✅ `/api/ai/coach` - guardedRoute with permissions check
 - ✅ `/api/ai/automation` - guardedRoute with permissions=['admin.ai.manage']
@@ -37,16 +41,19 @@ The permission system has been fully implemented across all layers of the applic
 - ✅ `/api/ai/feedback` - guardedRoute with permissions=['admin.ai.manage']
 
 #### Embedding Routes (3 routes)
+
 - ✅ `/api/embeddings/generate` - guardedRoute with rate limiting
 - ✅ `/api/embeddings/search-cases` - guardedRoute with rate limiting
 - ✅ `/api/embeddings/search-courses` - guardedRoute with rate limiting
 
 #### CodeSpring Routes (5+ routes)
+
 - ✅ All use requireAnyPermission(['codespring.view', 'codespring.manage', 'admin.manage'])
 
 ### Public Routes (Intentionally No Auth)
+
 - ✅ `/api/contact` - Public contact form with rate limiting
-- ✅ `/api/newsletter` - Public newsletter signup with rate limiting  
+- ✅ `/api/newsletter` - Public newsletter signup with rate limiting
 - ✅ `/api/webhooks/stripe` - Webhook with Stripe signature verification
 
 ---
@@ -56,26 +63,32 @@ The permission system has been fully implemented across all layers of the applic
 ### Admin Components - **NEWLY PROTECTED**
 
 #### RevokeCertificateForm
+
 ```tsx
 <Protected permissions={['admin.manage', 'certificates.revoke']} requireAll={false}>
   {/* Certificate revocation form */}
 </Protected>
 ```
+
 **Purpose**: Only admins and users with certificate revocation permission can revoke certificates
 
 #### PermissionMatrix
+
 ```tsx
 <Protected permissions={['admin.permissions.view']} requireAll={true}>
   {/* Permission management matrix */}
 </Protected>
 ```
+
 **Purpose**: Only users with explicit permission to view permissions can access the matrix
 
 ### Course Authoring Components
+
 - ✅ `QualityChecklist.tsx` - Read-only mode enforced via props, admin permissions required for editing
 - ✅ Course creation/editing pages use guardedRoute for access control
 
 ### Dashboard Components
+
 - ✅ `PersonalizedDashboard` - User-specific data, automatically filtered by RLS
 - ✅ `LearningDashboard` - User-specific stats, automatically filtered by RLS
 
@@ -84,6 +97,7 @@ The permission system has been fully implemented across all layers of the applic
 ## Infrastructure (100%)
 
 ### Permission Hooks
+
 ```typescript
 // Check single permission
 const hasAccess = usePermission('admin.manage')
@@ -96,6 +110,7 @@ const canPublish = usePermissions(['courses.create', 'courses.publish'], true)
 ```
 
 ### Server-Side Guards
+
 ```typescript
 // Require single permission
 await requirePermission(supabase, userId, 'admin.manage')
@@ -113,12 +128,9 @@ export const POST = guardedRoute(
 ```
 
 ### Protected Component
+
 ```tsx
-<Protected 
-  permissions={['admin.manage']} 
-  requireAll={true}
-  fallback={<AccessDenied />}
->
+<Protected permissions={['admin.manage']} requireAll={true} fallback={<AccessDenied />}>
   {/* Protected content */}
 </Protected>
 ```
@@ -128,6 +140,7 @@ export const POST = guardedRoute(
 ## Security Layer: RLS Policies (100%)
 
 ### RESTRICTIVE Policies (AND Logic)
+
 All multi-tenant tables use `AS RESTRICTIVE` policies to ensure multiple conditions must ALL be satisfied:
 
 ```sql
@@ -151,6 +164,7 @@ CREATE POLICY "Instructors can update courses in their organization"
 ```
 
 **Test Results**: 28/28 passing (100%)
+
 - All unauthorized UPDATE operations blocked ✅
 - All unauthorized DELETE operations blocked ✅
 - Cross-tenant data access prevented ✅
@@ -160,6 +174,7 @@ CREATE POLICY "Instructors can update courses in their organization"
 ## Permission Categories (106 Total)
 
 ### Course Management (15 permissions)
+
 - courses.view, courses.create, courses.edit, courses.delete
 - courses.publish, courses.review, courses.assign
 - course-content.create, course-content.edit, course-content.delete
@@ -167,12 +182,14 @@ CREATE POLICY "Instructors can update courses in their organization"
 - course-modules.manage, course-lessons.manage
 
 ### User & Role Management (12 permissions)
+
 - users.view, users.create, users.edit, users.delete
 - roles.view, roles.create, roles.edit, roles.delete
 - permissions.view, permissions.assign, permissions.revoke
 - user-roles.manage
 
 ### AI & ML (18 permissions)
+
 - ai.view, ai.manage, ai.chat, ai.coach
 - ai.feedback, ai.training-jobs, ai.automation
 - admin.ai.manage, admin.ai.view
@@ -182,6 +199,7 @@ CREATE POLICY "Instructors can update courses in their organization"
 - ml.stats.view
 
 ### Admin (25 permissions)
+
 - admin.manage, admin.view, admin.settings
 - admin.permissions.view, admin.permissions.manage
 - admin.roles.view, admin.roles.manage
@@ -192,16 +210,19 @@ CREATE POLICY "Instructors can update courses in their organization"
 - And 10 more...
 
 ### Subscription & Billing (8 permissions)
+
 - subscription.view, subscription.manage, subscription.create, subscription.cancel
 - billing.view, billing.manage, invoices.view, payment-methods.manage
 
 ### Organization & Tenant (10 permissions)
+
 - organization.view, organization.edit, organization.manage
 - organization.settings, organization.members.view
 - organization.members.invite, organization.members.remove
 - multi-tenant.access, tenant.switch, tenant.create
 
 ### Content & Learning (18 permissions)
+
 - content.view, content.create, content.edit, content.delete
 - enrollments.view, enrollments.create, enrollments.manage
 - progress.view, progress.update, quiz.attempt, quiz.grade
@@ -214,6 +235,7 @@ CREATE POLICY "Instructors can update courses in their organization"
 ## Testing Coverage
 
 ### RLS Tests (28/28 passing)
+
 ```bash
 npm run test:tenant
 
@@ -234,6 +256,7 @@ npm run test:tenant
 ```
 
 ### Permission System Tests (Needed)
+
 - [ ] Unit tests for permission hooks
 - [ ] Integration tests for guardedRoute
 - [ ] E2E tests for Protected component
@@ -244,6 +267,7 @@ npm run test:tenant
 ## Usage Examples
 
 ### 1. Protecting an API Route
+
 ```typescript
 // app/api/admin/something/route.ts
 import { requireAnyPermission } from '@/lib/auth/permissions'
@@ -251,16 +275,15 @@ import { createClient } from '@/lib/supabase/server'
 
 export async function POST(request: Request) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
   if (!user) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  await requireAnyPermission(supabase, user.id, [
-    'admin.manage',
-    'admin.something.manage'
-  ])
+  await requireAnyPermission(supabase, user.id, ['admin.manage', 'admin.something.manage'])
 
   // Protected logic here
   return Response.json({ success: true })
@@ -268,6 +291,7 @@ export async function POST(request: Request) {
 ```
 
 ### 2. Protecting a UI Component
+
 ```tsx
 // components/admin/SensitiveAction.tsx
 'use client'
@@ -277,15 +301,14 @@ import { Protected } from '@/components/auth/Protected'
 export function SensitiveAction() {
   return (
     <Protected permissions={['admin.manage']} requireAll={true}>
-      <button onClick={handleSensitiveAction}>
-        Delete Everything
-      </button>
+      <button onClick={handleSensitiveAction}>Delete Everything</button>
     </Protected>
   )
 }
 ```
 
 ### 3. Using Permission Hooks
+
 ```tsx
 'use client'
 
@@ -294,7 +317,7 @@ import { usePermission, usePermissions } from '@/hooks/use-permission'
 export function ConditionalFeature() {
   const canEdit = usePermission('courses.edit')
   const canPublish = usePermissions(['courses.publish', 'courses.review'], true)
-  
+
   return (
     <div>
       {canEdit && <button>Edit</button>}
@@ -305,6 +328,7 @@ export function ConditionalFeature() {
 ```
 
 ### 4. Guarded Route Pattern
+
 ```typescript
 // app/api/protected/route.ts
 import { guardedRoute } from '@/lib/auth/guarded-route'
@@ -314,9 +338,9 @@ export const POST = guardedRoute(
     // Automatically authenticated, user available
     return Response.json({ userId: user.id })
   },
-  { 
-    permissions: ['courses.create'], 
-    requireAll: true 
+  {
+    permissions: ['courses.create'],
+    requireAll: true,
   }
 )
 ```
@@ -328,6 +352,7 @@ export const POST = guardedRoute(
 When adding new protected features:
 
 1. **Define Permission** in `lib/types/permissions.ts`
+
    ```typescript
    {
      slug: 'new-feature.action',
@@ -338,6 +363,7 @@ When adding new protected features:
    ```
 
 2. **Add to Roles** via Supabase migration
+
    ```sql
    INSERT INTO role_permissions (role_id, permission_id)
    SELECT r.id, p.id
@@ -346,11 +372,13 @@ When adding new protected features:
    ```
 
 3. **Protect API Route**
+
    ```typescript
    await requirePermission(supabase, userId, 'new-feature.action')
    ```
 
 4. **Protect UI Component**
+
    ```tsx
    <Protected permissions={['new-feature.action']}>
      <NewFeatureButton />

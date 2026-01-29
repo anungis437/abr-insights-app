@@ -46,7 +46,7 @@ export default function OrganizationSettingsPage() {
           .single()
 
         if (error) throw error
-        
+
         setOrganization(data)
         setName(data.name)
         setSlug(data.slug)
@@ -66,7 +66,7 @@ export default function OrganizationSettingsPage() {
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
-    
+
     if (!organization) return
 
     try {
@@ -91,14 +91,14 @@ export default function OrganizationSettingsPage() {
       if (error) throw error
 
       setMessage({ type: 'success', text: 'Organization updated successfully' })
-      
+
       // Reload the organization data
       const { data } = await supabase
         .from('organizations')
         .select('*')
         .eq('id', organization.id)
         .single()
-      
+
       if (data) setOrganization(data)
     } catch (error) {
       console.error('Error updating organization:', error)
@@ -110,7 +110,7 @@ export default function OrganizationSettingsPage() {
 
   if (loading) {
     return (
-      <div className="container-custom pt-20 pb-8">
+      <div className="container-custom pb-8 pt-20">
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
             <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"></div>
@@ -123,11 +123,13 @@ export default function OrganizationSettingsPage() {
 
   if (!organization) {
     return (
-      <div className="container-custom pt-20 pb-8">
-        <div className="text-center py-12">
+      <div className="container-custom pb-8 pt-20">
+        <div className="py-12 text-center">
           <Building2 className="mx-auto h-12 w-12 text-gray-400" />
           <h3 className="mt-2 text-sm font-medium text-gray-900">Organization not found</h3>
-          <p className="mt-1 text-sm text-gray-500">The organization settings could not be loaded.</p>
+          <p className="mt-1 text-sm text-gray-500">
+            The organization settings could not be loaded.
+          </p>
           <div className="mt-6">
             <Link href="/admin/organizations" className="btn-primary">
               <ArrowLeft className="h-4 w-4" />
@@ -140,12 +142,12 @@ export default function OrganizationSettingsPage() {
   }
 
   return (
-    <div className="container-custom pt-20 pb-8">
+    <div className="container-custom pb-8 pt-20">
       {/* Header */}
       <div className="mb-6">
         <Link
           href={`/admin/organizations/${organization.id}`}
-          className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-4"
+          className="mb-4 inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Organization
@@ -165,9 +167,7 @@ export default function OrganizationSettingsPage() {
       {message && (
         <div
           className={`mb-6 rounded-lg border p-4 ${
-            message.type === 'success'
-              ? 'border-green-200 bg-green-50'
-              : 'border-red-200 bg-red-50'
+            message.type === 'success' ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'
           }`}
         >
           <div className="flex items-center gap-2">
@@ -188,13 +188,16 @@ export default function OrganizationSettingsPage() {
       )}
 
       {/* Settings Form */}
-      <form onSubmit={handleSave} className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+      <form
+        onSubmit={handleSave}
+        className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
+      >
         <h2 className="mb-6 text-xl font-bold text-gray-900">General Settings</h2>
-        
+
         <div className="space-y-6">
           {/* Name */}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="name" className="mb-2 block text-sm font-medium text-gray-700">
               Organization Name <span className="text-red-500">*</span>
             </label>
             <input
@@ -210,7 +213,7 @@ export default function OrganizationSettingsPage() {
 
           {/* Slug */}
           <div>
-            <label htmlFor="slug" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="slug" className="mb-2 block text-sm font-medium text-gray-700">
               URL Slug <span className="text-red-500">*</span>
             </label>
             <div className="flex items-center gap-2">
@@ -233,7 +236,7 @@ export default function OrganizationSettingsPage() {
 
           {/* Type */}
           <div>
-            <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="type" className="mb-2 block text-sm font-medium text-gray-700">
               Organization Type <span className="text-red-500">*</span>
             </label>
             <select
@@ -253,7 +256,7 @@ export default function OrganizationSettingsPage() {
 
           {/* Domain */}
           <div>
-            <label htmlFor="domain" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="domain" className="mb-2 block text-sm font-medium text-gray-700">
               Email Domain
             </label>
             <input
@@ -271,7 +274,7 @@ export default function OrganizationSettingsPage() {
 
           {/* Status */}
           <div>
-            <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="status" className="mb-2 block text-sm font-medium text-gray-700">
               Status <span className="text-red-500">*</span>
             </label>
             <select
@@ -289,15 +292,19 @@ export default function OrganizationSettingsPage() {
 
           {/* Metadata */}
           <div className="border-t border-gray-200 pt-6">
-            <h3 className="text-sm font-medium text-gray-700 mb-4">Metadata</h3>
+            <h3 className="mb-4 text-sm font-medium text-gray-700">Metadata</h3>
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <label className="block text-sm text-gray-500 mb-1">Created</label>
-                <p className="text-sm text-gray-900">{new Date(organization.created_at).toLocaleString()}</p>
+                <label className="mb-1 block text-sm text-gray-500">Created</label>
+                <p className="text-sm text-gray-900">
+                  {new Date(organization.created_at).toLocaleString()}
+                </p>
               </div>
               <div>
-                <label className="block text-sm text-gray-500 mb-1">Last Updated</label>
-                <p className="text-sm text-gray-900">{new Date(organization.updated_at).toLocaleString()}</p>
+                <label className="mb-1 block text-sm text-gray-500">Last Updated</label>
+                <p className="text-sm text-gray-900">
+                  {new Date(organization.updated_at).toLocaleString()}
+                </p>
               </div>
             </div>
           </div>
@@ -313,11 +320,7 @@ export default function OrganizationSettingsPage() {
           >
             Cancel
           </button>
-          <button
-            type="submit"
-            className="btn-primary flex items-center gap-2"
-            disabled={saving}
-          >
+          <button type="submit" className="btn-primary flex items-center gap-2" disabled={saving}>
             {saving ? (
               <>
                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent"></div>

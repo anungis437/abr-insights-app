@@ -1,11 +1,11 @@
 /**
  * API Route: Generate Embeddings
- * 
+ *
  * POST /api/embeddings/generate
  * GET /api/embeddings/generate?jobId=...
- * 
+ *
  * Triggers batch embedding generation for cases or courses
- * 
+ *
  * Protected by:
  * - Authentication: Required (withAuth)
  * - Organization Context: Required (withOrg)
@@ -23,10 +23,9 @@ export const maxDuration = 300 // 5 minutes for batch operations
 
 async function generateEmbeddingsHandler(request: NextRequest, context: GuardedContext) {
   // Lazy load to avoid build-time initialization
-  const {
-    generateAllCaseEmbeddings,
-    generateAllCourseEmbeddings,
-  } = await import('@/lib/services/embedding-service')
+  const { generateAllCaseEmbeddings, generateAllCourseEmbeddings } = await import(
+    '@/lib/services/embedding-service'
+  )
   try {
     const body = await request.json()
     const { type, embeddingType, batchSize = 100 } = body
@@ -81,7 +80,7 @@ async function generateEmbeddingsHandler(request: NextRequest, context: GuardedC
         operation_type: type,
         embedding_type: embeddingType,
         batch_size: batchSize,
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
       })
     } catch (err) {
       console.error('Failed to log embedding generation:', err)
@@ -107,25 +106,19 @@ async function generateEmbeddingsHandler(request: NextRequest, context: GuardedC
 async function getEmbeddingStatusHandler(request: NextRequest, context: GuardedContext) {
   // Lazy load to avoid build-time initialization
   const { getEmbeddingJobStatus } = await import('@/lib/services/embedding-service')
-  
+
   try {
     const { searchParams } = new URL(request.url)
     const jobId = searchParams.get('jobId')
 
     if (!jobId) {
-      return NextResponse.json(
-        { error: 'Job ID is required' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Job ID is required' }, { status: 400 })
     }
 
     const status = await getEmbeddingJobStatus(jobId)
 
     if (!status) {
-      return NextResponse.json(
-        { error: 'Job not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Job not found' }, { status: 404 })
     }
 
     return NextResponse.json({
@@ -150,7 +143,7 @@ export const POST = withRateLimit(
   guardedRoute(generateEmbeddingsHandler, {
     requireAuth: true,
     requireOrg: true,
-    permissions: ['admin.ai.manage']
+    permissions: ['admin.ai.manage'],
   })
 )
 
@@ -159,6 +152,6 @@ export const GET = withRateLimit(
   RateLimitPresets.embeddingsSearch,
   guardedRoute(getEmbeddingStatusHandler, {
     requireAuth: true,
-    requireOrg: true
+    requireOrg: true,
   })
 )

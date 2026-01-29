@@ -109,93 +109,98 @@ export type PermissionCategory =
   | 'billing'
   | 'system'
 
-export const PERMISSION_CATEGORIES: Record<PermissionCategory, { label: string; description: string; icon: string }> = {
+export const PERMISSION_CATEGORIES: Record<
+  PermissionCategory,
+  { label: string; description: string; icon: string }
+> = {
   ai: {
     label: 'AI & Machine Learning',
     description: 'AI chat, coaching, training, and automation',
-    icon: '🤖'
+    icon: '🤖',
   },
   embeddings: {
     label: 'Semantic Search',
     description: 'Vector embeddings and semantic search',
-    icon: '🔍'
+    icon: '🔍',
   },
   courses: {
     label: 'Courses & Learning',
     description: 'Course content, lessons, quizzes, and certificates',
-    icon: '📚'
+    icon: '📚',
   },
   cases: {
     label: 'Case Law',
     description: 'Tribunal cases database and search',
-    icon: '⚖️'
+    icon: '⚖️',
   },
   gamification: {
     label: 'Gamification',
     description: 'Points, achievements, leaderboards, and social features',
-    icon: '🏆'
+    icon: '🏆',
   },
   organization: {
     label: 'Organization',
     description: 'Organization settings, teams, and subscriptions',
-    icon: '🏢'
+    icon: '🏢',
   },
   analytics: {
     label: 'Analytics',
     description: 'Usage analytics and reporting',
-    icon: '📊'
+    icon: '📊',
   },
   audit: {
     label: 'Audit & Compliance',
     description: 'Audit logs, compliance reports, and security',
-    icon: '📋'
+    icon: '📋',
   },
   users: {
     label: 'User Management',
     description: 'User accounts, profiles, and invitations',
-    icon: '👥'
+    icon: '👥',
   },
   roles: {
     label: 'Roles & Permissions',
     description: 'Role management and permission assignment',
-    icon: '🔐'
+    icon: '🔐',
   },
   social: {
     label: 'Social Features',
     description: 'Study groups, follows, peer reviews',
-    icon: '💬'
+    icon: '💬',
   },
   admin: {
     label: 'Administration',
     description: 'Platform administration and configuration',
-    icon: '⚙️'
+    icon: '⚙️',
   },
   compliance: {
     label: 'Compliance',
     description: 'Data compliance, privacy, and regulations',
-    icon: '✓'
+    icon: '✓',
   },
   billing: {
     label: 'Billing',
     description: 'Subscription billing and payment management',
-    icon: '💳'
+    icon: '💳',
   },
   system: {
     label: 'System',
     description: 'System-level operations and maintenance',
-    icon: '🔧'
-  }
+    icon: '🔧',
+  },
 }
 
 // Helper to get category from permission slug
 export function getPermissionCategory(permission: Permission): PermissionCategory {
   const resource = permission.resource.toLowerCase()
-  
+
   if (resource === 'ai') return 'ai'
   if (resource === 'embeddings') return 'embeddings'
-  if (['courses', 'lessons', 'quizzes', 'certificates', 'ce_credits'].includes(resource)) return 'courses'
+  if (['courses', 'lessons', 'quizzes', 'certificates', 'ce_credits'].includes(resource))
+    return 'courses'
   if (resource === 'cases') return 'cases'
-  if (['gamification', 'achievements', 'leaderboards', 'points'].includes(resource)) return 'gamification'
+  if (['gamification', 'achievements', 'leaderboards', 'points'].includes(resource))
+    return 'gamification'
   if (['organization', 'subscriptions', 'teams'].includes(resource)) return 'organization'
   if (resource === 'analytics') return 'analytics'
   if (['audit_logs', 'compliance'].includes(resource)) return 'audit'
@@ -204,25 +209,27 @@ export function getPermissionCategory(permission: Permission): PermissionCategor
   if (resource === 'social') return 'social'
   if (resource === 'admin') return 'admin'
   if (resource === 'billing') return 'billing'
-  
+
   return 'system'
 }
 
 // Helper to group permissions by category
-export function groupPermissionsByCategory(permissions: Permission[]): Record<PermissionCategory, Permission[]> {
+export function groupPermissionsByCategory(
+  permissions: Permission[]
+): Record<PermissionCategory, Permission[]> {
   const grouped = {} as Record<PermissionCategory, Permission[]>
-  
+
   // Initialize all categories
-  Object.keys(PERMISSION_CATEGORIES).forEach(cat => {
+  Object.keys(PERMISSION_CATEGORIES).forEach((cat) => {
     grouped[cat as PermissionCategory] = []
   })
-  
+
   // Group permissions
-  permissions.forEach(permission => {
+  permissions.forEach((permission) => {
     const category = getPermissionCategory(permission)
     grouped[category].push(permission)
   })
-  
+
   return grouped
 }
 
@@ -235,7 +242,7 @@ export const ROLE_LEVELS = {
   manager: 40,
   org_admin: 50,
   super_admin: 60,
-  system: 70
+  system: 70,
 } as const
 
 export type RoleLevel = keyof typeof ROLE_LEVELS

@@ -5,10 +5,12 @@
 ### 1. **Secrets Removed from Repository** ⚠️ **CRITICAL**
 
 **Files Changed:**
+
 - `.env.test` - Removed hardcoded Supabase keys, replaced with placeholders
 - `scripts/create-users-properly.ts` - Now loads from environment variables
 
 **Action Required:**
+
 ```bash
 # IMMEDIATELY rotate your Supabase keys:
 # 1. Go to Supabase Dashboard → Settings → API
@@ -24,6 +26,7 @@
 ### 2. **SSO Callback RLS Fixed** ✅
 
 **Files Changed:**
+
 - `app/api/auth/saml/callback/route.ts`
 - `app/api/auth/azure/callback/route.ts`
 
@@ -48,10 +51,12 @@
 ### 4. **Webhook Idempotency Implemented** ✅
 
 **Files Created/Changed:**
+
 - `supabase/migrations/20260128000007_stripe_webhook_idempotency.sql` - New table
 - `app/api/webhooks/stripe/route.ts` - Added idempotency checks
 
 **How it Works:**
+
 1. Check if `event.id` already exists in `stripe_webhook_events` table
 2. If exists, skip processing and return success
 3. If new, process event and insert `event.id` into table
@@ -65,11 +70,12 @@
 **File Changed:** `lib/security/rateLimit.ts`
 
 **Added Warning:**
+
 ```typescript
 /**
  * ⚠️ PRODUCTION WARNING ⚠️
  * Current implementation uses in-memory storage (Map) which is NOT production-safe
- * 
+ *
  * REQUIRED FOR PRODUCTION:
  * - Migrate to Redis (recommended: Upstash Redis for serverless)
  * - Alternative: Azure Cache for Redis
@@ -77,6 +83,7 @@
 ```
 
 **Action Required Before Production:**
+
 - Implement Redis-based rate limiting
 - Recommended: Upstash Redis (serverless-native)
 - Alternative: Azure Cache for Redis
@@ -88,6 +95,7 @@
 ### 6. **.pnpm-cache Removed** ✅
 
 **Actions:**
+
 - Deleted `.pnpm-cache/` directory (hundreds of MB)
 - Added `/.pnpm-cache` to `.gitignore`
 - Added `build.log` and `migration-output.log` to `.gitignore`
@@ -107,6 +115,7 @@
 **File Changed:** `lib/supabase/client.ts`
 
 **Fix:**
+
 - Now throws descriptive error in browser context if env vars missing
 - Only returns `null` during build (with warning logged)
 - Better error message guides developers to fix `.env.local`
@@ -116,6 +125,7 @@
 ### 9. **Migration Hygiene Cleanup** ✅
 
 **Files Removed:**
+
 - All `SKIP_*.sql` files (7 files)
 - `cleanup_incomplete_tables.sql`
 - `manual_missing_tables.sql`
@@ -135,12 +145,14 @@
 ### Immediate Actions Required
 
 1. **Rotate Supabase Keys** (CRITICAL)
+
    ```bash
    # Go to Supabase Dashboard → Settings → API
    # Generate new keys and update .env.local
    ```
 
 2. **Test SSO Flows**
+
    ```bash
    # Verify SAML and Azure AD callbacks work with admin client
    ```
@@ -153,11 +165,13 @@
 ### What's Still Outstanding
 
 **Known Issues Not Fixed (Out of Scope):**
+
 - EISDIR build error (use Docker build as workaround)
 - In-memory rate limiting (documented, requires Redis implementation)
 - SAML relay state signing (security enhancement for production)
 
 **Test Coverage:**
+
 - Some tests are placeholder-ish (noted in assessment)
 - Consider expanding integration test coverage
 

@@ -60,7 +60,7 @@ export default function MobileVideoPlayer({
     if ('connection' in navigator) {
       const conn = (navigator as any).connection
       setConnectionType(conn.effectiveType || '4g')
-      
+
       conn.addEventListener('change', () => {
         setConnectionType(conn.effectiveType || '4g')
       })
@@ -100,7 +100,7 @@ export default function MobileVideoPlayer({
 
     const handleTimeUpdate = () => {
       setCurrentTime(video.currentTime)
-      
+
       // Update buffered
       if (video.buffered.length > 0) {
         setBuffered((video.buffered.end(0) / video.duration) * 100)
@@ -188,7 +188,7 @@ export default function MobileVideoPlayer({
           await (containerRef.current as any).webkitRequestFullscreen()
         }
         setIsFullscreen(true)
-        
+
         // Lock orientation to landscape in fullscreen
         if ('orientation' in screen && 'lock' in (screen.orientation as any)) {
           try {
@@ -247,7 +247,7 @@ export default function MobileVideoPlayer({
     const h = Math.floor(seconds / 3600)
     const m = Math.floor((seconds % 3600) / 60)
     const s = Math.floor(seconds % 60)
-    
+
     if (h > 0) {
       return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
     }
@@ -259,7 +259,7 @@ export default function MobileVideoPlayer({
   return (
     <div
       ref={containerRef}
-      className="relative bg-black w-full aspect-video group"
+      className="group relative aspect-video w-full bg-black"
       onTouchStart={() => setShowControls(true)}
       onClick={() => setShowControls(true)}
     >
@@ -267,7 +267,7 @@ export default function MobileVideoPlayer({
       <video
         ref={videoRef}
         src={src}
-        className="w-full h-full"
+        className="h-full w-full"
         playsInline
         preload="metadata"
         onClick={togglePlay}
@@ -276,23 +276,24 @@ export default function MobileVideoPlayer({
       {/* Loading Spinner */}
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-          <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin" />
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-white border-t-transparent" />
         </div>
       )}
 
       {/* Offline Indicator */}
       {!isOnline && (
-        <div className="absolute top-4 right-4 px-3 py-2 bg-yellow-500 text-white text-sm rounded-lg font-medium">
+        <div className="absolute right-4 top-4 rounded-lg bg-yellow-500 px-3 py-2 text-sm font-medium text-white">
           Offline Mode
         </div>
       )}
 
       {/* Connection Speed Indicator */}
-      {isOnline && (connectionType === '2g' || connectionType === 'slow-2g' || connectionType === '3g') && (
-        <div className="absolute top-4 left-4 px-3 py-2 bg-orange-500 text-white text-sm rounded-lg font-medium">
-          {connectionType.toUpperCase()} Connection
-        </div>
-      )}
+      {isOnline &&
+        (connectionType === '2g' || connectionType === 'slow-2g' || connectionType === '3g') && (
+          <div className="absolute left-4 top-4 rounded-lg bg-orange-500 px-3 py-2 text-sm font-medium text-white">
+            {connectionType.toUpperCase()} Connection
+          </div>
+        )}
 
       {/* Controls Overlay */}
       <div
@@ -301,8 +302,8 @@ export default function MobileVideoPlayer({
         }`}
       >
         {/* Top Bar */}
-        <div className="absolute top-0 left-0 right-0 p-4">
-          <h2 className="text-white font-semibold text-lg truncate">{title}</h2>
+        <div className="absolute left-0 right-0 top-0 p-4">
+          <h2 className="truncate text-lg font-semibold text-white">{title}</h2>
         </div>
 
         {/* Center Play Button */}
@@ -310,26 +311,26 @@ export default function MobileVideoPlayer({
           <div className="absolute inset-0 flex items-center justify-center">
             <button
               onClick={togglePlay}
-              className="w-20 h-20 bg-white/90 rounded-full flex items-center justify-center hover:bg-white transition-colors"
+              className="flex h-20 w-20 items-center justify-center rounded-full bg-white/90 transition-colors hover:bg-white"
               aria-label="Play video"
             >
-              <Play className="w-10 h-10 text-gray-900 ml-1" fill="currentColor" />
+              <Play className="ml-1 h-10 w-10 text-gray-900" fill="currentColor" />
             </button>
           </div>
         )}
 
         {/* Bottom Controls */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 space-y-2">
+        <div className="absolute bottom-0 left-0 right-0 space-y-2 p-4">
           {/* Progress Bar */}
           <div className="relative">
             {/* Buffered Progress */}
-            <div className="absolute inset-0 bg-white/20 rounded-full h-1">
+            <div className="absolute inset-0 h-1 rounded-full bg-white/20">
               <div
-                className="bg-white/40 h-full rounded-full transition-all"
+                className="h-full rounded-full bg-white/40 transition-all"
                 style={{ width: `${buffered}%` }}
               />
             </div>
-            
+
             {/* Watched Progress */}
             <input
               type="range"
@@ -337,7 +338,7 @@ export default function MobileVideoPlayer({
               max="100"
               value={progressPercent}
               onChange={handleSeek}
-              className="absolute inset-0 w-full h-1 appearance-none bg-transparent cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:cursor-pointer [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:cursor-pointer"
+              className="absolute inset-0 h-1 w-full cursor-pointer appearance-none bg-transparent [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-white [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white"
               aria-label="Video progress"
               style={{
                 background: `linear-gradient(to right, #3b82f6 ${progressPercent}%, transparent ${progressPercent}%)`,
@@ -351,7 +352,7 @@ export default function MobileVideoPlayer({
               {/* Play/Pause */}
               <button
                 onClick={togglePlay}
-                className="text-white hover:text-blue-400 transition-colors"
+                className="text-white transition-colors hover:text-blue-400"
                 aria-label={isPlaying ? 'Pause' : 'Play'}
               >
                 {isPlaying ? <Pause size={28} /> : <Play size={28} />}
@@ -360,7 +361,7 @@ export default function MobileVideoPlayer({
               {/* Skip Back */}
               <button
                 onClick={() => skip(-10)}
-                className="text-white hover:text-blue-400 transition-colors"
+                className="text-white transition-colors hover:text-blue-400"
                 aria-label="Skip back 10 seconds"
               >
                 <SkipBack size={24} />
@@ -369,24 +370,24 @@ export default function MobileVideoPlayer({
               {/* Skip Forward */}
               <button
                 onClick={() => skip(10)}
-                className="text-white hover:text-blue-400 transition-colors"
+                className="text-white transition-colors hover:text-blue-400"
                 aria-label="Skip forward 10 seconds"
               >
                 <SkipForward size={24} />
               </button>
 
               {/* Time Display */}
-              <div className="text-white text-sm font-medium">
+              <div className="text-sm font-medium text-white">
                 {formatTime(currentTime)} / {formatTime(duration)}
               </div>
             </div>
 
             <div className="flex items-center gap-3">
               {/* Volume */}
-              <div className="hidden sm:flex items-center gap-2">
+              <div className="hidden items-center gap-2 sm:flex">
                 <button
                   onClick={toggleMute}
-                  className="text-white hover:text-blue-400 transition-colors"
+                  className="text-white transition-colors hover:text-blue-400"
                   aria-label={isMuted ? 'Unmute' : 'Mute'}
                 >
                   {isMuted || volume === 0 ? <VolumeX size={24} /> : <Volume2 size={24} />}
@@ -398,7 +399,7 @@ export default function MobileVideoPlayer({
                   step="0.1"
                   value={volume}
                   onChange={handleVolumeChange}
-                  className="w-20 h-1 appearance-none bg-white/20 rounded-full cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-moz-range-thumb]:w-3 [&::-moz-range-thumb]:h-3 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-0"
+                  className="h-1 w-20 cursor-pointer appearance-none rounded-full bg-white/20 [&::-moz-range-thumb]:h-3 [&::-moz-range-thumb]:w-3 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-white [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white"
                   aria-label="Volume control"
                 />
               </div>
@@ -406,7 +407,7 @@ export default function MobileVideoPlayer({
               {/* Settings */}
               <button
                 onClick={() => setShowSettings(!showSettings)}
-                className="text-white hover:text-blue-400 transition-colors"
+                className="text-white transition-colors hover:text-blue-400"
                 aria-label="Settings"
               >
                 <Settings size={24} />
@@ -415,7 +416,7 @@ export default function MobileVideoPlayer({
               {/* Fullscreen */}
               <button
                 onClick={toggleFullscreen}
-                className="text-white hover:text-blue-400 transition-colors"
+                className="text-white transition-colors hover:text-blue-400"
                 aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
               >
                 {isFullscreen ? <Minimize size={24} /> : <Maximize size={24} />}
@@ -426,9 +427,9 @@ export default function MobileVideoPlayer({
 
         {/* Settings Menu */}
         {showSettings && (
-          <div className="absolute bottom-20 right-4 bg-gray-900 rounded-lg shadow-xl overflow-hidden">
-            <div className="p-2 space-y-1">
-              <div className="px-3 py-2 text-white text-sm font-medium border-b border-gray-700">
+          <div className="absolute bottom-20 right-4 overflow-hidden rounded-lg bg-gray-900 shadow-xl">
+            <div className="space-y-1 p-2">
+              <div className="border-b border-gray-700 px-3 py-2 text-sm font-medium text-white">
                 Playback Speed
               </div>
               {[0.5, 0.75, 1, 1.25, 1.5, 1.75, 2].map((rate) => (
@@ -450,7 +451,7 @@ export default function MobileVideoPlayer({
 
               {enableDownload && (
                 <>
-                  <div className="px-3 py-2 text-white text-sm font-medium border-t border-b border-gray-700">
+                  <div className="border-b border-t border-gray-700 px-3 py-2 text-sm font-medium text-white">
                     Quality
                   </div>
                   {(['auto', 'high', 'medium', 'low'] as const).map((q) => (
@@ -461,9 +462,7 @@ export default function MobileVideoPlayer({
                         setShowSettings(false)
                       }}
                       className={`w-full px-3 py-2 text-left text-sm capitalize transition-colors ${
-                        quality === q
-                          ? 'bg-blue-600 text-white'
-                          : 'text-gray-300 hover:bg-gray-800'
+                        quality === q ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-gray-800'
                       }`}
                     >
                       {q}

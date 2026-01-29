@@ -4,7 +4,7 @@ import { withRateLimit, RateLimitPresets } from '@/lib/security/rateLimit'
 import {
   getClassificationFeedback,
   createClassificationFeedback,
-  updateClassificationFeedback
+  updateClassificationFeedback,
 } from '@/lib/ai/training-service'
 
 /**
@@ -15,23 +15,20 @@ import {
 // GET /api/ai/feedback - List all classification feedback
 async function getFeedbackHandler(request: NextRequest, context: GuardedContext) {
   try {
-    
     const searchParams = request.nextUrl.searchParams
     const usedForTraining = searchParams.get('used')
     const minQualityScore = searchParams.get('minQuality')
-    
+
     const feedback = await getClassificationFeedback({
-      usedForTraining: usedForTraining === 'true' ? true : usedForTraining === 'false' ? false : undefined,
-      minQualityScore: minQualityScore ? parseInt(minQualityScore) : undefined
+      usedForTraining:
+        usedForTraining === 'true' ? true : usedForTraining === 'false' ? false : undefined,
+      minQualityScore: minQualityScore ? parseInt(minQualityScore) : undefined,
     })
-    
+
     return NextResponse.json(feedback)
   } catch (error) {
     console.error('Error fetching feedback:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch feedback' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to fetch feedback' }, { status: 500 })
   }
 }
 
@@ -42,16 +39,13 @@ async function createFeedbackHandler(request: NextRequest, context: GuardedConte
     const feedback = await createClassificationFeedback({
       ...body,
       reviewed_by: context.user!.id,
-      reviewed_date: new Date().toISOString()
+      reviewed_date: new Date().toISOString(),
     })
-    
+
     return NextResponse.json(feedback, { status: 201 })
   } catch (error) {
     console.error('Error creating feedback:', error)
-    return NextResponse.json(
-      { error: 'Failed to create feedback' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to create feedback' }, { status: 500 })
   }
 }
 
@@ -60,20 +54,17 @@ async function updateFeedbackHandler(request: NextRequest, context: GuardedConte
   try {
     const body = await request.json()
     const { id, ...updates } = body
-    
+
     if (!id) {
       return NextResponse.json({ error: 'Feedback ID required' }, { status: 400 })
     }
-    
+
     const feedback = await updateClassificationFeedback(id, updates)
-    
+
     return NextResponse.json(feedback)
   } catch (error) {
     console.error('Error updating feedback:', error)
-    return NextResponse.json(
-      { error: 'Failed to update feedback' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to update feedback' }, { status: 500 })
   }
 }
 
@@ -83,7 +74,7 @@ export const GET = withRateLimit(
   guardedRoute(getFeedbackHandler, {
     requireAuth: true,
     requireOrg: true,
-    permissions: ['admin.ai.manage']
+    permissions: ['admin.ai.manage'],
   })
 )
 
@@ -92,7 +83,7 @@ export const POST = withRateLimit(
   guardedRoute(createFeedbackHandler, {
     requireAuth: true,
     requireOrg: true,
-    permissions: ['admin.ai.manage']
+    permissions: ['admin.ai.manage'],
   })
 )
 
@@ -101,6 +92,6 @@ export const PATCH = withRateLimit(
   guardedRoute(updateFeedbackHandler, {
     requireAuth: true,
     requireOrg: true,
-    permissions: ['admin.ai.manage']
+    permissions: ['admin.ai.manage'],
   })
 )

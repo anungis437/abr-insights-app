@@ -7,34 +7,25 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
-import { 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Eye, 
-  Settings, 
-  Users, 
-  Shield, 
-  CheckCircle 
-} from 'lucide-react'
+import { Plus, Edit, Trash2, Eye, Settings, Users, Shield, CheckCircle } from 'lucide-react'
 
 export default function PermissionsDemo() {
   const { permissions, loading, hasPermission, hasAnyPermission } = usePermissions()
   const [actionLog, setActionLog] = useState<string[]>([])
 
   const logAction = (action: string) => {
-    setActionLog(prev => [
+    setActionLog((prev) => [
       `${new Date().toLocaleTimeString()}: ${action}`,
-      ...prev.slice(0, 9) // Keep last 10 actions
+      ...prev.slice(0, 9), // Keep last 10 actions
     ])
   }
 
   if (loading) {
     return (
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="container mx-auto space-y-6 p-6">
         <Skeleton className="h-12 w-64" />
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3, 4, 5, 6].map(i => (
+          {[1, 2, 3, 4, 5, 6].map((i) => (
             <Skeleton key={i} className="h-48" />
           ))}
         </div>
@@ -43,9 +34,9 @@ export default function PermissionsDemo() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto space-y-6 p-6">
       <div>
-        <h1 className="text-3xl font-bold mb-2">Permission System Demo</h1>
+        <h1 className="mb-2 text-3xl font-bold">Permission System Demo</h1>
         <p className="text-muted-foreground">
           This page demonstrates permission-based UI rendering
         </p>
@@ -58,21 +49,19 @@ export default function PermissionsDemo() {
             <Shield className="h-5 w-5" />
             Your Active Permissions
           </CardTitle>
-          <CardDescription>
-            You have {permissions.length} permission(s) assigned
-          </CardDescription>
+          <CardDescription>You have {permissions.length} permission(s) assigned</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2">
             {permissions.length > 0 ? (
-              permissions.map(perm => (
+              permissions.map((perm) => (
                 <Badge key={perm} variant="secondary">
-                  <CheckCircle className="h-3 w-3 mr-1" />
+                  <CheckCircle className="mr-1 h-3 w-3" />
                   {perm}
                 </Badge>
               ))
             ) : (
-              <p className="text-sm text-muted-foreground">No permissions assigned</p>
+              <p className="text-muted-foreground text-sm">No permissions assigned</p>
             )}
           </div>
         </CardContent>
@@ -82,64 +71,54 @@ export default function PermissionsDemo() {
       <Card>
         <CardHeader>
           <CardTitle>Course Management</CardTitle>
-          <CardDescription>
-            These actions require specific course permissions
-          </CardDescription>
+          <CardDescription>These actions require specific course permissions</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-wrap gap-2">
             <Protected permission="courses.view">
-              <Button 
-                variant="outline"
-                onClick={() => logAction('Viewed courses')}
-              >
-                <Eye className="h-4 w-4 mr-2" />
+              <Button variant="outline" onClick={() => logAction('Viewed courses')}>
+                <Eye className="mr-2 h-4 w-4" />
                 View Courses
               </Button>
             </Protected>
 
             <Protected permission="courses.create">
-              <Button 
-                onClick={() => logAction('Created new course')}
-              >
-                <Plus className="h-4 w-4 mr-2" />
+              <Button onClick={() => logAction('Created new course')}>
+                <Plus className="mr-2 h-4 w-4" />
                 Create Course
               </Button>
             </Protected>
 
             <Protected anyPermissions={['courses.update', 'courses.manage']}>
-              <Button 
-                variant="secondary"
-                onClick={() => logAction('Edited course')}
-              >
-                <Edit className="h-4 w-4 mr-2" />
+              <Button variant="secondary" onClick={() => logAction('Edited course')}>
+                <Edit className="mr-2 h-4 w-4" />
                 Edit Course
               </Button>
             </Protected>
 
             <Protected permission="courses.delete">
-              <Button 
-                variant="destructive"
-                onClick={() => logAction('Deleted course')}
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
+              <Button variant="destructive" onClick={() => logAction('Deleted course')}>
+                <Trash2 className="mr-2 h-4 w-4" />
                 Delete Course
               </Button>
             </Protected>
 
             <Protected permission="courses.manage">
-              <Button 
-                variant="outline"
-                onClick={() => logAction('Opened course settings')}
-              >
-                <Settings className="h-4 w-4 mr-2" />
+              <Button variant="outline" onClick={() => logAction('Opened course settings')}>
+                <Settings className="mr-2 h-4 w-4" />
                 Course Settings
               </Button>
             </Protected>
           </div>
 
-          {!hasAnyPermission(['courses.view', 'courses.create', 'courses.update', 'courses.delete', 'courses.manage']) && (
-            <p className="text-sm text-muted-foreground">
+          {!hasAnyPermission([
+            'courses.view',
+            'courses.create',
+            'courses.update',
+            'courses.delete',
+            'courses.manage',
+          ]) && (
+            <p className="text-muted-foreground text-sm">
               You don&apos;t have any course management permissions
             </p>
           )}
@@ -150,54 +129,47 @@ export default function PermissionsDemo() {
       <Card>
         <CardHeader>
           <CardTitle>User Management</CardTitle>
-          <CardDescription>
-            These actions require user management permissions
-          </CardDescription>
+          <CardDescription>These actions require user management permissions</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-wrap gap-2">
             <Protected permission="users.view">
-              <Button 
-                variant="outline"
-                onClick={() => logAction('Viewed users')}
-              >
-                <Users className="h-4 w-4 mr-2" />
+              <Button variant="outline" onClick={() => logAction('Viewed users')}>
+                <Users className="mr-2 h-4 w-4" />
                 View Users
               </Button>
             </Protected>
 
             <Protected permission="users.create">
-              <Button 
-                onClick={() => logAction('Created new user')}
-              >
-                <Plus className="h-4 w-4 mr-2" />
+              <Button onClick={() => logAction('Created new user')}>
+                <Plus className="mr-2 h-4 w-4" />
                 Create User
               </Button>
             </Protected>
 
             <Protected anyPermissions={['users.update', 'users.manage']}>
-              <Button 
-                variant="secondary"
-                onClick={() => logAction('Edited user')}
-              >
-                <Edit className="h-4 w-4 mr-2" />
+              <Button variant="secondary" onClick={() => logAction('Edited user')}>
+                <Edit className="mr-2 h-4 w-4" />
                 Edit User
               </Button>
             </Protected>
 
             <Protected permission="users.delete">
-              <Button 
-                variant="destructive"
-                onClick={() => logAction('Deleted user')}
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
+              <Button variant="destructive" onClick={() => logAction('Deleted user')}>
+                <Trash2 className="mr-2 h-4 w-4" />
                 Delete User
               </Button>
             </Protected>
           </div>
 
-          {!hasAnyPermission(['users.view', 'users.create', 'users.update', 'users.delete', 'users.manage']) && (
-            <p className="text-sm text-muted-foreground">
+          {!hasAnyPermission([
+            'users.view',
+            'users.create',
+            'users.update',
+            'users.delete',
+            'users.manage',
+          ]) && (
+            <p className="text-muted-foreground text-sm">
               You don&apos;t have any user management permissions
             </p>
           )}
@@ -208,9 +180,7 @@ export default function PermissionsDemo() {
       <Card>
         <CardHeader>
           <CardTitle>Dynamic Rendering Demo</CardTitle>
-          <CardDescription>
-            Using PermissionGate for conditional rendering
-          </CardDescription>
+          <CardDescription>Using PermissionGate for conditional rendering</CardDescription>
         </CardHeader>
         <CardContent>
           <PermissionGate permission="courses.delete">
@@ -224,12 +194,12 @@ export default function PermissionsDemo() {
                     <Badge variant="destructive">Denied</Badge>
                   )}
                 </p>
-                <Button 
+                <Button
                   disabled={!canDelete}
                   variant={canDelete ? 'destructive' : 'outline'}
                   onClick={() => logAction('Attempted delete action')}
                 >
-                  <Trash2 className="h-4 w-4 mr-2" />
+                  <Trash2 className="mr-2 h-4 w-4" />
                   {canDelete ? 'Delete Item' : 'Delete (No Permission)'}
                 </Button>
               </div>
@@ -254,7 +224,7 @@ export default function PermissionsDemo() {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               No actions performed yet. Try clicking the buttons above.
             </p>
           )}

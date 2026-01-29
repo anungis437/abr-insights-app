@@ -15,29 +15,29 @@ export type TribunalCase = {
   tribunal: string
   decision_type: string | null
   jurisdiction: string | null
-  
+
   // Content
   summary: string | null
   full_text: string | null
   url: string | null
   pdf_url: string | null
-  
+
   // Classification
   is_race_related: boolean
   classification_score: number | null
   classification_method: string | null
   key_themes: string[] | null
-  
+
   // Metadata
   parties_involved: string[] | null
   legal_issues: string[] | null
   outcome: string | null
   remedies: string[] | null
-  
+
   // Relationships
   source_id: string | null
   raw_case_id: string | null
-  
+
   // Timestamps
   created_at: string
   updated_at: string
@@ -105,7 +105,7 @@ export class TribunalCasesService {
       query = query.limit(options.limit)
     }
     if (options?.offset) {
-      query = query.range(options.offset, (options.offset + (options.limit || 10)) - 1)
+      query = query.range(options.offset, options.offset + (options.limit || 10) - 1)
     }
 
     const { data, error, count } = await query
@@ -226,9 +226,9 @@ export class TribunalCasesService {
     ])
 
     return {
-      tribunals: [...new Set(tribunals.data?.map(t => t.tribunal).filter(Boolean))],
-      decisionTypes: [...new Set(decisionTypes.data?.map(t => t.decision_type).filter(Boolean))],
-      jurisdictions: [...new Set(jurisdictions.data?.map(t => t.jurisdiction).filter(Boolean))],
+      tribunals: [...new Set(tribunals.data?.map((t) => t.tribunal).filter(Boolean))],
+      decisionTypes: [...new Set(decisionTypes.data?.map((t) => t.decision_type).filter(Boolean))],
+      jurisdictions: [...new Set(jurisdictions.data?.map((t) => t.jurisdiction).filter(Boolean))],
     }
   }
 }

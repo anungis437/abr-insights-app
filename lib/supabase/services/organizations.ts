@@ -25,7 +25,10 @@ export type Organization = {
   deleted_at: string | null
 }
 
-export type OrganizationInsert = Omit<Organization, 'id' | 'created_at' | 'updated_at' | 'deleted_at'>
+export type OrganizationInsert = Omit<
+  Organization,
+  'id' | 'created_at' | 'updated_at' | 'deleted_at'
+>
 export type OrganizationUpdate = Partial<OrganizationInsert>
 
 export class OrganizationsService {
@@ -50,7 +53,7 @@ export class OrganizationsService {
       query = query.limit(options.limit)
     }
     if (options?.offset) {
-      query = query.range(options.offset, (options.offset + (options.limit || 10)) - 1)
+      query = query.range(options.offset, options.offset + (options.limit || 10) - 1)
     }
 
     const { data, error, count } = await query
@@ -141,9 +144,9 @@ export class OrganizationsService {
   async updateSettings(id: string, settings: Record<string, any>) {
     const { data, error } = await this.supabase
       .from('organizations')
-      .update({ 
+      .update({
         settings,
-        updated_at: new Date().toISOString() 
+        updated_at: new Date().toISOString(),
       })
       .eq('id', id)
       .is('deleted_at', null)
@@ -160,9 +163,9 @@ export class OrganizationsService {
   async updateSubscription(id: string, tier: SubscriptionTier, maxUsers?: number) {
     const updates: Partial<Organization> = {
       subscription_tier: tier,
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
     }
-    
+
     if (maxUsers !== undefined) {
       updates.max_users = maxUsers
     }
@@ -185,10 +188,10 @@ export class OrganizationsService {
   async updateStripeInfo(id: string, stripeCustomerId: string, stripeSubscriptionId?: string) {
     const { data, error } = await this.supabase
       .from('organizations')
-      .update({ 
+      .update({
         stripe_customer_id: stripeCustomerId,
         stripe_subscription_id: stripeSubscriptionId,
-        updated_at: new Date().toISOString() 
+        updated_at: new Date().toISOString(),
       })
       .eq('id', id)
       .is('deleted_at', null)

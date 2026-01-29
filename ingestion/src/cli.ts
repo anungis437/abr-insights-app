@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /**
  * Ingestion CLI Runner
- * 
+ *
  * Command-line interface for running ingestion jobs locally.
- * 
+ *
  * Usage:
  *   npm run ingest              # Run with defaults
  *   npm run ingest -- --demo    # Use demo data
@@ -16,13 +16,13 @@
 // Console output is intentional for CLI tool feedback
 
 // Load environment variables from .env.local
-import { config } from 'dotenv';
-config({ path: '.env.local' });
+import { config } from 'dotenv'
+config({ path: '.env.local' })
 
-import { SOURCE_CONFIGS } from './config';
-import { IngestionOrchestrator } from './orchestrator';
-import { generateDemoDataset } from './demo/generator';
-import type { SourceConfig, SourceSystem, JobStatus } from './types';
+import { SOURCE_CONFIGS } from './config'
+import { IngestionOrchestrator } from './orchestrator'
+import { generateDemoDataset } from './demo/generator'
+import type { SourceConfig, SourceSystem, JobStatus } from './types'
 
 // ============================================================================
 // DEMO MODE
@@ -36,70 +36,79 @@ async function runDemoIngestion(
   sourceConfig: SourceConfig,
   limit: number,
   dryRun?: boolean
-): Promise<{ jobId: string; status: JobStatus; sourceSystem: SourceSystem; startTime: Date; endTime: Date; stats: { discovered: number; fetched: number; classified: number; stored: number; errors: number; duration: number } }> {
-  console.log('\n🎭 Generating demo data...\n');
-  
+): Promise<{
+  jobId: string
+  status: JobStatus
+  sourceSystem: SourceSystem
+  startTime: Date
+  endTime: Date
+  stats: {
+    discovered: number
+    fetched: number
+    classified: number
+    stored: number
+    errors: number
+    duration: number
+  }
+}> {
+  console.log('\n🎭 Generating demo data...\n')
+
   // Generate demo dataset (50% contain anti-Black racism)
-  const dataset = generateDemoDataset(sourceSystem, limit, 0.5);
-  
-  console.log(`✅ Generated ${dataset.length} demo decisions\n`);
-  
+  const dataset = generateDemoDataset(sourceSystem, limit, 0.5)
+
+  console.log(`✅ Generated ${dataset.length} demo decisions\n`)
+
   // Create orchestrator
-  const orchestrator = new IngestionOrchestrator();
-  
+  const orchestrator = new IngestionOrchestrator()
+
   // Process demo data through classification and storage
-  console.log('🔄 Processing through pipeline...\n');
-  
+  console.log('🔄 Processing through pipeline...\n')
+
   // Start job tracking
-  const startTime = Date.now();
-  let classified = 0;
-  let stored = 0;
-  let errors = 0;
-  
+  const startTime = Date.now()
+  let classified = 0
+  let stored = 0
+  let errors = 0
+
   for (const { link, content, hasAntiBlackRacism } of dataset) {
     try {
       // Classify content
-      console.log(`📊 Classifying: ${link.title}`);
-      console.log(`   Expected: ${hasAntiBlackRacism ? '✓ YES' : '✗ NO'}`);
-      
+      console.log(`📊 Classifying: ${link.title}`)
+      console.log(`   Expected: ${hasAntiBlackRacism ? '✓ YES' : '✗ NO'}`)
+
       // Pass the entire DecisionContent object to classifier
-      const classification = await (orchestrator as any).classifier.classify(content);
-      const isAntiBlack = classification.finalCategory === 'anti_black_racism';
-      console.log(`   Classified: ${isAntiBlack ? '✓ YES' : '✗ NO'}`);
-      classified++;
-      
+      const classification = await (orchestrator as any).classifier.classify(content)
+      const isAntiBlack = classification.finalCategory === 'anti_black_racism'
+      console.log(`   Classified: ${isAntiBlack ? '✓ YES' : '✗ NO'}`)
+      classified++
+
       // Store if not dry run
       if (!dryRun) {
-        await (orchestrator as any).storeCase(
-          content,
-          classification,
-          sourceSystem,
-          sourceConfig
-        );
-        console.log(`   💾 Stored in database\n`);
-        stored++;
+        await (orchestrator as any).storeCase(content, classification, sourceSystem, sourceConfig)
+        console.log(`   💾 Stored in database\n`)
+        stored++
       } else {
-        console.log(`   💾 [DRY RUN] Would store in database\n`);
+        console.log(`   💾 [DRY RUN] Would store in database\n`)
       }
     } catch (error) {
-      console.error(`   ❌ Error processing ${link.title}:`, error);
-      errors++;
+      console.error(`   ❌ Error processing ${link.title}:`, error)
+      errors++
     }
   }
-  
-  const duration = Date.now() - startTime;
-  
+
+  const duration = Date.now() - startTime
+
   // Print summary
-  console.log('\n═══════════════════════════════════════════════════════');
-  console.log('📊 DEMO INGESTION SUMMARY');
-  console.log('═══════════════════════════════════════════════════════');
-  console.log(`Total Generated:  ${dataset.length}`);
-  console.log(`Classified:       ${classified}`);
-  console.log(`Stored:           ${dryRun ? 'N/A (dry run)' : stored}`);
-  console.log(`Errors:           ${errors}`);
-  console.log(`Duration:         ${(duration / 1000).toFixed(1)}s`);
-  console.log('═══════════════════════════════════════════════════════\n');
-  
+  console.log('\n═══════════════════════════════════════════════════════')
+  console.log('📊 DEMO INGESTION SUMMARY')
+  console.log('═══════════════════════════════════════════════════════')
+  console.log(`Total Generated:  ${dataset.length}`)
+  console.log(`Classified:       ${classified}`)
+  console.log(`Stored:           ${dryRun ? 'N/A (dry run)' : stored}`)
+  console.log(`Errors:           ${errors}`)
+  console.log(`Duration:         ${(duration / 1000).toFixed(1)}s`)
+  console.log('═══════════════════════════════════════════════════════\n')
+
   return {
     jobId: `demo-${Date.now()}`,
     status: errors === 0 ? 'completed' : errors < dataset.length ? 'partial' : 'failed',
@@ -114,7 +123,7 @@ async function runDemoIngestion(
       errors,
       duration,
     },
-  };
+  }
 }
 
 // ============================================================================
@@ -122,36 +131,36 @@ async function runDemoIngestion(
 // ============================================================================
 
 interface CLIArgs {
-  source?: string;
-  limit?: number;
-  dryRun?: boolean;
-  resume?: boolean;
-  demo?: boolean;
-  help?: boolean;
+  source?: string
+  limit?: number
+  dryRun?: boolean
+  resume?: boolean
+  demo?: boolean
+  help?: boolean
 }
 
 function parseArgs(): CLIArgs {
-  const args: CLIArgs = {};
-  
+  const args: CLIArgs = {}
+
   for (let i = 2; i < process.argv.length; i++) {
-    const arg = process.argv[i];
-    
+    const arg = process.argv[i]
+
     if (arg === '--help' || arg === '-h') {
-      args.help = true;
+      args.help = true
     } else if (arg === '--dry-run') {
-      args.dryRun = true;
+      args.dryRun = true
     } else if (arg === '--resume') {
-      args.resume = true;
+      args.resume = true
     } else if (arg === '--demo') {
-      args.demo = true;
+      args.demo = true
     } else if (arg === '--limit' || arg === '-l') {
-      args.limit = parseInt(process.argv[++i], 10);
+      args.limit = parseInt(process.argv[++i], 10)
     } else if (arg === '--source' || arg === '-s') {
-      args.source = process.argv[++i];
+      args.source = process.argv[++i]
     }
   }
-  
-  return args;
+
+  return args
 }
 
 function printHelp(): void {
@@ -191,7 +200,7 @@ Environment Variables:
   AZURE_OPENAI_ENDPOINT             Azure OpenAI endpoint
   AZURE_OPENAI_API_KEY              Azure OpenAI API key
   AZURE_OPENAI_DEPLOYMENT_NAME      Deployment name (default: gpt-4o)
-`);
+`)
 }
 
 // ============================================================================
@@ -199,82 +208,77 @@ Environment Variables:
 // ============================================================================
 
 async function main(): Promise<void> {
-  const args = parseArgs();
-  
+  const args = parseArgs()
+
   // Show help
   if (args.help) {
-    printHelp();
-    process.exit(0);
+    printHelp()
+    process.exit(0)
   }
-  
+
   // Defaults
-  const sourceName = args.source || 'canlii_hrto';
-  const limit = args.limit || 50;
-  
+  const sourceName = args.source || 'canlii_hrto'
+  const limit = args.limit || 50
+
   // Get source config
-  const sourceConfig = SOURCE_CONFIGS[sourceName as keyof typeof SOURCE_CONFIGS];
+  const sourceConfig = SOURCE_CONFIGS[sourceName as keyof typeof SOURCE_CONFIGS]
   if (!sourceConfig) {
-    console.error(`❌ Unknown source: ${sourceName}`);
-    console.error(`Available sources: ${Object.keys(SOURCE_CONFIGS).join(', ')}`);
-    process.exit(1);
+    console.error(`❌ Unknown source: ${sourceName}`)
+    console.error(`Available sources: ${Object.keys(SOURCE_CONFIGS).join(', ')}`)
+    process.exit(1)
   }
-  
+
   // Print banner
-  console.log('');
-  console.log('═══════════════════════════════════════════════════════');
-  console.log('📥  ABR INSIGHTS - INGESTION PIPELINE');
-  console.log('═══════════════════════════════════════════════════════');
-  console.log(`Source:   ${sourceName}`);
-  console.log(`Limit:    ${limit} cases`);
-  console.log(`Mode:     ${args.demo ? 'DEMO DATA' : 'LIVE SCRAPING'}`);
-  console.log(`Dry Run:  ${args.dryRun ? 'YES' : 'NO'}`);
-  console.log(`Resume:   ${args.resume ? 'YES' : 'NO'}`);
-  console.log('═══════════════════════════════════════════════════════');
-  
+  console.log('')
+  console.log('═══════════════════════════════════════════════════════')
+  console.log('📥  ABR INSIGHTS - INGESTION PIPELINE')
+  console.log('═══════════════════════════════════════════════════════')
+  console.log(`Source:   ${sourceName}`)
+  console.log(`Limit:    ${limit} cases`)
+  console.log(`Mode:     ${args.demo ? 'DEMO DATA' : 'LIVE SCRAPING'}`)
+  console.log(`Dry Run:  ${args.dryRun ? 'YES' : 'NO'}`)
+  console.log(`Resume:   ${args.resume ? 'YES' : 'NO'}`)
+  console.log('═══════════════════════════════════════════════════════')
+
   try {
-    let result;
-    
+    let result
+
     if (args.demo) {
       // Run with demo data
-      result = await runDemoIngestion(sourceName as any, sourceConfig, limit, args.dryRun);
+      result = await runDemoIngestion(sourceName as any, sourceConfig, limit, args.dryRun)
     } else {
       // Create orchestrator and run normal ingestion
-      const orchestrator = new IngestionOrchestrator();
-      
-      result = await orchestrator.run(
-        sourceName as any,
-        sourceConfig,
-        {
-          jobType: 'manual',
-          limit,
-          dryRun: args.dryRun,
-          resume: args.resume,
-          triggeredBy: 'cli',
-        }
-      );
+      const orchestrator = new IngestionOrchestrator()
+
+      result = await orchestrator.run(sourceName as any, sourceConfig, {
+        jobType: 'manual',
+        limit,
+        dryRun: args.dryRun,
+        resume: args.resume,
+        triggeredBy: 'cli',
+      })
     }
-    
+
     // Exit with appropriate code
     if (result.status === 'failed') {
-      process.exit(1);
+      process.exit(1)
     } else if (result.status === 'partial') {
-      process.exit(2);
+      process.exit(2)
     } else {
-      process.exit(0);
+      process.exit(0)
     }
-    
   } catch (error) {
-    console.error('\n💥 Fatal error:', error);
-    process.exit(1);
+    console.error('\n💥 Fatal error:', error)
+    process.exit(1)
   }
 }
 
 // Run if executed directly
 if (require.main === module) {
-  main().catch(error => {
-    console.error('💥 Unhandled error:', error);
-    process.exit(1);
-  });
+  main().catch((error) => {
+    console.error('💥 Unhandled error:', error)
+    process.exit(1)
+  })
 }
 
-export { main };
+export { main }

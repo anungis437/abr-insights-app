@@ -178,18 +178,15 @@ const nextConfig = {
   trailingSlash: true,
   images: {
     unoptimized: true, // Required for static export
-    domains: [
-      'YOUR_SUPABASE_PROJECT.supabase.co',
-      'images.unsplash.com',
-    ],
+    domains: ['YOUR_SUPABASE_PROJECT.supabase.co', 'images.unsplash.com'],
   },
   env: {
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   },
   webpack: (config) => {
-    config.resolve.fallback = { fs: false, net: false, tls: false };
-    return config;
+    config.resolve.fallback = { fs: false, net: false, tls: false }
+    return config
   },
 }
 
@@ -204,6 +201,7 @@ module.exports = nextConfig
 2. Add Application Settings:
 
 **Public Variables (Client-side)**
+
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
@@ -212,6 +210,7 @@ NEXT_PUBLIC_ENVIRONMENT=production
 ```
 
 **Private Variables (Server-side/API)**
+
 ```
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
@@ -280,6 +279,7 @@ az network dns record-set a add-record \
 Azure SWA automatically provisions free SSL certificates via Let's Encrypt. Certificate renewal is automatic.
 
 **Verify SSL:**
+
 ```bash
 # Check certificate
 openssl s_client -connect app.abrinsights.ca:443 -servername app.abrinsights.ca
@@ -292,6 +292,7 @@ openssl s_client -connect app.abrinsights.ca:443 -servername app.abrinsights.ca
 Azure SWA integrates seamlessly with Azure Functions for API routes.
 
 **Directory Structure:**
+
 ```
 /api
   ├── scrape-tribunal-cases/
@@ -304,6 +305,7 @@ Azure SWA integrates seamlessly with Azure Functions for API routes.
 ```
 
 **Example function.json:**
+
 ```json
 {
   "bindings": [
@@ -325,6 +327,7 @@ Azure SWA integrates seamlessly with Azure Functions for API routes.
 ```
 
 **API Base URL:**
+
 - Development: `http://localhost:3000/api`
 - Production: `https://app.abrinsights.ca/api`
 
@@ -358,8 +361,8 @@ preview-environments:
     - uses: Azure/static-web-apps-deploy@v1
       with:
         azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
-        action: "upload"
-        deployment_environment: "pr-${{ github.event.pull_request.number }}"
+        action: 'upload'
+        deployment_environment: 'pr-${{ github.event.pull_request.number }}'
 ```
 
 ## Security
@@ -443,6 +446,7 @@ az staticwebapp logs show \
 Azure SWA includes a global CDN by default. No additional configuration needed.
 
 **Cache Headers:**
+
 ```json
 {
   "routes": [
@@ -459,6 +463,7 @@ Azure SWA includes a global CDN by default. No additional configuration needed.
 ### Compression
 
 Gzip and Brotli compression are enabled by default for:
+
 - `.js`, `.css`, `.html`, `.json`, `.xml`, `.svg`
 
 ### Image Optimization
@@ -468,13 +473,7 @@ Use Next.js Image component with `unoptimized: true` for static export:
 ```jsx
 import Image from 'next/image'
 
-<Image
-  src="/images/hero.jpg"
-  alt="Hero"
-  width={1200}
-  height={600}
-  priority
-/>
+;<Image src="/images/hero.jpg" alt="Hero" width={1200} height={600} priority />
 ```
 
 For dynamic images from Supabase Storage, use native `<img>` tags or client-side optimization.
@@ -484,6 +483,7 @@ For dynamic images from Supabase Storage, use native `<img>` tags or client-side
 ### Build Failures
 
 **Check build logs:**
+
 ```bash
 az staticwebapp show \
   --name abr-insights-app \
@@ -492,6 +492,7 @@ az staticwebapp show \
 ```
 
 **Common issues:**
+
 - Missing environment variables
 - Node.js version mismatch
 - Dependencies not installed
@@ -500,10 +501,12 @@ az staticwebapp show \
 ### Routing Issues
 
 **404 errors on refresh:**
+
 - Ensure `navigationFallback` is configured in `staticwebapp.config.json`
 - Verify `trailingSlash: true` in `next.config.js`
 
 **API not accessible:**
+
 - Check function authorization level
 - Verify API routes in `staticwebapp.config.json`
 - Ensure functions are deployed to `/api` directory
@@ -511,11 +514,13 @@ az staticwebapp show \
 ### Environment Variable Issues
 
 **Variables not available:**
+
 - Public variables must start with `NEXT_PUBLIC_`
 - Restart deployment after adding variables
 - Check spelling and case sensitivity
 
 **Verify variables:**
+
 ```bash
 az staticwebapp appsettings list \
   --name abr-insights-app \
@@ -525,12 +530,14 @@ az staticwebapp appsettings list \
 ## Cost Optimization
 
 ### Free Tier Limits
+
 - 100 GB bandwidth/month
 - 0.5 GB storage
 - 2 custom domains
 - No Azure Functions included
 
 ### Standard Tier
+
 - $9/month base
 - 100 GB bandwidth included
 - $0.20/GB additional bandwidth
@@ -544,6 +551,7 @@ az staticwebapp appsettings list \
 ### Application Code
 
 Source code is backed up in GitHub. Ensure:
+
 - Main branch is protected
 - Regular backups of GitHub organization
 - Disaster recovery procedures documented
@@ -551,6 +559,7 @@ Source code is backed up in GitHub. Ensure:
 ### Configuration Backup
 
 Export configuration:
+
 ```bash
 # Export Static Web App settings
 az staticwebapp show \

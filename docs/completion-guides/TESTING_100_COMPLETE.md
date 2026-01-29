@@ -59,9 +59,10 @@ The ABR Insights App has a comprehensive testing system covering:
 ### Configuration Files
 
 #### vitest.config.ts
+
 ```typescript
-import { defineConfig } from 'vitest/config';
-import path from 'path';
+import { defineConfig } from 'vitest/config'
+import path from 'path'
 
 export default defineConfig({
   test: {
@@ -80,19 +81,22 @@ export default defineConfig({
       '@': path.resolve(__dirname, './'),
     },
   },
-});
+})
 ```
 
 #### vitest.setup.ts
+
 ```typescript
-import { beforeAll, vi } from 'vitest';
+import { beforeAll, vi } from 'vitest'
 
 beforeAll(() => {
   // Mock environment variables
-  process.env.NEXT_PUBLIC_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://test.supabase.co';
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'test-key';
-  process.env.AI_ENABLED = 'false'; // Disable AI in tests
-});
+  process.env.NEXT_PUBLIC_SUPABASE_URL =
+    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://test.supabase.co'
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY =
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'test-key'
+  process.env.AI_ENABLED = 'false' // Disable AI in tests
+})
 
 // Mock Azure OpenAI
 vi.mock('@azure/openai', () => ({
@@ -101,7 +105,7 @@ vi.mock('@azure/openai', () => ({
     getEmbeddings: vi.fn(),
   })),
   AzureKeyCredential: vi.fn(),
-}));
+}))
 ```
 
 ---
@@ -137,25 +141,25 @@ tests/
 ```typescript
 describe('Permission System Tests', () => {
   // Permission check functions (3 tests)
-  it('should verify check_permission function exists');
-  it('should verify check_permissions function exists');
-  it('should verify check_role function exists');
-  
+  it('should verify check_permission function exists')
+  it('should verify check_permissions function exists')
+  it('should verify check_role function exists')
+
   // Role assignment (2 tests)
-  it('should allow assigning roles to users');
-  it('should prevent duplicate role assignments');
-  
+  it('should allow assigning roles to users')
+  it('should prevent duplicate role assignments')
+
   // Permission enforcement (2 tests)
-  it('should enforce admin permissions on protected routes');
-  it('should allow users to view their own permissions');
-  
+  it('should enforce admin permissions on protected routes')
+  it('should allow users to view their own permissions')
+
   // Organization isolation (1 test)
-  it('should isolate user roles by organization');
-  
+  it('should isolate user roles by organization')
+
   // Permission inheritance (2 tests)
-  it('should verify admin role has comprehensive permissions');
-  it('should verify instructor role has course permissions');
-});
+  it('should verify admin role has comprehensive permissions')
+  it('should verify instructor role has course permissions')
+})
 ```
 
 #### Running Permission Tests
@@ -176,33 +180,33 @@ npm test -- permissions.test.ts
 ```typescript
 describe('API Route Security Tests', () => {
   // Authentication (2 tests)
-  it('should require authentication for protected routes');
-  it('should allow authenticated users to access protected routes');
-  
+  it('should require authentication for protected routes')
+  it('should allow authenticated users to access protected routes')
+
   // Public routes (3 tests)
-  it.each(publicRoutes)('should allow public access to %s');
-  
+  it.each(publicRoutes)('should allow public access to %s')
+
   // Admin routes (3 tests)
-  it.each(adminRoutes)('should require admin role for %s');
-  
+  it.each(adminRoutes)('should require admin role for %s')
+
   // Rate limiting (1 test)
-  it('should implement rate limiting on sensitive routes');
-  
+  it('should implement rate limiting on sensitive routes')
+
   // Input validation (2 tests)
-  it('should validate request body structure');
-  it('should reject invalid email formats');
-  
+  it('should validate request body structure')
+  it('should reject invalid email formats')
+
   // Error handling (2 tests)
-  it('should return proper error responses');
-  it('should not leak sensitive information in errors');
-  
+  it('should return proper error responses')
+  it('should not leak sensitive information in errors')
+
   // CORS (1 test)
-  it('should set appropriate CORS headers');
-  
+  it('should set appropriate CORS headers')
+
   // Content-Type (2 tests)
-  it('should accept JSON content type');
-  it('should reject invalid content types for JSON routes');
-});
+  it('should accept JSON content type')
+  it('should reject invalid content types for JSON routes')
+})
 ```
 
 #### Running API Security Tests
@@ -223,35 +227,35 @@ npm test -- api-security.test.ts
 ```typescript
 describe('Stripe Integration Tests', () => {
   // Checkout session (3 tests)
-  it('should create checkout session with valid parameters');
-  it('should include customer email in session');
-  it('should set metadata for tracking');
-  
+  it('should create checkout session with valid parameters')
+  it('should include customer email in session')
+  it('should set metadata for tracking')
+
   // Customer portal (1 test)
-  it('should create customer portal session');
-  
+  it('should create customer portal session')
+
   // Webhook processing (4 tests)
-  it('should verify webhook signatures');
-  it('should handle checkout.session.completed event');
-  it('should handle customer.subscription.updated event');
-  it('should handle customer.subscription.deleted event');
-  
+  it('should verify webhook signatures')
+  it('should handle checkout.session.completed event')
+  it('should handle customer.subscription.updated event')
+  it('should handle customer.subscription.deleted event')
+
   // Subscription tiers (3 tests)
-  it.each(tiers)('should define $name tier correctly');
-  
+  it.each(tiers)('should define $name tier correctly')
+
   // Feature flags (3 tests)
-  it('should check AI features for pro tier');
-  it('should restrict AI features for free tier');
-  it('should allow all features for enterprise tier');
-  
+  it('should check AI features for pro tier')
+  it('should restrict AI features for free tier')
+  it('should allow all features for enterprise tier')
+
   // Validation (2 tests)
-  it('should validate price IDs format');
-  it('should validate customer IDs format');
-  
+  it('should validate price IDs format')
+  it('should validate customer IDs format')
+
   // Error handling (2 tests)
-  it('should handle invalid checkout parameters');
-  it('should handle webhook signature verification failures');
-});
+  it('should handle invalid checkout parameters')
+  it('should handle webhook signature verification failures')
+})
 ```
 
 #### Running Stripe Tests
@@ -272,44 +276,44 @@ npm test -- stripe.test.ts
 ```typescript
 describe('AI Features Tests', () => {
   // AI Chat (4 tests)
-  it('should send messages and receive responses');
-  it('should maintain conversation history');
-  it('should handle token limits');
-  it('should implement rate limiting');
-  
+  it('should send messages and receive responses')
+  it('should maintain conversation history')
+  it('should handle token limits')
+  it('should implement rate limiting')
+
   // AI Coach (3 tests)
-  it('should analyze student progress');
-  it('should provide personalized recommendations');
-  it('should track learning stats');
-  
+  it('should analyze student progress')
+  it('should provide personalized recommendations')
+  it('should track learning stats')
+
   // Vector Embeddings (3 tests)
-  it('should generate embeddings for text');
-  it('should validate embedding dimensions');
-  it('should batch embedding requests');
-  
+  it('should generate embeddings for text')
+  it('should validate embedding dimensions')
+  it('should batch embedding requests')
+
   // Semantic Search (3 tests)
-  it('should perform similarity search');
-  it('should rank results by relevance');
-  it('should filter by minimum similarity threshold');
-  
+  it('should perform similarity search')
+  it('should rank results by relevance')
+  it('should filter by minimum similarity threshold')
+
   // Prediction Models (3 tests)
-  it('should predict student performance');
-  it('should identify at-risk students');
-  it('should recommend interventions');
-  
+  it('should predict student performance')
+  it('should identify at-risk students')
+  it('should recommend interventions')
+
   // Content Generation (2 tests)
-  it('should generate quiz questions');
-  it('should generate study summaries');
-  
+  it('should generate quiz questions')
+  it('should generate study summaries')
+
   // Error Handling (3 tests)
-  it('should handle API rate limits');
-  it('should handle invalid responses');
-  it('should implement retry logic');
-  
+  it('should handle API rate limits')
+  it('should handle invalid responses')
+  it('should implement retry logic')
+
   // Context Management (2 tests)
-  it('should maintain conversation context');
-  it('should truncate old messages when context is full');
-});
+  it('should maintain conversation context')
+  it('should truncate old messages when context is full')
+})
 ```
 
 #### Running AI Tests
@@ -330,70 +334,70 @@ npm test -- ai-features.test.ts
 ```typescript
 describe('Component Tests', () => {
   // Button Component (4 tests)
-  it('should render button with text');
-  it('should handle click events');
-  it('should support different variants');
-  it('should support different sizes');
-  
+  it('should render button with text')
+  it('should handle click events')
+  it('should support different variants')
+  it('should support different sizes')
+
   // Form Components (3 tests)
-  it('should validate required fields');
-  it('should validate email format');
-  it('should validate password strength');
-  
+  it('should validate required fields')
+  it('should validate email format')
+  it('should validate password strength')
+
   // Card Components (2 tests)
-  it('should render card with header and content');
-  it('should support clickable cards');
-  
+  it('should render card with header and content')
+  it('should support clickable cards')
+
   // Modal/Dialog (3 tests)
-  it('should open and close dialog');
-  it('should render dialog content when open');
-  it('should close on overlay click');
-  
+  it('should open and close dialog')
+  it('should render dialog content when open')
+  it('should close on overlay click')
+
   // Loading States (3 tests)
-  it('should show loading spinner when loading');
-  it('should show content when loaded');
-  it('should show skeleton loader during fetch');
-  
+  it('should show loading spinner when loading')
+  it('should show content when loaded')
+  it('should show skeleton loader during fetch')
+
   // Error States (3 tests)
-  it('should display error message on failure');
-  it('should show retry button on error');
-  it('should clear error on retry');
-  
+  it('should display error message on failure')
+  it('should show retry button on error')
+  it('should clear error on retry')
+
   // Accessibility (4 tests)
-  it('should have proper ARIA labels');
-  it('should support keyboard navigation');
-  it('should have focus management');
-  it('should have proper contrast ratios');
-  
+  it('should have proper ARIA labels')
+  it('should support keyboard navigation')
+  it('should have focus management')
+  it('should have proper contrast ratios')
+
   // Responsive Design (2 tests)
-  it('should adapt to mobile viewport');
-  it('should hide desktop elements on mobile');
-  
+  it('should adapt to mobile viewport')
+  it('should hide desktop elements on mobile')
+
   // Theme Support (2 tests)
-  it('should support dark mode');
-  it('should apply theme classes');
-});
+  it('should support dark mode')
+  it('should apply theme classes')
+})
 
 describe('Hook Tests', () => {
   // useSubscription (3 tests)
-  it('should return subscription data');
-  it('should check feature flags');
-  it('should create checkout session');
-  
+  it('should return subscription data')
+  it('should check feature flags')
+  it('should create checkout session')
+
   // useAIChat (3 tests)
-  it('should manage message history');
-  it('should send messages');
-  it('should handle loading states');
-  
+  it('should manage message history')
+  it('should send messages')
+  it('should handle loading states')
+
   // useAICoach (2 tests)
-  it('should analyze progress');
-  it('should provide custom guidance');
-  
+  it('should analyze progress')
+  it('should provide custom guidance')
+
   // useAuth (3 tests)
-  it('should return user data when authenticated');
-  it('should return null when not authenticated');
-  it('should handle sign out');
-});
+  it('should return user data when authenticated')
+  it('should return null when not authenticated')
+  it('should handle sign out')
+})
 ```
 
 #### Running Component Tests
@@ -414,45 +418,45 @@ npm test -- components.test.tsx
 ```typescript
 describe('Integration Tests', () => {
   // User Registration (2 tests)
-  it('should complete full registration process');
-  it('should rollback on registration failure');
-  
+  it('should complete full registration process')
+  it('should rollback on registration failure')
+
   // Course Enrollment (2 tests)
-  it('should complete enrollment process');
-  it('should prevent duplicate enrollments');
-  
+  it('should complete enrollment process')
+  it('should prevent duplicate enrollments')
+
   // Payment to Subscription (2 tests)
-  it('should process payment and activate subscription');
-  it('should handle payment failures gracefully');
-  
+  it('should process payment and activate subscription')
+  it('should handle payment failures gracefully')
+
   // AI Chat Session (2 tests)
-  it('should maintain conversation context');
-  it('should track token usage across session');
-  
+  it('should maintain conversation context')
+  it('should track token usage across session')
+
   // Progress Tracking (2 tests)
-  it('should update progress and award points');
-  it('should unlock achievements at milestones');
-  
+  it('should update progress and award points')
+  it('should unlock achievements at milestones')
+
   // Certificate Issuance (2 tests)
-  it('should issue certificate on course completion');
-  it('should prevent duplicate certificates');
-  
+  it('should issue certificate on course completion')
+  it('should prevent duplicate certificates')
+
   // Admin Workflow (2 tests)
-  it('should perform admin actions with permission checks');
-  it('should deny actions without permission');
-  
+  it('should perform admin actions with permission checks')
+  it('should deny actions without permission')
+
   // Multi-Tenant (2 tests)
-  it('should isolate data between organizations');
-  it('should enforce RLS on cross-org queries');
-  
+  it('should isolate data between organizations')
+  it('should enforce RLS on cross-org queries')
+
   // Real-time Updates (2 tests)
-  it('should receive subscription updates');
-  it('should handle connection loss gracefully');
-  
+  it('should receive subscription updates')
+  it('should handle connection loss gracefully')
+
   // Search and Discovery (2 tests)
-  it('should perform semantic search');
-  it('should filter results by relevance');
-});
+  it('should perform semantic search')
+  it('should filter results by relevance')
+})
 ```
 
 #### Running Integration Tests
@@ -549,6 +553,7 @@ npm test -- --ui
 #### Matrix Testing
 
 Tests run on multiple Node.js versions:
+
 - Node 18.x
 - Node 20.x
 
@@ -579,12 +584,12 @@ open coverage/index.html
 
 ### Coverage Targets
 
-| Category | Target | Current |
-|----------|--------|---------|
-| Statements | 80% | TBD |
-| Branches | 75% | TBD |
-| Functions | 80% | TBD |
-| Lines | 80% | TBD |
+| Category   | Target | Current |
+| ---------- | ------ | ------- |
+| Statements | 80%    | TBD     |
+| Branches   | 75%    | TBD     |
+| Functions  | 80%    | TBD     |
+| Lines      | 80%    | TBD     |
 
 ### Excluded from Coverage
 
@@ -604,33 +609,33 @@ describe('Feature Name', () => {
   // Setup
   beforeAll(() => {
     // One-time setup
-  });
+  })
 
   beforeEach(() => {
     // Setup before each test
-  });
+  })
 
   describe('Specific Functionality', () => {
     it('should behave as expected', () => {
       // Arrange
-      const input = 'test';
-      
+      const input = 'test'
+
       // Act
-      const result = functionUnderTest(input);
-      
+      const result = functionUnderTest(input)
+
       // Assert
-      expect(result).toBe('expected');
-    });
-  });
+      expect(result).toBe('expected')
+    })
+  })
 
   afterEach(() => {
     // Cleanup after each test
-  });
+  })
 
   afterAll(() => {
     // Final cleanup
-  });
-});
+  })
+})
 ```
 
 ### 2. Naming Conventions
@@ -645,24 +650,24 @@ describe('Feature Name', () => {
 // Mock modules
 vi.mock('@/lib/supabase/server', () => ({
   createClient: vi.fn(),
-}));
+}))
 
 // Mock functions
-const mockFn = vi.fn().mockResolvedValue({ data: 'test' });
+const mockFn = vi.fn().mockResolvedValue({ data: 'test' })
 
 // Clear mocks
 beforeEach(() => {
-  vi.clearAllMocks();
-});
+  vi.clearAllMocks()
+})
 ```
 
 ### 4. Async Testing
 
 ```typescript
 it('should handle async operations', async () => {
-  const result = await asyncFunction();
-  expect(result).toBeDefined();
-});
+  const result = await asyncFunction()
+  expect(result).toBeDefined()
+})
 ```
 
 ### 5. Error Testing
@@ -670,15 +675,13 @@ it('should handle async operations', async () => {
 ```typescript
 it('should throw on invalid input', () => {
   expect(() => {
-    functionThatThrows();
-  }).toThrow('Expected error message');
-});
+    functionThatThrows()
+  }).toThrow('Expected error message')
+})
 
 it('should reject promise', async () => {
-  await expect(
-    asyncFunctionThatFails()
-  ).rejects.toThrow('Error');
-});
+  await expect(asyncFunctionThatFails()).rejects.toThrow('Error')
+})
 ```
 
 ---
@@ -717,10 +720,10 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_test_key
 
 ```typescript
 // Use service role key for admin operations
-const supabase = createClient(url, serviceRoleKey);
+const supabase = createClient(url, serviceRoleKey)
 
 // Use anon key for user operations
-const supabase = createClient(url, anonKey);
+const supabase = createClient(url, anonKey)
 ```
 
 #### 5. Mock Issues
@@ -774,27 +777,27 @@ node --inspect-brk node_modules/.bin/vitest run
 
 ### Test Commands
 
-| Command | Description |
-|---------|-------------|
-| `npm test` | Run all tests in watch mode |
-| `npm run test:unit` | Run tests with coverage |
-| `npm run test:integration` | Run integration tests |
-| `npm test -- --ui` | Interactive test UI |
-| `npm test -- file.test.ts` | Run specific file |
-| `npm run lint` | Run ESLint |
-| `npm run type-check` | Run TypeScript checks |
+| Command                    | Description                 |
+| -------------------------- | --------------------------- |
+| `npm test`                 | Run all tests in watch mode |
+| `npm run test:unit`        | Run tests with coverage     |
+| `npm run test:integration` | Run integration tests       |
+| `npm test -- --ui`         | Interactive test UI         |
+| `npm test -- file.test.ts` | Run specific file           |
+| `npm run lint`             | Run ESLint                  |
+| `npm run type-check`       | Run TypeScript checks       |
 
 ### Test Files
 
-| File | Tests | Coverage |
-|------|-------|----------|
-| `permissions.test.ts` | 15 | RBAC, permissions |
-| `api-security.test.ts` | 25 | API authentication |
-| `stripe.test.ts` | 30 | Payment processing |
-| `ai-features.test.ts` | 35 | AI chat, coach |
-| `components.test.tsx` | 40 | UI components |
-| `integration.test.ts` | 25 | End-to-end flows |
-| `tenant-isolation.test.ts` | 28 | RLS policies |
+| File                       | Tests | Coverage           |
+| -------------------------- | ----- | ------------------ |
+| `permissions.test.ts`      | 15    | RBAC, permissions  |
+| `api-security.test.ts`     | 25    | API authentication |
+| `stripe.test.ts`           | 30    | Payment processing |
+| `ai-features.test.ts`      | 35    | AI chat, coach     |
+| `components.test.tsx`      | 40    | UI components      |
+| `integration.test.ts`      | 25    | End-to-end flows   |
+| `tenant-isolation.test.ts` | 28    | RLS policies       |
 
 ---
 

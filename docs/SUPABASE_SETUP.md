@@ -40,6 +40,7 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGc...
    - Repeat for files 02 through 07
 
 **Migration Order:**
+
 1. `01_extensions_and_types.sql` - Extensions and custom types
 2. `02_auth_and_users.sql` - Organizations and user profiles
 3. `03_courses_and_lessons.sql` - Course structure
@@ -51,10 +52,12 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGc...
 ## Step 5: Configure Authentication
 
 ### Email/Password Auth
+
 1. Go to **Authentication** → **Providers**
 2. Enable **Email** provider (enabled by default)
 
 ### Google OAuth (Optional)
+
 1. Go to **Authentication** → **Providers**
 2. Click **Google**
 3. Enable Google provider
@@ -64,6 +67,7 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGc...
    - Add authorized redirect URI: `https://xxxxx.supabase.co/auth/v1/callback`
 
 ### Microsoft OAuth (Optional)
+
 1. Go to **Authentication** → **Providers**
 2. Click **Azure (Microsoft)**
 3. Enable Azure provider
@@ -91,6 +95,7 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGc...
 ## Step 8: Test the Connection
 
 1. Restart your Next.js dev server:
+
 ```bash
 npm run dev
 ```
@@ -109,30 +114,33 @@ Run the seed script to populate with sample data:
 
 -- Sample Achievement
 INSERT INTO achievements (name, description, badge_icon, badge_color, achievement_type, points_value)
-VALUES 
+VALUES
   ('First Course Complete', 'Completed your first course', '🎓', '#4F46E5', 'course_completion', 100),
   ('Quiz Master', 'Scored 100% on a quiz', '🏆', '#F59E0B', 'quiz_perfect', 50),
   ('7 Day Streak', 'Logged in for 7 consecutive days', '🔥', '#EF4444', 'streak', 150);
 
 -- Sample Course
 INSERT INTO courses (title, slug, description, difficulty_level, is_published)
-VALUES 
+VALUES
   ('Introduction to Anti-Racism', 'intro-to-anti-racism', 'Learn the fundamentals of anti-Black racism and how to identify it in the workplace', 'Beginner', true);
 ```
 
 ## Troubleshooting
 
 ### Connection Issues
+
 - Verify `.env.local` values are correct
 - Restart Next.js dev server after updating env vars
 - Check Supabase project is not paused (free tier auto-pauses after 7 days inactivity)
 
 ### RLS Policy Errors
+
 - Ensure all migrations ran successfully
 - Check policies in **Authentication** → **Policies**
 - Test with authenticated user, not anonymous
 
 ### Migration Errors
+
 - Run migrations in order
 - Check for syntax errors in SQL Editor
 - Verify pgvector extension is enabled

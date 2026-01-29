@@ -3,6 +3,7 @@
 ## Why Manual Migration is Required
 
 Supabase has security restrictions that prevent:
+
 - ❌ CLI from executing when there are policy conflicts
 - ❌ REST API from executing DDL statements (CREATE TABLE)
 - ❌ Direct PostgreSQL connections through connection pooler
@@ -16,6 +17,7 @@ Supabase has security restrictions that prevent:
 ```
 
 This script will:
+
 1. ✅ Open Supabase SQL Editor in your browser
 2. ✅ Show you the SQL to copy
 3. ✅ Wait for you to paste and run it
@@ -59,6 +61,7 @@ Should see: `✅ Stored 30 cases successfully`
 ## ✅ Success Criteria
 
 After migration:
+
 - ✅ 3 tables visible in Supabase Table Editor
 - ✅ Setup script confirms tables exist
 - ✅ Storage test creates 30 demo cases
@@ -67,14 +70,17 @@ After migration:
 ## 🛠️ Troubleshooting
 
 **"Table already exists" error?**
+
 - That's OK! It means the migration partially worked
 - Just run the verification: `npx tsx --env-file=.env.local ingestion\src\debug\setup-tables.ts`
 
 **Still says tables missing?**
+
 - Refresh Supabase dashboard
 - Check you're in the correct project: nuywgvbkgdvngrysqdul
 - Try running the SQL again
 
 **Connection errors?**
+
 - Ignore CLI connection errors - they don't affect manual SQL paste
 - The dashboard SQL Editor has a direct connection

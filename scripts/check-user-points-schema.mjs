@@ -16,15 +16,15 @@ const supabase = createClient(url, key)
 console.log('🔍 Checking user_points table structure...\n')
 
 // Try to get one row to see the columns
-const { data, error } = await supabase
-  .from('user_points')
-  .select('*')
-  .limit(1)
+const { data, error } = await supabase.from('user_points').select('*').limit(1)
 
 if (error) {
   console.log('❌ Error:', error.message)
 } else {
-  console.log('✅ Table exists with columns:', data.length > 0 ? Object.keys(data[0]).join(', ') : 'No data yet')
+  console.log(
+    '✅ Table exists with columns:',
+    data.length > 0 ? Object.keys(data[0]).join(', ') : 'No data yet'
+  )
   if (data.length > 0) {
     console.log('\nSample row:', JSON.stringify(data[0], null, 2))
   }

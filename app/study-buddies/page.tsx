@@ -22,7 +22,7 @@ import {
   Calendar,
   MessageCircle,
   Search,
-  Filter
+  Filter,
 } from 'lucide-react'
 import Image from 'next/image'
 import { socialService } from '@/lib/services/social'
@@ -35,7 +35,7 @@ type StudyBuddyMatch = UserProfileExtended
 export default function StudyBuddiesPage() {
   const router = useRouter()
   const supabase = createClient()
-  
+
   // State
   const [user, setUser] = useState<User | null>(null)
   const [activeTab, setActiveTab] = useState<'matches' | 'requests' | 'buddies'>('buddies')
@@ -48,13 +48,15 @@ export default function StudyBuddiesPage() {
   // Load user
   useEffect(() => {
     const loadUser = async () => {
-      const { data: { user: currentUser } } = await supabase.auth.getUser()
-      
+      const {
+        data: { user: currentUser },
+      } = await supabase.auth.getUser()
+
       if (!currentUser) {
         router.push('/auth/login?redirect=/study-buddies')
         return
       }
-      
+
       setUser(currentUser)
       await loadData(currentUser.id)
     }
@@ -64,16 +66,12 @@ export default function StudyBuddiesPage() {
   async function loadData(userId: string) {
     setLoading(true)
     try {
-      const [
-        matchesData,
-        requestsData,
-        buddiesData
-      ] = await Promise.all([
+      const [matchesData, requestsData, buddiesData] = await Promise.all([
         socialService.findStudyBuddyMatches(userId),
         socialService.getPendingStudyBuddyRequests(userId),
-        socialService.getStudyBuddies(userId, 'accepted')
+        socialService.getStudyBuddies(userId, 'accepted'),
       ])
-      
+
       setMatches(matchesData as StudyBuddyMatch[])
       setPendingRequests(requestsData)
       setActiveBuddies(buddiesData)
@@ -86,7 +84,7 @@ export default function StudyBuddiesPage() {
 
   async function handleSendRequest(buddyId: string) {
     if (!user) return
-    
+
     try {
       await socialService.sendStudyBuddyRequest(user.id, buddyId, [], [])
       // Refresh matches
@@ -120,7 +118,7 @@ export default function StudyBuddiesPage() {
     }
   }
 
-  const filteredMatches = matches.filter(match => {
+  const filteredMatches = matches.filter((match) => {
     if (!searchQuery) return true
     const query = searchQuery.toLowerCase()
     return (
@@ -131,14 +129,14 @@ export default function StudyBuddiesPage() {
   })
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col pt-16">      
+    <div className="flex min-h-screen flex-col bg-gray-50 pt-16">
       <main className="flex-1 pt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="mb-12">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-                <Users className="w-7 h-7 text-white" />
+            <div className="mb-4 flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 shadow-lg">
+                <Users className="h-7 w-7 text-white" />
               </div>
               <div>
                 <h1 className="text-4xl font-bold text-gray-900">Study Buddies</h1>
@@ -148,71 +146,74 @@ export default function StudyBuddiesPage() {
           </div>
 
           {/* Tabs */}
-          <div className="mb-8 inline-flex gap-2 bg-white rounded-lg p-1 border border-gray-200 shadow-sm">
+          <div className="mb-8 inline-flex gap-2 rounded-lg border border-gray-200 bg-white p-1 shadow-sm">
             <button
               onClick={() => setActiveTab('buddies')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${
+              className={`flex items-center gap-2 rounded-md px-4 py-2 transition-all ${
                 activeTab === 'buddies'
                   ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md'
                   : 'text-gray-700 hover:bg-gray-50'
               }`}
             >
-              <Users className="w-4 h-4" />
+              <Users className="h-4 w-4" />
               Active Buddies ({activeBuddies.length})
             </button>
             <button
               onClick={() => setActiveTab('requests')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${
+              className={`flex items-center gap-2 rounded-md px-4 py-2 transition-all ${
                 activeTab === 'requests'
                   ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md'
                   : 'text-gray-700 hover:bg-gray-50'
               }`}
             >
-              <MessageCircle className="w-4 h-4" />
+              <MessageCircle className="h-4 w-4" />
               Requests ({pendingRequests.length})
             </button>
             <button
               onClick={() => setActiveTab('matches')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${
+              className={`flex items-center gap-2 rounded-md px-4 py-2 transition-all ${
                 activeTab === 'matches'
                   ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md'
                   : 'text-gray-700 hover:bg-gray-50'
               }`}
             >
-              <UserPlus className="w-4 h-4" />
+              <UserPlus className="h-4 w-4" />
               Find Matches ({matches.length})
             </button>
           </div>
 
           {/* Active Buddies Tab */}
           {activeTab === 'buddies' && (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Your Study Buddies</h2>
-              
+            <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+              <h2 className="mb-6 text-2xl font-bold text-gray-900">Your Study Buddies</h2>
+
               {loading ? (
-                <div className="text-center py-12">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                <div className="py-12 text-center">
+                  <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-blue-500"></div>
                   <p className="text-gray-600">Loading...</p>
                 </div>
               ) : activeBuddies.length === 0 ? (
-                <div className="text-center py-12">
-                  <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-600 text-lg mb-2">No study buddies yet</p>
-                  <p className="text-gray-500 text-sm">Find compatible matches to get started!</p>
+                <div className="py-12 text-center">
+                  <Users className="mx-auto mb-4 h-16 w-16 text-gray-300" />
+                  <p className="mb-2 text-lg text-gray-600">No study buddies yet</p>
+                  <p className="text-sm text-gray-500">Find compatible matches to get started!</p>
                   <button
                     onClick={() => setActiveTab('matches')}
-                    className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                    className="mt-4 inline-flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-white transition-colors hover:bg-blue-600"
                   >
-                    <UserPlus className="w-4 h-4" />
+                    <UserPlus className="h-4 w-4" />
                     Find Study Buddies
                   </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   {activeBuddies.map((buddy) => (
-                    <div key={buddy.id} className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                    <div
+                      key={buddy.id}
+                      className="rounded-lg border border-gray-200 p-6 transition-shadow hover:shadow-md"
+                    >
                       <div className="flex items-start gap-4">
-                        <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden relative">
+                        <div className="relative flex h-16 w-16 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-400 to-blue-600">
                           {buddy.buddy?.avatar_url ? (
                             <Image
                               src={buddy.buddy.avatar_url}
@@ -221,57 +222,63 @@ export default function StudyBuddiesPage() {
                               className="object-cover"
                             />
                           ) : (
-                            <span className="text-white text-xl font-bold">
+                            <span className="text-xl font-bold text-white">
                               {(buddy.buddy?.full_name?.[0] || 'U').toUpperCase()}
                             </span>
                           )}
                         </div>
-                        
+
                         <div className="flex-1">
-                          <h3 className="font-bold text-gray-900 text-lg mb-1">
+                          <h3 className="mb-1 text-lg font-bold text-gray-900">
                             {buddy.buddy?.full_name || 'Unknown User'}
                           </h3>
                           {/* Bio not available in StudyBuddy - would need to fetch full profile */}
-                          
+
                           {buddy.shared_goals && buddy.shared_goals.length > 0 && (
                             <div className="mb-2">
-                              <div className="flex items-center gap-1 text-sm text-gray-700 mb-1">
-                                <Target className="w-4 h-4" />
+                              <div className="mb-1 flex items-center gap-1 text-sm text-gray-700">
+                                <Target className="h-4 w-4" />
                                 <span className="font-medium">Shared Goals:</span>
                               </div>
                               <div className="flex flex-wrap gap-1">
                                 {buddy.shared_goals.map((goal, idx) => (
-                                  <span key={idx} className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
+                                  <span
+                                    key={idx}
+                                    className="rounded-full bg-blue-100 px-2 py-1 text-xs text-blue-700"
+                                  >
                                     {goal}
                                   </span>
                                 ))}
                               </div>
                             </div>
                           )}
-                          
+
                           {buddy.target_courses && buddy.target_courses.length > 0 && (
                             <div>
-                              <div className="flex items-center gap-1 text-sm text-gray-700 mb-1">
-                                <BookOpen className="w-4 h-4" />
+                              <div className="mb-1 flex items-center gap-1 text-sm text-gray-700">
+                                <BookOpen className="h-4 w-4" />
                                 <span className="font-medium">Target Courses:</span>
                               </div>
                               <div className="flex flex-wrap gap-1">
                                 {buddy.target_courses.slice(0, 3).map((course, idx) => (
-                                  <span key={idx} className="text-xs px-2 py-1 bg-teal-100 text-teal-700 rounded-full">
+                                  <span
+                                    key={idx}
+                                    className="rounded-full bg-teal-100 px-2 py-1 text-xs text-teal-700"
+                                  >
                                     {course}
                                   </span>
                                 ))}
                                 {buddy.target_courses.length > 3 && (
-                                  <span className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded-full">
+                                  <span className="rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-700">
                                     +{buddy.target_courses.length - 3} more
                                   </span>
                                 )}
                               </div>
                             </div>
                           )}
-                          
+
                           <div className="mt-3 text-xs text-gray-500">
-                            <Calendar className="w-3 h-3 inline mr-1" />
+                            <Calendar className="mr-1 inline h-3 w-3" />
                             Connected {new Date(buddy.created_at).toLocaleDateString()}
                           </div>
                         </div>
@@ -285,26 +292,31 @@ export default function StudyBuddiesPage() {
 
           {/* Pending Requests Tab */}
           {activeTab === 'requests' && (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Pending Requests</h2>
-              
+            <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+              <h2 className="mb-6 text-2xl font-bold text-gray-900">Pending Requests</h2>
+
               {loading ? (
-                <div className="text-center py-12">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                <div className="py-12 text-center">
+                  <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-blue-500"></div>
                   <p className="text-gray-600">Loading...</p>
                 </div>
               ) : pendingRequests.length === 0 ? (
-                <div className="text-center py-12">
-                  <MessageCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-600 text-lg mb-2">No pending requests</p>
-                  <p className="text-gray-500 text-sm">Requests will appear here when others want to connect</p>
+                <div className="py-12 text-center">
+                  <MessageCircle className="mx-auto mb-4 h-16 w-16 text-gray-300" />
+                  <p className="mb-2 text-lg text-gray-600">No pending requests</p>
+                  <p className="text-sm text-gray-500">
+                    Requests will appear here when others want to connect
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-4">
                   {pendingRequests.map((request) => (
-                    <div key={request.id} className="border border-gray-200 rounded-lg p-4 flex items-center justify-between">
+                    <div
+                      key={request.id}
+                      className="flex items-center justify-between rounded-lg border border-gray-200 p-4"
+                    >
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center overflow-hidden relative">
+                        <div className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-400 to-blue-600">
                           {request.buddy?.avatar_url ? (
                             <Image
                               src={request.buddy.avatar_url}
@@ -313,35 +325,35 @@ export default function StudyBuddiesPage() {
                               className="object-cover"
                             />
                           ) : (
-                            <span className="text-white font-bold">
+                            <span className="font-bold text-white">
                               {(request.buddy?.full_name?.[0] || 'U').toUpperCase()}
                             </span>
                           )}
                         </div>
-                        
+
                         <div>
                           <h3 className="font-semibold text-gray-900">
                             {request.buddy?.full_name || 'Unknown User'}
                           </h3>
-                          <p className="text-xs text-gray-500 mt-1">
+                          <p className="mt-1 text-xs text-gray-500">
                             Requested {new Date(request.created_at).toLocaleDateString()}
                           </p>
                         </div>
                       </div>
-                      
+
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleAcceptRequest(request.id)}
-                          className="flex items-center gap-1 px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                          className="flex items-center gap-1 rounded-lg bg-green-500 px-3 py-2 text-white transition-colors hover:bg-green-600"
                         >
-                          <Check className="w-4 h-4" />
+                          <Check className="h-4 w-4" />
                           Accept
                         </button>
                         <button
                           onClick={() => handleDeclineRequest(request.id)}
-                          className="flex items-center gap-1 px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                          className="flex items-center gap-1 rounded-lg bg-red-500 px-3 py-2 text-white transition-colors hover:bg-red-600"
                         >
-                          <X className="w-4 h-4" />
+                          <X className="h-4 w-4" />
                           Decline
                         </button>
                       </div>
@@ -354,88 +366,93 @@ export default function StudyBuddiesPage() {
 
           {/* Find Matches Tab */}
           {activeTab === 'matches' && (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
               <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Find Study Buddies</h2>
-                
+                <h2 className="mb-4 text-2xl font-bold text-gray-900">Find Study Buddies</h2>
+
                 {/* Search */}
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 transform text-gray-400" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search by name, interests, or skills..."
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
-              
+
               {loading ? (
-                <div className="text-center py-12">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                <div className="py-12 text-center">
+                  <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-blue-500"></div>
                   <p className="text-gray-600">Finding matches...</p>
                 </div>
               ) : filteredMatches.length === 0 ? (
-                <div className="text-center py-12">
-                  <UserPlus className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-600 text-lg mb-2">No matches found</p>
-                  <p className="text-gray-500 text-sm">Try adjusting your search or check back later</p>
+                <div className="py-12 text-center">
+                  <UserPlus className="mx-auto mb-4 h-16 w-16 text-gray-300" />
+                  <p className="mb-2 text-lg text-gray-600">No matches found</p>
+                  <p className="text-sm text-gray-500">
+                    Try adjusting your search or check back later
+                  </p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                   {filteredMatches.map((match) => (
-                    <div key={match.id} className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-                      <div className="text-center mb-4">
-                        <div className="w-20 h-20 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 overflow-hidden relative">
+                    <div
+                      key={match.id}
+                      className="rounded-lg border border-gray-200 p-6 transition-shadow hover:shadow-md"
+                    >
+                      <div className="mb-4 text-center">
+                        <div className="relative mx-auto mb-3 flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-400 to-blue-600">
                           {match.avatar_url ? (
-                            <Image
-                              src={match.avatar_url}
-                              alt=""
-                              fill
-                              className="object-cover"
-                            />
+                            <Image src={match.avatar_url} alt="" fill className="object-cover" />
                           ) : (
-                            <span className="text-white text-2xl font-bold">
+                            <span className="text-2xl font-bold text-white">
                               {(match.display_name?.[0] || 'U').toUpperCase()}
                             </span>
                           )}
                         </div>
-                        <h3 className="font-bold text-gray-900 text-lg mb-1">
+                        <h3 className="mb-1 text-lg font-bold text-gray-900">
                           {match.display_name || 'Unknown User'}
                         </h3>
                         {match.study_pace && (
-                          <span className="text-sm text-gray-600 capitalize">{match.study_pace} learner</span>
+                          <span className="text-sm capitalize text-gray-600">
+                            {match.study_pace} learner
+                          </span>
                         )}
                       </div>
-                      
+
                       {match.bio && (
-                        <p className="text-gray-600 text-sm mb-4 line-clamp-2">{match.bio}</p>
+                        <p className="mb-4 line-clamp-2 text-sm text-gray-600">{match.bio}</p>
                       )}
-                      
+
                       {match.interests && match.interests.length > 0 && (
                         <div className="mb-4">
-                          <p className="text-xs font-medium text-gray-700 mb-2">Interests:</p>
+                          <p className="mb-2 text-xs font-medium text-gray-700">Interests:</p>
                           <div className="flex flex-wrap gap-1">
                             {match.interests.slice(0, 3).map((interest, idx) => (
-                              <span key={idx} className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
+                              <span
+                                key={idx}
+                                className="rounded-full bg-blue-100 px-2 py-1 text-xs text-blue-700"
+                              >
                                 {interest}
                               </span>
                             ))}
                             {match.interests.length > 3 && (
-                              <span className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded-full">
+                              <span className="rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-700">
                                 +{match.interests.length - 3}
                               </span>
                             )}
                           </div>
                         </div>
                       )}
-                      
+
                       <button
                         onClick={() => handleSendRequest(match.id)}
-                        className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                        className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-white transition-colors hover:bg-blue-600"
                       >
-                        <UserPlus className="w-4 h-4" />
+                        <UserPlus className="h-4 w-4" />
                         Send Request
                       </button>
                     </div>

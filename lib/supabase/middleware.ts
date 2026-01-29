@@ -37,7 +37,7 @@ export async function updateSession(request: NextRequest) {
 
   // Protected routes - redirect to login if not authenticated
   const protectedPaths = ['/dashboard', '/team', '/profile', '/admin']
-  const isProtectedPath = protectedPaths.some(path => request.nextUrl.pathname.startsWith(path))
+  const isProtectedPath = protectedPaths.some((path) => request.nextUrl.pathname.startsWith(path))
 
   if (isProtectedPath && !user) {
     const url = request.nextUrl.clone()
@@ -48,7 +48,7 @@ export async function updateSession(request: NextRequest) {
 
   // Auth routes - redirect based on role if already authenticated
   const authPaths = ['/auth/login', '/auth/signup']
-  const isAuthPath = authPaths.some(path => request.nextUrl.pathname.startsWith(path))
+  const isAuthPath = authPaths.some((path) => request.nextUrl.pathname.startsWith(path))
 
   if (isAuthPath && user) {
     // Get user role from profiles table
@@ -59,14 +59,14 @@ export async function updateSession(request: NextRequest) {
       .single()
 
     const url = request.nextUrl.clone()
-    
+
     // Learners go to homepage, all others go to dashboard
     if (profile?.role === 'learner') {
       url.pathname = '/'
     } else {
       url.pathname = '/dashboard'
     }
-    
+
     return NextResponse.redirect(url)
   }
 

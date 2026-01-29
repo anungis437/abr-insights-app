@@ -60,8 +60,8 @@ export function RevokeCertificateForm({ certificateId }: RevokeCertificateFormPr
   return (
     <Protected anyPermissions={['admin.manage', 'certificates.revoke']}>
       <div className="space-y-4">
-        <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded text-sm text-red-800">
-          <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+        <div className="flex items-start gap-2 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+          <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
           <p>
             This action cannot be undone. The certificate will be permanently revoked and the
             associated digital badge will also be revoked.

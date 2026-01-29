@@ -1,11 +1,11 @@
 /**
  * Ingestion Pipeline Configuration
- * 
+ *
  * Centralized configuration for scraping, classification, and storage.
  * Environment-aware with sensible defaults.
  */
 
-import type { RateLimiterConfig, RetryConfig } from '../types';
+import type { RateLimiterConfig, RetryConfig } from '../types'
 
 // ============================================================================
 // ENVIRONMENT VARIABLES
@@ -15,17 +15,17 @@ export const ENV = {
   // Supabase
   SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || '',
   SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
-  
+
   // Azure OpenAI
   AZURE_OPENAI_ENDPOINT: process.env.AZURE_OPENAI_ENDPOINT || '',
   AZURE_OPENAI_API_KEY: process.env.AZURE_OPENAI_API_KEY || '',
   AZURE_OPENAI_DEPLOYMENT: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-4o',
   AZURE_OPENAI_API_VERSION: process.env.AZURE_OPENAI_API_VERSION || '2024-02-15-preview',
-  
+
   // Pipeline
   PIPELINE_VERSION: process.env.npm_package_version || '1.0.0',
   NODE_ENV: process.env.NODE_ENV || 'development',
-} as const;
+} as const
 
 // ============================================================================
 // SCRAPER CONFIGURATION
@@ -34,37 +34,30 @@ export const ENV = {
 export const SCRAPER_CONFIG = {
   // User agent for HTTP requests
   userAgent: 'ABR-Insights-Bot/1.0 (Educational Research; +https://abr-insights.ca)',
-  
+
   // Request timeouts
   requestTimeoutMs: 30000, // 30 seconds
-  
+
   // Rate limiting (respectful scraping)
   rateLimiter: {
     requestsPerSecond: 0.5, // 1 request every 2 seconds
     burstSize: 3,
     minDelayMs: 2000, // Minimum 2 seconds between requests
   } as RateLimiterConfig,
-  
+
   // Retry configuration
   retry: {
     maxAttempts: 3,
     initialDelayMs: 5000, // 5 seconds
     maxDelayMs: 30000, // 30 seconds
     backoffMultiplier: 2,
-    retryableErrors: [
-      'ETIMEDOUT',
-      'ECONNRESET',
-      'ENOTFOUND',
-      'ECONNREFUSED',
-      'EHOSTUNREACH',
-    ],
+    retryableErrors: ['ETIMEDOUT', 'ECONNRESET', 'ENOTFOUND', 'ECONNREFUSED', 'EHOSTUNREACH'],
   } as RetryConfig,
-  
+
   // Content extraction
   maxTextLength: 500000, // 500KB max per case
   minTextLength: 500, // Minimum valid case length
-  
-} as const;
+} as const
 
 // ============================================================================
 // SOURCE CONFIGURATIONS
@@ -91,7 +84,7 @@ export const SOURCE_CONFIGS = {
       maxPages: 10,
     },
   },
-  
+
   canlii_chrt: {
     sourceSystem: 'canlii_chrt' as const,
     baseUrl: 'https://www.canlii.org',
@@ -112,7 +105,7 @@ export const SOURCE_CONFIGS = {
       maxPages: 10,
     },
   },
-  
+
   // British Columbia - High volume, diverse population
   canlii_bchrt: {
     sourceSystem: 'canlii_bchrt' as const,
@@ -134,7 +127,7 @@ export const SOURCE_CONFIGS = {
       maxPages: 15, // BC has high case volume
     },
   },
-  
+
   // Alberta - Growing Black population, oil industry cases
   canlii_abhr: {
     sourceSystem: 'canlii_abhr' as const,
@@ -156,7 +149,7 @@ export const SOURCE_CONFIGS = {
       maxPages: 10,
     },
   },
-  
+
   // Saskatchewan - Prairie provinces coverage
   canlii_skhr: {
     sourceSystem: 'canlii_skhr' as const,
@@ -178,7 +171,7 @@ export const SOURCE_CONFIGS = {
       maxPages: 8,
     },
   },
-  
+
   // Manitoba - Winnipeg has significant Black community
   canlii_mbhr: {
     sourceSystem: 'canlii_mbhr' as const,
@@ -200,7 +193,7 @@ export const SOURCE_CONFIGS = {
       maxPages: 8,
     },
   },
-  
+
   // Quebec - Montreal has large Black/Haitian community, French language
   canlii_qctdp: {
     sourceSystem: 'canlii_qctdp' as const,
@@ -222,7 +215,7 @@ export const SOURCE_CONFIGS = {
       maxPages: 12, // High volume
     },
   },
-  
+
   // Nova Scotia - Halifax has significant African Nova Scotian community
   canlii_nshr: {
     sourceSystem: 'canlii_nshr' as const,
@@ -244,7 +237,7 @@ export const SOURCE_CONFIGS = {
       maxPages: 8,
     },
   },
-  
+
   // New Brunswick - Atlantic Canada coverage
   canlii_nbhr: {
     sourceSystem: 'canlii_nbhr' as const,
@@ -266,7 +259,7 @@ export const SOURCE_CONFIGS = {
       maxPages: 6,
     },
   },
-} as const;
+} as const
 
 // ============================================================================
 // CLASSIFIER CONFIGURATION
@@ -288,7 +281,7 @@ export const CLASSIFIER_CONFIG = {
       'ethnicity',
       'place of origin',
     ],
-    
+
     black: [
       'black',
       'anti-black',
@@ -300,7 +293,7 @@ export const CLASSIFIER_CONFIG = {
       'african-canadian',
       'negro', // Historical legal term
     ],
-    
+
     discrimination: [
       'discrimination',
       'discriminatory',
@@ -315,20 +308,20 @@ export const CLASSIFIER_CONFIG = {
       'microaggression',
     ],
   },
-  
+
   // Confidence thresholds
   confidence: {
     highThreshold: 0.8, // Auto-approve if above
     mediumThreshold: 0.5, // Manual review required
     lowThreshold: 0.3, // Likely reject
   },
-  
+
   // Weights for combined score
   weights: {
     ruleBased: 0.3,
     aiClassifier: 0.7,
   },
-  
+
   // AI classifier settings
   ai: {
     model: ENV.AZURE_OPENAI_DEPLOYMENT,
@@ -343,7 +336,7 @@ Your task is to analyze tribunal decisions and determine:
 
 Respond with structured JSON only.`,
   },
-} as const;
+} as const
 
 // ============================================================================
 // STORAGE CONFIGURATION
@@ -352,17 +345,16 @@ Respond with structured JSON only.`,
 export const STORAGE_CONFIG = {
   // Batch sizes
   batchSize: 10, // Insert cases in batches
-  
+
   // Quality gates
   minConfidenceForAutoApproval: 0.85,
-  
+
   // Deduplication
   deduplicationFields: ['sourceUrl', 'caseNumber'],
-  
+
   // Promotion workflow
   requireManualReview: true, // Require human review before promotion
-  
-} as const;
+} as const
 
 // ============================================================================
 // PIPELINE CONFIGURATION
@@ -371,22 +363,21 @@ export const STORAGE_CONFIG = {
 export const PIPELINE_CONFIG = {
   // Default limits
   defaultMaxCases: 50, // Max cases per job (safety limit)
-  
+
   // Checkpointing
   checkpointInterval: 10, // Save progress every N cases
-  
+
   // Monitoring
   progressReportInterval: 5, // Report progress every N cases
-  
+
   // Error handling
   maxErrorsBeforeAbort: 20, // Abort job if too many errors
   maxConsecutiveErrors: 5, // Abort if N errors in a row
-  
+
   // Execution
   enableCheckpointing: true,
   enableErrorRecovery: true,
-  
-} as const;
+} as const
 
 // ============================================================================
 // VALIDATION
@@ -397,35 +388,27 @@ export const PIPELINE_CONFIG = {
  * @throws Error if critical env vars are missing
  */
 export function validateEnvironment(): void {
-  const required = [
-    'SUPABASE_URL',
-    'SUPABASE_SERVICE_ROLE_KEY',
-  ];
-  
-  const missing = required.filter(key => !ENV[key as keyof typeof ENV]);
-  
+  const required = ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY']
+
+  const missing = required.filter((key) => !ENV[key as keyof typeof ENV])
+
   if (missing.length > 0) {
     throw new Error(
       `Missing required environment variables: ${missing.join(', ')}\n` +
-      'Please check your .env.local file.'
-    );
+        'Please check your .env.local file.'
+    )
   }
-  
+
   // Warn about optional but recommended
-  const recommended = [
-    'AZURE_OPENAI_ENDPOINT',
-    'AZURE_OPENAI_API_KEY',
-  ];
-  
-  const missingRecommended = recommended.filter(
-    key => !ENV[key as keyof typeof ENV]
-  );
-  
+  const recommended = ['AZURE_OPENAI_ENDPOINT', 'AZURE_OPENAI_API_KEY']
+
+  const missingRecommended = recommended.filter((key) => !ENV[key as keyof typeof ENV])
+
   if (missingRecommended.length > 0) {
     console.warn(
       `⚠️  Missing recommended environment variables: ${missingRecommended.join(', ')}\n` +
-      'AI classification will be disabled.'
-    );
+        'AI classification will be disabled.'
+    )
   }
 }
 
@@ -433,11 +416,11 @@ export function validateEnvironment(): void {
  * Returns configuration for a specific source system
  */
 export function getSourceConfig(sourceSystem: keyof typeof SOURCE_CONFIGS) {
-  const config = SOURCE_CONFIGS[sourceSystem];
+  const config = SOURCE_CONFIGS[sourceSystem]
   if (!config) {
-    throw new Error(`Unknown source system: ${sourceSystem}`);
+    throw new Error(`Unknown source system: ${sourceSystem}`)
   }
-  return config;
+  return config
 }
 
 // ============================================================================
@@ -451,6 +434,6 @@ export const CONFIG = {
   classifier: CLASSIFIER_CONFIG,
   storage: STORAGE_CONFIG,
   pipeline: PIPELINE_CONFIG,
-} as const;
+} as const
 
-export default CONFIG;
+export default CONFIG

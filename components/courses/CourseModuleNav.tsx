@@ -26,7 +26,7 @@ export function CourseModuleNav({
   userId,
   currentLessonId,
   onLessonSelect,
-  className = ''
+  className = '',
 }: CourseModuleNavProps) {
   const [modules, setModules] = useState<ModuleWithLessons[]>([])
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set())
@@ -40,7 +40,7 @@ export function CourseModuleNav({
 
       // Load modules with lessons
       const modulesData = await getCourseModules(courseId)
-      
+
       if (!modulesData) {
         setModules([])
         return
@@ -66,7 +66,7 @@ export function CourseModuleNav({
 
       // Auto-expand module containing current lesson
       if (currentLessonId) {
-        const currentModule = modulesData.find(m => 
+        const currentModule = modulesData.find((m) =>
           m.lessons?.some((l: Lesson) => l.id === currentLessonId)
         )
         if (currentModule) {
@@ -86,7 +86,7 @@ export function CourseModuleNav({
   }, [loadModulesAndProgress])
 
   const toggleModule = (moduleId: string) => {
-    setExpandedModules(prev => {
+    setExpandedModules((prev) => {
       const next = new Set(prev)
       if (next.has(moduleId)) {
         next.delete(moduleId)
@@ -118,38 +118,38 @@ export function CourseModuleNav({
 
   const getLessonIcon = (lesson: LessonWithProgress) => {
     if (isLessonLocked(lesson)) {
-      return <Lock className="w-4 h-4 text-gray-400" aria-hidden="true" />
+      return <Lock className="h-4 w-4 text-gray-400" aria-hidden="true" />
     }
-    
+
     if (lesson.progress?.status === 'completed') {
-      return <CheckCircle className="w-4 h-4 text-green-600" aria-hidden="true" />
+      return <CheckCircle className="h-4 w-4 text-green-600" aria-hidden="true" />
     }
-    
+
     if (lesson.progress?.status === 'in_progress') {
-      return <PlayCircle className="w-4 h-4 text-blue-600" aria-hidden="true" />
+      return <PlayCircle className="h-4 w-4 text-blue-600" aria-hidden="true" />
     }
-    
-    return <Circle className="w-4 h-4 text-gray-300" aria-hidden="true" />
+
+    return <Circle className="h-4 w-4 text-gray-300" aria-hidden="true" />
   }
 
   const getModuleProgress = (module: ModuleWithLessons): number => {
     if (!module.lessons?.length) return 0
-    
+
     const completedLessons = module.lessons.filter(
-      l => (l as LessonWithProgress).progress?.status === 'completed'
+      (l) => (l as LessonWithProgress).progress?.status === 'completed'
     ).length
-    
+
     return Math.round((completedLessons / module.lessons.length) * 100)
   }
 
   if (loading) {
     return (
-      <div className={`bg-white rounded-lg shadow-sm border border-gray-200 p-6 ${className}`}>
+      <div className={`rounded-lg border border-gray-200 bg-white p-6 shadow-sm ${className}`}>
         <div className="animate-pulse space-y-4">
-          <div className="h-6 bg-gray-200 rounded w-3/4"></div>
+          <div className="h-6 w-3/4 rounded bg-gray-200"></div>
           <div className="space-y-3">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="h-10 bg-gray-100 rounded"></div>
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-10 rounded bg-gray-100"></div>
             ))}
           </div>
         </div>
@@ -159,10 +159,10 @@ export function CourseModuleNav({
 
   if (error) {
     return (
-      <div className={`bg-white rounded-lg shadow-sm border border-red-200 p-6 ${className}`}>
+      <div className={`rounded-lg border border-red-200 bg-white p-6 shadow-sm ${className}`}>
         <div className="text-red-600" role="alert">
           <p className="font-medium">Error loading course content</p>
-          <p className="text-sm mt-1">{error}</p>
+          <p className="mt-1 text-sm">{error}</p>
         </div>
       </div>
     )
@@ -170,18 +170,18 @@ export function CourseModuleNav({
 
   if (!modules.length) {
     return (
-      <div className={`bg-white rounded-lg shadow-sm border border-gray-200 p-6 ${className}`}>
-        <p className="text-gray-500 text-center">No course modules available yet.</p>
+      <div className={`rounded-lg border border-gray-200 bg-white p-6 shadow-sm ${className}`}>
+        <p className="text-center text-gray-500">No course modules available yet.</p>
       </div>
     )
   }
 
   return (
-    <nav 
-      className={`bg-white rounded-lg shadow-sm border border-gray-200 ${className}`}
+    <nav
+      className={`rounded-lg border border-gray-200 bg-white shadow-sm ${className}`}
       aria-label="Course modules navigation"
     >
-      <div className="p-4 border-b border-gray-200">
+      <div className="border-b border-gray-200 p-4">
         <h2 className="text-lg font-semibold text-gray-900">Course Content</h2>
       </div>
 
@@ -195,7 +195,7 @@ export function CourseModuleNav({
             <div key={module.id} className="border-b border-gray-100 last:border-b-0">
               {/* Module Header */}
               <button
-                className={`w-full px-4 py-3 flex items-start gap-3 hover:bg-gray-50 transition-colors text-left ${
+                className={`flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-gray-50 ${
                   !hasLessons ? 'cursor-default' : ''
                 }`}
                 onClick={() => hasLessons && toggleModule(module.id)}
@@ -208,40 +208,38 @@ export function CourseModuleNav({
                 {hasLessons && (
                   <span className="mt-0.5 flex-shrink-0" aria-hidden="true">
                     {isExpanded ? (
-                      <ChevronDown className="w-5 h-5 text-gray-500" />
+                      <ChevronDown className="h-5 w-5 text-gray-500" />
                     ) : (
-                      <ChevronRight className="w-5 h-5 text-gray-500" />
+                      <ChevronRight className="h-5 w-5 text-gray-500" />
                     )}
                   </span>
                 )}
-                
+
                 {/* Module Info */}
-                <div className="flex-1 min-w-0">
+                <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1">
-                      <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                      <span className="text-xs font-medium uppercase tracking-wide text-gray-500">
                         Module {module.module_number}
                       </span>
-                      <h3 className="text-sm font-semibold text-gray-900 mt-1">
-                        {module.title}
-                      </h3>
+                      <h3 className="mt-1 text-sm font-semibold text-gray-900">{module.title}</h3>
                       {module.description && (
-                        <p className="text-xs text-gray-600 mt-1 line-clamp-2">
+                        <p className="mt-1 line-clamp-2 text-xs text-gray-600">
                           {module.description}
                         </p>
                       )}
                     </div>
-                    
+
                     {/* Progress Badge */}
                     {userId && hasLessons && (
                       <div className="flex-shrink-0">
-                        <span 
-                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                            progress === 100 
-                              ? 'bg-green-100 text-green-800' 
-                              : progress > 0 
-                              ? 'bg-blue-100 text-blue-800' 
-                              : 'bg-gray-100 text-gray-600'
+                        <span
+                          className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
+                            progress === 100
+                              ? 'bg-green-100 text-green-800'
+                              : progress > 0
+                                ? 'bg-blue-100 text-blue-800'
+                                : 'bg-gray-100 text-gray-600'
                           }`}
                           aria-label={`${progress}% complete`}
                         >
@@ -252,7 +250,7 @@ export function CourseModuleNav({
                   </div>
 
                   {/* Module Meta */}
-                  <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+                  <div className="mt-2 flex items-center gap-3 text-xs text-gray-500">
                     {hasLessons && (
                       <span>
                         {module.lessons.length} {module.lessons.length === 1 ? 'lesson' : 'lessons'}
@@ -260,7 +258,8 @@ export function CourseModuleNav({
                     )}
                     {module.estimated_duration_minutes && (
                       <span>
-                        {Math.floor(module.estimated_duration_minutes / 60)}h {module.estimated_duration_minutes % 60}m
+                        {Math.floor(module.estimated_duration_minutes / 60)}h{' '}
+                        {module.estimated_duration_minutes % 60}m
                       </span>
                     )}
                   </div>
@@ -269,7 +268,7 @@ export function CourseModuleNav({
 
               {/* Lessons List */}
               {hasLessons && isExpanded && (
-                <div 
+                <div
                   id={`module-${module.id}-content`}
                   className="bg-gray-50"
                   role="region"
@@ -284,12 +283,12 @@ export function CourseModuleNav({
                       return (
                         <li key={lesson.id}>
                           <button
-                            className={`w-full px-4 py-3 pl-12 flex items-start gap-3 text-left transition-colors ${
+                            className={`flex w-full items-start gap-3 px-4 py-3 pl-12 text-left transition-colors ${
                               isCurrent
-                                ? 'bg-blue-50 border-l-4 border-blue-600'
+                                ? 'border-l-4 border-blue-600 bg-blue-50'
                                 : isLocked
-                                ? 'cursor-not-allowed opacity-60'
-                                : 'hover:bg-gray-100'
+                                  ? 'cursor-not-allowed opacity-60'
+                                  : 'hover:bg-gray-100'
                             }`}
                             onClick={() => handleLessonClick(lesson)}
                             onKeyDown={(e) => handleKeyDown(e, () => handleLessonClick(lesson))}
@@ -298,19 +297,21 @@ export function CourseModuleNav({
                             aria-disabled={isLocked}
                           >
                             {/* Lesson Icon */}
-                            <span className="flex-shrink-0 mt-0.5">
+                            <span className="mt-0.5 flex-shrink-0">
                               {getLessonIcon(lessonWithProgress)}
                             </span>
 
                             {/* Lesson Info */}
-                            <div className="flex-1 min-w-0">
+                            <div className="min-w-0 flex-1">
                               <div className="flex items-start justify-between gap-2">
-                                <h4 className={`text-sm font-medium ${
-                                  isCurrent ? 'text-blue-900' : 'text-gray-900'
-                                }`}>
+                                <h4
+                                  className={`text-sm font-medium ${
+                                    isCurrent ? 'text-blue-900' : 'text-gray-900'
+                                  }`}
+                                >
                                   {lessonIndex + 1}. {lesson.title}
                                 </h4>
-                                
+
                                 {/* Lesson Duration */}
                                 {lesson.video_duration_seconds && (
                                   <span className="flex-shrink-0 text-xs text-gray-500">
@@ -320,48 +321,57 @@ export function CourseModuleNav({
                               </div>
 
                               {/* Lesson Type Badge */}
-                              <div className="flex items-center gap-2 mt-1">
-                                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                                  lesson.content_type === 'video' ? 'bg-purple-100 text-purple-800' :
-                                  lesson.content_type === 'quiz' ? 'bg-yellow-100 text-yellow-800' :
-                                  lesson.content_type === 'article' ? 'bg-green-100 text-green-800' :
-                                  'bg-gray-100 text-gray-800'
-                                }`}>
+                              <div className="mt-1 flex items-center gap-2">
+                                <span
+                                  className={`inline-flex items-center rounded px-2 py-0.5 text-xs font-medium ${
+                                    lesson.content_type === 'video'
+                                      ? 'bg-purple-100 text-purple-800'
+                                      : lesson.content_type === 'quiz'
+                                        ? 'bg-yellow-100 text-yellow-800'
+                                        : lesson.content_type === 'article'
+                                          ? 'bg-green-100 text-green-800'
+                                          : 'bg-gray-100 text-gray-800'
+                                  }`}
+                                >
                                   {lesson.content_type}
                                 </span>
 
                                 {/* CE Credits Badge */}
                                 {lesson.ce_credits && lesson.ce_credits > 0 && (
-                                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-800">
+                                  <span className="inline-flex items-center rounded bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-800">
                                     {lesson.ce_credits} CE
                                   </span>
                                 )}
 
                                 {/* Lock Indicator */}
-                                {isLocked && (
-                                  <span className="text-xs text-gray-500">
-                                    Locked
-                                  </span>
-                                )}
+                                {isLocked && <span className="text-xs text-gray-500">Locked</span>}
                               </div>
 
                               {/* Progress Bar for In-Progress Lessons */}
-                              {lessonWithProgress.progress?.status === 'in_progress' && 
-                               lessonWithProgress.progress.progress_percentage !== undefined && (
-                                <div className="mt-2">
-                                  <div className="w-full bg-gray-200 rounded-full h-1.5">
-                                    <div 
-                                      className="bg-blue-600 h-1.5 rounded-full transition-all duration-300"
-                                      style={{ width: `${Math.min(100, Math.max(0, lessonWithProgress.progress.progress_percentage))}%` }}
-                                      role="progressbar"
-                                      aria-valuenow={Math.min(100, Math.max(0, lessonWithProgress.progress.progress_percentage))}
-                                      aria-valuemin={0}
-                                      aria-valuemax={100}
-                                      aria-label={`Lesson ${Math.min(100, Math.max(0, lessonWithProgress.progress.progress_percentage))}% complete`}
-                                    />
+                              {lessonWithProgress.progress?.status === 'in_progress' &&
+                                lessonWithProgress.progress.progress_percentage !== undefined && (
+                                  <div className="mt-2">
+                                    <div className="h-1.5 w-full rounded-full bg-gray-200">
+                                      <div
+                                        className="h-1.5 rounded-full bg-blue-600 transition-all duration-300"
+                                        style={{
+                                          width: `${Math.min(100, Math.max(0, lessonWithProgress.progress.progress_percentage))}%`,
+                                        }}
+                                        role="progressbar"
+                                        aria-valuenow={Math.min(
+                                          100,
+                                          Math.max(
+                                            0,
+                                            lessonWithProgress.progress.progress_percentage
+                                          )
+                                        )}
+                                        aria-valuemin={0}
+                                        aria-valuemax={100}
+                                        aria-label={`Lesson ${Math.min(100, Math.max(0, lessonWithProgress.progress.progress_percentage))}% complete`}
+                                      />
+                                    </div>
                                   </div>
-                                </div>
-                              )}
+                                )}
                             </div>
                           </button>
                         </li>

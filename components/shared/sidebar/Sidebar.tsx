@@ -3,14 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { 
-  ChevronDown, 
-  ChevronRight, 
-  Home,
-  X,
-  Menu,
-  type LucideIcon
-} from 'lucide-react'
+import { ChevronDown, ChevronRight, Home, X, Menu, type LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export type SidebarNavItem = {
@@ -49,7 +42,7 @@ export default function Sidebar({ items, role }: SidebarProps) {
 
   // Save collapsed state to localStorage
   const toggleSection = (label: string) => {
-    setCollapsedSections(prev => {
+    setCollapsedSections((prev) => {
       const newSet = new Set(prev)
       if (newSet.has(label)) {
         newSet.delete(label)
@@ -69,7 +62,7 @@ export default function Sidebar({ items, role }: SidebarProps) {
   const hasActiveChild = (item: SidebarNavItem): boolean => {
     if (isActive(item.href)) return true
     if (item.children) {
-      return item.children.some(child => hasActiveChild(child))
+      return item.children.some((child) => hasActiveChild(child))
     }
     return false
   }
@@ -110,7 +103,7 @@ export default function Sidebar({ items, role }: SidebarProps) {
           </button>
           {!isCollapsed && (
             <div className="ml-0 mt-1 space-y-1">
-              {item.children?.map(child => renderNavItem(child, level + 1))}
+              {item.children?.map((child) => renderNavItem(child, level + 1))}
             </div>
           )}
         </div>
@@ -123,8 +116,8 @@ export default function Sidebar({ items, role }: SidebarProps) {
         href={item.href || '#'}
         className={cn(
           'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-          active 
-            ? 'bg-primary-600 text-white hover:bg-primary-700' 
+          active
+            ? 'bg-primary-600 text-white hover:bg-primary-700'
             : 'text-gray-700 hover:bg-gray-100',
           level > 0 && !active && 'text-gray-600'
         )}
@@ -133,12 +126,12 @@ export default function Sidebar({ items, role }: SidebarProps) {
         {Icon && <Icon className="h-4 w-4 flex-shrink-0" />}
         <span className="flex-1">{item.label}</span>
         {item.badge && (
-          <span className={cn(
-            'rounded-full px-2 py-0.5 text-xs font-semibold',
-            active 
-              ? 'bg-white/20 text-white' 
-              : 'bg-primary-100 text-primary-700'
-          )}>
+          <span
+            className={cn(
+              'rounded-full px-2 py-0.5 text-xs font-semibold',
+              active ? 'bg-white/20 text-white' : 'bg-primary-100 text-primary-700'
+            )}
+          >
             {item.badge}
           </span>
         )}
@@ -182,7 +175,10 @@ export default function Sidebar({ items, role }: SidebarProps) {
               <div className="text-sm font-semibold text-gray-900">ABR Insights</div>
               {role && (
                 <div className="text-xs text-gray-500">
-                  {role.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                  {role
+                    .split('_')
+                    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+                    .join(' ')}
                 </div>
               )}
             </div>
@@ -190,16 +186,12 @@ export default function Sidebar({ items, role }: SidebarProps) {
 
           {/* Navigation */}
           <nav className="flex-1 overflow-y-auto p-4">
-            <div className="space-y-1">
-              {items.map(item => renderNavItem(item))}
-            </div>
+            <div className="space-y-1">{items.map((item) => renderNavItem(item))}</div>
           </nav>
 
           {/* Footer */}
           <div className="border-t border-gray-200 p-4">
-            <div className="text-xs text-gray-500">
-              © 2026 ABR Insights
-            </div>
+            <div className="text-xs text-gray-500">© 2026 ABR Insights</div>
           </div>
         </div>
       </aside>

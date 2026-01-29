@@ -3,7 +3,7 @@ import { FileText, BarChart3, PieChart, TrendingUp, Calendar } from 'lucide-reac
 
 export const metadata: Metadata = {
   title: 'Create Report | Analytics | ABR Insights',
-  description: 'Create custom analytics reports'
+  description: 'Create custom analytics reports',
 }
 
 export default function AnalyticsCreatePage() {
@@ -42,9 +42,7 @@ export default function AnalyticsCreatePage() {
     <div className="container-custom py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Create Analytics Report</h1>
-        <p className="mt-2 text-gray-600">
-          Generate custom reports to analyze your data
-        </p>
+        <p className="mt-2 text-gray-600">Generate custom reports to analyze your data</p>
       </div>
 
       {/* Report Templates */}
@@ -80,9 +78,7 @@ export default function AnalyticsCreatePage() {
                     ))}
                   </div>
                 </div>
-                <button className="btn-primary w-full">
-                  Use This Template
-                </button>
+                <button className="btn-primary w-full">Use This Template</button>
               </div>
             )
           })}
@@ -92,7 +88,7 @@ export default function AnalyticsCreatePage() {
       {/* Custom Report Builder */}
       <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
         <h2 className="mb-6 text-xl font-semibold text-gray-900">Or Build a Custom Report</h2>
-        
+
         <div className="space-y-6">
           {/* Report Name */}
           <div>
@@ -115,11 +111,7 @@ export default function AnalyticsCreatePage() {
               </label>
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="date"
-                  id="startDate"
-                  className="input w-full pl-10"
-                />
+                <input type="date" id="startDate" className="input w-full pl-10" />
               </div>
             </div>
             <div>
@@ -128,20 +120,14 @@ export default function AnalyticsCreatePage() {
               </label>
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="date"
-                  id="endDate"
-                  className="input w-full pl-10"
-                />
+                <input type="date" id="endDate" className="input w-full pl-10" />
               </div>
             </div>
           </div>
 
           {/* Metrics Selection */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700">
-              Select Metrics *
-            </label>
+            <label className="mb-2 block text-sm font-medium text-gray-700">Select Metrics *</label>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {[
                 'Active Users',
@@ -177,9 +163,7 @@ export default function AnalyticsCreatePage() {
 
           {/* Output Format */}
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700">
-              Output Format
-            </label>
+            <label className="mb-2 block text-sm font-medium text-gray-700">Output Format</label>
             <div className="flex gap-4">
               <label className="flex items-center gap-2">
                 <input type="radio" name="format" value="pdf" defaultChecked />
@@ -198,12 +182,8 @@ export default function AnalyticsCreatePage() {
 
           {/* Actions */}
           <div className="flex gap-4 border-t border-gray-200 pt-6">
-            <button className="btn-primary flex-1">
-              Generate Report
-            </button>
-            <button className="btn-outline flex-1">
-              Save as Template
-            </button>
+            <button className="btn-primary flex-1">Generate Report</button>
+            <button className="btn-outline flex-1">Save as Template</button>
           </div>
         </div>
       </div>

@@ -1,8 +1,8 @@
 /**
  * SAML 2.0 SSO Service
- * 
+ *
  * Enterprise-grade SAML 2.0 integration with multi-tenant support
- * 
+ *
  * Features:
  * - SAML 2.0 authentication flows (IdP-initiated and SP-initiated)
  * - Assertion validation and signature verification
@@ -10,7 +10,7 @@
  * - Session management
  * - Multi-tenant SAML configuration support
  * - Metadata generation for Service Provider
- * 
+ *
  * @module lib/auth/saml
  */
 
@@ -90,27 +90,27 @@ export class SAMLService {
       // Service Provider (our app)
       issuer: this.config.saml_entity_id,
       callbackUrl,
-      
+
       // Identity Provider (customer's SAML IdP)
       entryPoint: this.config.saml_sso_url,
       idpCert: this.config.saml_certificate,
-      
+
       // Logout
       logoutUrl: this.config.saml_slo_url,
       logoutCallbackUrl: `${baseUrl}/api/auth/saml/logout`,
-      
+
       // Name ID format
       identifierFormat: this.config.saml_name_id_format,
-      
+
       // Security
       wantAssertionsSigned: true,
       wantAuthnResponseSigned: true,
       signatureAlgorithm: 'sha256',
       digestAlgorithm: 'sha256',
-      
+
       // Attribute consumption
       acceptedClockSkewMs: 300000, // 5 minutes
-      
+
       // Request ID validation settings
       requestIdExpirationPeriodMs: 28800000, // 8 hours
     }
@@ -177,7 +177,7 @@ export class SAMLService {
 
     try {
       const result = await this.samlClient.validatePostResponseAsync({ SAMLResponse: samlResponse })
-      
+
       if (!result || !result.profile) {
         throw new Error('No profile returned from SAML assertion')
       }
@@ -204,16 +204,22 @@ export class SAMLService {
 
     // Get NameID (required)
     const nameID = profile.nameID || profile.email || ''
-    
+
     if (!nameID) {
       throw new Error('Missing NameID in SAML assertion')
     }
 
     // Map attributes using configured mapping
     const email = (profile[mapping.email || 'email'] || profile.email || nameID) as string
-    const firstName = (profile[mapping.firstName || 'firstName'] || profile.firstName || profile.givenName) as string | undefined
-    const lastName = (profile[mapping.lastName || 'lastName'] || profile.lastName || profile.surname) as string | undefined
-    const displayName = (profile[mapping.displayName || 'displayName'] || profile.displayName || profile.name) as string | undefined
+    const firstName = (profile[mapping.firstName || 'firstName'] ||
+      profile.firstName ||
+      profile.givenName) as string | undefined
+    const lastName = (profile[mapping.lastName || 'lastName'] ||
+      profile.lastName ||
+      profile.surname) as string | undefined
+    const displayName = (profile[mapping.displayName || 'displayName'] ||
+      profile.displayName ||
+      profile.name) as string | undefined
 
     return {
       email,
@@ -227,10 +233,7 @@ export class SAMLService {
   /**
    * Provision or update user in database
    */
-  async provisionUser(
-    attributes: SAMLUserAttributes,
-    organizationId: string
-  ): Promise<string> {
+  async provisionUser(attributes: SAMLUserAttributes, organizationId: string): Promise<string> {
     if (!this.config) {
       throw new Error('SAML service not initialized')
     }
@@ -279,18 +282,16 @@ export class SAMLService {
 
     if (existingProfile) {
       // Link existing profile to SSO provider
-      await supabase
-        .from('identity_provider_mapping')
-        .insert({
-          user_id: existingProfile.id,
-          sso_provider_id: this.config.id,
-          provider_user_id: attributes.nameID,
-          provider_email: attributes.email,
-          claims: attributes as unknown as Record<string, unknown>,
-          link_status: 'active',
-          last_login_at: new Date().toISOString(),
-          login_count: 1,
-        })
+      await supabase.from('identity_provider_mapping').insert({
+        user_id: existingProfile.id,
+        sso_provider_id: this.config.id,
+        provider_user_id: attributes.nameID,
+        provider_email: attributes.email,
+        claims: attributes as unknown as Record<string, unknown>,
+        link_status: 'active',
+        last_login_at: new Date().toISOString(),
+        login_count: 1,
+      })
 
       return existingProfile.id
     }
@@ -344,18 +345,16 @@ export class SAMLService {
     }
 
     // Create identity mapping
-    await supabase
-      .from('identity_provider_mapping')
-      .insert({
-        user_id: profile.id,
-        sso_provider_id: this.config.id,
-        provider_user_id: attributes.nameID,
-        provider_email: attributes.email,
-        claims: attributes as unknown as Record<string, unknown>,
-        link_status: 'active',
-        last_login_at: new Date().toISOString(),
-        login_count: 1,
-      })
+    await supabase.from('identity_provider_mapping').insert({
+      user_id: profile.id,
+      sso_provider_id: this.config.id,
+      provider_user_id: attributes.nameID,
+      provider_email: attributes.email,
+      claims: attributes as unknown as Record<string, unknown>,
+      link_status: 'active',
+      last_login_at: new Date().toISOString(),
+      login_count: 1,
+    })
 
     // Assign default learner role
     const { data: learnerRole } = await supabase
@@ -365,14 +364,12 @@ export class SAMLService {
       .single()
 
     if (learnerRole) {
-      await supabase
-        .from('user_roles')
-        .insert({
-          user_id: profile.id,
-          role_id: learnerRole.id,
-          organization_id: organizationId,
-          scope_type: 'global',
-        })
+      await supabase.from('user_roles').insert({
+        user_id: profile.id,
+        role_id: learnerRole.id,
+        organization_id: organizationId,
+        scope_type: 'global',
+      })
     }
 
     return profile.id
@@ -427,20 +424,18 @@ export class SAMLService {
   ): Promise<void> {
     const supabase = await createClient()
 
-    await supabase
-      .from('sso_login_attempts')
-      .insert({
-        organization_id: organizationId,
-        sso_provider_id: ssoProviderId,
-        user_id: userId,
-        provider_user_id: attributes?.nameID,
-        email: attributes?.email,
-        status,
-        failure_reason: failureReason,
-        error_code: errorCode,
-        ip_address: ipAddress,
-        user_agent: userAgent,
-      })
+    await supabase.from('sso_login_attempts').insert({
+      organization_id: organizationId,
+      sso_provider_id: ssoProviderId,
+      user_id: userId,
+      provider_user_id: attributes?.nameID,
+      email: attributes?.email,
+      status,
+      failure_reason: failureReason,
+      error_code: errorCode,
+      ip_address: ipAddress,
+      user_agent: userAgent,
+    })
   }
 }
 

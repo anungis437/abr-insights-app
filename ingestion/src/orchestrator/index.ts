@@ -1,12 +1,12 @@
 /**
  * Ingestion Pipeline Orchestrator
- * 
+ *
  * Coordinates the entire ingestion workflow:
  * 1. Discovery - Find new cases to ingest
  * 2. Fetch - Download decision content
  * 3. Classify - Analyze with rule-based + AI
  * 4. Store - Save to database
- * 
+ *
  * Features:
  * - Job tracking with metrics
  * - Error handling and logging
@@ -16,7 +16,7 @@
  * - Dry-run mode
  */
 
-import type { SupabaseClient } from '@supabase/supabase-js';
+import type { SupabaseClient } from '@supabase/supabase-js'
 import type {
   IngestionJob,
   JobType,
@@ -31,12 +31,12 @@ import type {
   RawCaseRecord,
   CombinedClassification,
   PipelineContext,
-} from '../types';
-import { ENV } from '../config';
-import { CanLIIScraper } from '../scrapers/canlii';
-import { CombinedClassifier } from '../classifiers/combined';
-import { createError, getErrorMessage, ProgressBar } from '../utils';
-import { createClient } from '@supabase/supabase-js';
+} from '../types'
+import { ENV } from '../config'
+import { CanLIIScraper } from '../scrapers/canlii'
+import { CombinedClassifier } from '../classifiers/combined'
+import { createError, getErrorMessage, ProgressBar } from '../utils'
+import { createClient } from '@supabase/supabase-js'
 
 // ============================================================================
 // TYPES
@@ -44,36 +44,36 @@ import { createClient } from '@supabase/supabase-js';
 
 interface OrchestrationOptions {
   /** Job type for tracking */
-  jobType?: JobType;
+  jobType?: JobType
   /** Resume from last checkpoint */
-  resume?: boolean;
+  resume?: boolean
   /** Dry run - don't save to DB */
-  dryRun?: boolean;
+  dryRun?: boolean
   /** Limit number of cases to process */
-  limit?: number;
+  limit?: number
   /** User/system that triggered job */
-  triggeredBy?: string;
+  triggeredBy?: string
   /** Maximum date to scrape (for historical backfills) */
-  maxDate?: Date;
+  maxDate?: Date
   /** Minimum date to scrape */
-  minDate?: Date;
+  minDate?: Date
   /** Progress callback */
-  onProgress?: (context: PipelineContext) => void;
+  onProgress?: (context: PipelineContext) => void
 }
 
 interface OrchestrationResult {
-  jobId: string;
-  status: JobStatus;
+  jobId: string
+  status: JobStatus
   metrics: {
-    discovered: number;
-    fetched: number;
-    classified: number;
-    stored: number;
-    failed: number;
-    skipped: number;
-  };
-  duration: number;
-  errors: Array<{ stage: ErrorStage; message: string; url?: string }>;
+    discovered: number
+    fetched: number
+    classified: number
+    stored: number
+    failed: number
+    skipped: number
+  }
+  duration: number
+  errors: Array<{ stage: ErrorStage; message: string; url?: string }>
 }
 
 // ============================================================================
@@ -81,19 +81,16 @@ interface OrchestrationResult {
 // ============================================================================
 
 export class IngestionOrchestrator {
-  private supabase: SupabaseClient;
-  private scraper: CanLIIScraper | null = null;
-  private classifier: CombinedClassifier;
-  private jobId: string | null = null;
-  private startTime: number = 0;
-  
+  private supabase: SupabaseClient
+  private scraper: CanLIIScraper | null = null
+  private classifier: CombinedClassifier
+  private jobId: string | null = null
+  private startTime: number = 0
+
   constructor(supabaseClient?: SupabaseClient) {
-    this.supabase = supabaseClient || createClient(
-      ENV.SUPABASE_URL,
-      ENV.SUPABASE_SERVICE_ROLE_KEY
-    );
+    this.supabase = supabaseClient || createClient(ENV.SUPABASE_URL, ENV.SUPABASE_SERVICE_ROLE_KEY)
     // Scraper will be initialized in run() with proper source config
-    this.classifier = new CombinedClassifier();
+    this.classifier = new CombinedClassifier()
   }
 
   /**
@@ -104,8 +101,8 @@ export class IngestionOrchestrator {
     sourceConfig: SourceConfig,
     options: OrchestrationOptions = {}
   ): Promise<OrchestrationResult> {
-    this.startTime = Date.now();
-    
+    this.startTime = Date.now()
+
     const metrics = {
       discovered: 0,
       fetched: 0,
@@ -113,89 +110,88 @@ export class IngestionOrchestrator {
       stored: 0,
       failed: 0,
       skipped: 0,
-    };
-    
-    const errors: Array<{ stage: ErrorStage; message: string; url?: string }> = [];
-    
+    }
+
+    const errors: Array<{ stage: ErrorStage; message: string; url?: string }> = []
+
     try {
       // Step 0: Initialize scraper with source-specific config
-      this.scraper = new CanLIIScraper(sourceSystem);
-      
+      this.scraper = new CanLIIScraper(sourceSystem)
+
       // Step 1: Initialize job
       if (!options.dryRun) {
-        this.jobId = await this.initializeJob(sourceSystem, sourceConfig, options);
-        console.log(`\n🚀 Started ingestion job: ${this.jobId}`);
+        this.jobId = await this.initializeJob(sourceSystem, sourceConfig, options)
+        console.log(`\n🚀 Started ingestion job: ${this.jobId}`)
       } else {
-        console.log('\n🔍 Running in DRY RUN mode - no data will be saved');
+        console.log('\n🔍 Running in DRY RUN mode - no data will be saved')
       }
-      
+
       // Step 2: Get resume checkpoint if needed
-      let processedUrls = new Set<string>();
+      let processedUrls = new Set<string>()
       if (options.resume && this.jobId) {
-        processedUrls = await this.getProcessedUrls(sourceSystem);
-        console.log(`📋 Resume mode: ${processedUrls.size} URLs already processed`);
+        processedUrls = await this.getProcessedUrls(sourceSystem)
+        console.log(`📋 Resume mode: ${processedUrls.size} URLs already processed`)
       }
-      
+
       // Step 3: Discovery - Find cases
-      console.log(`\n📡 Discovery: Fetching case list from ${sourceSystem}...`);
-      const links = await this.discoverCases(sourceSystem, sourceConfig, options);
-      metrics.discovered = links.length;
-      console.log(`✅ Discovered ${links.length} cases`);
-      
+      console.log(`\n📡 Discovery: Fetching case list from ${sourceSystem}...`)
+      const links = await this.discoverCases(sourceSystem, sourceConfig, options)
+      metrics.discovered = links.length
+      console.log(`✅ Discovered ${links.length} cases`)
+
       // Filter out already processed
-      const toProcess = links.filter(link => !processedUrls.has(link.url));
-      metrics.skipped = links.length - toProcess.length;
-      
+      const toProcess = links.filter((link) => !processedUrls.has(link.url))
+      metrics.skipped = links.length - toProcess.length
+
       if (metrics.skipped > 0) {
-        console.log(`⏭️  Skipping ${metrics.skipped} already processed cases`);
+        console.log(`⏭️  Skipping ${metrics.skipped} already processed cases`)
       }
-      
+
       // Apply limit
-      const finalList = options.limit ? toProcess.slice(0, options.limit) : toProcess;
-      console.log(`\n🎯 Processing ${finalList.length} cases\n`);
-      
+      const finalList = options.limit ? toProcess.slice(0, options.limit) : toProcess
+      console.log(`\n🎯 Processing ${finalList.length} cases\n`)
+
       // Step 4: Process each case
-      const progressBar = new ProgressBar(finalList.length, 'Processing cases');
-      
+      const progressBar = new ProgressBar(finalList.length, 'Processing cases')
+
       for (let i = 0; i < finalList.length; i++) {
-        const link = finalList[i];
-        
+        const link = finalList[i]
+
         try {
           // Fetch content
-          const content = await this.fetchCase(link.url);
-          metrics.fetched++;
-          
+          const content = await this.fetchCase(link.url)
+          metrics.fetched++
+
           // Classify
-          const classification = await this.classifyCase(content);
-          metrics.classified++;
-          
+          const classification = await this.classifyCase(content)
+          metrics.classified++
+
           // Store
           if (!options.dryRun) {
-            await this.storeCase(content, classification, sourceSystem, sourceConfig);
-            metrics.stored++;
-            
+            await this.storeCase(content, classification, sourceSystem, sourceConfig)
+            metrics.stored++
+
             // Update job checkpoint
             if (this.jobId) {
-              await this.updateCheckpoint(this.jobId, link.url);
+              await this.updateCheckpoint(this.jobId, link.url)
             }
           }
-          
         } catch (error) {
-          metrics.failed++;
-          const errorMsg = getErrorMessage(error);
-          errors.push({ stage: 'fetch', message: errorMsg, url: link.url });
-          
+          metrics.failed++
+          const errorMsg = getErrorMessage(error)
+          errors.push({ stage: 'fetch', message: errorMsg, url: link.url })
+
           // Log error to database
           if (!options.dryRun && this.jobId) {
-            await this.logError(this.jobId, 'fetch', error, { url: link.url });
+            await this.logError(this.jobId, 'fetch', error, { url: link.url })
           }
-          
-          console.error(`\n❌ Failed to process ${link.url}: ${errorMsg}`);
+
+          console.error(`\n❌ Failed to process ${link.url}: ${errorMsg}`)
         }
-        
+
         // Update progress
-        progressBar.update(i + 1);
-        
+        progressBar.update(i + 1)
+
         if (options.onProgress) {
           options.onProgress({
             job: {} as IngestionJob, // Simplified for now
@@ -204,42 +200,50 @@ export class IngestionOrchestrator {
             verbose: false,
             processedUrls,
             errors: [],
-          });
+          })
         }
       }
-      
-      progressBar.complete();
-      
+
+      progressBar.complete()
+
       // Step 5: Finalize job
-      const duration = Math.floor((Date.now() - this.startTime) / 1000);
-      const status: JobStatus = metrics.failed === finalList.length ? 'failed' : 
-                                 metrics.failed > 0 ? 'partial' : 'completed';
-      
+      const duration = Math.floor((Date.now() - this.startTime) / 1000)
+      const status: JobStatus =
+        metrics.failed === finalList.length
+          ? 'failed'
+          : metrics.failed > 0
+            ? 'partial'
+            : 'completed'
+
       if (!options.dryRun && this.jobId) {
-        await this.finalizeJob(this.jobId, status, metrics, duration);
+        await this.finalizeJob(this.jobId, status, metrics, duration)
       }
-      
+
       // Step 6: Print summary
-      this.printSummary(status, metrics, duration, errors);
-      
+      this.printSummary(status, metrics, duration, errors)
+
       return {
         jobId: this.jobId || 'dry-run',
         status,
         metrics,
         duration,
         errors,
-      };
-      
-    } catch (error) {
-      const errorMsg = getErrorMessage(error);
-      console.error(`\n💥 Pipeline failed: ${errorMsg}`);
-      
-      if (!options.dryRun && this.jobId) {
-        await this.finalizeJob(this.jobId, 'failed', metrics, 
-          Math.floor((Date.now() - this.startTime) / 1000), errorMsg);
       }
-      
-      throw error;
+    } catch (error) {
+      const errorMsg = getErrorMessage(error)
+      console.error(`\n💥 Pipeline failed: ${errorMsg}`)
+
+      if (!options.dryRun && this.jobId) {
+        await this.finalizeJob(
+          this.jobId,
+          'failed',
+          metrics,
+          Math.floor((Date.now() - this.startTime) / 1000),
+          errorMsg
+        )
+      }
+
+      throw error
     }
   }
 
@@ -257,31 +261,32 @@ export class IngestionOrchestrator {
   ): Promise<DecisionLink[]> {
     try {
       // Support all CanLII sources (any source starting with 'canlii_')
-      const isCanLII = sourceSystem.startsWith('canlii_');
-      const isDirect = sourceSystem.endsWith('_direct');
-      
+      const isCanLII = sourceSystem.startsWith('canlii_')
+      const isDirect = sourceSystem.endsWith('_direct')
+
       if (!isCanLII && !isDirect) {
-        throw createError(`Unsupported source system: ${sourceSystem}`, 'UNSUPPORTED_SOURCE');
+        throw createError(`Unsupported source system: ${sourceSystem}`, 'UNSUPPORTED_SOURCE')
       }
-      
+
       // Direct scraping not yet implemented
       if (isDirect) {
-        throw createError(`Direct scraping not yet implemented for: ${sourceSystem}`, 'UNSUPPORTED_SOURCE');
+        throw createError(
+          `Direct scraping not yet implemented for: ${sourceSystem}`,
+          'UNSUPPORTED_SOURCE'
+        )
       }
-      
+
       // Discover cases from CanLII (default max 50)
       if (!this.scraper) {
-        throw createError('Scraper not initialized', 'INTERNAL_ERROR');
+        throw createError('Scraper not initialized', 'INTERNAL_ERROR')
       }
-      const links = await this.scraper.discoverDecisions(options.limit || 50);
-      
-      return links;
+      const links = await this.scraper.discoverDecisions(options.limit || 50)
+
+      return links
     } catch (error) {
-      throw createError(
-        `Discovery failed: ${getErrorMessage(error)}`,
-        'DISCOVERY_ERROR',
-        { sourceSystem }
-      );
+      throw createError(`Discovery failed: ${getErrorMessage(error)}`, 'DISCOVERY_ERROR', {
+        sourceSystem,
+      })
     }
   }
 
@@ -295,16 +300,12 @@ export class IngestionOrchestrator {
   private async fetchCase(url: string): Promise<DecisionContent> {
     try {
       if (!this.scraper) {
-        throw createError('Scraper not initialized', 'INTERNAL_ERROR');
+        throw createError('Scraper not initialized', 'INTERNAL_ERROR')
       }
-      const content = await this.scraper.fetchDecisionContent(url);
-      return content;
+      const content = await this.scraper.fetchDecisionContent(url)
+      return content
     } catch (error) {
-      throw createError(
-        `Fetch failed: ${getErrorMessage(error)}`,
-        'FETCH_ERROR',
-        { url }
-      );
+      throw createError(`Fetch failed: ${getErrorMessage(error)}`, 'FETCH_ERROR', { url })
     }
   }
 
@@ -317,14 +318,14 @@ export class IngestionOrchestrator {
    */
   private async classifyCase(content: DecisionContent): Promise<CombinedClassification> {
     try {
-      const classification = await this.classifier.classify(content);
-      return classification;
+      const classification = await this.classifier.classify(content)
+      return classification
     } catch (error) {
       throw createError(
         `Classification failed: ${getErrorMessage(error)}`,
         'CLASSIFICATION_ERROR',
         { url: content.url }
-      );
+      )
     }
   }
 
@@ -347,7 +348,7 @@ export class IngestionOrchestrator {
         source_url: content.url,
         source_system: sourceSystem,
         source_id: content.caseNumber,
-        
+
         // Content
         case_title: content.caseTitle,
         case_number: content.caseNumber,
@@ -359,7 +360,7 @@ export class IngestionOrchestrator {
         full_text: content.fullText,
         text_length: content.fullText.length,
         document_type: 'decision',
-        
+
         // Classification - Store as JSONB
         rule_based_classification: {
           isRaceRelated: classification.ruleBasedResult.isRaceRelated,
@@ -370,40 +371,40 @@ export class IngestionOrchestrator {
           keywordMatches: classification.ruleBasedResult.keywordMatches,
           reasoning: classification.ruleBasedResult.reasoning,
         },
-        
+
         // AI Classification - Store as JSONB if available
-        ai_classification: classification.aiResult ? {
-          category: classification.aiResult.category,
-          confidence: classification.aiResult.confidence,
-          reasoning: classification.aiResult.reasoning,
-          keyPhrases: classification.aiResult.keyPhrases,
-          groundsDetected: classification.aiResult.groundsDetected,
-          keyIssues: classification.aiResult.keyIssues,
-          remedies: classification.aiResult.remedies,
-          sentiment: classification.aiResult.sentiment,
-          legislationCited: classification.aiResult.legislationCited,
-        } : null,
-        
+        ai_classification: classification.aiResult
+          ? {
+              category: classification.aiResult.category,
+              confidence: classification.aiResult.confidence,
+              reasoning: classification.aiResult.reasoning,
+              keyPhrases: classification.aiResult.keyPhrases,
+              groundsDetected: classification.aiResult.groundsDetected,
+              keyIssues: classification.aiResult.keyIssues,
+              remedies: classification.aiResult.remedies,
+              sentiment: classification.aiResult.sentiment,
+              legislationCited: classification.aiResult.legislationCited,
+            }
+          : null,
+
         // Combined confidence and review flag
         combined_confidence: classification.finalConfidence,
         needs_review: classification.needsReview,
-        
+
         // Store grounds and issues for querying
         discrimination_grounds: classification.ruleBasedResult.groundsDetected,
         key_issues: classification.aiResult?.keyIssues || [],
         remedies: classification.aiResult?.remedies || [],
-      };
-      
+      }
+
       // Insert into tribunal_cases_raw first
-      const { error: rawError } = await this.supabase
-        .from('tribunal_cases_raw')
-        .upsert(record, { 
-          onConflict: 'source_url',
-          ignoreDuplicates: false 
-        });
-      
+      const { error: rawError } = await this.supabase.from('tribunal_cases_raw').upsert(record, {
+        onConflict: 'source_url',
+        ignoreDuplicates: false,
+      })
+
       if (rawError) {
-        throw rawError;
+        throw rawError
       }
 
       // Also insert into simplified cases table for the web app
@@ -423,38 +424,35 @@ export class IngestionOrchestrator {
           category: classification.finalCategory,
           confidence: classification.ruleBasedResult.confidence,
         },
-        ai_classification: classification.aiResult ? {
-          category: classification.aiResult.category,
-          confidence: classification.aiResult.confidence,
-        } : null,
+        ai_classification: classification.aiResult
+          ? {
+              category: classification.aiResult.category,
+              confidence: classification.aiResult.confidence,
+            }
+          : null,
         combined_confidence: classification.finalConfidence,
         needs_review: classification.needsReview,
-      };
+      }
 
-      const { error: caseError } = await this.supabase
-        .from('cases')
-        .upsert(caseRecord, { 
-          onConflict: 'source_url',
-          ignoreDuplicates: false 
-        });
-      
+      const { error: caseError } = await this.supabase.from('cases').upsert(caseRecord, {
+        onConflict: 'source_url',
+        ignoreDuplicates: false,
+      })
+
       if (caseError) {
         // Log but don't fail if cases table doesn't exist yet
-        console.warn(`Warning: Could not insert into cases table:`, caseError);
+        console.warn(`Warning: Could not insert into cases table:`, caseError)
       }
     } catch (error) {
       // Better error message for Supabase errors
-      const errorMsg = error instanceof Error 
-        ? error.message 
-        : typeof error === 'object' && error !== null
-          ? JSON.stringify(error, null, 2)
-          : String(error);
-      
-      throw createError(
-        `Storage failed: ${errorMsg}`,
-        'STORAGE_ERROR',
-        { url: content.url }
-      );
+      const errorMsg =
+        error instanceof Error
+          ? error.message
+          : typeof error === 'object' && error !== null
+            ? JSON.stringify(error, null, 2)
+            : String(error)
+
+      throw createError(`Storage failed: ${errorMsg}`, 'STORAGE_ERROR', { url: content.url })
     }
   }
 
@@ -487,19 +485,19 @@ export class IngestionOrchestrator {
       triggeredBy: options.triggeredBy || 'unknown',
       executionEnvironment: 'local',
       pipelineVersion: '1.0.0',
-    };
-    
+    }
+
     const { data, error } = await this.supabase
       .from('ingestion_jobs')
       .insert(job)
       .select('id')
-      .single();
-    
+      .single()
+
     if (error || !data) {
-      throw createError('Failed to create job', 'JOB_INIT_ERROR', { error });
+      throw createError('Failed to create job', 'JOB_INIT_ERROR', { error })
     }
-    
-    return data.id;
+
+    return data.id
   }
 
   /**
@@ -508,11 +506,11 @@ export class IngestionOrchestrator {
   private async updateCheckpoint(jobId: string, lastUrl: string): Promise<void> {
     await this.supabase
       .from('ingestion_jobs')
-      .update({ 
+      .update({
         lastProcessedUrl: lastUrl,
-        checkpointData: { lastUpdate: new Date().toISOString() }
+        checkpointData: { lastUpdate: new Date().toISOString() },
       })
-      .eq('id', jobId);
+      .eq('id', jobId)
   }
 
   /**
@@ -535,28 +533,25 @@ export class IngestionOrchestrator {
       casesStored: metrics.stored,
       casesFailed: metrics.failed,
       errorMessage,
-    };
-    
+    }
+
     // Calculate confidence distribution
     if (metrics.stored > 0) {
       const { data } = await this.supabase
         .from('tribunal_cases_raw')
         .select('final_confidence')
-        .gte('scraped_at', new Date(this.startTime));
-      
+        .gte('scraped_at', new Date(this.startTime))
+
       if (data) {
-        const confidences = data.map(r => r.final_confidence || 0);
-        updates.avgConfidenceScore = confidences.reduce((a, b) => a + b, 0) / confidences.length;
-        updates.highConfidenceCount = confidences.filter(c => c >= 0.8).length;
-        updates.mediumConfidenceCount = confidences.filter(c => c >= 0.5 && c < 0.8).length;
-        updates.lowConfidenceCount = confidences.filter(c => c < 0.5).length;
+        const confidences = data.map((r) => r.final_confidence || 0)
+        updates.avgConfidenceScore = confidences.reduce((a, b) => a + b, 0) / confidences.length
+        updates.highConfidenceCount = confidences.filter((c) => c >= 0.8).length
+        updates.mediumConfidenceCount = confidences.filter((c) => c >= 0.5 && c < 0.8).length
+        updates.lowConfidenceCount = confidences.filter((c) => c < 0.5).length
       }
     }
-    
-    await this.supabase
-      .from('ingestion_jobs')
-      .update(updates)
-      .eq('id', jobId);
+
+    await this.supabase.from('ingestion_jobs').update(updates).eq('id', jobId)
   }
 
   /**
@@ -568,8 +563,8 @@ export class IngestionOrchestrator {
     error: unknown,
     context?: Record<string, any>
   ): Promise<void> {
-    const severity: ErrorSeverity = stage === 'storage' ? 'critical' : 'error';
-    
+    const severity: ErrorSeverity = stage === 'storage' ? 'critical' : 'error'
+
     const errorRecord: any = {
       job_id: jobId,
       stage,
@@ -578,11 +573,9 @@ export class IngestionOrchestrator {
       error_type: error instanceof Error ? error.constructor.name : 'UnknownError',
       context,
       occurred_at: new Date(),
-    };
-    
-    await this.supabase
-      .from('ingestion_errors')
-      .insert(errorRecord);
+    }
+
+    await this.supabase.from('ingestion_errors').insert(errorRecord)
   }
 
   /**
@@ -593,9 +586,9 @@ export class IngestionOrchestrator {
       .from('tribunal_cases_raw')
       .select('source_url')
       .eq('source_system', sourceSystem)
-      .gte('scraped_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)); // Last 30 days
-    
-    return new Set(data?.map(r => r.source_url) || []);
+      .gte('scraped_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)) // Last 30 days
+
+    return new Set(data?.map((r) => r.source_url) || [])
   }
 
   // ==========================================================================
@@ -611,33 +604,33 @@ export class IngestionOrchestrator {
     duration: number,
     errors: Array<{ stage: ErrorStage; message: string; url?: string }>
   ): void {
-    console.log('\n' + '='.repeat(60));
-    console.log('📊 INGESTION SUMMARY');
-    console.log('='.repeat(60));
-    console.log(`Status: ${status.toUpperCase()}`);
-    console.log(`Duration: ${duration}s`);
-    console.log('');
-    console.log('Metrics:');
-    console.log(`  Discovered: ${metrics.discovered}`);
-    console.log(`  Skipped:    ${metrics.skipped}`);
-    console.log(`  Fetched:    ${metrics.fetched}`);
-    console.log(`  Classified: ${metrics.classified}`);
-    console.log(`  Stored:     ${metrics.stored}`);
-    console.log(`  Failed:     ${metrics.failed}`);
-    
+    console.log('\n' + '='.repeat(60))
+    console.log('📊 INGESTION SUMMARY')
+    console.log('='.repeat(60))
+    console.log(`Status: ${status.toUpperCase()}`)
+    console.log(`Duration: ${duration}s`)
+    console.log('')
+    console.log('Metrics:')
+    console.log(`  Discovered: ${metrics.discovered}`)
+    console.log(`  Skipped:    ${metrics.skipped}`)
+    console.log(`  Fetched:    ${metrics.fetched}`)
+    console.log(`  Classified: ${metrics.classified}`)
+    console.log(`  Stored:     ${metrics.stored}`)
+    console.log(`  Failed:     ${metrics.failed}`)
+
     if (errors.length > 0) {
-      console.log('\nErrors:');
-      errors.slice(0, 5).forEach(err => {
-        console.log(`  - [${err.stage}] ${err.message}`);
-        if (err.url) console.log(`    URL: ${err.url}`);
-      });
-      
+      console.log('\nErrors:')
+      errors.slice(0, 5).forEach((err) => {
+        console.log(`  - [${err.stage}] ${err.message}`)
+        if (err.url) console.log(`    URL: ${err.url}`)
+      })
+
       if (errors.length > 5) {
-        console.log(`  ... and ${errors.length - 5} more errors`);
+        console.log(`  ... and ${errors.length - 5} more errors`)
       }
     }
-    
-    console.log('='.repeat(60) + '\n');
+
+    console.log('='.repeat(60) + '\n')
   }
 }
 
@@ -649,7 +642,7 @@ export class IngestionOrchestrator {
  * Creates an orchestrator instance
  */
 export function createOrchestrator(supabase?: SupabaseClient): IngestionOrchestrator {
-  return new IngestionOrchestrator(supabase);
+  return new IngestionOrchestrator(supabase)
 }
 
 /**
@@ -660,12 +653,12 @@ export async function runIngestion(
   sourceConfig: SourceConfig,
   options?: OrchestrationOptions
 ): Promise<OrchestrationResult> {
-  const orchestrator = new IngestionOrchestrator();
-  return orchestrator.run(sourceSystem, sourceConfig, options);
+  const orchestrator = new IngestionOrchestrator()
+  return orchestrator.run(sourceSystem, sourceConfig, options)
 }
 
 // ============================================================================
 // EXPORTS
 // ============================================================================
 
-export default IngestionOrchestrator;
+export default IngestionOrchestrator

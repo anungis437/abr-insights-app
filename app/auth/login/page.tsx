@@ -15,19 +15,19 @@ function LoginForm() {
   })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  
+
   const { signIn } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError(null)
-    
+
     try {
       const { error } = await signIn(formState.email, formState.password)
-      
+
       if (error) {
         setError(error.message)
         setIsLoading(false)
@@ -37,7 +37,9 @@ function LoginForm() {
       // Get user role to determine redirect
       const { createClient } = await import('@/lib/supabase/client')
       const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
       const { data: profile } = await supabase
         .from('profiles')
         .select('role')
@@ -47,12 +49,12 @@ function LoginForm() {
       // Determine redirect path
       const redirectTo = searchParams.get('redirect')
       let redirectPath = redirectTo || '/dashboard'
-      
+
       // Learners go to homepage unless explicitly redirected elsewhere
       if (profile?.role === 'learner' && !redirectTo) {
         redirectPath = '/'
       }
-      
+
       router.push(redirectPath)
     } catch (err) {
       setError('An unexpected error occurred. Please try again.')
@@ -86,8 +88,8 @@ function LoginForm() {
           <div className="rounded-2xl bg-white p-8 shadow-xl">
             {/* Error Message */}
             {error && (
-              <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-4 flex items-start gap-3">
-                <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <div className="mb-4 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
+                <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600" />
                 <p className="text-sm text-red-800">{error}</p>
               </div>
             )}
@@ -107,7 +109,7 @@ function LoginForm() {
                     id="email"
                     value={formState.email}
                     onChange={(e) => setFormState({ ...formState, email: e.target.value })}
-                    className="block w-full rounded-lg border border-gray-300 pl-10 pr-3 py-2.5 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                    className="block w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                     placeholder="you@example.com"
                     required
                   />
@@ -128,7 +130,7 @@ function LoginForm() {
                     id="password"
                     value={formState.password}
                     onChange={(e) => setFormState({ ...formState, password: e.target.value })}
-                    className="block w-full rounded-lg border border-gray-300 pl-10 pr-10 py-2.5 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                    className="block w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-10 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                     placeholder="••••••••"
                     autoComplete="current-password"
                     required
@@ -138,11 +140,7 @@ function LoginForm() {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-5 w-5" />
-                    ) : (
-                      <Eye className="h-5 w-5" />
-                    )}
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
                 </div>
               </div>
@@ -178,8 +176,20 @@ function LoginForm() {
                 {isLoading ? (
                   <span className="flex items-center justify-center">
                     <svg className="mr-2 h-5 w-5 animate-spin" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                        fill="none"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      />
                     </svg>
                     Signing in...
                   </span>
@@ -225,7 +235,10 @@ function LoginForm() {
           {/* Sign Up Link */}
           <p className="mt-8 text-center text-sm text-gray-600">
             Don&apos;t have an account?{' '}
-            <Link href="/auth/signup" className="font-medium text-primary-600 hover:text-primary-700">
+            <Link
+              href="/auth/signup"
+              className="font-medium text-primary-600 hover:text-primary-700"
+            >
               Sign up for free
             </Link>
           </p>
@@ -244,11 +257,13 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
-        <div className="text-gray-600">Loading...</div>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+          <div className="text-gray-600">Loading...</div>
+        </div>
+      }
+    >
       <LoginForm />
     </Suspense>
   )

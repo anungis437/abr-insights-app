@@ -3,10 +3,10 @@
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
-  
+
   // Enable standalone output for Docker builds
   output: process.env.DOCKER_BUILD === 'true' ? 'standalone' : undefined,
-  
+
   // Next.js 15 Performance Optimizations
   experimental: {
     // Optimize package imports for faster builds
@@ -20,14 +20,17 @@ const nextConfig = {
   // Compiler optimizations
   compiler: {
     // Remove console.log in production
-    removeConsole: process.env.NODE_ENV === 'production' ? {
-      exclude: ['error', 'warn'],
-    } : false,
+    removeConsole:
+      process.env.NODE_ENV === 'production'
+        ? {
+            exclude: ['error', 'warn'],
+          }
+        : false,
   },
-  
+
   // Note: Removed static export to support Supabase Auth callback routes
   // Azure Static Web Apps supports Next.js hybrid rendering
-  
+
   images: {
     remotePatterns: [
       {
@@ -70,7 +73,7 @@ const nextConfig = {
   webpack: (config, { isServer, dev }) => {
     // Only apply webpack config when not using Turbopack
     // Turbopack is used with `next dev --turbo`
-    
+
     // Fixes npm packages that depend on `fs` module
     if (!isServer) {
       config.resolve.fallback = {
@@ -80,34 +83,34 @@ const nextConfig = {
         tls: false,
       }
     }
-    
+
     // CRITICAL FIX: Disable symlink resolution to prevent EISDIR errors
     // Windows exFAT filesystem issue with webpack symlink handling
     config.resolve = {
       ...config.resolve,
       symlinks: false,
     }
-    
+
     // CRITICAL: Disable snapshot entirely to fix Windows EISDIR error
     // This is a Next.js 15 + Webpack 5 + Windows bug
     config.snapshot = undefined
-    
+
     // Fix for Windows EISDIR error with webpack 5 on Next.js
     // This is a known issue: https://github.com/vercel/next.js/issues/56114
     config.watchOptions = {
       ...config.watchOptions,
       ignored: /node_modules/,
     }
-    
+
     // Disable filesystem caching which causes issues on Windows
     config.cache = false
-    
+
     // Disable module resolution caching
     config.infrastructureLogging = {
       ...config.infrastructureLogging,
       level: 'error',
     }
-    
+
     return config
   },
 

@@ -61,7 +61,8 @@ export const metadata: Metadata = {
     url: 'https://abrinsights.ca',
     siteName: 'ABR Insights',
     title: 'ABR Insights | Anti-Black Racism Training & Resources',
-    description: 'Comprehensive anti-Black racism training platform with tribunal cases, expert courses, and workplace equity tools.',
+    description:
+      'Comprehensive anti-Black racism training platform with tribunal cases, expert courses, and workplace equity tools.',
     images: [
       {
         url: '/images/og-image.jpg',
@@ -90,11 +91,7 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={poppins.variable} data-scroll-behavior="smooth">
       <body className="font-sans">

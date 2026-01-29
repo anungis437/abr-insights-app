@@ -32,7 +32,10 @@ export type SessionMessage = {
   created_at: string
 }
 
-export type AICoachingSessionInsert = Omit<AICoachingSession, 'id' | 'created_at' | 'updated_at' | 'total_messages'>
+export type AICoachingSessionInsert = Omit<
+  AICoachingSession,
+  'id' | 'created_at' | 'updated_at' | 'total_messages'
+>
 export type AICoachingSessionUpdate = Partial<AICoachingSessionInsert>
 
 export type SessionMessageInsert = Omit<SessionMessage, 'id' | 'created_at'>
@@ -59,7 +62,7 @@ export class AICoachingService {
       query = query.limit(options.limit)
     }
     if (options?.offset) {
-      query = query.range(options.offset, (options.offset + (options.limit || 10)) - 1)
+      query = query.range(options.offset, options.offset + (options.limit || 10) - 1)
     }
 
     const { data, error, count } = await query
@@ -96,7 +99,7 @@ export class AICoachingService {
         status: 'active',
         started_at: new Date().toISOString(),
         total_messages: 0,
-        ai_model: aiModel
+        ai_model: aiModel,
       })
       .select()
       .single()
@@ -130,7 +133,7 @@ export class AICoachingService {
       .update({
         status: 'completed',
         ended_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq('id', id)
       .select()
@@ -149,7 +152,7 @@ export class AICoachingService {
       .update({
         status: 'cancelled',
         ended_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq('id', id)
       .select()
@@ -178,14 +181,19 @@ export class AICoachingService {
    * Add message to session
    * Replaces: base44.entities.AICoachingSession.addMessage()
    */
-  async addMessage(sessionId: string, role: 'user' | 'assistant' | 'system', content: string, tokensUsed?: number) {
+  async addMessage(
+    sessionId: string,
+    role: 'user' | 'assistant' | 'system',
+    content: string,
+    tokensUsed?: number
+  ) {
     const { data, error } = await this.supabase
       .from('ai_session_messages')
       .insert({
         session_id: sessionId,
         role,
         content,
-        tokens_used: tokensUsed || null
+        tokens_used: tokensUsed || null,
       })
       .select()
       .single()
@@ -211,9 +219,9 @@ export class AICoachingService {
 
     await this.supabase
       .from('ai_coaching_sessions')
-      .update({ 
+      .update({
         total_messages: count || 0,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq('id', sessionId)
   }
@@ -249,7 +257,7 @@ export class AICoachingService {
     return {
       totalSessions: sessions.length,
       totalMessages: sessions.reduce((sum, s) => sum + (s.total_messages || 0), 0),
-      completedSessions: sessions.filter(s => s.status === 'completed').length
+      completedSessions: sessions.filter((s) => s.status === 'completed').length,
     }
   }
 }

@@ -1,29 +1,29 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { AchievementBadge } from './AchievementBadge';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import type { UserAchievement } from '@/lib/services/gamification';
+import { useState } from 'react'
+import { AchievementBadge } from './AchievementBadge'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import type { UserAchievement } from '@/lib/services/gamification'
 
 interface AchievementListProps {
   achievements: (UserAchievement & {
     achievement?: {
-      name: string;
-      slug: string;
-      description: string;
-      icon?: string;
-      tier: 'bronze' | 'silver' | 'gold' | 'platinum';
-      badge_image_url?: string;
+      name: string
+      slug: string
+      description: string
+      icon?: string
+      tier: 'bronze' | 'silver' | 'gold' | 'platinum'
+      badge_image_url?: string
       category?: {
-        name: string;
-        slug: string;
-      };
-    };
-  })[];
-  showFilters?: boolean;
-  columns?: 3 | 4 | 5 | 6;
-  className?: string;
+        name: string
+        slug: string
+      }
+    }
+  })[]
+  showFilters?: boolean
+  columns?: 3 | 4 | 5 | 6
+  className?: string
 }
 
 export function AchievementList({
@@ -32,11 +32,11 @@ export function AchievementList({
   columns = 4,
   className,
 }: AchievementListProps) {
-  const [selectedTier, setSelectedTier] = useState<string>('all');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedTier, setSelectedTier] = useState<string>('all')
+  const [selectedCategory, setSelectedCategory] = useState<string>('all')
 
   // Get unique tiers and categories
-  const tiers = ['all', 'bronze', 'silver', 'gold', 'platinum'];
+  const tiers = ['all', 'bronze', 'silver', 'gold', 'platinum']
   const categories = [
     'all',
     ...Array.from(
@@ -46,28 +46,28 @@ export function AchievementList({
           .filter((slug): slug is string => Boolean(slug))
       )
     ),
-  ];
+  ]
 
   // Filter achievements
   const filteredAchievements = achievements.filter((achievement) => {
     if (selectedTier !== 'all' && achievement.achievement?.tier !== selectedTier) {
-      return false;
+      return false
     }
     if (
       selectedCategory !== 'all' &&
       achievement.achievement?.category?.slug !== selectedCategory
     ) {
-      return false;
+      return false
     }
-    return true;
-  });
+    return true
+  })
 
   const columnClass = {
     3: 'grid-cols-3',
     4: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4',
     5: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5',
     6: 'grid-cols-3 sm:grid-cols-4 lg:grid-cols-6',
-  }[columns];
+  }[columns]
 
   return (
     <div className={cn('space-y-6', className)}>
@@ -77,16 +77,14 @@ export function AchievementList({
           {/* Tier Filter */}
           {tiers.length > 1 && (
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Tier
-              </label>
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Tier</label>
               <div className="flex flex-wrap gap-2">
                 {tiers.map((tier) => (
                   <Button
                     key={tier}
                     variant={selectedTier === tier ? 'default' : 'outline'}
                     onClick={() => setSelectedTier(tier)}
-                    className="capitalize text-sm px-3 py-1 h-8"
+                    className="h-8 px-3 py-1 text-sm capitalize"
                   >
                     {tier}
                   </Button>
@@ -107,7 +105,7 @@ export function AchievementList({
                     key={category}
                     variant={selectedCategory === category ? 'default' : 'outline'}
                     onClick={() => setSelectedCategory(category)}
-                    className="capitalize text-sm px-3 py-1 h-8"
+                    className="h-8 px-3 py-1 text-sm capitalize"
                   >
                     {category === 'all' ? 'All' : category.replace(/-/g, ' ')}
                   </Button>
@@ -137,7 +135,7 @@ export function AchievementList({
           ))}
         </div>
       ) : (
-        <div className="text-center py-12">
+        <div className="py-12 text-center">
           <p className="text-gray-500 dark:text-gray-400">
             No achievements found matching your filters.
           </p>
@@ -146,34 +144,26 @@ export function AchievementList({
 
       {/* Stats Summary */}
       {achievements.length > 0 && (
-        <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="border-t border-gray-200 pt-6 dark:border-gray-700">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-gray-900 dark:text-white">
                 {achievements.length}
               </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                Total Achievements
-              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Total Achievements</div>
             </div>
             {['bronze', 'silver', 'gold', 'platinum'].map((tier) => {
-              const count = achievements.filter(
-                (a) => a.achievement?.tier === tier
-              ).length;
+              const count = achievements.filter((a) => a.achievement?.tier === tier).length
               return (
                 <div key={tier} className="text-center">
-                  <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {count}
-                  </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400 capitalize">
-                    {tier}
-                  </div>
+                  <div className="text-2xl font-bold text-gray-900 dark:text-white">{count}</div>
+                  <div className="text-sm capitalize text-gray-600 dark:text-gray-400">{tier}</div>
                 </div>
-              );
+              )
             })}
           </div>
         </div>
       )}
     </div>
-  );
+  )
 }

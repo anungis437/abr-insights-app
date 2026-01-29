@@ -3,7 +3,16 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Shield, FileText, CheckCircle, AlertTriangle, Download, Clock, Loader2, XCircle } from 'lucide-react'
+import {
+  Shield,
+  FileText,
+  CheckCircle,
+  AlertTriangle,
+  Download,
+  Clock,
+  Loader2,
+  XCircle,
+} from 'lucide-react'
 
 interface ComplianceReport {
   id: string
@@ -60,8 +69,10 @@ export default function CompliancePage() {
   const checkAuthAndLoadData = useCallback(async () => {
     setLoading(true)
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
       if (!user) {
         router.push('/auth/login')
         return
@@ -79,7 +90,7 @@ export default function CompliancePage() {
       }
 
       // Only allow super_admin and compliance_officer roles
-      const hasAccess = 
+      const hasAccess =
         profile.role === 'super_admin' ||
         profile.role === 'compliance_officer' ||
         profile.role === 'org_admin'
@@ -99,7 +110,9 @@ export default function CompliancePage() {
   const loadData = useCallback(async () => {
     setLoading(true)
     try {
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
       if (!user) return
 
       const { data: profile } = await supabase
@@ -129,7 +142,7 @@ export default function CompliancePage() {
         .from('audit_log_exports')
         .select('*, profiles(email)')
         .eq('approval_status', 'pending')
-        .order('created_at', { ascending: false})
+        .order('created_at', { ascending: false })
 
       const flattenedExports = exportsData?.map((e: any) => ({
         ...e,
@@ -165,7 +178,9 @@ export default function CompliancePage() {
   async function handleGenerateReport() {
     setGenerating(true)
     try {
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
       if (!user) throw new Error('Not authenticated')
 
       const { data: profile } = await supabase
@@ -176,19 +191,17 @@ export default function CompliancePage() {
 
       if (!profile?.organization_id) throw new Error('No organization')
 
-      const { error } = await supabase
-        .from('compliance_reports')
-        .insert({
-          organization_id: profile.organization_id,
-          report_type: reportType,
-          generated_by: user.id,
-          format: reportFormat,
-          filters: { startDate: dateRange.start, endDate: dateRange.end },
-          status: 'completed',
-          event_count: 0,
-          anomaly_count: 0,
-          summary: {},
-        })
+      const { error } = await supabase.from('compliance_reports').insert({
+        organization_id: profile.organization_id,
+        report_type: reportType,
+        generated_by: user.id,
+        format: reportFormat,
+        filters: { startDate: dateRange.start, endDate: dateRange.end },
+        status: 'completed',
+        event_count: 0,
+        anomaly_count: 0,
+        summary: {},
+      })
 
       if (error) throw error
 
@@ -206,7 +219,9 @@ export default function CompliancePage() {
   async function handleApproveExport(exportId: string) {
     setApprovingExport(exportId)
     try {
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
       if (!user) throw new Error('Not authenticated')
 
       const { error } = await supabase
@@ -248,14 +263,14 @@ export default function CompliancePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
       </div>
     )
   }
 
   return (
-    <div className="container-custom pt-20 pb-8">
+    <div className="container-custom pb-8 pt-20">
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Compliance Reports</h1>
@@ -263,7 +278,7 @@ export default function CompliancePage() {
         </div>
         <button
           onClick={() => setShowGenerateModal(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2"
+          className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700"
         >
           <FileText className="h-4 w-4" />
           Generate Report
@@ -271,31 +286,36 @@ export default function CompliancePage() {
       </div>
 
       {anomalies.length > 0 && (
-        <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+        <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5" />
+            <AlertTriangle className="mt-0.5 h-5 w-5 text-red-600" />
             <div className="flex-1">
-              <h3 className="font-semibold text-red-900 mb-2">
-                {anomalies.length} Anomal{anomalies.length === 1 ? 'y' : 'ies'} Detected (Last 7 Days)
+              <h3 className="mb-2 font-semibold text-red-900">
+                {anomalies.length} Anomal{anomalies.length === 1 ? 'y' : 'ies'} Detected (Last 7
+                Days)
               </h3>
               <div className="space-y-2">
                 {anomalies.slice(0, 5).map((anomaly, index) => (
-                  <div key={index} className="p-2 bg-white rounded">
+                  <div key={index} className="rounded bg-white p-2">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <p className="font-medium text-gray-900">{anomaly.type}</p>
-                        <p className="text-sm text-gray-600 mt-1">{anomaly.description}</p>
+                        <p className="mt-1 text-sm text-gray-600">{anomaly.description}</p>
                         {anomaly.affected_entities.length > 0 && (
-                          <p className="text-xs text-gray-500 mt-1">
+                          <p className="mt-1 text-xs text-gray-500">
                             Affected: {anomaly.affected_entities.join(', ')}
                           </p>
                         )}
                       </div>
-                      <span className={`ml-4 px-2 py-1 rounded text-xs font-semibold ${
-                        anomaly.severity === 'critical' ? 'bg-red-100 text-red-800' :
-                        anomaly.severity === 'high' ? 'bg-orange-100 text-orange-800' :
-                        'bg-yellow-100 text-yellow-800'
-                      }`}>
+                      <span
+                        className={`ml-4 rounded px-2 py-1 text-xs font-semibold ${
+                          anomaly.severity === 'critical'
+                            ? 'bg-red-100 text-red-800'
+                            : anomaly.severity === 'high'
+                              ? 'bg-orange-100 text-orange-800'
+                              : 'bg-yellow-100 text-yellow-800'
+                        }`}
+                      >
                         {anomaly.severity}
                       </span>
                     </div>
@@ -308,31 +328,31 @@ export default function CompliancePage() {
       )}
 
       {exports.length > 0 && (
-        <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
           <div className="flex items-start gap-3">
-            <Clock className="h-5 w-5 text-blue-600 mt-0.5" />
+            <Clock className="mt-0.5 h-5 w-5 text-blue-600" />
             <div className="flex-1">
-              <h3 className="font-semibold text-blue-900 mb-3">
+              <h3 className="mb-3 font-semibold text-blue-900">
                 {exports.length} Export Request{exports.length === 1 ? '' : 's'} Awaiting Approval
               </h3>
               <div className="space-y-3">
                 {exports.map((exp) => (
-                  <div key={exp.id} className="p-3 bg-white rounded-lg">
+                  <div key={exp.id} className="rounded-lg bg-white p-3">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <p className="font-medium text-gray-900">{exp.requested_by_email}</p>
-                        <p className="text-sm text-gray-600 mt-1">
+                        <p className="mt-1 text-sm text-gray-600">
                           <span className="font-medium">Reason:</span> {exp.export_reason}
                         </p>
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="mt-1 text-xs text-gray-500">
                           Requested: {new Date(exp.created_at).toLocaleString()}
                         </p>
                       </div>
-                      <div className="flex gap-2 ml-4">
+                      <div className="ml-4 flex gap-2">
                         <button
                           onClick={() => handleApproveExport(exp.id)}
                           disabled={approvingExport === exp.id}
-                          className="px-3 py-1.5 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition disabled:opacity-50 flex items-center gap-1"
+                          className="flex items-center gap-1 rounded bg-green-600 px-3 py-1.5 text-sm text-white transition hover:bg-green-700 disabled:opacity-50"
                         >
                           {approvingExport === exp.id ? (
                             <Loader2 className="h-3 w-3 animate-spin" />
@@ -344,7 +364,7 @@ export default function CompliancePage() {
                         <button
                           onClick={() => handleRejectExport(exp.id)}
                           disabled={approvingExport === exp.id}
-                          className="px-3 py-1.5 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition disabled:opacity-50 flex items-center gap-1"
+                          className="flex items-center gap-1 rounded bg-red-600 px-3 py-1.5 text-sm text-white transition hover:bg-red-700 disabled:opacity-50"
                         >
                           <XCircle className="h-3 w-3" />
                           Reject
@@ -390,22 +410,38 @@ export default function CompliancePage() {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
+      <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+        <div className="border-b border-gray-200 px-6 py-4">
           <h2 className="text-lg font-semibold text-gray-900">Compliance Reports</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Report Type</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Generated By</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Format</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Events</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Anomalies</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Created</th>
-                <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">Actions</th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Report Type
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Generated By
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Format
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Events
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Anomalies
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Created
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -423,35 +459,46 @@ export default function CompliancePage() {
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-900">{report.generated_by_email}</td>
                     <td className="px-6 py-4">
-                      <span className="px-2 py-1 text-xs font-medium rounded bg-gray-100 text-gray-700">
+                      <span className="rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700">
                         {report.format.toUpperCase()}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">{report.event_count.toLocaleString()}</td>
+                    <td className="px-6 py-4 text-sm text-gray-900">
+                      {report.event_count.toLocaleString()}
+                    </td>
                     <td className="px-6 py-4">
-                      <span className={`px-2 py-1 text-xs font-medium rounded ${
-                        report.anomaly_count === 0 ? 'bg-green-100 text-green-700' :
-                        report.anomaly_count <= 5 ? 'bg-yellow-100 text-yellow-700' :
-                        'bg-red-100 text-red-700'
-                      }`}>
+                      <span
+                        className={`rounded px-2 py-1 text-xs font-medium ${
+                          report.anomaly_count === 0
+                            ? 'bg-green-100 text-green-700'
+                            : report.anomaly_count <= 5
+                              ? 'bg-yellow-100 text-yellow-700'
+                              : 'bg-red-100 text-red-700'
+                        }`}
+                      >
                         {report.anomaly_count}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`px-2 py-1 text-xs font-medium rounded ${
-                        report.status === 'completed' ? 'bg-green-100 text-green-700' :
-                        report.status === 'generating' ? 'bg-blue-100 text-blue-700' :
-                        report.status === 'scheduled' ? 'bg-gray-100 text-gray-700' :
-                        'bg-red-100 text-red-700'
-                      }`}>
+                      <span
+                        className={`rounded px-2 py-1 text-xs font-medium ${
+                          report.status === 'completed'
+                            ? 'bg-green-100 text-green-700'
+                            : report.status === 'generating'
+                              ? 'bg-blue-100 text-blue-700'
+                              : report.status === 'scheduled'
+                                ? 'bg-gray-100 text-gray-700'
+                                : 'bg-red-100 text-red-700'
+                        }`}
+                      >
                         {report.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600 whitespace-nowrap">
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
                       {new Date(report.created_at).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <button 
+                      <button
                         className="text-blue-600 hover:text-blue-800"
                         aria-label="Download report"
                         title="Download report"
@@ -468,16 +515,16 @@ export default function CompliancePage() {
       </div>
 
       {showGenerateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-md w-full p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Generate Compliance Report</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+          <div className="w-full max-w-md rounded-lg bg-white p-6">
+            <h2 className="mb-4 text-xl font-bold text-gray-900">Generate Compliance Report</h2>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Report Type</label>
+                <label className="mb-1 block text-sm font-medium text-gray-700">Report Type</label>
                 <select
                   value={reportType}
                   onChange={(e) => setReportType(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                   aria-label="Select report type"
                 >
                   <option value="audit_summary">Audit Summary</option>
@@ -488,11 +535,11 @@ export default function CompliancePage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Format</label>
+                <label className="mb-1 block text-sm font-medium text-gray-700">Format</label>
                 <select
                   value={reportFormat}
                   onChange={(e) => setReportFormat(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                   aria-label="Select report format"
                 >
                   <option value="pdf">PDF</option>
@@ -502,22 +549,22 @@ export default function CompliancePage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                <label className="mb-1 block text-sm font-medium text-gray-700">Start Date</label>
                 <input
                   type="date"
                   value={dateRange.start}
                   onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                   aria-label="Select start date"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                <label className="mb-1 block text-sm font-medium text-gray-700">End Date</label>
                 <input
                   type="date"
                   value={dateRange.end}
                   onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                   aria-label="Select end date"
                 />
               </div>
@@ -526,7 +573,7 @@ export default function CompliancePage() {
               <button
                 onClick={handleGenerateReport}
                 disabled={generating}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50 flex items-center justify-center gap-2"
+                className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700 disabled:opacity-50"
               >
                 {generating ? (
                   <>
@@ -543,7 +590,7 @@ export default function CompliancePage() {
               <button
                 onClick={() => setShowGenerateModal(false)}
                 disabled={generating}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition disabled:opacity-50"
+                className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition hover:bg-gray-50 disabled:opacity-50"
               >
                 Cancel
               </button>

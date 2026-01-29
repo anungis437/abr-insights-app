@@ -24,12 +24,14 @@ Phase 3 transforms the security model from role-based access control (RBAC) to f
 ### ✅ Completed: Permission Infrastructure
 
 #### 1. Comprehensive Permissions Seed (Migration 020)
+
 **File:** `supabase/migrations/020_comprehensive_permissions_seed.sql`
 **Status:** ✅ Created, ⏳ Pending Database Application
 
 **Permissions Added:** ~100 permissions across 15 categories
 
 **Categories:**
+
 1. **AI & ML** (10 permissions)
    - `ai.chat.use`, `ai.coach.use`, `admin.ai.manage`
    - `ai.feedback.submit`, `ai.training.manage`, `ai.automation.manage`
@@ -82,23 +84,25 @@ Phase 3 transforms the security model from role-based access control (RBAC) to f
 
 **Role Permission Assignments:**
 
-| Role | Permission Count | Key Permissions |
-|------|------------------|-----------------|
-| Super Admin | ALL (~100) | Full system access |
-| Admin | ~85 | All except system-level |
-| Manager | ~45 | Team management, content creation |
-| Instructor | ~25 | Content creation, teaching |
-| Learner | ~20 | Learning, basic features |
-| Analyst | ~15 | Analytics, reporting |
-| Guest | ~3 | Read-only access |
+| Role        | Permission Count | Key Permissions                   |
+| ----------- | ---------------- | --------------------------------- |
+| Super Admin | ALL (~100)       | Full system access                |
+| Admin       | ~85              | All except system-level           |
+| Manager     | ~45              | Team management, content creation |
+| Instructor  | ~25              | Content creation, teaching        |
+| Learner     | ~20              | Learning, basic features          |
+| Analyst     | ~15              | Analytics, reporting              |
+| Guest       | ~3               | Read-only access                  |
 
 #### 2. Permission-Based RLS Functions (Migration 021)
+
 **File:** `supabase/migrations/021_permission_based_rls_functions.sql`
 **Status:** ✅ Created, ⏳ Pending Database Application
 
 **Functions Created:**
 
 **Permission Check Functions:**
+
 ```sql
 -- Check single permission
 auth.has_permission(user_id, org_id, 'permission.slug')
@@ -114,6 +118,7 @@ auth.has_resource_permission(user_id, 'resource_type', resource_id, 'action')
 ```
 
 **Role Check Functions (Backwards Compatibility):**
+
 ```sql
 -- Check single role
 auth.has_role(user_id, 'admin')
@@ -127,6 +132,7 @@ auth.is_super_admin(user_id)
 ```
 
 **Tenant Isolation Functions:**
+
 ```sql
 -- Get user's organization
 auth.user_organization_id()
@@ -139,6 +145,7 @@ auth.resource_in_user_org('table_name', resource_id)
 ```
 
 **Performance Optimizations:**
+
 - Indexed `user_roles(user_id, role_id)`
 - Indexed `role_permissions(role_id, permission_id)`
 - Indexed `permissions(slug, resource, action)`
@@ -154,6 +161,7 @@ auth.resource_in_user_org('table_name', resource_id)
 **Tables with RLS:** ~125 tables  
 **Tables with Role-Based Policies:** ~80 tables  
 **Common Role Checks:**
+
 ```sql
 -- Current patterns to replace:
 WHERE p.role = 'admin'
@@ -162,6 +170,7 @@ WHERE p.role IN ('admin', 'manager', 'instructor')
 ```
 
 **Target Permission-Based Patterns:**
+
 ```sql
 -- New patterns:
 WHERE auth.has_permission(auth.uid(), organization_id, 'resource.read')
@@ -172,6 +181,7 @@ WHERE auth.is_admin(auth.uid())  -- For backwards compatibility
 ### Migration Priority (3 Phases)
 
 #### Phase 3A: Critical Tables (10 tables) - PRIORITY
+
 **Target:** Core security tables that affect all features
 
 1. **profiles** - User authentication base
@@ -225,6 +235,7 @@ WHERE auth.is_admin(auth.uid())  -- For backwards compatibility
     - Permissions: `ai.usage.view`, `admin.ai.manage`
 
 #### Phase 3B: Feature Tables (40 tables) - MEDIUM PRIORITY
+
 - Course progress tracking
 - Enrollment management
 - Gamification tables
@@ -233,6 +244,7 @@ WHERE auth.is_admin(auth.uid())  -- For backwards compatibility
 - Content authoring
 
 #### Phase 3C: Supporting Tables (75 tables) - LOWER PRIORITY
+
 - Settings tables
 - Metadata tables
 - Cache tables
@@ -241,6 +253,7 @@ WHERE auth.is_admin(auth.uid())  -- For backwards compatibility
 ### RLS Policy Templates
 
 #### Template 1: Simple Permission Check
+
 ```sql
 CREATE POLICY "users_can_read_with_permission"
     ON table_name
@@ -252,6 +265,7 @@ CREATE POLICY "users_can_read_with_permission"
 ```
 
 #### Template 2: Multiple Permission Options (OR)
+
 ```sql
 CREATE POLICY "users_can_read_with_any_permission"
     ON table_name
@@ -267,6 +281,7 @@ CREATE POLICY "users_can_read_with_any_permission"
 ```
 
 #### Template 3: Owner + Permission Check
+
 ```sql
 CREATE POLICY "users_can_update_own_or_with_permission"
     ON table_name
@@ -281,6 +296,7 @@ CREATE POLICY "users_can_update_own_or_with_permission"
 ```
 
 #### Template 4: Admin Override
+
 ```sql
 CREATE POLICY "users_can_delete_with_permission_or_admin"
     ON table_name
@@ -299,6 +315,7 @@ CREATE POLICY "users_can_delete_with_permission_or_admin"
 ## Testing Requirements
 
 ### 1. Permission Check Tests
+
 ```typescript
 // Test permission assignment
 await testUserHasPermission('learner@test.com', 'courses.view')
@@ -312,6 +329,7 @@ await testPermissionScopedToOrg('user@org1.com', 'org1-id', 'courses.create')
 ```
 
 ### 2. Tenant Isolation Tests
+
 ```typescript
 // Test cross-tenant access prevention
 await testCannotAccessOtherOrgData('user@org1.com', 'org2-course-id')
@@ -324,6 +342,7 @@ await testAdminScopedToOrg('admin@org1.com', 'org1-id')
 ```
 
 ### 3. RLS Policy Tests
+
 ```typescript
 // Test SELECT policies
 await testCanReadOwnOrgData('user@org1.com')
@@ -347,6 +366,7 @@ await testCannotDeleteWithoutPermission('learner@org1.com', 'courses.delete')
 ## Migration Execution Plan
 
 ### Step 1: Apply Permission Infrastructure ✅
+
 ```bash
 # Apply migrations 020 and 021
 psql -h <host> -U postgres -d postgres -f supabase/migrations/020_comprehensive_permissions_seed.sql
@@ -354,6 +374,7 @@ psql -h <host> -U postgres -d postgres -f supabase/migrations/021_permission_bas
 ```
 
 ### Step 2: Verify Permission Data
+
 ```sql
 -- Check permission count
 SELECT COUNT(*) FROM permissions;
@@ -375,12 +396,14 @@ SELECT auth.has_permission(
 ```
 
 ### Step 3: Migrate Critical Tables (Phase 3A)
+
 ```bash
 # Create and apply migration for 10 critical tables
 psql -h <host> -U postgres -d postgres -f supabase/migrations/022_migrate_critical_table_rls.sql
 ```
 
 ### Step 4: Verify RLS Changes
+
 ```sql
 -- List all policies for a table
 SELECT * FROM pg_policies WHERE tablename = 'courses';
@@ -392,6 +415,7 @@ SELECT * FROM courses LIMIT 10;
 ```
 
 ### Step 5: Migrate Remaining Tables (Phases 3B, 3C)
+
 ```bash
 # Apply feature tables migration
 psql -h <host> -U postgres -d postgres -f supabase/migrations/023_migrate_feature_table_rls.sql
@@ -401,6 +425,7 @@ psql -h <host> -U postgres -d postgres -f supabase/migrations/024_migrate_suppor
 ```
 
 ### Step 6: Run Tenant Isolation Tests
+
 ```bash
 # Execute comprehensive test suite
 npm run test:security
@@ -412,12 +437,14 @@ npm run test:tenant-isolation
 ## Backwards Compatibility
 
 **Maintained:**
+
 - ✅ `profiles.role` column still exists
 - ✅ Role-based helper functions available
 - ✅ Existing role assignments preserved
 - ✅ Gradual migration path
 
 **Migration Strategy:**
+
 1. Add permission-based policies alongside role-based policies
 2. Test both systems in parallel
 3. Gradually phase out role-based checks
@@ -428,16 +455,19 @@ npm run test:tenant-isolation
 ## Performance Considerations
 
 ### Query Optimization
+
 - All permission check functions marked `STABLE` for caching
 - Strategic indexes on permission lookup paths
 - Function inlining for simple permission checks
 
 ### Expected Performance Impact
+
 - Permission check: ~0.5-2ms per query
 - RLS policy evaluation: ~1-3ms per query
 - Total overhead: ~2-5ms per authenticated query
 
 ### Mitigation Strategies
+
 - Permission caching (already in advanced RBAC)
 - Connection pooling
 - Prepared statement optimization
@@ -471,12 +501,14 @@ npm run test:tenant-isolation
 ## Risk Mitigation
 
 **Risks:**
+
 1. Database connection issues preventing migration application
 2. Performance degradation from permission checks
 3. Breaking existing functionality during migration
 4. Complex RLS policy bugs
 
 **Mitigations:**
+
 1. Document manual migration steps
 2. Performance testing before rollout
 3. Parallel policy deployment with gradual cutover

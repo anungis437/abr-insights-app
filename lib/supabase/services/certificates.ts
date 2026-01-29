@@ -27,7 +27,10 @@ export type Certificate = {
   revoked_at: string | null
 }
 
-export type CertificateInsert = Omit<Certificate, 'id' | 'created_at' | 'updated_at' | 'certificate_number' | 'verification_code'>
+export type CertificateInsert = Omit<
+  Certificate,
+  'id' | 'created_at' | 'updated_at' | 'certificate_number' | 'verification_code'
+>
 export type CertificateUpdate = Partial<CertificateInsert>
 
 export class CertificatesService {
@@ -53,7 +56,7 @@ export class CertificatesService {
       query = query.limit(options.limit)
     }
     if (options?.offset) {
-      query = query.range(options.offset, (options.offset + (options.limit || 10)) - 1)
+      query = query.range(options.offset, options.offset + (options.limit || 10) - 1)
     }
 
     const { data, error, count } = await query
@@ -122,7 +125,7 @@ export class CertificatesService {
         issued_at: new Date().toISOString(),
         expires_at: options?.expiresAt || null,
         verification_code: verificationCode,
-        metadata: options?.metadata || null
+        metadata: options?.metadata || null,
       })
       .select()
       .single()
@@ -152,9 +155,9 @@ export class CertificatesService {
   async updatePdfUrl(id: string, pdfUrl: string) {
     const { data, error } = await this.supabase
       .from('certificates')
-      .update({ 
+      .update({
         pdf_url: pdfUrl,
-        updated_at: new Date().toISOString() 
+        updated_at: new Date().toISOString(),
       })
       .eq('id', id)
       .select()
@@ -171,9 +174,9 @@ export class CertificatesService {
   async revoke(id: string) {
     const { data, error } = await this.supabase
       .from('certificates')
-      .update({ 
+      .update({
         revoked_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq('id', id)
       .select()
@@ -189,7 +192,7 @@ export class CertificatesService {
   async verify(verificationCode: string): Promise<{ valid: boolean; certificate?: Certificate }> {
     try {
       const certificate = await this.getByVerificationCode(verificationCode)
-      
+
       // Check if revoked
       if (certificate.revoked_at) {
         return { valid: false }
@@ -229,7 +232,9 @@ export class CertificatesService {
    */
   private async generateCertificateNumber(): Promise<string> {
     const year = new Date().getFullYear()
-    const random = Math.floor(Math.random() * 1000000).toString().padStart(6, '0')
+    const random = Math.floor(Math.random() * 1000000)
+      .toString()
+      .padStart(6, '0')
     return `CERT-${year}-${random}`
   }
 
@@ -265,13 +270,13 @@ export class CertificatesService {
         .select('*', { count: 'exact', head: true })
         .eq('user_id', userId)
         .not('expires_at', 'is', null)
-        .lt('expires_at', new Date().toISOString())
+        .lt('expires_at', new Date().toISOString()),
     ])
 
     return {
       total: totalCerts.count || 0,
       valid: validCerts.count || 0,
-      expired: expiredCerts.count || 0
+      expired: expiredCerts.count || 0,
     }
   }
 }

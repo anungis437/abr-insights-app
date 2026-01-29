@@ -16,6 +16,7 @@ This document outlines all performance optimizations implemented in the ABR Insi
 ### 1. Next.js 15 Features Enabled
 
 #### Partial Prerendering (PPR)
+
 ```javascript
 experimental: {
   ppr: 'incremental', // Mix static + dynamic rendering
@@ -23,22 +24,26 @@ experimental: {
 ```
 
 **Benefits**:
+
 - Static shell rendered instantly
 - Dynamic content streams in
 - Best of both static and server-side rendering
 - Reduces Time to First Byte (TTFB)
 
 #### Package Import Optimization
+
 ```javascript
 optimizePackageImports: ['lucide-react', '@radix-ui/react-icons']
 ```
 
 **Benefits**:
+
 - Tree-shaking for icon libraries
 - Smaller bundle sizes
 - Faster page loads
 
 #### Server Actions Optimization
+
 ```javascript
 serverActions: {
   bodySizeLimit: '2mb',
@@ -46,6 +51,7 @@ serverActions: {
 ```
 
 **Benefits**:
+
 - Prevents oversized payloads
 - Better error handling
 - Protects against abuse
@@ -53,11 +59,13 @@ serverActions: {
 ### 2. Turbopack Integration
 
 **Development**:
+
 ```bash
 npm run dev  # Uses --turbo flag
 ```
 
 **Performance Gains**:
+
 - ⚡ **700x faster** than Webpack for updates
 - ⚡ **10x faster** cold starts
 - ⚡ **4x faster** updates than Webpack with HMR
@@ -73,6 +81,7 @@ compiler: {
 ```
 
 **Benefits**:
+
 - Removes `console.log` in production
 - Keeps error/warn for monitoring
 - Reduces bundle size
@@ -81,48 +90,56 @@ compiler: {
 ### 4. Image Optimization
 
 #### Modern Formats
+
 ```javascript
 formats: ['image/avif', 'image/webp']
 ```
 
 **Benefits**:
+
 - **30-50% smaller** than JPEG
 - Automatic format selection
 - Progressive loading
 
 #### Remote Patterns (Security)
+
 ```javascript
 remotePatterns: [
   {
     protocol: 'https',
     hostname: '*.supabase.co',
     pathname: '/storage/v1/object/**',
-  }
+  },
 ]
 ```
 
 **Benefits**:
+
 - Wildcard domain support
 - Path-level security
 - Prevents unauthorized image sources
 
 #### Responsive Images
+
 ```javascript
 deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840]
 imageSizes: [16, 32, 48, 64, 96, 128, 256, 384]
 ```
 
 **Benefits**:
+
 - Serves optimal image size per device
 - Saves bandwidth on mobile
 - Faster load times
 
 #### Caching
+
 ```javascript
 minimumCacheTTL: 60
 ```
 
 **Benefits**:
+
 - Images cached for 60 seconds
 - Reduces repeated requests
 - Better CDN utilization
@@ -134,11 +151,13 @@ npm run build:analyze
 ```
 
 **Opens**:
+
 - Client bundle visualization
 - Server bundle visualization
 - Shows all dependencies and sizes
 
 **Use Cases**:
+
 - Identify large dependencies
 - Find duplicate packages
 - Optimize imports
@@ -147,6 +166,7 @@ npm run build:analyze
 ### 6. Enhanced Security Headers
 
 #### Added Headers
+
 ```javascript
 'X-DNS-Prefetch-Control': 'on'
 'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload'
@@ -154,11 +174,13 @@ npm run build:analyze
 ```
 
 **Benefits**:
+
 - DNS prefetching enabled
 - HTTPS enforcement
 - Restricts unnecessary permissions
 
 #### Static Asset Caching
+
 ```javascript
 {
   source: '/static/:path*',
@@ -172,6 +194,7 @@ npm run build:analyze
 ```
 
 **Benefits**:
+
 - 1-year cache for static assets
 - Immutable = never revalidate
 - Reduces server load
@@ -180,6 +203,7 @@ npm run build:analyze
 ### 7. Loading States
 
 **Implemented Files**:
+
 - ✅ `app/loading.tsx` - Global loading
 - ✅ `app/error.tsx` - Global error boundary
 - ✅ `app/dashboard/loading.tsx` - Dashboard skeleton
@@ -187,6 +211,7 @@ npm run build:analyze
 - ✅ `app/admin/loading.tsx` - Admin skeleton
 
 **Benefits**:
+
 - Instant loading feedback
 - Perceived performance boost
 - Prevents layout shift
@@ -198,22 +223,22 @@ npm run build:analyze
 
 ### Core Web Vitals
 
-| Metric | Target | Description |
-|--------|--------|-------------|
-| **LCP** (Largest Contentful Paint) | < 2.5s | Main content loads fast |
-| **FID** (First Input Delay) | < 100ms | Page responds immediately |
-| **CLS** (Cumulative Layout Shift) | < 0.1 | No unexpected shifts |
-| **TTFB** (Time to First Byte) | < 600ms | Server responds quickly |
-| **FCP** (First Contentful Paint) | < 1.8s | Something visible quickly |
+| Metric                             | Target  | Description               |
+| ---------------------------------- | ------- | ------------------------- |
+| **LCP** (Largest Contentful Paint) | < 2.5s  | Main content loads fast   |
+| **FID** (First Input Delay)        | < 100ms | Page responds immediately |
+| **CLS** (Cumulative Layout Shift)  | < 0.1   | No unexpected shifts      |
+| **TTFB** (Time to First Byte)      | < 600ms | Server responds quickly   |
+| **FCP** (First Contentful Paint)   | < 1.8s  | Something visible quickly |
 
 ### Additional Targets
 
-| Metric | Target | Description |
-|--------|--------|-------------|
-| **Total Bundle Size** | < 200 KB | Initial JS payload |
-| **Image Optimization** | 100% | All images optimized |
-| **Code Splitting** | Automatic | Route-based |
-| **Lighthouse Score** | 90+ | Overall performance |
+| Metric                 | Target    | Description          |
+| ---------------------- | --------- | -------------------- |
+| **Total Bundle Size**  | < 200 KB  | Initial JS payload   |
+| **Image Optimization** | 100%      | All images optimized |
+| **Code Splitting**     | Automatic | Route-based          |
+| **Lighthouse Score**   | 90+       | Overall performance  |
 
 ---
 
@@ -284,6 +309,7 @@ lhci autorun --collect.url=http://localhost:3000
 ## 🚀 Advanced Optimizations (Future)
 
 ### 1. Route Groups
+
 Organize routes by access level:
 
 ```
@@ -294,11 +320,13 @@ app/
 ```
 
 **Benefits**:
+
 - Shared layouts per group
 - Easier code organization
 - Targeted optimizations
 
 ### 2. React Server Components
+
 Already using, but optimize further:
 
 ```typescript
@@ -310,6 +338,7 @@ async function CoursesPage() {
 ```
 
 **Benefits**:
+
 - Zero JS for static content
 - Faster initial loads
 - Better SEO
@@ -326,6 +355,7 @@ async function Page() {
 ```
 
 **Use Cases**:
+
 - Blog posts
 - Course catalog
 - Tribunal cases (non-real-time)
@@ -342,6 +372,7 @@ export async function GET(request: Request) {
 ```
 
 **Benefits**:
+
 - Global distribution
 - Lower latency
 - Scales automatically
@@ -349,11 +380,13 @@ export async function GET(request: Request) {
 ### 5. Database Optimization
 
 **Already in Migrations**:
+
 - ✅ Indexes on foreign keys
 - ✅ Indexes on frequently queried columns
 - ✅ RLS policies for security
 
 **Future**:
+
 - [ ] Query result caching (Redis)
 - [ ] Read replicas for heavy queries
 - [ ] Connection pooling optimization
@@ -456,16 +489,19 @@ export async function GET() {
 ## 📖 Resources
 
 ### Official Documentation
+
 - [Next.js Performance](https://nextjs.org/docs/app/building-your-application/optimizing)
 - [Core Web Vitals](https://web.dev/vitals/)
 - [Image Optimization](https://nextjs.org/docs/app/building-your-application/optimizing/images)
 
 ### Tools
+
 - [Lighthouse](https://developers.google.com/web/tools/lighthouse)
 - [WebPageTest](https://www.webpagetest.org/)
 - [Bundle Analyzer](https://www.npmjs.com/package/@next/bundle-analyzer)
 
 ### Learning
+
 - [Web.dev Performance](https://web.dev/performance/)
 - [Next.js Learn](https://nextjs.org/learn)
 
@@ -510,6 +546,7 @@ NODE_ENV=production npm run build
 ## ✅ Success Metrics
 
 **Before Optimizations**:
+
 - Bundle size: Unknown
 - No Turbopack
 - No PPR
@@ -517,6 +554,7 @@ NODE_ENV=production npm run build
 - No loading states
 
 **After Optimizations**:
+
 - ✅ Bundle analyzer configured
 - ✅ Turbopack enabled (700x faster)
 - ✅ PPR enabled (incremental)

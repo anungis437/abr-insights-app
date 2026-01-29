@@ -7,7 +7,7 @@ import { withMultipleRateLimits, RateLimitPresets } from '@/lib/security/rateLim
  * AI Coach API Endpoint
  * Route: /api/ai/coach
  * Handles coaching session generation using Azure OpenAI
- * 
+ *
  * Protected by:
  * - Authentication: Required (withAuth)
  * - Organization Context: Required (withOrg)
@@ -20,10 +20,7 @@ async function coachHandler(request: NextRequest, context: GuardedContext) {
 
     // Validate required fields
     if (!sessionType) {
-      return NextResponse.json(
-        { error: 'Session type is required' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Session type is required' }, { status: 400 })
     }
 
     // Get Azure OpenAI configuration
@@ -47,10 +44,7 @@ async function coachHandler(request: NextRequest, context: GuardedContext) {
 
     // Validate input length (rate limit abuse prevention)
     if (query && query.length > 2000) {
-      return NextResponse.json(
-        { error: 'Query too long (max 2000 characters)' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Query too long (max 2000 characters)' }, { status: 400 })
     }
 
     switch (sessionType) {
@@ -125,10 +119,7 @@ Provide specific, actionable advice tailored to their learning context.`
         break
 
       default:
-        return NextResponse.json(
-          { error: 'Invalid session type' },
-          { status: 400 }
-        )
+        return NextResponse.json({ error: 'Invalid session type' }, { status: 400 })
     }
 
     // Call Azure OpenAI
@@ -138,17 +129,17 @@ Provide specific, actionable advice tailored to their learning context.`
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'api-key': apiKey
+          'api-key': apiKey,
         },
         body: JSON.stringify({
           messages: [
             { role: 'system', content: systemPrompt },
-            { role: 'user', content: userPrompt }
+            { role: 'user', content: userPrompt },
           ],
           temperature: 0.7,
           max_tokens: 2048,
-          top_p: 0.95
-        })
+          top_p: 0.95,
+        }),
       }
     )
 
@@ -171,7 +162,7 @@ Provide specific, actionable advice tailored to their learning context.`
         completion_tokens: data.usage?.completion_tokens || 0,
         total_tokens: data.usage?.total_tokens || 0,
         model: deployment,
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
       })
     } catch (err) {
       // Log error but don't fail the request
@@ -185,15 +176,14 @@ Provide specific, actionable advice tailored to their learning context.`
       insights,
       recommendations,
       learningPath: [],
-      usage: data.usage
+      usage: data.usage,
     })
-
   } catch (error) {
     console.error('AI Coach API error:', error)
     return NextResponse.json(
-      { 
+      {
         error: 'Failed to generate coaching session',
-        details: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined
+        details: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined,
       },
       { status: 500 }
     )
@@ -210,7 +200,7 @@ function generateRecommendations(stats: any, sessionType: string) {
       title: 'Complete Your Current Courses',
       description: `You have ${stats.inProgress} course(s) in progress. Finishing what you've started builds momentum and confidence.`,
       priority: 'high' as const,
-      action_url: '/courses'
+      action_url: '/courses',
     })
   }
 
@@ -219,9 +209,10 @@ function generateRecommendations(stats: any, sessionType: string) {
     recommendations.push({
       type: 'strategy',
       title: 'Build Your Learning Streak',
-      description: 'Aim for 7+ consecutive days of learning. Daily consistency is more effective than occasional long sessions.',
+      description:
+        'Aim for 7+ consecutive days of learning. Daily consistency is more effective than occasional long sessions.',
       priority: 'medium' as const,
-      action_url: '/courses'
+      action_url: '/courses',
     })
   }
 
@@ -232,7 +223,7 @@ function generateRecommendations(stats: any, sessionType: string) {
       title: 'Explore Practice Scenarios',
       description: 'Try interactive case studies to apply your knowledge in realistic situations.',
       priority: 'low' as const,
-      action_url: '/cases'
+      action_url: '/cases',
     })
   }
 
@@ -245,6 +236,6 @@ export const POST = withMultipleRateLimits(
   guardedRoute(coachHandler, {
     requireAuth: true,
     requireOrg: true,
-    anyPermissions: ['ai.coach.use', 'admin.ai.manage']
+    anyPermissions: ['ai.coach.use', 'admin.ai.manage'],
   })
 )

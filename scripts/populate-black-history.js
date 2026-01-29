@@ -6,53 +6,72 @@ const supabase = createClient(
 )
 
 async function createModule(courseId, moduleData) {
-  const slug = moduleData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
-  const { data, error } = await supabase.from('course_modules').insert({
-    course_id: courseId,
-    title: moduleData.title,
-    slug,
-    description: moduleData.description,
-    module_number: moduleData.sort_order,
-    sort_order: moduleData.sort_order,
-    is_published: true
-  }).select().single()
+  const slug = moduleData.title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+  const { data, error } = await supabase
+    .from('course_modules')
+    .insert({
+      course_id: courseId,
+      title: moduleData.title,
+      slug,
+      description: moduleData.description,
+      module_number: moduleData.sort_order,
+      sort_order: moduleData.sort_order,
+      is_published: true,
+    })
+    .select()
+    .single()
   if (error) throw error
   return data
 }
 
 async function createLesson(courseId, moduleId, lessonData) {
-  const { data, error } = await supabase.from('lessons').insert({
-    course_id: courseId,
-    module_id: moduleId,
-    title: lessonData.title,
-    slug: lessonData.slug,
-    description: lessonData.description,
-    content_type: lessonData.content_type,
-    content_url: lessonData.content_url,
-    content_data: lessonData.content_data,
-    article_body: lessonData.article_body,
-    video_duration_seconds: lessonData.video_duration_seconds,
-    module_number: lessonData.module_number,
-    lesson_number: lessonData.lesson_number,
-    sort_order: lessonData.sort_order,
-    is_published: true,
-    is_preview: lessonData.is_preview || false
-  }).select().single()
+  const { data, error } = await supabase
+    .from('lessons')
+    .insert({
+      course_id: courseId,
+      module_id: moduleId,
+      title: lessonData.title,
+      slug: lessonData.slug,
+      description: lessonData.description,
+      content_type: lessonData.content_type,
+      content_url: lessonData.content_url,
+      content_data: lessonData.content_data,
+      article_body: lessonData.article_body,
+      video_duration_seconds: lessonData.video_duration_seconds,
+      module_number: lessonData.module_number,
+      lesson_number: lessonData.lesson_number,
+      sort_order: lessonData.sort_order,
+      is_published: true,
+      is_preview: lessonData.is_preview || false,
+    })
+    .select()
+    .single()
   if (error) throw error
   return data
 }
 
 async function populateBlackCanadianHistory() {
   console.log('\n📚 Course: Black Canadian History: A Comprehensive Overview')
-  
-  const { data: course } = await supabase.from('courses').select('id').eq('slug', 'black-canadian-history').single()
-  if (!course) { console.log('❌ Course not found'); return }
+
+  const { data: course } = await supabase
+    .from('courses')
+    .select('id')
+    .eq('slug', 'black-canadian-history')
+    .single()
+  if (!course) {
+    console.log('❌ Course not found')
+    return
+  }
 
   // Module 1: Early Black Presence (1600s-1800s)
   const m1 = await createModule(course.id, {
     title: 'Early Black Presence: 1600s-1800s',
-    description: 'Explore the arrival and experiences of Black people in Canada from early colonization through slavery and the Underground Railroad.',
-    sort_order: 1
+    description:
+      'Explore the arrival and experiences of Black people in Canada from early colonization through slavery and the Underground Railroad.',
+    sort_order: 1,
   })
 
   await createLesson(course.id, m1.id, {
@@ -62,7 +81,10 @@ async function populateBlackCanadianHistory() {
     content_type: 'video',
     content_url: 'https://example.com/videos/black-presence-before-canada.mp4',
     video_duration_seconds: 540,
-    module_number: 1, lesson_number: 1, sort_order: 1, is_preview: true
+    module_number: 1,
+    lesson_number: 1,
+    sort_order: 1,
+    is_preview: true,
   })
 
   await createLesson(course.id, m1.id, {
@@ -235,7 +257,9 @@ This legacy continues in contemporary activism.
 2. How does this change your understanding of Canada?
 3. Where do you see the legacy of slavery in Canadian society today?
 4. What responsibility do you have to this history?`,
-    module_number: 1, lesson_number: 2, sort_order: 2
+    module_number: 1,
+    lesson_number: 2,
+    sort_order: 2,
   })
 
   await createLesson(course.id, m1.id, {
@@ -245,7 +269,9 @@ This legacy continues in contemporary activism.
     content_type: 'video',
     content_url: 'https://example.com/videos/underground-railroad-canada.mp4',
     video_duration_seconds: 720,
-    module_number: 1, lesson_number: 3, sort_order: 3
+    module_number: 1,
+    lesson_number: 3,
+    sort_order: 3,
   })
 
   await createLesson(course.id, m1.id, {
@@ -261,38 +287,44 @@ This legacy continues in contemporary activism.
             'Canada never had slavery',
             'Slavery existed in Canada for over 200 years, from early 1600s until 1834',
             'Only the U.S. had slavery in North America',
-            'Canada abolished slavery before the American Revolution'
+            'Canada abolished slavery before the American Revolution',
           ],
           correct_answer: 1,
-          explanation: 'Slavery was legal and practiced in what would become Canada from the early 1600s until the British Empire abolished it in 1834. Approximately 4,200 people were enslaved in New France alone, and slavery continued under British rule.'
+          explanation:
+            'Slavery was legal and practiced in what would become Canada from the early 1600s until the British Empire abolished it in 1834. Approximately 4,200 people were enslaved in New France alone, and slavery continued under British rule.',
         },
         {
-          question: 'What did Upper Canada\'s 1793 Gradual Abolition Act actually do?',
+          question: "What did Upper Canada's 1793 Gradual Abolition Act actually do?",
           options: [
             'Immediately freed all enslaved people',
             'Freed children born to enslaved mothers, but only at age 25, and did not free anyone currently enslaved',
             'Abolished slavery completely in all of Canada',
-            'Made slavery illegal across the British Empire'
+            'Made slavery illegal across the British Empire',
           ],
           correct_answer: 1,
-          explanation: 'The Act did NOT immediately free anyone. Children born after 1793 to enslaved mothers would be freed at age 25, but people already enslaved remained in bondage for life. It was a very gradual change that allowed slavery to continue for decades.'
+          explanation:
+            'The Act did NOT immediately free anyone. Children born after 1793 to enslaved mothers would be freed at age 25, but people already enslaved remained in bondage for life. It was a very gradual change that allowed slavery to continue for decades.',
         },
         {
-          question: 'What did Black freedom-seekers actually experience when they arrived in Canada via the Underground Railroad?',
+          question:
+            'What did Black freedom-seekers actually experience when they arrived in Canada via the Underground Railroad?',
           options: [
             'Complete equality and acceptance',
             'A paradise free from all discrimination',
             'Legal freedom but also severe discrimination, segregation, and limited opportunities',
-            'Immediate wealth and prosperity'
+            'Immediate wealth and prosperity',
           ],
           correct_answer: 2,
-          explanation: 'While Canada offered legal freedom (after 1834) and people couldn\'t be returned to slavery, Black arrivals faced severe discrimination, segregated schools and public spaces, limited economic opportunities, violence, and harassment. Canada was safer than the U.S. but not a paradise.'
-        }
+          explanation:
+            "While Canada offered legal freedom (after 1834) and people couldn't be returned to slavery, Black arrivals faced severe discrimination, segregated schools and public spaces, limited economic opportunities, violence, and harassment. Canada was safer than the U.S. but not a paradise.",
+        },
       ],
       passing_score: 75,
-      time_limit_minutes: 10
+      time_limit_minutes: 10,
     },
-    module_number: 1, lesson_number: 4, sort_order: 4
+    module_number: 1,
+    lesson_number: 4,
+    sort_order: 4,
   })
 
   console.log('✅ Module 1: 4 lessons')
@@ -300,8 +332,9 @@ This legacy continues in contemporary activism.
   // Module 2: Segregation Era (1900-1960)
   const m2 = await createModule(course.id, {
     title: 'Segregation and Exclusion: 1900-1960',
-    description: 'Examine the era of formal segregation, exclusionary immigration policies, and ongoing discrimination.',
-    sort_order: 2
+    description:
+      'Examine the era of formal segregation, exclusionary immigration policies, and ongoing discrimination.',
+    sort_order: 2,
   })
 
   await createLesson(course.id, m2.id, {
@@ -312,17 +345,21 @@ This legacy continues in contemporary activism.
     article_body: `# Segregation in Canadian Communities
 
 [Full article content from earlier - truncated for brevity but would include all the detailed content about segregated schools, public spaces, housing, employment, immigration restrictions, and organized resistance...]`,
-    module_number: 2, lesson_number: 1, sort_order: 1
+    module_number: 2,
+    lesson_number: 1,
+    sort_order: 1,
   })
 
   await createLesson(course.id, m2.id, {
     title: 'Immigration Restrictions and the "White Canada" Policy',
     slug: 'immigration-restrictions',
-    description: 'Understand Canada\'s explicit efforts to remain a white nation.',
+    description: "Understand Canada's explicit efforts to remain a white nation.",
     content_type: 'video',
     content_url: 'https://example.com/videos/immigration-restrictions.mp4',
     video_duration_seconds: 600,
-    module_number: 2, lesson_number: 2, sort_order: 2
+    module_number: 2,
+    lesson_number: 2,
+    sort_order: 2,
   })
 
   await createLesson(course.id, m2.id, {
@@ -332,7 +369,9 @@ This legacy continues in contemporary activism.
     content_type: 'video',
     content_url: 'https://example.com/videos/resistance-organizing.mp4',
     video_duration_seconds: 540,
-    module_number: 2, lesson_number: 3, sort_order: 3
+    module_number: 2,
+    lesson_number: 3,
+    sort_order: 3,
   })
 
   await createLesson(course.id, m2.id, {
@@ -348,10 +387,11 @@ This legacy continues in contemporary activism.
             '1834, when slavery was abolished',
             '1867, at Confederation',
             '1965, in Ontario',
-            'Canada never had segregated schools'
+            'Canada never had segregated schools',
           ],
           correct_answer: 2,
-          explanation: 'The last legally segregated schools in Ontario closed in 1965 in Merlin and North Colchester. Segregated schools were legal in Ontario from the 1850s and persisted well into the civil rights era. Nova Scotia also had segregated schools into the 1960s.'
+          explanation:
+            'The last legally segregated schools in Ontario closed in 1965 in Merlin and North Colchester. Segregated schools were legal in Ontario from the 1850s and persisted well into the civil rights era. Nova Scotia also had segregated schools into the 1960s.',
         },
         {
           question: 'What happened to Viola Desmond in 1946?',
@@ -359,10 +399,11 @@ This legacy continues in contemporary activism.
             'She was celebrated as the first Black movie star',
             'She was arrested and jailed for sitting in the whites-only section of a Nova Scotia theatre',
             'She became the first Black person elected to Parliament',
-            'She opened Canada\'s first integrated restaurant'
+            "She opened Canada's first integrated restaurant",
           ],
           correct_answer: 1,
-          explanation: 'Viola Desmond, a Nova Scotia businesswoman, was arrested, jailed, and fined for refusing to leave the whites-only section of a movie theatre. She fought her conviction but lost. She received a posthumous pardon in 2010 and now appears on the Canadian $10 bill.'
+          explanation:
+            'Viola Desmond, a Nova Scotia businesswoman, was arrested, jailed, and fined for refusing to leave the whites-only section of a movie theatre. She fought her conviction but lost. She received a posthumous pardon in 2010 and now appears on the Canadian $10 bill.',
         },
         {
           question: 'What were restrictive covenants in Canadian property deeds?',
@@ -370,16 +411,19 @@ This legacy continues in contemporary activism.
             'Rules about lawn maintenance',
             'Legal clauses preventing sale of property to Black, Jewish, or Asian people',
             'Guidelines for building heights',
-            'Requirements for homeowner association membership'
+            'Requirements for homeowner association membership',
           ],
           correct_answer: 1,
-          explanation: 'Restrictive covenants were legal clauses in property deeds explicitly preventing sale, rental, or transfer to people based on race (Black, Jewish, Asian, etc.). They were common in Canadian cities until ruled illegal in Ontario in 1950, though informal discrimination continued.'
-        }
+          explanation:
+            'Restrictive covenants were legal clauses in property deeds explicitly preventing sale, rental, or transfer to people based on race (Black, Jewish, Asian, etc.). They were common in Canadian cities until ruled illegal in Ontario in 1950, though informal discrimination continued.',
+        },
       ],
       passing_score: 75,
-      time_limit_minutes: 10
+      time_limit_minutes: 10,
     },
-    module_number: 2, lesson_number: 4, sort_order: 4
+    module_number: 2,
+    lesson_number: 4,
+    sort_order: 4,
   })
 
   console.log('✅ Module 2: 4 lessons')
@@ -387,8 +431,9 @@ This legacy continues in contemporary activism.
   // Module 3: Civil Rights Era (1960-2000)
   const m3 = await createModule(course.id, {
     title: 'Civil Rights and Multiculturalism: 1960-2000',
-    description: 'Explore the fight for civil rights, policy changes, and the rise of Black activism in Canada.',
-    sort_order: 3
+    description:
+      'Explore the fight for civil rights, policy changes, and the rise of Black activism in Canada.',
+    sort_order: 3,
   })
 
   await createLesson(course.id, m3.id, {
@@ -398,7 +443,9 @@ This legacy continues in contemporary activism.
     content_type: 'video',
     content_url: 'https://example.com/videos/civil-rights-movement.mp4',
     video_duration_seconds: 720,
-    module_number: 3, lesson_number: 1, sort_order: 1
+    module_number: 3,
+    lesson_number: 1,
+    sort_order: 1,
   })
 
   await createLesson(course.id, m3.id, {
@@ -408,17 +455,22 @@ This legacy continues in contemporary activism.
     content_type: 'video',
     content_url: 'https://example.com/videos/caribbean-immigration.mp4',
     video_duration_seconds: 600,
-    module_number: 3, lesson_number: 2, sort_order: 2
+    module_number: 3,
+    lesson_number: 2,
+    sort_order: 2,
   })
 
   await createLesson(course.id, m3.id, {
     title: 'The Promise and Limits of Multiculturalism',
     slug: 'multiculturalism',
-    description: 'Critically examine Canada\'s multiculturalism policy and its impacts on Black communities.',
+    description:
+      "Critically examine Canada's multiculturalism policy and its impacts on Black communities.",
     content_type: 'video',
     content_url: 'https://example.com/videos/multiculturalism-limits.mp4',
     video_duration_seconds: 540,
-    module_number: 3, lesson_number: 3, sort_order: 3
+    module_number: 3,
+    lesson_number: 3,
+    sort_order: 3,
   })
 
   console.log('✅ Module 3: 3 lessons')
@@ -426,8 +478,9 @@ This legacy continues in contemporary activism.
   // Module 4: Contemporary Era (2000-Present)
   const m4 = await createModule(course.id, {
     title: 'Contemporary Black Canada: 2000-Present',
-    description: 'Examine current movements, challenges, and achievements of Black Canadians today.',
-    sort_order: 4
+    description:
+      'Examine current movements, challenges, and achievements of Black Canadians today.',
+    sort_order: 4,
   })
 
   await createLesson(course.id, m4.id, {
@@ -437,7 +490,9 @@ This legacy continues in contemporary activism.
     content_type: 'video',
     content_url: 'https://example.com/videos/blm-activism.mp4',
     video_duration_seconds: 660,
-    module_number: 4, lesson_number: 1, sort_order: 1
+    module_number: 4,
+    lesson_number: 1,
+    sort_order: 1,
   })
 
   await createLesson(course.id, m4.id, {
@@ -448,7 +503,9 @@ This legacy continues in contemporary activism.
     article_body: `# Anti-Black Racism Today: Data and Realities
 
 [Full comprehensive article about contemporary anti-Black racism with Canadian statistics and data...]`,
-    module_number: 4, lesson_number: 2, sort_order: 2
+    module_number: 4,
+    lesson_number: 2,
+    sort_order: 2,
   })
 
   await createLesson(course.id, m4.id, {
@@ -458,7 +515,9 @@ This legacy continues in contemporary activism.
     content_type: 'video',
     content_url: 'https://example.com/videos/black-excellence.mp4',
     video_duration_seconds: 540,
-    module_number: 4, lesson_number: 3, sort_order: 3
+    module_number: 4,
+    lesson_number: 3,
+    sort_order: 3,
   })
 
   await createLesson(course.id, m4.id, {
@@ -469,26 +528,30 @@ This legacy continues in contemporary activism.
     content_data: {
       questions: [
         {
-          question: 'What is the primary lesson of Black Canadian history for understanding contemporary racism?',
+          question:
+            'What is the primary lesson of Black Canadian history for understanding contemporary racism?',
           options: [
             'Canada has always been better than the United States',
             'Current racial disparities are the result of long-standing systemic exclusion, not culture or individual choices',
             'Racism is a thing of the past',
-            'Black people haven\'t been in Canada very long'
+            "Black people haven't been in Canada very long",
           ],
           correct_answer: 1,
-          explanation: 'Black Canadian history shows over 400 years of systemic exclusion (slavery, segregation, immigration restrictions, discrimination) that created and perpetuated inequality. Current disparities in wealth, employment, criminal justice, etc. are not coincidental—they\'re the predictable results of historical and ongoing systemic racism.'
+          explanation:
+            "Black Canadian history shows over 400 years of systemic exclusion (slavery, segregation, immigration restrictions, discrimination) that created and perpetuated inequality. Current disparities in wealth, employment, criminal justice, etc. are not coincidental—they're the predictable results of historical and ongoing systemic racism.",
         },
         {
-          question: 'How should we understand Canada\'s relationship to anti-Black racism historically?',
+          question:
+            "How should we understand Canada's relationship to anti-Black racism historically?",
           options: [
             'Canada was always a sanctuary from racism',
             'Canada had slavery, segregation, and explicit white supremacist policies well into the 20th century',
             'Racism only existed in the United States',
-            'Canada solved racism with multiculturalism in 1971'
+            'Canada solved racism with multiculturalism in 1971',
           ],
           correct_answer: 1,
-          explanation: 'Canada practiced slavery for over 200 years, had legally segregated schools until 1965, used restrictive covenants to enforce housing segregation, and maintained explicitly racist immigration policies until 1967. The myth of Canadian exceptionalism erases this history and prevents accountability.'
+          explanation:
+            'Canada practiced slavery for over 200 years, had legally segregated schools until 1965, used restrictive covenants to enforce housing segregation, and maintained explicitly racist immigration policies until 1967. The myth of Canadian exceptionalism erases this history and prevents accountability.',
         },
         {
           question: 'What does current data show about anti-Black racism in Canada?',
@@ -496,10 +559,11 @@ This legacy continues in contemporary activism.
             'Racial disparities have been eliminated',
             'Black Canadians face measurable disparities in policing, education, employment, health, and nearly every other indicator',
             'Any remaining gaps are due to cultural differences',
-            'Canada is now perfectly equal'
+            'Canada is now perfectly equal',
           ],
           correct_answer: 1,
-          explanation: 'Contemporary data shows Black Canadians are overpoliced, earn less, experience higher unemployment, face education streaming, have worse health outcomes, are overrepresented in child welfare and incarceration, and underrepresented in leadership. These aren\'t cultural—they\'re systemic.'
+          explanation:
+            "Contemporary data shows Black Canadians are overpoliced, earn less, experience higher unemployment, face education streaming, have worse health outcomes, are overrepresented in child welfare and incarceration, and underrepresented in leadership. These aren't cultural—they're systemic.",
         },
         {
           question: 'Throughout this history, how have Black Canadians responded to racism?',
@@ -507,16 +571,19 @@ This legacy continues in contemporary activism.
             'They passively accepted discrimination',
             'They consistently organized, resisted, and fought for justice',
             'They left Canada entirely',
-            'They waited for white people to help them'
+            'They waited for white people to help them',
           ],
           correct_answer: 1,
-          explanation: 'At every period, Black Canadians resisted: escaping slavery, building communities despite hostility, organizing politically (National Unity Association, Negro Citizenship Association), legal challenges (Viola Desmond, restrictive covenants), media activism, and contemporary movements like BLM-TO. Resistance is central to Black Canadian history.'
-        }
+          explanation:
+            'At every period, Black Canadians resisted: escaping slavery, building communities despite hostility, organizing politically (National Unity Association, Negro Citizenship Association), legal challenges (Viola Desmond, restrictive covenants), media activism, and contemporary movements like BLM-TO. Resistance is central to Black Canadian history.',
+        },
       ],
       passing_score: 80,
-      time_limit_minutes: 20
+      time_limit_minutes: 20,
     },
-    module_number: 4, lesson_number: 4, sort_order: 4
+    module_number: 4,
+    lesson_number: 4,
+    sort_order: 4,
   })
 
   console.log('✅ Module 4: 4 lessons')
@@ -526,7 +593,7 @@ This legacy continues in contemporary activism.
 console.log('=== BLACK CANADIAN HISTORY POPULATION ===\n')
 populateBlackCanadianHistory()
   .then(() => console.log('✅ Black Canadian History course populated!'))
-  .catch(error => {
+  .catch((error) => {
     console.error('❌ Error:', error)
     process.exit(1)
   })

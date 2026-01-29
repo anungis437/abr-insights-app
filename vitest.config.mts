@@ -1,9 +1,9 @@
-import { defineConfig } from 'vitest/config';
-import path from 'path';
-import dotenv from 'dotenv';
+import { defineConfig } from 'vitest/config'
+import path from 'path'
+import dotenv from 'dotenv'
 
 // Load test environment variables
-dotenv.config({ path: '.env.test' });
+dotenv.config({ path: '.env.test' })
 
 export default defineConfig({
   test: {
@@ -22,14 +22,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      exclude: [
-        'node_modules/',
-        'dist/',
-        '**/*.test.ts',
-        '**/*.config.ts',
-        'out/',
-        '.next/',
-      ],
+      exclude: ['node_modules/', 'dist/', '**/*.test.ts', '**/*.config.ts', 'out/', '.next/'],
     },
     // Mock environment variables
     setupFiles: ['./vitest.setup.mts'],
@@ -39,4 +32,4 @@ export default defineConfig({
       '@': path.resolve(__dirname, './'),
     },
   },
-});
+})

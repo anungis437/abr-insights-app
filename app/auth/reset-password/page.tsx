@@ -24,13 +24,15 @@ function ResetPasswordForm() {
     // Check if we have a valid session from the reset link
     const checkSession = async () => {
       const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
-      
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+
       if (!session) {
         setError('Invalid or expired reset link. Please request a new password reset.')
       }
     }
-    
+
     checkSession()
   }, [])
 
@@ -64,7 +66,7 @@ function ResetPasswordForm() {
       } else {
         setIsLoading(false)
         setIsSuccess(true)
-        
+
         // Redirect to login after 3 seconds
         setTimeout(() => {
           router.push('/auth/login')
@@ -125,7 +127,10 @@ function ResetPasswordForm() {
                   <form onSubmit={handleSubmit} className="space-y-6">
                     {/* New Password */}
                     <div>
-                      <label htmlFor="password" className="mb-2 block text-sm font-medium text-gray-700">
+                      <label
+                        htmlFor="password"
+                        className="mb-2 block text-sm font-medium text-gray-700"
+                      >
                         New Password
                       </label>
                       <div className="relative">
@@ -137,7 +142,7 @@ function ResetPasswordForm() {
                           id="password"
                           value={formState.password}
                           onChange={(e) => setFormState({ ...formState, password: e.target.value })}
-                          className="block w-full rounded-lg border border-gray-300 pl-10 pr-10 py-2.5 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                          className="block w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-10 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                           placeholder="••••••••"
                           required
                           minLength={8}
@@ -147,29 +152,39 @@ function ResetPasswordForm() {
                           onClick={() => setShowPassword(!showPassword)}
                           className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
                         >
-                          {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                          {showPassword ? (
+                            <EyeOff className="h-5 w-5" />
+                          ) : (
+                            <Eye className="h-5 w-5" />
+                          )}
                         </button>
                       </div>
-                      
+
                       {/* Password Strength Indicator */}
                       {strength && (
                         <div className="mt-2">
                           <div className="mb-1 flex items-center justify-between">
                             <span className="text-xs text-gray-600">Password strength:</span>
-                            <span className={`text-xs font-medium ${
-                              strength.color === 'red' ? 'text-red-600' :
-                              strength.color === 'yellow' ? 'text-yellow-600' :
-                              'text-green-600'
-                            }`}>
+                            <span
+                              className={`text-xs font-medium ${
+                                strength.color === 'red'
+                                  ? 'text-red-600'
+                                  : strength.color === 'yellow'
+                                    ? 'text-yellow-600'
+                                    : 'text-green-600'
+                              }`}
+                            >
                               {strength.label}
                             </span>
                           </div>
                           <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-200">
                             <div
                               className={`h-full transition-all duration-300 ${
-                                strength.color === 'red' ? 'bg-red-600 w-[33%]' :
-                                strength.color === 'yellow' ? 'bg-yellow-600 w-[66%]' :
-                                'bg-green-600 w-full'
+                                strength.color === 'red'
+                                  ? 'w-[33%] bg-red-600'
+                                  : strength.color === 'yellow'
+                                    ? 'w-[66%] bg-yellow-600'
+                                    : 'w-full bg-green-600'
                               }`}
                             />
                           </div>
@@ -180,7 +195,10 @@ function ResetPasswordForm() {
 
                     {/* Confirm Password */}
                     <div>
-                      <label htmlFor="confirmPassword" className="mb-2 block text-sm font-medium text-gray-700">
+                      <label
+                        htmlFor="confirmPassword"
+                        className="mb-2 block text-sm font-medium text-gray-700"
+                      >
                         Confirm New Password
                       </label>
                       <div className="relative">
@@ -191,8 +209,10 @@ function ResetPasswordForm() {
                           type={showConfirmPassword ? 'text' : 'password'}
                           id="confirmPassword"
                           value={formState.confirmPassword}
-                          onChange={(e) => setFormState({ ...formState, confirmPassword: e.target.value })}
-                          className="block w-full rounded-lg border border-gray-300 pl-10 pr-10 py-2.5 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                          onChange={(e) =>
+                            setFormState({ ...formState, confirmPassword: e.target.value })
+                          }
+                          className="block w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-10 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                           placeholder="••••••••"
                           required
                         />
@@ -201,35 +221,57 @@ function ResetPasswordForm() {
                           onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                           className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
                         >
-                          {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                          {showConfirmPassword ? (
+                            <EyeOff className="h-5 w-5" />
+                          ) : (
+                            <Eye className="h-5 w-5" />
+                          )}
                         </button>
                       </div>
                     </div>
 
                     {/* Password Requirements */}
                     <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                      <h4 className="mb-2 text-sm font-medium text-gray-900">Password Requirements</h4>
+                      <h4 className="mb-2 text-sm font-medium text-gray-900">
+                        Password Requirements
+                      </h4>
                       <ul className="space-y-1 text-xs text-gray-600">
                         <li className="flex items-center gap-2">
-                          <span className={formState.password.length >= 8 ? 'text-green-600' : 'text-gray-400'}>
+                          <span
+                            className={
+                              formState.password.length >= 8 ? 'text-green-600' : 'text-gray-400'
+                            }
+                          >
                             {formState.password.length >= 8 ? '✓' : '○'}
                           </span>
                           At least 8 characters
                         </li>
                         <li className="flex items-center gap-2">
-                          <span className={/[A-Z]/.test(formState.password) ? 'text-green-600' : 'text-gray-400'}>
+                          <span
+                            className={
+                              /[A-Z]/.test(formState.password) ? 'text-green-600' : 'text-gray-400'
+                            }
+                          >
                             {/[A-Z]/.test(formState.password) ? '✓' : '○'}
                           </span>
                           At least one uppercase letter
                         </li>
                         <li className="flex items-center gap-2">
-                          <span className={/[a-z]/.test(formState.password) ? 'text-green-600' : 'text-gray-400'}>
+                          <span
+                            className={
+                              /[a-z]/.test(formState.password) ? 'text-green-600' : 'text-gray-400'
+                            }
+                          >
                             {/[a-z]/.test(formState.password) ? '✓' : '○'}
                           </span>
                           At least one lowercase letter
                         </li>
                         <li className="flex items-center gap-2">
-                          <span className={/\d/.test(formState.password) ? 'text-green-600' : 'text-gray-400'}>
+                          <span
+                            className={
+                              /\d/.test(formState.password) ? 'text-green-600' : 'text-gray-400'
+                            }
+                          >
                             {/\d/.test(formState.password) ? '✓' : '○'}
                           </span>
                           At least one number
@@ -246,8 +288,20 @@ function ResetPasswordForm() {
                       {isLoading ? (
                         <span className="flex items-center justify-center">
                           <svg className="mr-2 h-5 w-5 animate-spin" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                              fill="none"
+                            />
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            />
                           </svg>
                           Resetting password...
                         </span>
@@ -316,11 +370,13 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-gray-500">Loading...</div>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="text-gray-500">Loading...</div>
+        </div>
+      }
+    >
       <ResetPasswordForm />
     </Suspense>
   )

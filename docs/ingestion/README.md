@@ -67,7 +67,9 @@ The ingestion system automatically discovers, fetches, classifies, and stores tr
 ## Database Schema
 
 ### `tribunal_cases_raw`
+
 Staging table for ingested cases before review:
+
 - `source_url`, `source_system`, `case_title`, `case_number`
 - `decision_date`, `full_text`, `html_content`
 - `rule_based_confidence`, `ai_confidence`, `final_confidence`
@@ -77,14 +79,18 @@ Staging table for ingested cases before review:
 - `ingestion_status` (pending_review | approved | rejected)
 
 ### `ingestion_jobs`
+
 Tracks ingestion job execution:
+
 - `job_id`, `source_system`, `status`
 - `metrics` (discovered, fetched, classified, stored, failed, skipped)
 - `checkpoint_data` (for resume capability)
 - `error_count`, `started_at`, `completed_at`
 
 ### `ingestion_errors`
+
 Logs errors during ingestion:
+
 - `job_id`, `stage`, `severity`, `error_message`
 - `context` (additional debugging info)
 
@@ -131,6 +137,7 @@ supabase db push
 ```
 
 Migrations to apply:
+
 - `001_initial_schema.sql` - Base tables
 - `003_content_tables.sql` - Tribunal cases tables
 - Additional ingestion tables (see `docs/architecture/INGESTION_MODULE.md`)
@@ -162,21 +169,25 @@ npm run ingest -- --source canlii_hrto --limit 10
 #### Examples
 
 Test ingestion (dry run):
+
 ```bash
 npm run ingest -- --source canlii_hrto --limit 5 --dry-run
 ```
 
 Ingest 100 HRTO cases:
+
 ```bash
 npm run ingest -- --source canlii_hrto --limit 100
 ```
 
 Resume interrupted job:
+
 ```bash
 npm run ingest -- --source canlii_hrto --resume
 ```
 
 Ingest from CHRT:
+
 ```bash
 npm run ingest -- --source canlii_chrt --limit 50
 ```
@@ -199,12 +210,12 @@ Check job status in Supabase:
 
 ```sql
 -- Recent jobs
-SELECT * FROM ingestion_jobs 
-ORDER BY started_at DESC 
+SELECT * FROM ingestion_jobs
+ORDER BY started_at DESC
 LIMIT 10;
 
 -- Job errors
-SELECT * FROM ingestion_errors 
+SELECT * FROM ingestion_errors
 WHERE job_id = 'your-job-id'
 ORDER BY occurred_at DESC;
 ```
@@ -214,11 +225,13 @@ ORDER BY occurred_at DESC;
 ### Rule-Based Classifier
 
 Uses keyword matching to detect:
+
 - **Race-related keywords**: race, racial, racism, anti-Black, Black person, etc.
 - **Discrimination indicators**: discrimination, discriminate, prejudice, bias, etc.
 - **Black-specific terms**: anti-Black racism, Black employees, Black community
 
 **Confidence calculation**:
+
 - Keyword density × keyword weights
 - Adjustments for multiple ground mentions
 - French language support (race, racisme, discrimination)
@@ -226,6 +239,7 @@ Uses keyword matching to detect:
 ### AI Classifier
 
 Uses GPT-4o to analyze decision text:
+
 - Semantic understanding of discrimination context
 - Identifies primary and secondary grounds
 - Extracts key issues and remedies
@@ -235,10 +249,12 @@ Uses GPT-4o to analyze decision text:
 ### Combined Classification
 
 Weighted average:
+
 - **AI classifier**: 60% weight
 - **Rule-based**: 40% weight
 
 **Flags for review** when:
+
 - Final confidence < 0.6
 - Classifiers disagree significantly
 - Edge case detected (ambiguous language)
@@ -253,13 +269,14 @@ Weighted average:
 // ingestion/src/scrapers/canlii.ts
 const scraper = new CanLIIScraper({
   requestDelayMs: 2000, // Increase from 1000
-  maxRetries: 5
-});
+  maxRetries: 5,
+})
 ```
 
 ### Issue: AI classifier fails
 
 **Check**:
+
 1. Azure OpenAI endpoint and API key are correct
 2. Deployment name matches your GPT-4o deployment
 3. API version is compatible (2024-08-01-preview)
@@ -270,14 +287,16 @@ const scraper = new CanLIIScraper({
 ### Issue: Database errors during ingestion
 
 **Common causes**:
+
 1. Missing migrations - Apply all migration files
 2. RLS policies blocking inserts - Verify service role key has access
 3. Column name mismatches - Check snake_case vs camelCase
 
 **Debug**:
+
 ```bash
 # Check recent errors
-SELECT * FROM ingestion_errors 
+SELECT * FROM ingestion_errors
 WHERE occurred_at > NOW() - INTERVAL '1 hour'
 ORDER BY occurred_at DESC;
 ```
@@ -285,11 +304,13 @@ ORDER BY occurred_at DESC;
 ### Issue: Cases not appearing in admin UI
 
 **Check**:
+
 1. Cases have `ingestion_status = 'pending_review'`
 2. RLS policies allow reading from `tribunal_cases_raw`
 3. Browser console for client-side errors
 
 **Verify**:
+
 ```sql
 SELECT COUNT(*) FROM tribunal_cases_raw WHERE ingestion_status = 'pending_review';
 ```
@@ -310,6 +331,7 @@ Or modify CLI to auto-detect last job.
 ### Metrics
 
 Typical performance:
+
 - **Discovery**: ~2-5 seconds per page (10-20 cases)
 - **Fetch**: ~1-2 seconds per case
 - **Classification**: ~2-3 seconds per case (includes AI call)
@@ -340,6 +362,7 @@ npm test -- --watch
 ```
 
 Test coverage:
+
 - Scraper: Discovery, fetching, retry logic, rate limiting
 - Classifiers: Rule-based matching, AI integration, combined orchestration
 - Orchestrator: Job tracking, error handling, checkpoint/resume
@@ -351,6 +374,7 @@ npm run test:integration
 ```
 
 Tests full pipeline with:
+
 - Mocked external sources (CanLII)
 - Real Supabase test database
 - End-to-end workflow validation
@@ -358,18 +382,21 @@ Tests full pipeline with:
 ## Future Enhancements
 
 ### Near-term
+
 1. **Batch promotion**: Approve multiple cases at once
 2. **Advanced filters**: Search by ground, confidence, date range
 3. **Audit log**: Track who approved/rejected cases
 4. **Email notifications**: Alert on high-confidence cases
 
 ### Medium-term
+
 1. **Additional sources**: Direct HRTO/CHRT websites, other tribunals
 2. **Multi-language**: Enhanced French support
 3. **Custom classifiers**: Train domain-specific models
 4. **API endpoint**: Expose ingestion as REST API
 
 ### Long-term
+
 1. **Real-time ingestion**: Webhook-based updates
 2. **ML pipeline**: Continuous learning from reviews
 3. **Duplicate detection**: Identify related/duplicate cases
@@ -378,6 +405,7 @@ Tests full pipeline with:
 ## Architecture Decisions
 
 See `/docs/architecture/` for detailed documentation:
+
 - `INGESTION_MODULE.md` - System design and rationale
 - `DATABASE_SCHEMA.md` - Table structures and relationships
 - `AI_ML_ARCHITECTURE.md` - Classification approach
@@ -385,6 +413,7 @@ See `/docs/architecture/` for detailed documentation:
 ## Contributing
 
 When adding new features:
+
 1. Follow existing code structure (`scrapers/`, `classifiers/`, `orchestrator/`)
 2. Add unit tests for new components
 3. Update types in `ingestion/src/types/`
@@ -394,6 +423,7 @@ When adding new features:
 ## Support
 
 For issues or questions:
+
 1. Check this documentation
 2. Review existing GitHub issues
 3. Check Supabase logs for database errors

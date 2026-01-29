@@ -17,9 +17,7 @@ export default function AnalyticsPage() {
         <div className="container-custom">
           <div className="mx-auto max-w-4xl text-center">
             <BarChart3 className="mx-auto mb-4 h-16 w-16 text-primary-600" />
-            <h1 className="mb-4 text-4xl font-bold text-gray-900">
-              Premium Analytics
-            </h1>
+            <h1 className="mb-4 text-4xl font-bold text-gray-900">Premium Analytics</h1>
             <p className="mb-8 text-xl text-gray-600">
               Unlock powerful insights with our Professional or Enterprise plans
             </p>
@@ -39,12 +37,32 @@ export default function AnalyticsPage() {
                 Available with Premium Plans
               </h2>
               <div className="space-y-4">
-                <FeatureItem icon={CheckCircle} text="Advanced learning insights" plan="Professional" />
-                <FeatureItem icon={CheckCircle} text="Skill development tracking" plan="Professional" />
+                <FeatureItem
+                  icon={CheckCircle}
+                  text="Advanced learning insights"
+                  plan="Professional"
+                />
+                <FeatureItem
+                  icon={CheckCircle}
+                  text="Skill development tracking"
+                  plan="Professional"
+                />
                 <FeatureItem icon={CheckCircle} text="Export to PDF/CSV" plan="Professional" />
-                <FeatureItem icon={CheckCircle} text="Team performance analytics" plan="Enterprise" />
-                <FeatureItem icon={CheckCircle} text="Organization-wide dashboards" plan="Enterprise" />
-                <FeatureItem icon={CheckCircle} text="Predictive outcome analytics" plan="Enterprise" />
+                <FeatureItem
+                  icon={CheckCircle}
+                  text="Team performance analytics"
+                  plan="Enterprise"
+                />
+                <FeatureItem
+                  icon={CheckCircle}
+                  text="Organization-wide dashboards"
+                  plan="Enterprise"
+                />
+                <FeatureItem
+                  icon={CheckCircle}
+                  text="Predictive outcome analytics"
+                  plan="Enterprise"
+                />
               </div>
             </div>
           </div>

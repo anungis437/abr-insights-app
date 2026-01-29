@@ -5,11 +5,20 @@ export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'About ABR Insights | Empowering Equity Through Data',
-  description: 'Learn about ABR Insights mission to combat anti-Black racism in Canadian workplaces through data-driven insights, expert training, and comprehensive case studies.',
-  keywords: ['anti-Black racism', 'workplace equity', 'diversity training', 'HR analytics', 'Canadian tribunal cases', 'EDI consulting'],
+  description:
+    'Learn about ABR Insights mission to combat anti-Black racism in Canadian workplaces through data-driven insights, expert training, and comprehensive case studies.',
+  keywords: [
+    'anti-Black racism',
+    'workplace equity',
+    'diversity training',
+    'HR analytics',
+    'Canadian tribunal cases',
+    'EDI consulting',
+  ],
   openGraph: {
     title: 'About ABR Insights | Empowering Equity Through Data',
-    description: 'Discover how ABR Insights helps organizations build more equitable workplaces through expert analysis and actionable insights.',
+    description:
+      'Discover how ABR Insights helps organizations build more equitable workplaces through expert analysis and actionable insights.',
     type: 'website',
     url: 'https://abrinsights.ca/about',
     siteName: 'ABR Insights',
@@ -23,16 +32,16 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-white">      {/* Hero Section */}
+    <div className="min-h-screen bg-white">
+      {' '}
+      {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary-600 to-secondary-600 py-20 text-white">
         <div className="container-custom">
           <div className="mx-auto max-w-3xl text-center">
-            <h1 className="mb-6 text-4xl font-bold md:text-5xl lg:text-6xl">
-              About ABR Insights
-            </h1>
+            <h1 className="mb-6 text-4xl font-bold md:text-5xl lg:text-6xl">About ABR Insights</h1>
             <p className="text-lg text-primary-50 md:text-xl">
-              Empowering organizations with data-driven insights to combat anti-Black racism
-              and build more equitable workplaces across Canada.
+              Empowering organizations with data-driven insights to combat anti-Black racism and
+              build more equitable workplaces across Canada.
             </p>
           </div>
         </div>
@@ -40,10 +49,9 @@ export default function AboutPage() {
         {/* Decorative Blurs */}
         <div className="absolute left-0 top-0 -z-10 h-full w-full opacity-10">
           <div className="absolute left-1/4 top-1/3 h-80 w-80 rounded-full bg-white blur-3xl" />
-          <div className="absolute right-1/3 bottom-1/4 h-96 w-96 rounded-full bg-yellow-300 blur-3xl" />
+          <div className="absolute bottom-1/4 right-1/3 h-96 w-96 rounded-full bg-yellow-300 blur-3xl" />
         </div>
       </section>
-
       {/* Mission & Vision */}
       <section className="py-20">
         <div className="container-custom">
@@ -55,8 +63,8 @@ export default function AboutPage() {
               <h2 className="mb-4 text-3xl font-bold text-gray-900">Our Mission</h2>
               <p className="text-lg leading-relaxed text-gray-600">
                 To provide accessible, comprehensive resources and data analytics that enable
-                organizations to understand, address, and prevent anti-Black racism in the
-                workplace through evidence-based decision making and continuous learning.
+                organizations to understand, address, and prevent anti-Black racism in the workplace
+                through evidence-based decision making and continuous learning.
               </p>
               {/* Mission Illustration */}
               <div className="mt-6 h-48 rounded-lg bg-gradient-to-br from-primary-100 to-primary-200"></div>
@@ -68,9 +76,9 @@ export default function AboutPage() {
               </div>
               <h2 className="mb-4 text-3xl font-bold text-gray-900">Our Vision</h2>
               <p className="text-lg leading-relaxed text-gray-600">
-                A Canada where every workplace is free from anti-Black racism, where equity
-                is not just a policy but a lived reality, and where data-driven insights
-                empower leaders to create lasting systemic change.
+                A Canada where every workplace is free from anti-Black racism, where equity is not
+                just a policy but a lived reality, and where data-driven insights empower leaders to
+                create lasting systemic change.
               </p>
               {/* Vision Illustration */}
               <div className="mt-6 h-48 rounded-lg bg-gradient-to-br from-secondary-100 to-secondary-200"></div>
@@ -78,15 +86,14 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
-
       {/* What We Do */}
       <section className="relative bg-gray-50 py-20">
         <div className="container-custom">
           <div className="mb-12 text-center">
             <h2 className="mb-4 text-3xl font-bold text-gray-900">What We Do</h2>
             <p className="mx-auto max-w-2xl text-lg text-gray-600">
-              ABR Insights combines cutting-edge AI technology with comprehensive legal data
-              to provide actionable insights for organizations committed to equity.
+              ABR Insights combines cutting-edge AI technology with comprehensive legal data to
+              provide actionable insights for organizations committed to equity.
             </p>
           </div>
 
@@ -112,10 +119,9 @@ export default function AboutPage() {
         {/* Decorative Elements */}
         <div className="absolute right-0 top-0 -z-10 h-full w-full opacity-5">
           <div className="absolute right-1/4 top-1/4 h-64 w-64 rounded-full bg-primary-600 blur-3xl" />
-          <div className="absolute left-1/3 bottom-1/3 h-72 w-72 rounded-full bg-secondary-600 blur-3xl" />
+          <div className="absolute bottom-1/3 left-1/3 h-72 w-72 rounded-full bg-secondary-600 blur-3xl" />
         </div>
       </section>
-
       {/* Impact Stats */}
       <section className="relative py-20">
         <div className="container-custom">
@@ -140,7 +146,6 @@ export default function AboutPage() {
           <div className="absolute right-1/4 top-1/4 h-64 w-64 rounded-full bg-white blur-3xl" />
         </div>
       </section>
-
       {/* Our Approach */}
       <section className="relative bg-primary-50 py-20">
         <div className="container-custom">
@@ -170,10 +175,9 @@ export default function AboutPage() {
         {/* Decorative Blurs */}
         <div className="absolute left-0 top-0 -z-10 h-full w-full opacity-10">
           <div className="absolute left-1/3 top-1/3 h-72 w-72 rounded-full bg-primary-300 blur-3xl" />
-          <div className="absolute right-1/4 bottom-1/4 h-80 w-80 rounded-full bg-secondary-300 blur-3xl" />
+          <div className="absolute bottom-1/4 right-1/4 h-80 w-80 rounded-full bg-secondary-300 blur-3xl" />
         </div>
       </section>
-
       {/* Values */}
       <section className="py-20">
         <div className="container-custom">
@@ -209,34 +213,45 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
-
       {/* CTA Section */}
       <section className="bg-gradient-to-br from-primary-600 to-secondary-600 py-20 text-white">
         <div className="container-custom">
           <div className="mx-auto max-w-3xl text-center">
-            <h2 className="mb-6 text-3xl font-bold md:text-4xl">
-              Ready to Make a Difference?
-            </h2>
+            <h2 className="mb-6 text-3xl font-bold md:text-4xl">Ready to Make a Difference?</h2>
             <p className="mb-8 text-lg text-primary-50">
-              Join hundreds of organizations using ABR Insights to build more equitable
-              workplaces.
+              Join hundreds of organizations using ABR Insights to build more equitable workplaces.
             </p>
             <div className="flex flex-col justify-center gap-4 sm:flex-row">
-              <a href="/auth/signup" className="btn-primary bg-white text-primary-600 hover:bg-gray-100">
+              <a
+                href="/auth/signup"
+                className="btn-primary bg-white text-primary-600 hover:bg-gray-100"
+              >
                 Get Started Free
               </a>
-              <a href="/contact" className="btn-secondary border-white text-white hover:bg-white/10">
+              <a
+                href="/contact"
+                className="btn-secondary border-white text-white hover:bg-white/10"
+              >
                 Contact Us
               </a>
             </div>
           </div>
         </div>
-      </section>    </div>
+      </section>{' '}
+    </div>
   )
 }
 
 // Supporting Components
-function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
+function FeatureCard({
+  icon,
+  title,
+  description,
+}: {
+  icon: React.ReactNode
+  title: string
+  description: string
+}) {
   return (
     <div className="card">
       <div className="mb-4">{icon}</div>
@@ -255,7 +270,15 @@ function StatCard({ number, label }: { number: string; label: string }) {
   )
 }
 
-function ApproachCard({ number, title, description }: { number: string; title: string; description: string }) {
+function ApproachCard({
+  number,
+  title,
+  description,
+}: {
+  number: string
+  title: string
+  description: string
+}) {
   return (
     <div className="card relative">
       <div className="absolute right-4 top-4 text-6xl font-bold text-primary-100">{number}</div>

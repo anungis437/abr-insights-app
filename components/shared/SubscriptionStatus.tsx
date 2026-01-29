@@ -45,7 +45,12 @@ export function SubscriptionBadge() {
   const Icon = config.icon
 
   return (
-    <div className={cn('flex items-center gap-2 rounded-full px-3 py-1 text-sm font-medium', config.className)}>
+    <div
+      className={cn(
+        'flex items-center gap-2 rounded-full px-3 py-1 text-sm font-medium',
+        config.className
+      )}
+    >
       <Icon className={cn('h-4 w-4', config.iconColor)} />
       <span>{config.text}</span>
     </div>
@@ -126,9 +131,7 @@ export function SubscriptionStatus() {
           <h3 className="text-lg font-semibold text-gray-900">Subscription</h3>
           <div className="mt-2 flex items-center gap-2">
             <StatusIcon className={cn('h-5 w-5', config.className)} />
-            <span className={cn('text-sm font-medium', config.className)}>
-              {config.text}
-            </span>
+            <span className={cn('text-sm font-medium', config.className)}>{config.text}</span>
           </div>
         </div>
 
@@ -146,12 +149,7 @@ export function SubscriptionStatus() {
 
       {subscription.stripeCustomerId && (
         <div className="mt-4">
-          <Button
-            onClick={handleManage}
-            disabled={isLoading}
-            variant="outline"
-            className="w-full"
-          >
+          <Button onClick={handleManage} disabled={isLoading} variant="outline" className="w-full">
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

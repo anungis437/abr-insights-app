@@ -9,6 +9,7 @@
 ## 📊 Validation Results
 
 ### Overall Assessment
+
 - **Critical Errors**: 0 ❌
 - **Warnings**: 124 ⚠️ (mostly expected)
 - **Info Messages**: 1,184 ℹ️
@@ -18,6 +19,7 @@
 - **RLS Policies**: 150+
 
 ### Database Status
+
 ✅ Connection successful to `zdcmugkafbczvxcyofiz.supabase.co`  
 ✅ PostgreSQL 17.6 running on AWS (Canada Central)  
 ✅ Write permissions confirmed  
@@ -59,6 +61,7 @@ The 124 warnings are primarily:
 ## 📋 Migration Execution Order
 
 ### Phase 1: Foundation (Migrations 000-003)
+
 ```
 ✓ 000_enable_extensions.sql       # PostgreSQL extensions
 ✓ 001_initial_schema.sql           # Core tables (profiles, courses, etc.)
@@ -67,6 +70,7 @@ The 124 warnings are primarily:
 ```
 
 ### Phase 2: Engagement (Migrations 004-014)
+
 ```
 ✓ 004_user_engagement.sql          # User interactions
 ✓ 010_seed_data.sql                # Initial data
@@ -77,6 +81,7 @@ The 124 warnings are primarily:
 ```
 
 ### Phase 3: Advanced Features (Migrations 015-019)
+
 ```
 ✓ 015_ai_training_system.sql       # AI/ML infrastructure
 ✓ 016_rbac_test_accounts.sql       # Test accounts
@@ -86,6 +91,7 @@ The 124 warnings are primarily:
 ```
 
 ### Phase 4: AI/ML (Migrations 20250108000001-004)
+
 ```
 ✓ 20250108000001_enable_pgvector.sql        # Vector embeddings support
 ✓ 20250108000002_create_embeddings_tables.sql  # Embedding storage
@@ -94,6 +100,7 @@ The 124 warnings are primarily:
 ```
 
 ### Phase 5: LMS Advanced (Migrations 20250115000001-008)
+
 ```
 ✓ 20250115000001_lesson_notes.sql       # Student notes
 ✓ 20250115000002_watch_history.sql      # Video tracking
@@ -106,6 +113,7 @@ The 124 warnings are primarily:
 ```
 
 ### Phase 6: Enterprise (Migrations 20250116000001-007)
+
 ```
 ✓ 20250116000001_enterprise_sso_auth.sql        # SSO/SAML
 ✓ 20250116000002_advanced_rbac.sql              # Advanced permissions
@@ -117,6 +125,7 @@ The 124 warnings are primarily:
 ```
 
 ### Phase 7: Fixes (Migrations 20250117000001-004)
+
 ```
 ✓ 20250117000001_cleanup_test_users.sql          # Cleanup
 ✓ 20250117000002_fix_profiles_rls_recursion.sql  # RLS fix
@@ -125,6 +134,7 @@ The 124 warnings are primarily:
 ```
 
 ### Phase 8: Cleanup
+
 ```
 ✓ cleanup_incomplete_tables.sql    # Remove partial tables (if any)
 ```
@@ -134,6 +144,7 @@ The 124 warnings are primarily:
 ## 🎯 Expected Schema After Migrations
 
 ### Core Tables (15)
+
 - ✓ profiles
 - ✓ organizations
 - ✓ teams
@@ -151,6 +162,7 @@ The 124 warnings are primarily:
 - ✓ permission_overrides
 
 ### LMS Tables (25)
+
 - ✓ courses
 - ✓ course_categories / content_categories
 - ✓ lessons
@@ -178,6 +190,7 @@ The 124 warnings are primarily:
 - ✓ instructor_profiles
 
 ### Gamification Tables (15)
+
 - ✓ achievements
 - ✓ user_achievements
 - ✓ achievement_progress
@@ -195,6 +208,7 @@ The 124 warnings are primarily:
 - ✓ group_members
 
 ### Tribunal Cases Tables (10)
+
 - ✓ tribunal_cases
 - ✓ tribunal_cases_raw
 - ✓ case_embeddings
@@ -207,6 +221,7 @@ The 124 warnings are primarily:
 - ✓ ingestion_errors
 
 ### AI/ML Tables (10)
+
 - ✓ course_embeddings
 - ✓ lesson_embeddings
 - ✓ embedding_jobs
@@ -219,6 +234,7 @@ The 124 warnings are primarily:
 - ✓ personalization_profiles
 
 ### Social/Community Tables (8)
+
 - ✓ discussion_forums
 - ✓ forum_posts
 - ✓ user_activity_feed
@@ -233,6 +249,7 @@ The 124 warnings are primarily:
 ## 🔐 Security Features
 
 ### Row-Level Security (RLS)
+
 - ✅ 150+ policies across all tables
 - ✅ User-based access control
 - ✅ Organization/team isolation
@@ -240,6 +257,7 @@ The 124 warnings are primarily:
 - ✅ Recursive policy fixes applied
 
 ### Authentication
+
 - ✅ Supabase Auth integration
 - ✅ SSO/SAML support
 - ✅ Azure AD B2C ready
@@ -247,6 +265,7 @@ The 124 warnings are primarily:
 - ✅ Session management
 
 ### Audit & Compliance
+
 - ✅ Complete audit logging
 - ✅ GDPR compliance features
 - ✅ Data retention policies
@@ -258,6 +277,7 @@ The 124 warnings are primarily:
 ## 🚀 Ready to Apply
 
 ### Pre-Migration Checklist
+
 - [x] Database connection validated
 - [x] Write permissions confirmed
 - [x] All migrations analyzed
@@ -269,6 +289,7 @@ The 124 warnings are primarily:
 ### How to Apply Migrations
 
 #### Option 1: Apply All at Once (Recommended)
+
 ```powershell
 # Set environment variables (already done)
 $env:DATABASE_URL = "postgresql://postgres.zdcmugkafbczvxcyofiz:@Cehyjygj001@aws-1-ca-central-1.pooler.supabase.com:5432/postgres"
@@ -278,6 +299,7 @@ node scripts/apply-all-migrations.ps1
 ```
 
 #### Option 2: Use Supabase CLI
+
 ```powershell
 # Install Supabase CLI if needed
 npm install -g supabase
@@ -290,6 +312,7 @@ supabase db push
 ```
 
 #### Option 3: Manual via psql
+
 ```powershell
 # Connect to database
 $env:PGPASSWORD = "@Cehyjygj001"

@@ -3,13 +3,13 @@
 /**
  * Permissions Management Admin Page
  * Route: /admin/permissions
- * 
+ *
  * Features:
  * - Resource-level permission editor
  * - Permission override management with approval workflow
  * - Role hierarchy visualizer
  * - Effective permissions viewer
- * 
+ *
  * Uses new advanced_rbac migration tables
  */
 
@@ -30,7 +30,7 @@ import {
   Edit,
   Trash2,
   GitBranch,
-  Loader2
+  Loader2,
 } from 'lucide-react'
 
 interface Permission {
@@ -85,9 +85,11 @@ interface RoleHierarchy {
 export default function PermissionsPage() {
   const supabase = createClient()
 
-  const [activeTab, setActiveTab] = useState<'permissions' | 'overrides' | 'hierarchy'>('permissions')
+  const [activeTab, setActiveTab] = useState<'permissions' | 'overrides' | 'hierarchy'>(
+    'permissions'
+  )
   const [loading, setLoading] = useState(true)
-  
+
   // Permissions state
   const [permissions, setPermissions] = useState<Permission[]>([])
   const [resourcePermissions, setResourcePermissions] = useState<ResourcePermission[]>([])
@@ -132,7 +134,7 @@ export default function PermissionsPage() {
       // Get all permissions (try with category first, fall back to name only)
       let permsQuery = supabase.from('permissions').select('*')
       const { data: permsData, error: permsError } = await permsQuery.order('name')
-      
+
       if (permsError) {
         console.warn('[Permissions] Error fetching permissions:', permsError)
         setPermissions([])
@@ -143,14 +145,16 @@ export default function PermissionsPage() {
       // Get resource permissions with joined data
       const { data: resPermsData, error: resPermsError } = await supabase
         .from('resource_permissions')
-        .select(`
+        .select(
+          `
           *,
           permissions (slug, name),
           profiles (email)
-        `)
+        `
+        )
         .order('created_at', { ascending: false })
         .limit(100)
-      
+
       if (resPermsError) {
         console.warn('[Permissions] Error fetching resource permissions:', resPermsError)
         setResourcePermissions([])
@@ -177,12 +181,14 @@ export default function PermissionsPage() {
   async function loadOverrides() {
     const { data } = await supabase
       .from('permission_overrides')
-      .select(`
+      .select(
+        `
         *,
         profiles!permission_overrides_user_id_fkey (email),
         requesters:profiles!permission_overrides_requested_by_fkey (email),
         permissions (slug, name)
-      `)
+      `
+      )
       .order('created_at', { ascending: false })
 
     // Flatten joined data
@@ -202,11 +208,13 @@ export default function PermissionsPage() {
   async function loadHierarchy() {
     const { data } = await supabase
       .from('role_hierarchy')
-      .select(`
+      .select(
+        `
         depth,
         child_roles:roles!role_hierarchy_child_role_id_fkey (id, name),
         parent_roles:roles!role_hierarchy_parent_role_id_fkey (id, name)
-      `)
+      `
+      )
       .order('depth')
 
     // Flatten joined data
@@ -223,7 +231,9 @@ export default function PermissionsPage() {
 
   async function handleApproveOverride(overrideId: string) {
     try {
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
       if (!user) throw new Error('Not authenticated')
 
       const { error } = await supabase
@@ -246,7 +256,9 @@ export default function PermissionsPage() {
 
   async function handleRejectOverride(overrideId: string) {
     try {
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
       if (!user) throw new Error('Not authenticated')
 
       const { error } = await supabase
@@ -300,14 +312,14 @@ export default function PermissionsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
       </div>
     )
   }
 
   return (
-    <div className="container-custom pt-20 pb-8">
+    <div className="container-custom pb-8 pt-20">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Permission Management</h1>
         <p className="mt-2 text-gray-600">
@@ -320,7 +332,7 @@ export default function PermissionsPage() {
         <nav className="flex gap-8">
           <button
             onClick={() => setActiveTab('permissions')}
-            className={`pb-4 border-b-2 transition ${
+            className={`border-b-2 pb-4 transition ${
               activeTab === 'permissions'
                 ? 'border-blue-600 text-blue-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -329,14 +341,14 @@ export default function PermissionsPage() {
             <div className="flex items-center gap-2">
               <Key className="h-5 w-5" />
               <span className="font-medium">Resource Permissions</span>
-              <span className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
+              <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
                 {resourcePermissions.length}
               </span>
             </div>
           </button>
           <button
             onClick={() => setActiveTab('overrides')}
-            className={`pb-4 border-b-2 transition ${
+            className={`border-b-2 pb-4 transition ${
               activeTab === 'overrides'
                 ? 'border-blue-600 text-blue-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -345,14 +357,14 @@ export default function PermissionsPage() {
             <div className="flex items-center gap-2">
               <AlertCircle className="h-5 w-5" />
               <span className="font-medium">Permission Overrides</span>
-              <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs rounded-full">
+              <span className="rounded-full bg-yellow-100 px-2 py-0.5 text-xs text-yellow-700">
                 {overrides.filter((o) => o.approval_status === 'pending').length} pending
               </span>
             </div>
           </button>
           <button
             onClick={() => setActiveTab('hierarchy')}
-            className={`pb-4 border-b-2 transition ${
+            className={`border-b-2 pb-4 transition ${
               activeTab === 'hierarchy'
                 ? 'border-blue-600 text-blue-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -371,20 +383,20 @@ export default function PermissionsPage() {
         <div className="space-y-4">
           {/* Filters */}
           <div className="flex gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search permissions..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <select
               value={filterScope}
               onChange={(e) => setFilterScope(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
               aria-label="Filter by permission scope"
             >
               <option value="all">All Scopes</option>
@@ -396,23 +408,23 @@ export default function PermissionsPage() {
           </div>
 
           {/* Permissions List */}
-          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+          <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead className="border-b border-gray-200 bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                     Permission
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                     Scope
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                     Resource
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                     Expires
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
                     Actions
                   </th>
                 </tr>
@@ -436,7 +448,7 @@ export default function PermissionsPage() {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
                           <span
-                            className={`px-2 py-1 text-xs font-medium rounded ${
+                            className={`rounded px-2 py-1 text-xs font-medium ${
                               rp.scope_type === 'user'
                                 ? 'bg-blue-100 text-blue-700'
                                 : rp.scope_type === 'role'
@@ -486,7 +498,7 @@ export default function PermissionsPage() {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
               aria-label="Filter overrides by status"
             >
               <option value="all">All Statuses</option>
@@ -499,17 +511,17 @@ export default function PermissionsPage() {
           {/* Overrides List */}
           <div className="space-y-3">
             {filteredOverrides.length === 0 ? (
-              <div className="bg-white rounded-lg border border-gray-200 p-12 text-center text-gray-500">
+              <div className="rounded-lg border border-gray-200 bg-white p-12 text-center text-gray-500">
                 No permission overrides found
               </div>
             ) : (
               filteredOverrides.map((override) => (
-                <div key={override.id} className="bg-white rounded-lg border border-gray-200 p-6">
+                <div key={override.id} className="rounded-lg border border-gray-200 bg-white p-6">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
+                      <div className="mb-2 flex items-center gap-3">
                         <span
-                          className={`px-2 py-1 text-xs font-medium rounded ${
+                          className={`rounded px-2 py-1 text-xs font-medium ${
                             override.override_type === 'grant'
                               ? 'bg-green-100 text-green-700'
                               : override.override_type === 'deny'
@@ -523,7 +535,7 @@ export default function PermissionsPage() {
                           {override.permission_slug}
                         </span>
                         <span
-                          className={`px-2 py-1 text-xs font-medium rounded ${
+                          className={`rounded px-2 py-1 text-xs font-medium ${
                             override.approval_status === 'pending'
                               ? 'bg-yellow-100 text-yellow-700'
                               : override.approval_status === 'approved'
@@ -535,7 +547,7 @@ export default function PermissionsPage() {
                         </span>
                       </div>
 
-                      <div className="text-sm text-gray-600 space-y-1">
+                      <div className="space-y-1 text-sm text-gray-600">
                         <div>
                           <span className="font-medium">User:</span> {override.user_email}
                         </div>
@@ -562,17 +574,17 @@ export default function PermissionsPage() {
                     </div>
 
                     {override.approval_status === 'pending' && (
-                      <div className="flex gap-2 ml-4">
+                      <div className="ml-4 flex gap-2">
                         <button
                           onClick={() => handleApproveOverride(override.id)}
-                          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center gap-2"
+                          className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-white transition hover:bg-green-700"
                         >
                           <CheckCircle className="h-4 w-4" />
                           Approve
                         </button>
                         <button
                           onClick={() => handleRejectOverride(override.id)}
-                          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center gap-2"
+                          className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-white transition hover:bg-red-700"
                         >
                           <XCircle className="h-4 w-4" />
                           Reject
@@ -590,23 +602,23 @@ export default function PermissionsPage() {
       {/* Role Hierarchy Tab */}
       {activeTab === 'hierarchy' && (
         <div className="space-y-4">
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <div className="rounded-lg border border-gray-200 bg-white p-6">
+            <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-900">
               <GitBranch className="h-5 w-5" />
               Role Inheritance Tree
             </h2>
 
             {hierarchy.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">No role hierarchy configured</p>
+              <p className="py-8 text-center text-gray-500">No role hierarchy configured</p>
             ) : (
               <div className="space-y-2">
                 {hierarchy.map((h, index) => (
                   <div
                     key={index}
-                    className="flex items-center gap-4 py-3 px-4 bg-gray-50 rounded-lg"
+                    className="flex items-center gap-4 rounded-lg bg-gray-50 px-4 py-3"
                     style={{ marginLeft: `${h.depth * 24}px` }}
                   >
-                    <div className="flex-1 flex items-center gap-2">
+                    <div className="flex flex-1 items-center gap-2">
                       <Shield className="h-4 w-4 text-gray-400" />
                       <span className="font-medium text-gray-900">{h.child_role_name}</span>
                       <span className="text-gray-400">→ inherits from →</span>

@@ -24,7 +24,7 @@ export default function PublicNavigation() {
 
           {/* Desktop Navigation */}
           <div className="hidden items-center gap-6 md:flex">
-            {publicLinks.map((link) => 
+            {publicLinks.map((link) =>
               link.children ? (
                 <NavDropdown key={link.label} link={link} />
               ) : (

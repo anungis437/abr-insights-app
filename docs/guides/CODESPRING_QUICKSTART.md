@@ -61,16 +61,19 @@ npm run dev
 ### 3. Test API Endpoints
 
 **Verify API Key:**
+
 ```bash
 curl http://localhost:3000/api/codespring/verify
 ```
 
 **Health Check:**
+
 ```bash
 curl http://localhost:3000/api/codespring/health
 ```
 
 **Analyze Code:**
+
 ```bash
 curl -X POST http://localhost:3000/api/codespring/analyze \
   -H "Content-Type: application/json" \
@@ -80,24 +83,26 @@ curl -X POST http://localhost:3000/api/codespring/analyze \
 ### 4. Use in Your Code
 
 **Server-side (API Routes):**
-```typescript
-import { getCodespringClient } from '@/lib/services/codespring';
 
-const client = getCodespringClient();
-const response = await client.analyzeCode(code, language);
+```typescript
+import { getCodespringClient } from '@/lib/services/codespring'
+
+const client = getCodespringClient()
+const response = await client.analyzeCode(code, language)
 ```
 
 **Client-side (React Components):**
+
 ```typescript
 import { useCodespringAnalyze } from '@/lib/hooks/use-codespring';
 
 function MyComponent() {
   const { analyzeCode, data, isLoading, error } = useCodespringAnalyze();
-  
+
   const handleAnalyze = async () => {
     await analyzeCode(myCode, 'javascript');
   };
-  
+
   return (
     <button onClick={handleAnalyze} disabled={isLoading}>
       {isLoading ? 'Analyzing...' : 'Analyze Code'}
@@ -118,6 +123,7 @@ The default base URL is set to `https://api.codespring.ai`. If this is incorrect
 ### API Endpoints
 
 The example endpoints are:
+
 - `/auth/verify` - Verify API key
 - `/health` - Health check
 - `/analyze` - Code analysis
@@ -160,14 +166,17 @@ Full documentation: `docs/CODESPRING_INTEGRATION.md`
 ## 🔍 Troubleshooting
 
 **"Fetch failed" errors:**
+
 - The base URL may be incorrect
 - Update `baseUrl` in `lib/services/codespring.ts`
 
 **"API key not found":**
+
 - Restart dev server after adding to `.env.local`
 - Check the key is in the file correctly
 
 **Type errors:**
+
 - Update TypeScript interfaces in `lib/services/codespring.ts`
 - Match the actual API response structure
 

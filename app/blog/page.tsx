@@ -3,11 +3,20 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Blog | ABR Insights - Expert Commentary on Workplace Equity',
-  description: 'Stay informed with expert insights on anti-Black racism, workplace equity, legal developments, and best practices for building inclusive organizations.',
-  keywords: ['anti-racism blog', 'workplace equity insights', 'EDI best practices', 'tribunal case analysis', 'HR compliance', 'diversity commentary'],
+  description:
+    'Stay informed with expert insights on anti-Black racism, workplace equity, legal developments, and best practices for building inclusive organizations.',
+  keywords: [
+    'anti-racism blog',
+    'workplace equity insights',
+    'EDI best practices',
+    'tribunal case analysis',
+    'HR compliance',
+    'diversity commentary',
+  ],
   openGraph: {
     title: 'ABR Insights Blog | Expert Workplace Equity Commentary',
-    description: 'Expert insights on anti-Black racism, tribunal cases, and building equitable workplaces in Canada.',
+    description:
+      'Expert insights on anti-Black racism, tribunal cases, and building equitable workplaces in Canada.',
     type: 'website',
     url: 'https://abrinsights.ca/blog',
     siteName: 'ABR Insights',
@@ -21,7 +30,7 @@ export const metadata: Metadata = {
 
 export default function BlogPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">      
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
       {/* Hero Section */}
       <section className="relative bg-gradient-to-r from-primary-600 to-secondary-600 px-4 pb-16 pt-32 text-white">
         <div className="container-custom">
@@ -29,9 +38,7 @@ export default function BlogPage() {
             <div className="mb-4 flex justify-center">
               <BookOpen className="h-12 w-12" />
             </div>
-            <h1 className="mb-6 text-4xl font-bold md:text-5xl lg:text-6xl">
-              ABR Insights Blog
-            </h1>
+            <h1 className="mb-6 text-4xl font-bold md:text-5xl lg:text-6xl">ABR Insights Blog</h1>
             <p className="text-xl text-blue-100">
               Expert insights on anti-Black racism, workplace equity, and legal developments
             </p>
@@ -41,10 +48,9 @@ export default function BlogPage() {
         {/* Decorative Blurs */}
         <div className="absolute left-0 top-0 -z-10 h-full w-full opacity-10">
           <div className="absolute left-1/4 top-1/3 h-80 w-80 rounded-full bg-white blur-3xl" />
-          <div className="absolute right-1/3 bottom-1/4 h-96 w-96 rounded-full bg-yellow-300 blur-3xl" />
+          <div className="absolute bottom-1/4 right-1/3 h-96 w-96 rounded-full bg-yellow-300 blur-3xl" />
         </div>
       </section>
-
       {/* Categories */}
       <section className="px-4 py-8">
         <div className="container-custom">
@@ -74,7 +80,6 @@ export default function BlogPage() {
           </div>
         </div>
       </section>
-
       {/* Featured Post */}
       <section className="px-4 py-8">
         <div className="container-custom">
@@ -96,9 +101,10 @@ export default function BlogPage() {
                   Major Policy Changes at OHRT: What Organizations Need to Know
                 </h3>
                 <p className="mb-4 text-gray-700">
-                  The Ontario Human Rights Tribunal has announced significant updates to its application 
-                  procedures and mediation processes. Learn how these changes will affect your organization&apos;s 
-                  approach to human rights complaints and what steps you should take now to prepare.
+                  The Ontario Human Rights Tribunal has announced significant updates to its
+                  application procedures and mediation processes. Learn how these changes will
+                  affect your organization&apos;s approach to human rights complaints and what steps
+                  you should take now to prepare.
                 </p>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -114,7 +120,6 @@ export default function BlogPage() {
           </div>
         </div>
       </section>
-
       {/* Recent Posts */}
       <section className="px-4 py-8">
         <div className="container-custom">
@@ -129,7 +134,7 @@ export default function BlogPage() {
                 excerpt="New research reveals how unconscious bias manifests in annual performance evaluations and practical steps to address it."
                 readTime="8 min read"
               />
-              
+
               <BlogCard
                 title="Landmark Decision: Thompson v. City Services"
                 category="Case Analysis"
@@ -138,7 +143,7 @@ export default function BlogPage() {
                 excerpt="Analysis of this precedent-setting case on municipal employment practices and its implications for public sector organizations."
                 readTime="12 min read"
               />
-              
+
               <BlogCard
                 title="Building Psychologically Safe Workplaces for Black Employees"
                 category="Best Practices"
@@ -147,7 +152,7 @@ export default function BlogPage() {
                 excerpt="Evidence-based strategies for creating environments where Black professionals can thrive without fear of microaggressions."
                 readTime="10 min read"
               />
-              
+
               <BlogCard
                 title="2025 Workplace Discrimination Trends Report"
                 category="Research"
@@ -156,7 +161,7 @@ export default function BlogPage() {
                 excerpt="Our annual analysis of tribunal decisions reveals emerging patterns in discrimination cases across Canadian workplaces."
                 readTime="15 min read"
               />
-              
+
               <BlogCard
                 title="Effective Response to Racial Harassment Complaints"
                 category="Best Practices"
@@ -165,7 +170,7 @@ export default function BlogPage() {
                 excerpt="A step-by-step guide for HR professionals on conducting trauma-informed investigations of racial harassment allegations."
                 readTime="11 min read"
               />
-              
+
               <BlogCard
                 title="New Federal Employment Equity Regulations Explained"
                 category="Legal Updates"
@@ -178,7 +183,6 @@ export default function BlogPage() {
           </div>
         </div>
       </section>
-
       {/* Case Studies */}
       <section className="bg-white px-4 py-12">
         <div className="container-custom">
@@ -193,28 +197,36 @@ export default function BlogPage() {
               <CaseStudyCard
                 title="How a Major Retailer Transformed Their Hiring Practices"
                 company="Retail Chain Inc."
-                results={['63% increase in Black applicants reaching interview stage', '47% reduction in bias-related complaints', 'Documented $2.1M cost avoidance from prevented litigation']}
+                results={[
+                  '63% increase in Black applicants reaching interview stage',
+                  '47% reduction in bias-related complaints',
+                  'Documented $2.1M cost avoidance from prevented litigation',
+                ]}
                 category="Hiring Equity"
               />
-              
+
               <CaseStudyCard
                 title="University's Journey to Inclusive Academic Policies"
                 company="Metro University"
-                results={['Eliminated 12 systemic barriers in student discipline', 'Created culturally responsive support programs', 'Zero discrimination findings in 3 years post-implementation']}
+                results={[
+                  'Eliminated 12 systemic barriers in student discipline',
+                  'Created culturally responsive support programs',
+                  'Zero discrimination findings in 3 years post-implementation',
+                ]}
                 category="Education"
               />
             </div>
           </div>
         </div>
       </section>
-
       {/* Newsletter Signup */}
       <section className="bg-gradient-to-r from-primary-600 to-secondary-600 px-4 py-16 text-white">
         <div className="container-custom">
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="mb-4 text-3xl font-bold">Stay Informed</h2>
             <p className="mb-8 text-xl text-blue-100">
-              Get monthly insights on anti-Black racism, legal updates, and workplace equity delivered to your inbox
+              Get monthly insights on anti-Black racism, legal updates, and workplace equity
+              delivered to your inbox
             </p>
             <div className="mx-auto flex max-w-md gap-3">
               <input
@@ -231,7 +243,8 @@ export default function BlogPage() {
             </p>
           </div>
         </div>
-      </section>    </div>
+      </section>{' '}
+    </div>
   )
 }
 
@@ -241,7 +254,7 @@ function BlogCard({
   date,
   author,
   excerpt,
-  readTime
+  readTime,
 }: {
   title: string
   category: string
@@ -259,9 +272,7 @@ function BlogCard({
         </span>
         <span>{readTime}</span>
       </div>
-      <h3 className="mb-2 text-lg font-bold text-gray-900 group-hover:text-primary-600">
-        {title}
-      </h3>
+      <h3 className="mb-2 text-lg font-bold text-gray-900 group-hover:text-primary-600">{title}</h3>
       <p className="mb-4 text-sm text-gray-600">{excerpt}</p>
       <div className="flex items-center justify-between border-t pt-4 text-sm text-gray-600">
         <div className="flex items-center gap-2">
@@ -281,7 +292,7 @@ function CaseStudyCard({
   title,
   company,
   results,
-  category
+  category,
 }: {
   title: string
   company: string

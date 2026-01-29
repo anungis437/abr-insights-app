@@ -7,21 +7,21 @@ const supabase = createClient(
 
 async function checkLessonsTable() {
   console.log('Checking lessons table...\n')
-  
+
   const { data: lessons, error } = await supabase
     .from('lessons')
     .select('id, title, course_id, module_id')
     .limit(10)
-  
+
   if (error) {
     console.error('Error:', error)
     return
   }
-  
+
   console.log(`Found ${lessons.length} lessons`)
   if (lessons.length > 0) {
     console.log('\nSample lessons:')
-    lessons.forEach(l => console.log(`  - ${l.title}`))
+    lessons.forEach((l) => console.log(`  - ${l.title}`))
   }
 }
 

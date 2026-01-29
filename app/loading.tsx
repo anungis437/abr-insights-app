@@ -4,15 +4,13 @@
  */
 export default function Loading() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
+    <div className="bg-background flex min-h-screen items-center justify-center">
       <div className="flex flex-col items-center gap-4">
         {/* Spinner */}
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-        
+        <div className="border-primary h-12 w-12 animate-spin rounded-full border-4 border-t-transparent" />
+
         {/* Loading text */}
-        <p className="text-sm text-muted-foreground animate-pulse">
-          Loading...
-        </p>
+        <p className="text-muted-foreground animate-pulse text-sm">Loading...</p>
       </div>
     </div>
   )

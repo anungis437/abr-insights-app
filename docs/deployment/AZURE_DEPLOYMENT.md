@@ -1,9 +1,11 @@
 # Azure Static Web Apps Deployment Guide
 
 ## Overview
+
 This guide covers deploying the ABR Insights application to Azure Static Web Apps.
 
 ## Prerequisites
+
 - Azure account with active subscription
 - GitHub account with repository access
 - Node.js 18+ installed locally
@@ -20,6 +22,7 @@ This guide covers deploying the ABR Insights application to Azure Static Web App
 ### 2. Configure Basic Settings
 
 **Basics Tab:**
+
 - **Subscription**: Select your subscription
 - **Resource Group**: Create new or select existing (e.g., `rg-abr-insights`)
 - **Name**: `abr-insights-app` (or your preferred name)
@@ -30,12 +33,14 @@ This guide covers deploying the ABR Insights application to Azure Static Web App
 ### 3. GitHub Integration
 
 **GitHub Tab:**
+
 - Click **Sign in with GitHub** and authorize Azure
 - **Organization**: `anungis437`
 - **Repository**: `abr-insights-app`
 - **Branch**: `main`
 
 **Build Details:**
+
 - **Build Presets**: Select **Next.js**
 - **App location**: `/` (root)
 - **Api location**: Leave empty
@@ -48,6 +53,7 @@ This guide covers deploying the ABR Insights application to Azure Static Web App
 - Click **Create**
 
 Azure will:
+
 1. Create the Static Web App resource
 2. Add a GitHub Actions workflow to your repository
 3. Automatically trigger the first deployment
@@ -57,32 +63,39 @@ Azure will:
 After Azure creates the resource, configure these secrets in your GitHub repository:
 
 ### Navigate to Repository Settings
+
 1. Go to `https://github.com/anungis437/abr-insights-app/settings/secrets/actions`
 2. Click **New repository secret** for each:
 
 ### Required Secrets
 
 #### AZURE_STATIC_WEB_APPS_API_TOKEN
+
 - **Value**: Copy from Azure Portal → Your Static Web App → Overview → "Manage deployment token"
 - This is automatically added by Azure, but verify it exists
 
 #### NEXT_PUBLIC_SUPABASE_URL
+
 ```
 ***REMOVED***
 ```
 
 #### NEXT_PUBLIC_SUPABASE_ANON_KEY
+
 ```
 eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.***REMOVED***.w88Nix_a3IG1Iy3rVIkvC5Fa8Pe79mKtFY00cLtaiSM
 ```
 
 #### NEXT_PUBLIC_APP_URL
+
 ```
 https://YOUR-APP-NAME.azurestaticapps.net
 ```
-*Replace with your actual Azure Static Web App URL after creation*
+
+_Replace with your actual Azure Static Web App URL after creation_
 
 #### SUPABASE_SERVICE_ROLE_KEY (Optional - for server-side operations)
+
 ```
 eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.***REMOVED***.iN8EyRCE9cu5x3mpeC-nDeocv26k6yYFEZi1WHNJeyI
 ```
@@ -95,14 +108,14 @@ Configure environment variables in Azure:
 2. Click **Configuration** in left menu
 3. Add Application Settings:
 
-| Name | Value |
-|------|-------|
-| `NEXT_PUBLIC_SUPABASE_URL` | `***REMOVED***` |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your anon key |
-| `NEXT_PUBLIC_APP_URL` | Your Azure Static Web App URL |
-| `NEXT_PUBLIC_APP_NAME` | `ABR Insights` |
-| `NEXT_PUBLIC_APP_VERSION` | `2.0.0` |
-| `NODE_ENV` | `production` |
+| Name                            | Value                                      |
+| ------------------------------- | ------------------------------------------ |
+| `NEXT_PUBLIC_SUPABASE_URL`      | `***REMOVED***` |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your anon key                              |
+| `NEXT_PUBLIC_APP_URL`           | Your Azure Static Web App URL              |
+| `NEXT_PUBLIC_APP_NAME`          | `ABR Insights`                             |
+| `NEXT_PUBLIC_APP_VERSION`       | `2.0.0`                                    |
+| `NODE_ENV`                      | `production`                               |
 
 ## Deployment Process
 
@@ -133,6 +146,7 @@ git push origin main
 3. Check build logs for errors
 
 Or in Azure Portal:
+
 1. Go to your Static Web App
 2. Click **Environments** → **Production**
 3. View deployment history and logs
@@ -150,6 +164,7 @@ Or in Azure Portal:
    - Enable SSL certificate (free, automatic)
 
 Example DNS Configuration:
+
 ```
 Type: CNAME
 Name: www (or @)
@@ -173,6 +188,7 @@ Azure Static Web Apps provides built-in authentication:
 ### Auth Routes
 
 Built-in routes:
+
 - `/.auth/login/aad` - Azure AD login
 - `/.auth/login/github` - GitHub login
 - `/.auth/logout` - Logout
@@ -183,6 +199,7 @@ Built-in routes:
 ### 1. Check Application Health
 
 Visit your app URL and verify:
+
 - ✅ Home page loads
 - ✅ Navigation works
 - ✅ Auth pages accessible
@@ -198,6 +215,7 @@ Visit your app URL and verify:
 ### 3. Check Console for Errors
 
 Open browser DevTools:
+
 - No JavaScript errors
 - No 404s for assets
 - Environment variables loaded correctly
@@ -207,6 +225,7 @@ Open browser DevTools:
 ### Build Fails
 
 **Error**: "Module not found" or dependency issues
+
 ```bash
 # Locally, clear cache and reinstall
 rm -rf node_modules .next
@@ -261,12 +280,14 @@ az staticwebapp logs show \
 ## Cost Optimization
 
 ### Free Tier Limits
+
 - 100 GB bandwidth/month
 - 0.5 GB storage
 - Custom domains: 2
 - Staging environments: 3
 
 ### Standard Tier Features
+
 - 100 GB bandwidth included
 - 10 GB storage
 - Unlimited custom domains
@@ -286,17 +307,21 @@ Each pull request automatically gets a staging environment:
 ## Security Best Practices
 
 ### 1. Environment Variables
+
 - ✅ Never commit secrets to repository
 - ✅ Use GitHub Secrets for sensitive data
 - ✅ Rotate API keys regularly
 
 ### 2. Content Security Policy
+
 Configured in `staticwebapp.config.json`:
+
 - X-Content-Type-Options: nosniff
 - X-Frame-Options: DENY
 - X-XSS-Protection enabled
 
 ### 3. HTTPS
+
 - Automatic SSL certificate
 - Force HTTPS (enabled by default)
 
@@ -310,6 +335,7 @@ If deployment fails:
 4. Click **Promote** to rollback
 
 Or via GitHub:
+
 1. Revert the commit
 2. Push to main branch
 3. New deployment automatically triggers
@@ -338,16 +364,19 @@ After successful deployment:
 ## Quick Reference
 
 ### Deployment URLs
+
 - **Production**: `https://YOUR-APP-NAME.azurestaticapps.net`
 - **Staging (PR #123)**: `https://YOUR-APP-NAME-123.azurestaticapps.net`
 
 ### Important Files
+
 - `.github/workflows/azure-static-web-apps.yml` - CI/CD workflow
 - `staticwebapp.config.json` - Azure configuration
 - `next.config.js` - Next.js configuration
 - `.env.local` - Local environment variables (not committed)
 
 ### Common Commands
+
 ```bash
 # Build locally
 npm run build

@@ -7,7 +7,12 @@
 import { createClient } from '@/lib/supabase/client'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
-export type OnboardingStepType = 'profile_setup' | 'preference_setting' | 'tour' | 'tutorial' | 'welcome'
+export type OnboardingStepType =
+  | 'profile_setup'
+  | 'preference_setting'
+  | 'tour'
+  | 'tutorial'
+  | 'welcome'
 
 export type OnboardingStep = {
   id: string
@@ -80,17 +85,17 @@ export class OnboardingService {
 
     if (error) throw error
 
-    const userStepsMap = new Map(userSteps?.map(s => [s.step_id, s]) || [])
+    const userStepsMap = new Map(userSteps?.map((s) => [s.step_id, s]) || [])
 
     // Calculate progress
     const totalSteps = steps.length
-    const requiredSteps = steps.filter(s => s.is_required)
+    const requiredSteps = steps.filter((s) => s.is_required)
     const requiredStepsTotal = requiredSteps.length
 
     let completedSteps = 0
     let requiredStepsCompleted = 0
 
-    const stepsWithStatus = steps.map(step => {
+    const stepsWithStatus = steps.map((step) => {
       const userStep = userStepsMap.get(step.id)
       let status: 'pending' | 'completed' | 'skipped' = 'pending'
 
@@ -115,7 +120,7 @@ export class OnboardingService {
       requiredStepsTotal,
       percentComplete,
       isComplete,
-      steps: stepsWithStatus
+      steps: stepsWithStatus,
     }
   }
 
@@ -140,7 +145,7 @@ export class OnboardingService {
           completed_at: new Date().toISOString(),
           skipped_at: null,
           data: data || existing.data,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .eq('id', existing.id)
         .select()
@@ -157,7 +162,7 @@ export class OnboardingService {
         user_id: userId,
         step_id: stepId,
         completed_at: new Date().toISOString(),
-        data: data || null
+        data: data || null,
       })
       .select()
       .single()
@@ -201,7 +206,7 @@ export class OnboardingService {
         .update({
           skipped_at: new Date().toISOString(),
           completed_at: null,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .eq('id', existing.id)
         .select()
@@ -217,7 +222,7 @@ export class OnboardingService {
       .insert({
         user_id: userId,
         step_id: stepId,
-        skipped_at: new Date().toISOString()
+        skipped_at: new Date().toISOString(),
       })
       .select()
       .single()
@@ -230,18 +235,12 @@ export class OnboardingService {
    * Reset onboarding for user
    */
   async reset(userId: string) {
-    const { error } = await this.supabase
-      .from('user_onboarding')
-      .delete()
-      .eq('user_id', userId)
+    const { error } = await this.supabase.from('user_onboarding').delete().eq('user_id', userId)
 
     if (error) throw error
 
     // Update profile
-    await this.supabase
-      .from('profiles')
-      .update({ onboarding_completed: false })
-      .eq('id', userId)
+    await this.supabase.from('profiles').update({ onboarding_completed: false }).eq('id', userId)
   }
 
   /**
@@ -251,10 +250,7 @@ export class OnboardingService {
     const progress = await this.getUserProgress(userId)
 
     if (progress.isComplete) {
-      await this.supabase
-        .from('profiles')
-        .update({ onboarding_completed: true })
-        .eq('id', userId)
+      await this.supabase.from('profiles').update({ onboarding_completed: true }).eq('id', userId)
     }
   }
 
@@ -263,8 +259,8 @@ export class OnboardingService {
    */
   async getNextStep(userId: string): Promise<OnboardingStep | null> {
     const progress = await this.getUserProgress(userId)
-    
-    const nextStep = progress.steps.find(s => s.status === 'pending')
+
+    const nextStep = progress.steps.find((s) => s.status === 'pending')
     return nextStep || null
   }
 
@@ -284,15 +280,13 @@ export class OnboardingService {
 
     // Create entries for all steps
     const steps = await this.getSteps()
-    
-    const entries = steps.map(step => ({
+
+    const entries = steps.map((step) => ({
       user_id: userId,
-      step_id: step.id
+      step_id: step.id,
     }))
 
-    const { error } = await this.supabase
-      .from('user_onboarding')
-      .insert(entries)
+    const { error } = await this.supabase.from('user_onboarding').insert(entries)
 
     if (error) throw error
   }

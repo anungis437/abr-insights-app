@@ -1,19 +1,19 @@
 /**
  * SAML SSO Login Initiation Endpoint
- * 
+ *
  * Generates SAML AuthnRequest and redirects to IdP
- * 
+ *
  * Flow:
  * 1. Receive organization slug
  * 2. Get SAML service for organization
  * 3. Generate SAML AuthnRequest URL
  * 4. Store state for callback validation
  * 5. Redirect to IdP
- * 
+ *
  * Supports:
  * - POST with organizationSlug in body
  * - GET with ?org parameter for direct navigation
- * 
+ *
  * @route /api/auth/saml/login
  */
 
@@ -30,10 +30,7 @@ export async function POST(request: NextRequest) {
     const { organizationSlug } = body
 
     if (!organizationSlug) {
-      return NextResponse.json(
-        { error: 'organizationSlug is required' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'organizationSlug is required' }, { status: 400 })
     }
 
     // Get SAML service
@@ -84,9 +81,7 @@ export async function GET(request: NextRequest) {
     const organizationSlug = searchParams.get('org')
 
     if (!organizationSlug) {
-      return NextResponse.redirect(
-        new URL('/login?error=missing_organization', request.url)
-      )
+      return NextResponse.redirect(new URL('/login?error=missing_organization', request.url))
     }
 
     // Get SAML service

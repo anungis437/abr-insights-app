@@ -1,19 +1,25 @@
 /**
  * Azure AD B2C SSO Service
- * 
+ *
  * Enterprise-grade Azure AD B2C integration with multi-tenant support
- * 
+ *
  * Features:
  * - Azure AD B2C authentication flows
  * - Token validation and refresh
  * - User auto-provisioning
  * - Session management
  * - Multi-tenant configuration support
- * 
+ *
  * @module lib/auth/azure-ad
  */
 
-import { ConfidentialClientApplication, type Configuration, type AuthorizationCodeRequest, type AuthorizationUrlRequest, type AuthenticationResult } from '@azure/msal-node'
+import {
+  ConfidentialClientApplication,
+  type Configuration,
+  type AuthorizationCodeRequest,
+  type AuthorizationUrlRequest,
+  type AuthenticationResult,
+} from '@azure/msal-node'
 import * as jwt from 'jsonwebtoken'
 import { createClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/utils/logger'
@@ -144,10 +150,7 @@ export class AzureADService {
   /**
    * Exchange authorization code for tokens
    */
-  async acquireTokenByCode(
-    code: string,
-    redirectUri: string
-  ): Promise<AuthenticationResult> {
+  async acquireTokenByCode(code: string, redirectUri: string): Promise<AuthenticationResult> {
     if (!this.msalClient) {
       throw new Error('Azure AD service not initialized')
     }
@@ -174,7 +177,7 @@ export class AzureADService {
     try {
       // Decode without verification (MSAL already verified it)
       const decoded = jwt.decode(idToken) as AzureADUserInfo
-      
+
       if (!decoded || !decoded.oid || !decoded.email) {
         throw new Error('Invalid token: missing required claims')
       }
@@ -189,10 +192,7 @@ export class AzureADService {
   /**
    * Provision or update user in database
    */
-  async provisionUser(
-    claims: AzureADUserInfo,
-    organizationId: string
-  ): Promise<string> {
+  async provisionUser(claims: AzureADUserInfo, organizationId: string): Promise<string> {
     if (!this.config) {
       throw new Error('Azure AD service not initialized')
     }
@@ -224,7 +224,7 @@ export class AzureADService {
           provider_email: claims.email,
           claims: claims as unknown as Record<string, unknown>,
           last_login_at: new Date().toISOString(),
-          login_count: supabase.rpc('increment', { row_id: existingMapping.user_id })
+          login_count: supabase.rpc('increment', { row_id: existingMapping.user_id }),
         })
         .eq('sso_provider_id', this.config.id)
         .eq('provider_user_id', claims.oid)
@@ -242,18 +242,16 @@ export class AzureADService {
 
     if (existingProfile) {
       // Link existing profile to SSO provider
-      await supabase
-        .from('identity_provider_mapping')
-        .insert({
-          user_id: existingProfile.id,
-          sso_provider_id: this.config.id,
-          provider_user_id: claims.oid,
-          provider_email: claims.email,
-          claims: claims as unknown as Record<string, unknown>,
-          link_status: 'active',
-          last_login_at: new Date().toISOString(),
-          login_count: 1,
-        })
+      await supabase.from('identity_provider_mapping').insert({
+        user_id: existingProfile.id,
+        sso_provider_id: this.config.id,
+        provider_user_id: claims.oid,
+        provider_email: claims.email,
+        claims: claims as unknown as Record<string, unknown>,
+        link_status: 'active',
+        last_login_at: new Date().toISOString(),
+        login_count: 1,
+      })
 
       return existingProfile.id
     }
@@ -265,9 +263,12 @@ export class AzureADService {
 
     // Map attributes using attribute_mapping
     const mapping = this.config.attribute_mapping || {}
-    const firstName = claims[mapping.firstName || 'given_name'] as string || claims.given_name
-    const lastName = claims[mapping.lastName || 'family_name'] as string || claims.family_name
-    const displayName = claims[mapping.displayName || 'name'] as string || claims.name || `${firstName} ${lastName}`.trim()
+    const firstName = (claims[mapping.firstName || 'given_name'] as string) || claims.given_name
+    const lastName = (claims[mapping.lastName || 'family_name'] as string) || claims.family_name
+    const displayName =
+      (claims[mapping.displayName || 'name'] as string) ||
+      claims.name ||
+      `${firstName} ${lastName}`.trim()
 
     // Create Supabase auth user
     const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
@@ -313,19 +314,17 @@ export class AzureADService {
     }
 
     // Create identity mapping
-    await supabase
-      .from('identity_provider_mapping')
-      .insert({
-        user_id: profile.id,
-        sso_provider_id: this.config.id,
-        provider_user_id: claims.oid,
-        provider_email: claims.email,
-        provider_username: claims.preferred_username,
-        claims: claims as unknown as Record<string, unknown>,
-        link_status: 'active',
-        last_login_at: new Date().toISOString(),
-        login_count: 1,
-      })
+    await supabase.from('identity_provider_mapping').insert({
+      user_id: profile.id,
+      sso_provider_id: this.config.id,
+      provider_user_id: claims.oid,
+      provider_email: claims.email,
+      provider_username: claims.preferred_username,
+      claims: claims as unknown as Record<string, unknown>,
+      link_status: 'active',
+      last_login_at: new Date().toISOString(),
+      login_count: 1,
+    })
 
     // Assign default learner role
     const { data: learnerRole } = await supabase
@@ -335,14 +334,12 @@ export class AzureADService {
       .single()
 
     if (learnerRole) {
-      await supabase
-        .from('user_roles')
-        .insert({
-          user_id: profile.id,
-          role_id: learnerRole.id,
-          organization_id: organizationId,
-          scope_type: 'global',
-        })
+      await supabase.from('user_roles').insert({
+        user_id: profile.id,
+        role_id: learnerRole.id,
+        organization_id: organizationId,
+        scope_type: 'global',
+      })
     }
 
     return profile.id
@@ -399,20 +396,18 @@ export class AzureADService {
   ): Promise<void> {
     const supabase = await createClient()
 
-    await supabase
-      .from('sso_login_attempts')
-      .insert({
-        organization_id: organizationId,
-        sso_provider_id: ssoProviderId,
-        user_id: userId,
-        provider_user_id: claims?.oid,
-        email: claims?.email,
-        status,
-        failure_reason: failureReason,
-        error_code: errorCode,
-        ip_address: ipAddress,
-        user_agent: userAgent,
-      })
+    await supabase.from('sso_login_attempts').insert({
+      organization_id: organizationId,
+      sso_provider_id: ssoProviderId,
+      user_id: userId,
+      provider_user_id: claims?.oid,
+      email: claims?.email,
+      status,
+      failure_reason: failureReason,
+      error_code: errorCode,
+      ip_address: ipAddress,
+      user_agent: userAgent,
+    })
   }
 }
 
@@ -444,7 +439,9 @@ export async function getAzureADService(organizationSlug: string): Promise<Azure
     .single()
 
   if (!ssoProvider) {
-    throw new Error(`No active Azure AD B2C provider configured for organization: ${organizationSlug}`)
+    throw new Error(
+      `No active Azure AD B2C provider configured for organization: ${organizationSlug}`
+    )
   }
 
   // Initialize service

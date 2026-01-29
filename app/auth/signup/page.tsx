@@ -3,7 +3,18 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Eye, EyeOff, Lock, Mail, User, Building2, Chrome, Github, Check, AlertCircle } from 'lucide-react'
+import {
+  Eye,
+  EyeOff,
+  Lock,
+  Mail,
+  User,
+  Building2,
+  Chrome,
+  Github,
+  Check,
+  AlertCircle,
+} from 'lucide-react'
 import { useAuth } from '@/lib/auth/AuthContext'
 
 export default function SignupPage() {
@@ -30,31 +41,31 @@ export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
-  
+
   const { signUp } = useAuth()
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
-    
+
     if (step === 1) {
       // Validate passwords match
       if (formState.password !== formState.confirmPassword) {
         setError('Passwords do not match')
         return
       }
-      
+
       // Validate password strength
       if (formState.password.length < 8) {
         setError('Password must be at least 8 characters long')
         return
       }
-      
+
       setStep(2)
     } else {
       setIsLoading(true)
-      
+
       try {
         const { error } = await signUp(formState.email, formState.password, {
           first_name: formState.firstName,
@@ -65,13 +76,13 @@ export default function SignupPage() {
           job_title: formState.role,
           team_size: formState.teamSize,
         })
-        
+
         if (error) {
           setError(error.message)
           setIsLoading(false)
           return
         }
-        
+
         setSuccess(true)
         // Note: User needs to verify email before accessing the app
         setTimeout(() => {
@@ -138,15 +149,23 @@ export default function SignupPage() {
 
           {/* Progress Steps */}
           <div className="mb-8 flex items-center justify-center gap-4">
-            <div className={`flex items-center gap-2 ${step >= 1 ? 'text-primary-600' : 'text-gray-400'}`}>
-              <div className={`flex h-8 w-8 items-center justify-center rounded-full ${step >= 1 ? 'bg-primary-600 text-white' : 'bg-gray-200'}`}>
+            <div
+              className={`flex items-center gap-2 ${step >= 1 ? 'text-primary-600' : 'text-gray-400'}`}
+            >
+              <div
+                className={`flex h-8 w-8 items-center justify-center rounded-full ${step >= 1 ? 'bg-primary-600 text-white' : 'bg-gray-200'}`}
+              >
                 {step > 1 ? <Check className="h-5 w-5" /> : '1'}
               </div>
               <span className="text-sm font-medium">Account</span>
             </div>
             <div className={`h-0.5 w-16 ${step >= 2 ? 'bg-primary-600' : 'bg-gray-200'}`}></div>
-            <div className={`flex items-center gap-2 ${step >= 2 ? 'text-primary-600' : 'text-gray-400'}`}>
-              <div className={`flex h-8 w-8 items-center justify-center rounded-full ${step >= 2 ? 'bg-primary-600 text-white' : 'bg-gray-200'}`}>
+            <div
+              className={`flex items-center gap-2 ${step >= 2 ? 'text-primary-600' : 'text-gray-400'}`}
+            >
+              <div
+                className={`flex h-8 w-8 items-center justify-center rounded-full ${step >= 2 ? 'bg-primary-600 text-white' : 'bg-gray-200'}`}
+              >
                 2
               </div>
               <span className="text-sm font-medium">Organization</span>
@@ -157,16 +176,16 @@ export default function SignupPage() {
           <div className="rounded-2xl bg-white p-8 shadow-xl">
             {/* Error Message */}
             {error && (
-              <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-4 flex items-start gap-3">
-                <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <div className="mb-4 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
+                <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600" />
                 <p className="text-sm text-red-800">{error}</p>
               </div>
             )}
 
             {/* Success Message */}
             {success && (
-              <div className="mb-4 rounded-lg bg-green-50 border border-green-200 p-4 flex items-start gap-3">
-                <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <div className="mb-4 flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 p-4">
+                <Check className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600" />
                 <div className="text-sm text-green-800">
                   <p className="font-medium">Account created successfully!</p>
                   <p className="mt-1">Please check your email to verify your account.</p>
@@ -181,7 +200,10 @@ export default function SignupPage() {
                   <div className="grid gap-6 sm:grid-cols-2">
                     {/* First Name */}
                     <div>
-                      <label htmlFor="firstName" className="mb-2 block text-sm font-medium text-gray-700">
+                      <label
+                        htmlFor="firstName"
+                        className="mb-2 block text-sm font-medium text-gray-700"
+                      >
                         First Name
                       </label>
                       <div className="relative">
@@ -192,8 +214,10 @@ export default function SignupPage() {
                           type="text"
                           id="firstName"
                           value={formState.firstName}
-                          onChange={(e) => setFormState({ ...formState, firstName: e.target.value })}
-                          className="block w-full rounded-lg border border-gray-300 pl-10 pr-3 py-2.5 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                          onChange={(e) =>
+                            setFormState({ ...formState, firstName: e.target.value })
+                          }
+                          className="block w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                           placeholder="John"
                           required
                         />
@@ -202,7 +226,10 @@ export default function SignupPage() {
 
                     {/* Last Name */}
                     <div>
-                      <label htmlFor="lastName" className="mb-2 block text-sm font-medium text-gray-700">
+                      <label
+                        htmlFor="lastName"
+                        className="mb-2 block text-sm font-medium text-gray-700"
+                      >
                         Last Name
                       </label>
                       <div className="relative">
@@ -214,7 +241,7 @@ export default function SignupPage() {
                           id="lastName"
                           value={formState.lastName}
                           onChange={(e) => setFormState({ ...formState, lastName: e.target.value })}
-                          className="block w-full rounded-lg border border-gray-300 pl-10 pr-3 py-2.5 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                          className="block w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                           placeholder="Doe"
                           required
                         />
@@ -236,7 +263,7 @@ export default function SignupPage() {
                         id="email"
                         value={formState.email}
                         onChange={(e) => setFormState({ ...formState, email: e.target.value })}
-                        className="block w-full rounded-lg border border-gray-300 pl-10 pr-3 py-2.5 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                        className="block w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                         placeholder="you@company.com"
                         required
                       />
@@ -245,7 +272,10 @@ export default function SignupPage() {
 
                   {/* Password */}
                   <div>
-                    <label htmlFor="password" className="mb-2 block text-sm font-medium text-gray-700">
+                    <label
+                      htmlFor="password"
+                      className="mb-2 block text-sm font-medium text-gray-700"
+                    >
                       Password
                     </label>
                     <div className="relative">
@@ -257,7 +287,7 @@ export default function SignupPage() {
                         id="password"
                         value={formState.password}
                         onChange={(e) => setFormState({ ...formState, password: e.target.value })}
-                        className="block w-full rounded-lg border border-gray-300 pl-10 pr-10 py-2.5 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                        className="block w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-10 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                         placeholder="••••••••"
                         required
                         minLength={8}
@@ -267,7 +297,11 @@ export default function SignupPage() {
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
                       >
-                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                        {showPassword ? (
+                          <EyeOff className="h-5 w-5" />
+                        ) : (
+                          <Eye className="h-5 w-5" />
+                        )}
                       </button>
                     </div>
                     <p className="mt-1 text-xs text-gray-500">Must be at least 8 characters</p>
@@ -275,7 +309,10 @@ export default function SignupPage() {
 
                   {/* Confirm Password */}
                   <div>
-                    <label htmlFor="confirmPassword" className="mb-2 block text-sm font-medium text-gray-700">
+                    <label
+                      htmlFor="confirmPassword"
+                      className="mb-2 block text-sm font-medium text-gray-700"
+                    >
                       Confirm Password
                     </label>
                     <div className="relative">
@@ -286,8 +323,10 @@ export default function SignupPage() {
                         type={showConfirmPassword ? 'text' : 'password'}
                         id="confirmPassword"
                         value={formState.confirmPassword}
-                        onChange={(e) => setFormState({ ...formState, confirmPassword: e.target.value })}
-                        className="block w-full rounded-lg border border-gray-300 pl-10 pr-10 py-2.5 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                        onChange={(e) =>
+                          setFormState({ ...formState, confirmPassword: e.target.value })
+                        }
+                        className="block w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-10 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                         placeholder="••••••••"
                         required
                       />
@@ -296,7 +335,11 @@ export default function SignupPage() {
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                         className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
                       >
-                        {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                        {showConfirmPassword ? (
+                          <EyeOff className="h-5 w-5" />
+                        ) : (
+                          <Eye className="h-5 w-5" />
+                        )}
                       </button>
                     </div>
                   </div>
@@ -342,7 +385,10 @@ export default function SignupPage() {
                   <div className="space-y-6">
                     {/* Organization Name */}
                     <div>
-                      <label htmlFor="organizationName" className="mb-2 block text-sm font-medium text-gray-700">
+                      <label
+                        htmlFor="organizationName"
+                        className="mb-2 block text-sm font-medium text-gray-700"
+                      >
                         Organization Name
                       </label>
                       <div className="relative">
@@ -353,8 +399,10 @@ export default function SignupPage() {
                           type="text"
                           id="organizationName"
                           value={formState.organizationName}
-                          onChange={(e) => setFormState({ ...formState, organizationName: e.target.value })}
-                          className="block w-full rounded-lg border border-gray-300 pl-10 pr-3 py-2.5 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                          onChange={(e) =>
+                            setFormState({ ...formState, organizationName: e.target.value })
+                          }
+                          className="block w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                           placeholder="Your Company Inc."
                           required
                         />
@@ -364,13 +412,18 @@ export default function SignupPage() {
                     <div className="grid gap-6 sm:grid-cols-2">
                       {/* Organization Type */}
                       <div>
-                        <label htmlFor="organizationType" className="mb-2 block text-sm font-medium text-gray-700">
+                        <label
+                          htmlFor="organizationType"
+                          className="mb-2 block text-sm font-medium text-gray-700"
+                        >
                           Organization Type
                         </label>
                         <select
                           id="organizationType"
                           value={formState.organizationType}
-                          onChange={(e) => setFormState({ ...formState, organizationType: e.target.value })}
+                          onChange={(e) =>
+                            setFormState({ ...formState, organizationType: e.target.value })
+                          }
                           className="block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                           required
                         >
@@ -385,7 +438,10 @@ export default function SignupPage() {
 
                       {/* Team Size */}
                       <div>
-                        <label htmlFor="teamSize" className="mb-2 block text-sm font-medium text-gray-700">
+                        <label
+                          htmlFor="teamSize"
+                          className="mb-2 block text-sm font-medium text-gray-700"
+                        >
                           Team Size
                         </label>
                         <select
@@ -407,7 +463,10 @@ export default function SignupPage() {
 
                     {/* Your Role */}
                     <div>
-                      <label htmlFor="role" className="mb-2 block text-sm font-medium text-gray-700">
+                      <label
+                        htmlFor="role"
+                        className="mb-2 block text-sm font-medium text-gray-700"
+                      >
                         Your Role
                       </label>
                       <select
@@ -433,17 +492,27 @@ export default function SignupPage() {
                           type="checkbox"
                           id="agreedToTerms"
                           checked={formState.agreedToTerms}
-                          onChange={(e) => setFormState({ ...formState, agreedToTerms: e.target.checked })}
+                          onChange={(e) =>
+                            setFormState({ ...formState, agreedToTerms: e.target.checked })
+                          }
                           className="mt-1 h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                           required
                         />
                         <label htmlFor="agreedToTerms" className="ml-2 text-sm text-gray-700">
                           I agree to the{' '}
-                          <Link href="/terms" className="font-medium text-primary-600 hover:text-primary-700" target="_blank">
+                          <Link
+                            href="/terms"
+                            className="font-medium text-primary-600 hover:text-primary-700"
+                            target="_blank"
+                          >
                             Terms of Service
-                          </Link>
-                          {' '}and{' '}
-                          <Link href="/privacy" className="font-medium text-primary-600 hover:text-primary-700" target="_blank">
+                          </Link>{' '}
+                          and{' '}
+                          <Link
+                            href="/privacy"
+                            className="font-medium text-primary-600 hover:text-primary-700"
+                            target="_blank"
+                          >
                             Privacy Policy
                           </Link>
                         </label>
@@ -454,7 +523,9 @@ export default function SignupPage() {
                           type="checkbox"
                           id="agreedToMarketing"
                           checked={formState.agreedToMarketing}
-                          onChange={(e) => setFormState({ ...formState, agreedToMarketing: e.target.checked })}
+                          onChange={(e) =>
+                            setFormState({ ...formState, agreedToMarketing: e.target.checked })
+                          }
                           className="mt-1 h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                         />
                         <label htmlFor="agreedToMarketing" className="ml-2 text-sm text-gray-700">
@@ -480,8 +551,20 @@ export default function SignupPage() {
                         {isLoading ? (
                           <span className="flex items-center justify-center">
                             <svg className="mr-2 h-5 w-5 animate-spin" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                              <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                                fill="none"
+                              />
+                              <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                              />
                             </svg>
                             Creating account...
                           </span>
@@ -499,7 +582,10 @@ export default function SignupPage() {
           {/* Sign In Link */}
           <p className="mt-8 text-center text-sm text-gray-600">
             Already have an account?{' '}
-            <Link href="/auth/login" className="font-medium text-primary-600 hover:text-primary-700">
+            <Link
+              href="/auth/login"
+              className="font-medium text-primary-600 hover:text-primary-700"
+            >
               Sign in
             </Link>
           </p>

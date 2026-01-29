@@ -77,17 +77,17 @@ Our RBAC implementation goes beyond basic role assignment to include:
 
 ### Role Definitions
 
-| Role | Level | Description | Use Case |
-|------|-------|-------------|----------|
-| **super_admin** | Platform | Full system access, manage all organizations | ABR Insights staff only |
-| **compliance_officer** | Platform/Org | Access audit logs, compliance reports | Governance teams |
-| **org_admin** | Organization | Manage organization settings and users | HR Directors, DEI Leads |
-| **analyst** | Organization | Advanced data analysis and reporting | Data analysts, researchers |
-| **investigator** | Organization | View case data, conduct investigations | HR investigators, legal teams |
-| **educator** | Organization | Create and manage training content | L&D professionals |
-| **learner** | Organization | Complete training, view own progress | All employees |
-| **viewer** | Organization | Read-only access to published content | Contractors, auditors |
-| **guest** | Limited | Time-bound access to specific resources | External consultants |
+| Role                   | Level        | Description                                  | Use Case                      |
+| ---------------------- | ------------ | -------------------------------------------- | ----------------------------- |
+| **super_admin**        | Platform     | Full system access, manage all organizations | ABR Insights staff only       |
+| **compliance_officer** | Platform/Org | Access audit logs, compliance reports        | Governance teams              |
+| **org_admin**          | Organization | Manage organization settings and users       | HR Directors, DEI Leads       |
+| **analyst**            | Organization | Advanced data analysis and reporting         | Data analysts, researchers    |
+| **investigator**       | Organization | View case data, conduct investigations       | HR investigators, legal teams |
+| **educator**           | Organization | Create and manage training content           | L&D professionals             |
+| **learner**            | Organization | Complete training, view own progress         | All employees                 |
+| **viewer**             | Organization | Read-only access to published content        | Contractors, auditors         |
+| **guest**              | Limited      | Time-bound access to specific resources      | External consultants          |
 
 ---
 
@@ -115,12 +115,12 @@ const DATA_PERMISSIONS = {
   'tribunal_cases.create': ['super_admin'],
   'tribunal_cases.update': ['super_admin', 'org_admin'],
   'tribunal_cases.delete': ['super_admin'],
-  
+
   // Raw Ingestion Data
   'tribunal_cases_raw.view': ['super_admin', 'org_admin', 'compliance_officer'],
   'tribunal_cases_raw.classify': ['super_admin', 'org_admin'],
   'tribunal_cases_raw.promote': ['super_admin', 'org_admin'],
-  
+
   // User Data
   'users.view_org': ['org_admin', 'educator', 'compliance_officer'],
   'users.view_all': ['super_admin'],
@@ -128,7 +128,7 @@ const DATA_PERMISSIONS = {
   'users.update': ['super_admin', 'org_admin'],
   'users.delete': ['super_admin', 'org_admin'],
   'users.impersonate': ['super_admin'], // For support purposes only
-};
+}
 ```
 
 #### 2. Training & Learning Permissions
@@ -141,15 +141,15 @@ const TRAINING_PERMISSIONS = {
   'courses.update': ['super_admin', 'org_admin', 'educator'],
   'courses.publish': ['super_admin', 'org_admin'],
   'courses.delete': ['super_admin', 'org_admin'],
-  
+
   'progress.view_own': ['*'],
   'progress.view_org': ['org_admin', 'educator', 'compliance_officer'],
   'progress.update_own': ['*'],
   'progress.update_others': ['org_admin', 'educator'],
-  
+
   'certificates.generate': ['*'], // Upon course completion
   'certificates.revoke': ['super_admin', 'org_admin'],
-};
+}
 ```
 
 #### 3. Organization Management Permissions
@@ -161,11 +161,11 @@ const ORG_PERMISSIONS = {
   'organization.delete': ['super_admin'],
   'organization.view_analytics': ['org_admin', 'analyst', 'compliance_officer'],
   'organization.export_data': ['org_admin', 'compliance_officer'],
-  
+
   'settings.view': ['org_admin'],
   'settings.update': ['super_admin', 'org_admin'],
   'settings.integrations': ['super_admin', 'org_admin'],
-};
+}
 ```
 
 #### 4. System Administration Permissions
@@ -174,19 +174,19 @@ const ORG_PERMISSIONS = {
 const ADMIN_PERMISSIONS = {
   'system.view_config': ['super_admin'],
   'system.update_config': ['super_admin'],
-  
+
   'audit_logs.view_own_org': ['org_admin', 'compliance_officer'],
   'audit_logs.view_all': ['super_admin', 'compliance_officer'],
   'audit_logs.export': ['super_admin', 'org_admin', 'compliance_officer'],
-  
+
   'ingestion.view_jobs': ['super_admin', 'org_admin'],
   'ingestion.trigger_manual': ['super_admin'],
   'ingestion.configure_sources': ['super_admin'],
-  
+
   'reports.generate': ['org_admin', 'analyst', 'compliance_officer'],
   'reports.schedule': ['org_admin'],
   'reports.share_external': ['org_admin', 'compliance_officer'],
-};
+}
 ```
 
 ### Permission Database Schema
@@ -246,19 +246,19 @@ CREATE INDEX idx_user_overrides_expires ON user_permission_overrides(expires_at)
 
 ```typescript
 // src/lib/permissions.ts
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js'
 
 interface User {
-  id: string;
-  role: string;
-  organization_id: string;
-  mfa_enabled: boolean;
+  id: string
+  role: string
+  organization_id: string
+  mfa_enabled: boolean
 }
 
 interface PermissionContext {
-  resourceId?: string;
-  organizationId?: string;
-  requireMfa?: boolean;
+  resourceId?: string
+  organizationId?: string
+  requireMfa?: boolean
 }
 
 export async function hasPermission(
@@ -266,18 +266,18 @@ export async function hasPermission(
   permission: string,
   context?: PermissionContext
 ): Promise<boolean> {
-  const supabase = createClient(supabaseUrl, supabaseKey);
+  const supabase = createClient(supabaseUrl, supabaseKey)
 
   // 1. Check if permission requires MFA
   const { data: permData } = await supabase
     .from('permissions')
     .select('requires_mfa, risk_level')
     .eq('full_permission', permission)
-    .single();
+    .single()
 
   if (permData?.requires_mfa && !user.mfa_enabled) {
-    console.warn(`Permission ${permission} requires MFA but user doesn't have it enabled`);
-    return false;
+    console.warn(`Permission ${permission} requires MFA but user doesn't have it enabled`)
+    return false
   }
 
   // 2. Check for user-specific revocations first (highest priority)
@@ -286,10 +286,10 @@ export async function hasPermission(
     .select('*')
     .eq('user_id', user.id)
     .eq('override_type', 'revoke')
-    .eq('permission_id', permData.id);
+    .eq('permission_id', permData.id)
 
   if (revocations && revocations.length > 0) {
-    return false; // Explicit revocation
+    return false // Explicit revocation
   }
 
   // 3. Check for user-specific grants (overrides role permissions)
@@ -298,12 +298,12 @@ export async function hasPermission(
     .select('*, expires_at')
     .eq('user_id', user.id)
     .eq('override_type', 'grant')
-    .eq('permission_id', permData.id);
+    .eq('permission_id', permData.id)
 
   if (grants && grants.length > 0) {
-    const grant = grants[0];
+    const grant = grants[0]
     if (!grant.expires_at || new Date(grant.expires_at) > new Date()) {
-      return true; // Valid grant
+      return true // Valid grant
     }
   }
 
@@ -312,27 +312,27 @@ export async function hasPermission(
     .from('role_permissions')
     .select('*')
     .eq('role', user.role)
-    .eq('permission_id', permData.id);
+    .eq('permission_id', permData.id)
 
   if (rolePerms && rolePerms.length > 0) {
     // Additional context checks
     if (context?.organizationId && context.organizationId !== user.organization_id) {
-      return false; // Cross-org access denied
+      return false // Cross-org access denied
     }
-    return true;
+    return true
   }
 
-  return false;
+  return false
 }
 
 // Bulk permission check for UI rendering
 export async function getUserPermissions(user: User): Promise<string[]> {
-  const supabase = createClient(supabaseUrl, supabaseKey);
+  const supabase = createClient(supabaseUrl, supabaseKey)
 
   const { data } = await supabase
     .from('role_permissions')
     .select('permissions(full_permission)')
-    .eq('role', user.role);
+    .eq('role', user.role)
 
   // Merge with user-specific grants
   const { data: grants } = await supabase
@@ -340,23 +340,23 @@ export async function getUserPermissions(user: User): Promise<string[]> {
     .select('permissions(full_permission)')
     .eq('user_id', user.id)
     .eq('override_type', 'grant')
-    .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`);
+    .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
 
   // Remove revocations
   const { data: revocations } = await supabase
     .from('user_permission_overrides')
     .select('permissions(full_permission)')
     .eq('user_id', user.id)
-    .eq('override_type', 'revoke');
+    .eq('override_type', 'revoke')
 
   const allPerms = [
-    ...data.map(d => d.permissions.full_permission),
-    ...grants.map(g => g.permissions.full_permission)
-  ];
+    ...data.map((d) => d.permissions.full_permission),
+    ...grants.map((g) => g.permissions.full_permission),
+  ]
 
-  const revokedPerms = new Set(revocations.map(r => r.permissions.full_permission));
-  
-  return allPerms.filter(p => !revokedPerms.has(p));
+  const revokedPerms = new Set(revocations.map((r) => r.permissions.full_permission))
+
+  return allPerms.filter((p) => !revokedPerms.has(p))
 }
 ```
 
@@ -560,40 +560,40 @@ CREATE POLICY "shared_resources_policy" ON courses
 ```sql
 CREATE TABLE public.audit_logs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  
+
   -- Who
   user_id UUID REFERENCES profiles(id),
   user_email TEXT,
   user_role TEXT,
   impersonated_by UUID REFERENCES profiles(id), -- If action was via impersonation
-  
+
   -- What
   action TEXT NOT NULL, -- 'create', 'read', 'update', 'delete', 'export', 'login', 'logout'
   resource_type TEXT NOT NULL, -- 'tribunal_case', 'user', 'course', 'organization'
   resource_id UUID,
-  
+
   -- When
   timestamp TIMESTAMPTZ DEFAULT NOW(),
-  
+
   -- Where
   ip_address INET,
   user_agent TEXT,
   geo_location JSONB, -- {country, region, city}
-  
+
   -- Why/How
   reason TEXT, -- User-provided reason for sensitive actions
   changes JSONB, -- Before/after values for updates
   query_params JSONB, -- For data exports/queries
-  
+
   -- Context
   organization_id UUID REFERENCES organizations(id),
   session_id TEXT,
   request_id TEXT,
-  
+
   -- Classification
   severity TEXT CHECK (severity IN ('info', 'warning', 'critical')),
   compliance_relevant BOOLEAN DEFAULT false,
-  
+
   -- Retention
   retention_until TIMESTAMPTZ DEFAULT NOW() + INTERVAL '7 years' -- PIPEDA requirement
 );
@@ -630,32 +630,36 @@ CREATE POLICY "audit_logs_select" ON audit_logs
 
 ```typescript
 // src/lib/audit.ts
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js'
 
 interface AuditLogEntry {
-  action: 'create' | 'read' | 'update' | 'delete' | 'export' | 'login' | 'logout' | 'permission_change';
-  resourceType: string;
-  resourceId?: string;
-  reason?: string;
-  changes?: Record<string, any>;
-  severity?: 'info' | 'warning' | 'critical';
-  complianceRelevant?: boolean;
+  action:
+    | 'create'
+    | 'read'
+    | 'update'
+    | 'delete'
+    | 'export'
+    | 'login'
+    | 'logout'
+    | 'permission_change'
+  resourceType: string
+  resourceId?: string
+  reason?: string
+  changes?: Record<string, any>
+  severity?: 'info' | 'warning' | 'critical'
+  complianceRelevant?: boolean
 }
 
-export async function logAudit(
-  entry: AuditLogEntry,
-  user: User,
-  request: Request
-): Promise<void> {
-  const supabase = createClient(supabaseUrl, supabaseServiceKey);
+export async function logAudit(entry: AuditLogEntry, user: User, request: Request): Promise<void> {
+  const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
   // Extract IP and user agent
-  const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip');
-  const userAgent = request.headers.get('user-agent');
+  const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip')
+  const userAgent = request.headers.get('user-agent')
 
   // Determine if action is compliance-relevant
-  const complianceActions = ['export', 'delete', 'permission_change'];
-  const isComplianceRelevant = entry.complianceRelevant || complianceActions.includes(entry.action);
+  const complianceActions = ['export', 'delete', 'permission_change']
+  const isComplianceRelevant = entry.complianceRelevant || complianceActions.includes(entry.action)
 
   await supabase.from('audit_logs').insert({
     user_id: user.id,
@@ -671,8 +675,8 @@ export async function logAudit(
     organization_id: user.organization_id,
     session_id: user.session_id,
     severity: entry.severity || 'info',
-    compliance_relevant: isComplianceRelevant
-  });
+    compliance_relevant: isComplianceRelevant,
+  })
 
   // Alert on critical actions
   if (entry.severity === 'critical') {
@@ -680,19 +684,23 @@ export async function logAudit(
       user: user.email,
       action: entry.action,
       resource: entry.resourceType,
-      timestamp: new Date()
-    });
+      timestamp: new Date(),
+    })
   }
 }
 
 // Usage example
-await logAudit({
-  action: 'export',
-  resourceType: 'tribunal_cases',
-  reason: 'Quarterly compliance report',
-  severity: 'info',
-  complianceRelevant: true
-}, user, request);
+await logAudit(
+  {
+    action: 'export',
+    resourceType: 'tribunal_cases',
+    reason: 'Quarterly compliance report',
+    severity: 'info',
+    complianceRelevant: true,
+  },
+  user,
+  request
+)
 ```
 
 ---
@@ -701,12 +709,12 @@ await logAudit({
 
 ### Classification Levels
 
-| Level | Description | Who Can Access | Examples |
-|-------|-------------|----------------|----------|
-| **Public** | Publicly available information | Everyone | Published courses, public tribunal decisions |
-| **Internal** | Organization-internal data | All org members | Employee training progress, org analytics |
-| **Confidential** | Sensitive business data | Admins, investigators | Investigation notes, disciplinary records |
-| **Restricted** | Highly sensitive data | Super admins only | System configurations, encryption keys |
+| Level            | Description                    | Who Can Access        | Examples                                     |
+| ---------------- | ------------------------------ | --------------------- | -------------------------------------------- |
+| **Public**       | Publicly available information | Everyone              | Published courses, public tribunal decisions |
+| **Internal**     | Organization-internal data     | All org members       | Employee training progress, org analytics    |
+| **Confidential** | Sensitive business data        | Admins, investigators | Investigation notes, disciplinary records    |
+| **Restricted**   | Highly sensitive data          | Super admins only     | System configurations, encryption keys       |
 
 ### Auto-Classification Rules
 
@@ -753,23 +761,23 @@ CREATE TABLE public.access_delegations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   delegator_id UUID REFERENCES profiles(id) NOT NULL, -- Who is granting access
   delegate_id UUID REFERENCES profiles(id) NOT NULL, -- Who is receiving access
-  
+
   permission_ids UUID[], -- Array of permission IDs
   resource_type TEXT,
   resource_ids UUID[], -- Specific resources, or NULL for all
-  
+
   reason TEXT NOT NULL,
   start_date TIMESTAMPTZ DEFAULT NOW(),
   end_date TIMESTAMPTZ NOT NULL,
-  
+
   status TEXT DEFAULT 'active' CHECK (status IN ('active', 'revoked', 'expired')),
   revoked_at TIMESTAMPTZ,
   revoked_by UUID REFERENCES profiles(id),
   revoke_reason TEXT,
-  
+
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
-  
+
   CONSTRAINT valid_date_range CHECK (end_date > start_date),
   CONSTRAINT max_delegation_period CHECK (end_date <= start_date + INTERVAL '90 days')
 );
@@ -801,23 +809,23 @@ $$ LANGUAGE SQL STABLE;
 // src/lib/delegation.ts
 
 interface DelegationRequest {
-  delegateEmail: string;
-  permissions: string[];
-  resourceType?: string;
-  resourceIds?: string[];
-  reason: string;
-  endDate: Date;
+  delegateEmail: string
+  permissions: string[]
+  resourceType?: string
+  resourceIds?: string[]
+  reason: string
+  endDate: Date
 }
 
 export async function createDelegation(
   delegator: User,
   request: DelegationRequest
 ): Promise<Delegation> {
-  const supabase = createClient(supabaseUrl, supabaseServiceKey);
+  const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
   // Validate delegator has permission to delegate
   if (!['org_admin', 'super_admin'].includes(delegator.role)) {
-    throw new Error('Insufficient permissions to delegate access');
+    throw new Error('Insufficient permissions to delegate access')
   }
 
   // Find delegate user
@@ -825,29 +833,29 @@ export async function createDelegation(
     .from('profiles')
     .select('id, organization_id')
     .eq('email', request.delegateEmail)
-    .single();
+    .single()
 
   if (!delegate) {
-    throw new Error('Delegate user not found');
+    throw new Error('Delegate user not found')
   }
 
   // Ensure same organization (unless super_admin)
   if (delegator.role !== 'super_admin' && delegate.organization_id !== delegator.organization_id) {
-    throw new Error('Cannot delegate to users in different organizations');
+    throw new Error('Cannot delegate to users in different organizations')
   }
 
   // Validate end date (max 90 days)
-  const maxEndDate = new Date();
-  maxEndDate.setDate(maxEndDate.getDate() + 90);
+  const maxEndDate = new Date()
+  maxEndDate.setDate(maxEndDate.getDate() + 90)
   if (request.endDate > maxEndDate) {
-    throw new Error('Delegation period cannot exceed 90 days');
+    throw new Error('Delegation period cannot exceed 90 days')
   }
 
   // Get permission IDs
   const { data: permissionIds } = await supabase
     .from('permissions')
     .select('id')
-    .in('full_permission', request.permissions);
+    .in('full_permission', request.permissions)
 
   // Create delegation
   const { data: delegation } = await supabase
@@ -855,33 +863,37 @@ export async function createDelegation(
     .insert({
       delegator_id: delegator.id,
       delegate_id: delegate.id,
-      permission_ids: permissionIds.map(p => p.id),
+      permission_ids: permissionIds.map((p) => p.id),
       resource_type: request.resourceType,
       resource_ids: request.resourceIds,
       reason: request.reason,
-      end_date: request.endDate.toISOString()
+      end_date: request.endDate.toISOString(),
     })
     .select()
-    .single();
+    .single()
 
   // Audit log
-  await logAudit({
-    action: 'permission_change',
-    resourceType: 'delegation',
-    resourceId: delegation.id,
-    reason: `Delegated access to ${request.delegateEmail}`,
-    severity: 'warning',
-    complianceRelevant: true
-  }, delegator, request);
+  await logAudit(
+    {
+      action: 'permission_change',
+      resourceType: 'delegation',
+      resourceId: delegation.id,
+      reason: `Delegated access to ${request.delegateEmail}`,
+      severity: 'warning',
+      complianceRelevant: true,
+    },
+    delegator,
+    request
+  )
 
   // Send notification to delegate
   await sendNotification(delegate.id, {
     type: 'access_granted',
     message: `${delegator.email} has granted you temporary access until ${request.endDate.toLocaleDateString()}`,
-    link: '/settings/delegations'
-  });
+    link: '/settings/delegations',
+  })
 
-  return delegation;
+  return delegation
 }
 
 export async function revokeDelegation(
@@ -889,7 +901,7 @@ export async function revokeDelegation(
   revoker: User,
   reason: string
 ): Promise<void> {
-  const supabase = createClient(supabaseUrl, supabaseServiceKey);
+  const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
   await supabase
     .from('access_delegations')
@@ -897,18 +909,22 @@ export async function revokeDelegation(
       status: 'revoked',
       revoked_at: new Date().toISOString(),
       revoked_by: revoker.id,
-      revoke_reason: reason
+      revoke_reason: reason,
     })
-    .eq('id', delegationId);
+    .eq('id', delegationId)
 
-  await logAudit({
-    action: 'permission_change',
-    resourceType: 'delegation',
-    resourceId: delegationId,
-    reason: `Revoked delegation: ${reason}`,
-    severity: 'warning',
-    complianceRelevant: true
-  }, revoker, request);
+  await logAudit(
+    {
+      action: 'permission_change',
+      resourceType: 'delegation',
+      resourceId: delegationId,
+      reason: `Revoked delegation: ${reason}`,
+      severity: 'warning',
+      complianceRelevant: true,
+    },
+    revoker,
+    request
+  )
 }
 ```
 
@@ -981,44 +997,48 @@ export async function exportComplianceReport(
   requestedBy: User
 ): Promise<Buffer> {
   // Check permission
-  if (!await hasPermission(requestedBy, 'audit_logs.export')) {
-    throw new Error('Insufficient permissions');
+  if (!(await hasPermission(requestedBy, 'audit_logs.export'))) {
+    throw new Error('Insufficient permissions')
   }
 
-  const supabase = createClient(supabaseUrl, supabaseServiceKey);
+  const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-  let data;
+  let data
   switch (reportType) {
     case 'user_access':
       data = await supabase
         .from('compliance_user_access_report')
         .select('*')
-        .eq('organization', orgId);
-      break;
+        .eq('organization', orgId)
+      break
     case 'permission_changes':
       data = await supabase
         .from('compliance_permission_changes')
         .select('*')
         .eq('organization', orgId)
         .gte('timestamp', startDate.toISOString())
-        .lte('timestamp', endDate.toISOString());
-      break;
+        .lte('timestamp', endDate.toISOString())
+      break
     // ... other report types
   }
 
   // Generate CSV
-  const csv = convertToCSV(data);
+  const csv = convertToCSV(data)
 
   // Audit log
-  await logAudit({
-    action: 'export',
-    resourceType: 'compliance_report',
-    reason: `${reportType} report for ${startDate} to ${endDate}`,
-    severity: 'warning',
-    complianceRelevant: true
-  }, requestedBy, request);
+  await logAudit(
+    {
+      action: 'export',
+      resourceType: 'compliance_report',
+      reason: `${reportType} report for ${startDate} to ${endDate}`,
+      severity: 'warning',
+      complianceRelevant: true,
+    },
+    requestedBy,
+    request
+  )
 
-  return Buffer.from(csv);
+  return Buffer.from(csv)
 }
 ```
 
@@ -1031,59 +1051,59 @@ const PIPEDA_REQUIREMENTS = {
   consent: {
     implemented: true,
     notes: 'Users consent to data collection during signup',
-    evidence: 'Consent checkboxes in registration form'
+    evidence: 'Consent checkboxes in registration form',
   },
   limiting_collection: {
     implemented: true,
     notes: 'Only collect data necessary for service delivery',
-    evidence: 'Data minimization in schema design'
+    evidence: 'Data minimization in schema design',
   },
   limiting_use: {
     implemented: true,
     notes: 'Data only used for stated purposes (training, analytics)',
-    evidence: 'Privacy policy + RLS policies'
+    evidence: 'Privacy policy + RLS policies',
   },
   accuracy: {
     implemented: true,
     notes: 'Users can update their profiles',
-    evidence: 'Profile edit functionality'
+    evidence: 'Profile edit functionality',
   },
   safeguards: {
     implemented: true,
     notes: 'Encryption at rest (AES-256), in transit (TLS 1.3), RLS, MFA',
-    evidence: 'Security controls documented in SECURITY.md'
+    evidence: 'Security controls documented in SECURITY.md',
   },
   openness: {
     implemented: true,
     notes: 'Privacy policy published and accessible',
-    evidence: 'Public /privacy-policy page'
+    evidence: 'Public /privacy-policy page',
   },
   individual_access: {
     implemented: true,
     notes: 'Users can view all their data via profile dashboard',
-    evidence: '/profile/data-export endpoint'
+    evidence: '/profile/data-export endpoint',
   },
   challenging_compliance: {
     implemented: true,
     notes: 'Contact form for privacy inquiries',
-    evidence: 'privacy@abrinsights.com email'
+    evidence: 'privacy@abrinsights.com email',
   },
   accountability: {
     implemented: true,
     notes: 'Designated Privacy Officer (super_admin role)',
-    evidence: 'Privacy Officer contact in footer'
+    evidence: 'Privacy Officer contact in footer',
   },
   data_portability: {
     implemented: true,
     notes: 'Users can export all their data as JSON',
-    evidence: '/api/users/me/export endpoint'
+    evidence: '/api/users/me/export endpoint',
   },
   right_to_erasure: {
     implemented: true,
     notes: 'Users can request account deletion',
-    evidence: '/api/users/me/delete endpoint with soft delete + cascade'
-  }
-};
+    evidence: '/api/users/me/delete endpoint with soft delete + cascade',
+  },
+}
 ```
 
 ---
@@ -1219,15 +1239,15 @@ $$ LANGUAGE SQL STABLE;
 
 ## Success Metrics
 
-| Metric | Target | Measurement |
-|--------|--------|-------------|
-| **Unauthorized Access Attempts** | 0 | Audit log analysis |
-| **RLS Policy Coverage** | 100% of tables | Code review |
-| **MFA Adoption (Admins)** | 100% | User settings table |
-| **Audit Log Completeness** | 100% of sensitive actions | Automated checks |
-| **Permission Check Performance** | < 50ms | Application Insights |
-| **Compliance Report Generation** | < 30s | Monitoring |
-| **Zero Security Incidents** | 0 data breaches | Ongoing monitoring |
+| Metric                           | Target                    | Measurement          |
+| -------------------------------- | ------------------------- | -------------------- |
+| **Unauthorized Access Attempts** | 0                         | Audit log analysis   |
+| **RLS Policy Coverage**          | 100% of tables            | Code review          |
+| **MFA Adoption (Admins)**        | 100%                      | User settings table  |
+| **Audit Log Completeness**       | 100% of sensitive actions | Automated checks     |
+| **Permission Check Performance** | < 50ms                    | Application Insights |
+| **Compliance Report Generation** | < 30s                     | Monitoring           |
+| **Zero Security Incidents**      | 0 data breaches           | Ongoing monitoring   |
 
 ---
 

@@ -4,7 +4,16 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { PermissionGate } from '@/components/shared/PermissionGate'
-import { Building2, Users, Settings, TrendingUp, Shield, Plus, ExternalLink, Eye } from 'lucide-react'
+import {
+  Building2,
+  Users,
+  Settings,
+  TrendingUp,
+  Shield,
+  Plus,
+  ExternalLink,
+  Eye,
+} from 'lucide-react'
 import Link from 'next/link'
 
 interface Organization {
@@ -48,8 +57,9 @@ export default function AdminOrganizationsPage() {
     loadOrganizations()
   }, [loadOrganizations])
 
-  const filteredOrganizations = organizations.filter(org => {
-    const matchesSearch = !searchQuery || 
+  const filteredOrganizations = organizations.filter((org) => {
+    const matchesSearch =
+      !searchQuery ||
       org.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       org.slug.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesType = !typeFilter || org.type === typeFilter
@@ -58,14 +68,22 @@ export default function AdminOrganizationsPage() {
 
   const stats = [
     { label: 'Total Organizations', value: organizations.length.toString(), icon: Building2 },
-    { label: 'Active Organizations', value: organizations.filter(o => o.settings?.status !== 'suspended').length.toString(), icon: Shield },
-    { label: 'Organization Types', value: new Set(organizations.map(o => o.type)).size.toString(), icon: TrendingUp },
+    {
+      label: 'Active Organizations',
+      value: organizations.filter((o) => o.settings?.status !== 'suspended').length.toString(),
+      icon: Shield,
+    },
+    {
+      label: 'Organization Types',
+      value: new Set(organizations.map((o) => o.type)).size.toString(),
+      icon: TrendingUp,
+    },
     { label: 'Total Capacity', value: 'N/A', icon: Users },
   ]
 
   if (loading) {
     return (
-      <div className="container-custom pt-20 pb-8">
+      <div className="container-custom pb-8 pt-20">
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
             <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"></div>
@@ -77,16 +95,14 @@ export default function AdminOrganizationsPage() {
   }
 
   return (
-    <div className="container-custom pt-20 pb-8">
+    <div className="container-custom pb-8 pt-20">
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Organizations</h1>
-          <p className="mt-2 text-gray-600">
-            Manage organizations and their subscriptions
-          </p>
+          <p className="mt-2 text-gray-600">Manage organizations and their subscriptions</p>
         </div>
         <PermissionGate permission={['organizations.create', 'organizations.manage']} requireAny>
-          <button 
+          <button
             onClick={() => router.push('/admin/organizations/create')}
             className="btn-primary flex items-center gap-2"
           >
@@ -101,7 +117,10 @@ export default function AdminOrganizationsPage() {
         {stats.map((stat) => {
           const Icon = stat.icon
           return (
-            <div key={stat.label} className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+            <div
+              key={stat.label}
+              className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
+            >
               <div className="flex items-center gap-3">
                 <div className="rounded-full bg-primary-50 p-3">
                   <Icon className="h-5 w-5 text-primary-600" />
@@ -126,8 +145,8 @@ export default function AdminOrganizationsPage() {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
-        <select 
-          className="input max-w-xs" 
+        <select
+          className="input max-w-xs"
           aria-label="Filter organizations by type"
           value={typeFilter}
           onChange={(e) => setTypeFilter(e.target.value)}
@@ -147,7 +166,9 @@ export default function AdminOrganizationsPage() {
             <Building2 className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-sm font-medium text-gray-900">No organizations found</h3>
             <p className="mt-1 text-sm text-gray-500">
-              {searchQuery || typeFilter ? 'Try adjusting your filters' : 'Get started by creating a new organization'}
+              {searchQuery || typeFilter
+                ? 'Try adjusting your filters'
+                : 'Get started by creating a new organization'}
             </p>
           </div>
         ) : (
@@ -194,7 +215,7 @@ export default function AdminOrganizationsPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="inline-flex items-center rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-800 capitalize">
+                    <span className="inline-flex items-center rounded-md bg-gray-100 px-2 py-1 text-xs font-medium capitalize text-gray-800">
                       {org.type || 'N/A'}
                     </span>
                   </td>
@@ -207,8 +228,8 @@ export default function AdminOrganizationsPage() {
                         (org.settings?.status || 'active') === 'active'
                           ? 'bg-green-100 text-green-800'
                           : (org.settings?.status || 'active') === 'trial'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-red-100 text-red-800'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-red-100 text-red-800'
                       }`}
                     >
                       {org.settings?.status || 'active'}
@@ -221,7 +242,7 @@ export default function AdminOrganizationsPage() {
                     <div className="flex items-center gap-3">
                       <Link
                         href={`/admin/organizations/${org.id}`}
-                        className="text-sm font-medium text-primary-600 hover:text-primary-700 flex items-center gap-1"
+                        className="flex items-center gap-1 text-sm font-medium text-primary-600 hover:text-primary-700"
                       >
                         <ExternalLink className="h-4 w-4" />
                         View

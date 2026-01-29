@@ -5,11 +5,11 @@
  */
 
 import { createClient } from '@/lib/supabase/client'
-import type { 
-  WatchHistory, 
-  CreateWatchHistoryData, 
+import type {
+  WatchHistory,
+  CreateWatchHistoryData,
   UpdateWatchHistoryData,
-  WatchStatistics
+  WatchStatistics,
 } from '@/lib/types/courses'
 
 const supabase = createClient()
@@ -26,7 +26,7 @@ export async function startWatchSession(
     .insert({
       user_id: userId,
       ...data,
-      started_at: new Date().toISOString()
+      started_at: new Date().toISOString(),
     })
     .select()
     .single()
@@ -76,7 +76,7 @@ export async function endWatchSession(
     end_position_seconds: Math.floor(endPosition),
     duration_seconds: Math.floor(duration),
     progress_percentage: progressPercentage,
-    completed_session: completed
+    completed_session: completed,
   })
 }
 
@@ -195,10 +195,7 @@ export async function getWatchTimeByDateRange(
 /**
  * Get the last watched position for a lesson (for resume)
  */
-export async function getLastWatchedPosition(
-  userId: string,
-  lessonId: string
-): Promise<number> {
+export async function getLastWatchedPosition(userId: string, lessonId: string): Promise<number> {
   const { data, error } = await supabase
     .from('watch_history')
     .select('end_position_seconds')
@@ -223,10 +220,7 @@ export async function getLastWatchedPosition(
 /**
  * Check if a lesson has been watched recently (within last 7 days)
  */
-export async function hasRecentWatchHistory(
-  userId: string,
-  lessonId: string
-): Promise<boolean> {
+export async function hasRecentWatchHistory(userId: string, lessonId: string): Promise<boolean> {
   const sevenDaysAgo = new Date()
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
 
@@ -251,7 +245,7 @@ export async function hasRecentWatchHistory(
  */
 export function getDeviceInfo(): { device_type: string; browser: string } {
   const ua = navigator.userAgent
-  
+
   // Detect device type
   let device_type = 'desktop'
   if (/mobile/i.test(ua)) {
@@ -259,7 +253,7 @@ export function getDeviceInfo(): { device_type: string; browser: string } {
   } else if (/tablet|ipad/i.test(ua)) {
     device_type = 'tablet'
   }
-  
+
   // Detect browser
   let browser = 'unknown'
   if (ua.includes('Chrome')) {
@@ -271,6 +265,6 @@ export function getDeviceInfo(): { device_type: string; browser: string } {
   } else if (ua.includes('Edge')) {
     browser = 'Edge'
   }
-  
+
   return { device_type, browser }
 }

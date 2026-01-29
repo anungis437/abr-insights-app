@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server'
 
 /**
  * Server-side permission check utilities
@@ -6,49 +6,45 @@ import { createClient } from '@/lib/supabase/server';
  */
 
 export interface PermissionCheckResult {
-  allowed: boolean;
-  error?: string;
+  allowed: boolean
+  error?: string
 }
 
 /**
  * Check if current user has a specific permission
  */
-export async function hasPermission(
-  permissionName: string
-): Promise<PermissionCheckResult> {
+export async function hasPermission(permissionName: string): Promise<PermissionCheckResult> {
   try {
-    const supabase = await createClient();
+    const supabase = await createClient()
 
     const { data, error } = await supabase.rpc('has_permission', {
       permission_name: permissionName,
-    });
+    })
 
     if (error) {
-      console.error('Permission check error:', error);
-      return { allowed: false, error: error.message };
+      console.error('Permission check error:', error)
+      return { allowed: false, error: error.message }
     }
 
-    return { allowed: data === true };
+    return { allowed: data === true }
   } catch (error) {
-    console.error('Permission check exception:', error);
-    return { allowed: false, error: 'Permission check failed' };
+    console.error('Permission check exception:', error)
+    return { allowed: false, error: 'Permission check failed' }
   }
 }
 
 /**
  * Check if current user has ANY of the specified permissions
  */
-export async function hasAnyPermission(
-  permissions: string[]
-): Promise<PermissionCheckResult> {
+export async function hasAnyPermission(permissions: string[]): Promise<PermissionCheckResult> {
   try {
-    const supabase = await createClient();
+    const supabase = await createClient()
     const {
       data: { user },
-    } = await supabase.auth.getUser();
+    } = await supabase.auth.getUser()
 
     if (!user) {
-      return { allowed: false, error: 'Not authenticated' };
+      return { allowed: false, error: 'Not authenticated' }
     }
 
     // Get user's organization
@@ -56,44 +52,42 @@ export async function hasAnyPermission(
       .from('profiles')
       .select('organization_id')
       .eq('user_id', user.id)
-      .single();
+      .single()
 
     if (!profile?.organization_id) {
-      return { allowed: false, error: 'No organization found' };
+      return { allowed: false, error: 'No organization found' }
     }
 
     const { data, error } = await supabase.rpc('has_any_permission', {
       user_id: user.id,
       org_id: profile.organization_id,
       permissions: permissions,
-    });
+    })
 
     if (error) {
-      console.error('Permission check error:', error);
-      return { allowed: false, error: error.message };
+      console.error('Permission check error:', error)
+      return { allowed: false, error: error.message }
     }
 
-    return { allowed: data === true };
+    return { allowed: data === true }
   } catch (error) {
-    console.error('Permission check exception:', error);
-    return { allowed: false, error: 'Permission check failed' };
+    console.error('Permission check exception:', error)
+    return { allowed: false, error: 'Permission check failed' }
   }
 }
 
 /**
  * Check if current user has ALL of the specified permissions
  */
-export async function hasAllPermissions(
-  permissions: string[]
-): Promise<PermissionCheckResult> {
+export async function hasAllPermissions(permissions: string[]): Promise<PermissionCheckResult> {
   try {
-    const supabase = await createClient();
+    const supabase = await createClient()
     const {
       data: { user },
-    } = await supabase.auth.getUser();
+    } = await supabase.auth.getUser()
 
     if (!user) {
-      return { allowed: false, error: 'Not authenticated' };
+      return { allowed: false, error: 'Not authenticated' }
     }
 
     // Get user's organization
@@ -101,27 +95,27 @@ export async function hasAllPermissions(
       .from('profiles')
       .select('organization_id')
       .eq('user_id', user.id)
-      .single();
+      .single()
 
     if (!profile?.organization_id) {
-      return { allowed: false, error: 'No organization found' };
+      return { allowed: false, error: 'No organization found' }
     }
 
     const { data, error } = await supabase.rpc('has_all_permissions', {
       user_id: user.id,
       org_id: profile.organization_id,
       permissions: permissions,
-    });
+    })
 
     if (error) {
-      console.error('Permission check error:', error);
-      return { allowed: false, error: error.message };
+      console.error('Permission check error:', error)
+      return { allowed: false, error: error.message }
     }
 
-    return { allowed: data === true };
+    return { allowed: data === true }
   } catch (error) {
-    console.error('Permission check exception:', error);
-    return { allowed: false, error: 'Permission check failed' };
+    console.error('Permission check exception:', error)
+    return { allowed: false, error: 'Permission check failed' }
   }
 }
 
@@ -130,28 +124,28 @@ export async function hasAllPermissions(
  */
 export async function isAdmin(): Promise<PermissionCheckResult> {
   try {
-    const supabase = await createClient();
+    const supabase = await createClient()
     const {
       data: { user },
-    } = await supabase.auth.getUser();
+    } = await supabase.auth.getUser()
 
     if (!user) {
-      return { allowed: false, error: 'Not authenticated' };
+      return { allowed: false, error: 'Not authenticated' }
     }
 
     const { data, error } = await supabase.rpc('is_admin', {
       user_id: user.id,
-    });
+    })
 
     if (error) {
-      console.error('Admin check error:', error);
-      return { allowed: false, error: error.message };
+      console.error('Admin check error:', error)
+      return { allowed: false, error: error.message }
     }
 
-    return { allowed: data === true };
+    return { allowed: data === true }
   } catch (error) {
-    console.error('Admin check exception:', error);
-    return { allowed: false, error: 'Admin check failed' };
+    console.error('Admin check exception:', error)
+    return { allowed: false, error: 'Admin check failed' }
   }
 }
 
@@ -160,9 +154,9 @@ export async function isAdmin(): Promise<PermissionCheckResult> {
  * Use in Server Actions that must have permission
  */
 export async function requirePermission(permissionName: string): Promise<void> {
-  const result = await hasPermission(permissionName);
+  const result = await hasPermission(permissionName)
   if (!result.allowed) {
-    throw new Error(result.error || `Permission denied: ${permissionName}`);
+    throw new Error(result.error || `Permission denied: ${permissionName}`)
   }
 }
 
@@ -170,11 +164,11 @@ export async function requirePermission(permissionName: string): Promise<void> {
  * Require any permission - throws error if none are allowed
  */
 export async function requireAnyPermission(permissions: string[]): Promise<void> {
-  const result = await hasAnyPermission(permissions);
+  const result = await hasAnyPermission(permissions)
   if (!result.allowed) {
     throw new Error(
       result.error || `Permission denied: requires one of [${permissions.join(', ')}]`
-    );
+    )
   }
 }
 
@@ -182,11 +176,11 @@ export async function requireAnyPermission(permissions: string[]): Promise<void>
  * Require all permissions - throws error if any are missing
  */
 export async function requireAllPermissions(permissions: string[]): Promise<void> {
-  const result = await hasAllPermissions(permissions);
+  const result = await hasAllPermissions(permissions)
   if (!result.allowed) {
     throw new Error(
       result.error || `Permission denied: requires all of [${permissions.join(', ')}]`
-    );
+    )
   }
 }
 
@@ -194,8 +188,8 @@ export async function requireAllPermissions(permissions: string[]): Promise<void
  * Require admin access - throws error if not admin
  */
 export async function requireAdmin(): Promise<void> {
-  const result = await isAdmin();
+  const result = await isAdmin()
   if (!result.allowed) {
-    throw new Error(result.error || 'Admin access required');
+    throw new Error(result.error || 'Admin access required')
   }
 }

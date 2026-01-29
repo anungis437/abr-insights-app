@@ -129,6 +129,7 @@ CREATE TABLE learning_paths (
 ### 1.2 Course Builder Interface
 
 **Admin Tools:**
+
 - Drag-and-drop course builder
 - Module/lesson organization
 - Bulk content upload
@@ -143,6 +144,7 @@ CREATE TABLE learning_paths (
 ### 2.1 Video Player Enhancement
 
 **Features:**
+
 - Custom video player with ABR Insights branding
 - Progress tracking (resume where left off)
 - Note-taking during playback
@@ -153,6 +155,7 @@ CREATE TABLE learning_paths (
 - Watch history
 
 **Technology Stack:**
+
 - Video.js or Plyr for player
 - Azure Media Services or Vimeo for hosting
 - HLS streaming for adaptive bitrate
@@ -161,6 +164,7 @@ CREATE TABLE learning_paths (
 ### 2.2 Progress Tracking & Analytics
 
 **Student-Facing:**
+
 - Course completion percentage
 - Time spent per lesson
 - Quiz performance tracking
@@ -170,6 +174,7 @@ CREATE TABLE learning_paths (
 - Personal learning dashboard
 
 **Admin Analytics:**
+
 - Enrollment trends
 - Drop-off points (where students quit)
 - Average completion rates
@@ -181,6 +186,7 @@ CREATE TABLE learning_paths (
 ### 2.3 Interactive Elements
 
 **Discussion Forums:**
+
 - Per-lesson discussions
 - Q&A with instructors
 - Peer collaboration
@@ -188,12 +194,14 @@ CREATE TABLE learning_paths (
 - Upvoting/best answers
 
 **Live Sessions:**
+
 - Scheduled webinars
 - Office hours with instructors
 - Group study sessions
 - Recording availability
 
 **Collaborative Learning:**
+
 - Study groups
 - Peer review system
 - Group projects
@@ -206,6 +214,7 @@ CREATE TABLE learning_paths (
 ### 3.1 Quiz Engine Enhancement
 
 **Question Types:**
+
 1. Multiple Choice (single answer)
 2. Multiple Response (select all that apply)
 3. True/False
@@ -217,6 +226,7 @@ CREATE TABLE learning_paths (
 9. Essay/long answer
 
 **Features:**
+
 - Question bank management
 - Random question pools
 - Adaptive difficulty
@@ -229,6 +239,7 @@ CREATE TABLE learning_paths (
 ### 3.2 Certification System
 
 **Components:**
+
 1. **Certificate Generation**
    - Professional PDF certificates
    - Digital badges (Open Badges standard)
@@ -252,6 +263,7 @@ CREATE TABLE learning_paths (
 ### 3.3 Regulatory Compliance
 
 **Canadian Requirements:**
+
 - MFDA (Mutual Fund Dealers Association) CE tracking
 - IIROC (Investment Industry Regulatory Organization) compliance
 - Provincial insurance licensing CE
@@ -268,6 +280,7 @@ CREATE TABLE learning_paths (
 ### 4.1 Course Development Pipeline ✅
 
 **Workflow Implemented:**
+
 1. ✅ Draft → In Review → Needs Revision → Approved → Published → Archived
 2. ✅ Version control with semantic versioning (major.minor.patch)
 3. ✅ Multi-tier review system (peer, compliance, accessibility, QA)
@@ -276,6 +289,7 @@ CREATE TABLE learning_paths (
 6. ✅ Rejection feedback with revision tracking
 
 **Database Objects Created:**
+
 - `course_versions` - Version snapshots with JSONB content
 - `course_reviews` - Review records with quality scoring
 - `course_workflow_history` - Complete audit trail
@@ -286,6 +300,7 @@ CREATE TABLE learning_paths (
 ### 4.2 Instructor Portal ✅
 
 **Features Implemented:**
+
 - ✅ Instructor profiles (bio, credentials, specializations, certifications)
 - ✅ Course assignment with revenue sharing
 - ✅ Analytics dashboard with time-series data
@@ -295,6 +310,7 @@ CREATE TABLE learning_paths (
 - ✅ Profile approval workflow
 
 **Database Objects Created:**
+
 - `instructor_profiles` - Extended user profiles
 - `course_instructors` - Many-to-many with roles and revenue share
 - `instructor_analytics` - Time-series metrics (daily/weekly/monthly)
@@ -304,12 +320,14 @@ CREATE TABLE learning_paths (
 - Functions: `get_instructor_analytics()`, `get_instructor_courses()`, `send_instructor_message()`, `calculate_instructor_effectiveness()`
 
 **UI Components Created:**
+
 - `/admin/courses/workflow` - Admin workflow management page
 - `/instructor/dashboard` - Instructor dashboard with analytics
 
 ### 4.3 Content Quality Assurance ✅
 
 **19-Item Checklist Implemented:**
+
 - ✅ Accessibility compliance (WCAG 2.1 AA)
 - ✅ Bilingual availability (English/French)
 - ✅ Video quality standards
@@ -331,10 +349,12 @@ CREATE TABLE learning_paths (
 - ✅ Auto-calculated completion percentage
 
 **Service Layer:**
+
 - `lib/services/course-workflow.ts` (668 lines, 25+ methods)
 - `lib/services/instructors.ts` (769 lines, 35+ methods)
 
 **Build Verification:**
+
 - 534 pages generated
 - 0 TypeScript errors
 - 2 new routes deployed
@@ -346,6 +366,7 @@ CREATE TABLE learning_paths (
 ### 5.1 Achievement System
 
 **Types:**
+
 1. **Course Completion Badges**
    - Bronze (1-5 courses)
    - Silver (6-15 courses)
@@ -372,6 +393,7 @@ CREATE TABLE learning_paths (
 ### 5.2 Points & Rewards System
 
 **Point Sources:**
+
 - Course completion (100-1000 pts based on difficulty)
 - Quiz performance (bonus for high scores)
 - Peer helping (answering questions)
@@ -380,6 +402,7 @@ CREATE TABLE learning_paths (
 - Social sharing
 
 **Redemption Options:**
+
 - Leaderboard recognition
 - Premium content access
 - Course discounts
@@ -389,6 +412,7 @@ CREATE TABLE learning_paths (
 ### 5.3 Social Learning
 
 **Features:**
+
 - User profiles with achievements
 - Follow instructors/peers
 - Share progress
@@ -403,6 +427,7 @@ CREATE TABLE learning_paths (
 ### 6.1 Progressive Web App (PWA)
 
 **Capabilities:**
+
 - Install to home screen
 - Push notifications
 - Offline course access
@@ -412,6 +437,7 @@ CREATE TABLE learning_paths (
 ### 6.2 Offline Content
 
 **Features:**
+
 - Download courses for offline
 - Offline video playback
 - Sync progress when online
@@ -421,6 +447,7 @@ CREATE TABLE learning_paths (
 ### 6.3 Mobile Optimization
 
 **Focus Areas:**
+
 - Touch-friendly interface
 - Vertical video support
 - Reduced data mode
@@ -435,6 +462,7 @@ CREATE TABLE learning_paths (
 ### 7.1 AI-Powered Personalization
 
 **Features:**
+
 - Personalized course recommendations
 - Adaptive learning paths
 - Intelligent content sequencing
@@ -445,6 +473,7 @@ CREATE TABLE learning_paths (
 ### 7.2 Live Learning Tools
 
 **Components:**
+
 - Virtual classroom integration (Zoom/Teams)
 - Live quizzes and polls
 - Breakout rooms
@@ -455,6 +484,7 @@ CREATE TABLE learning_paths (
 ### 7.3 Enterprise Features
 
 **B2B Capabilities:**
+
 - Organization management
 - Bulk user enrollment
 - Custom learning paths
@@ -472,6 +502,7 @@ CREATE TABLE learning_paths (
 ### 8.1 Testing Strategy
 
 **Test Types:**
+
 1. **Functional Testing**
    - Course creation flow
    - Enrollment process
@@ -511,6 +542,7 @@ CREATE TABLE learning_paths (
 ### 8.2 Documentation
 
 **Required Docs:**
+
 1. Student guide
 2. Instructor manual
 3. Admin documentation
@@ -542,6 +574,7 @@ CREATE TABLE learning_paths (
 ### Technology Stack
 
 **Frontend:**
+
 - Next.js 15 (React)
 - TypeScript
 - Tailwind CSS
@@ -551,6 +584,7 @@ CREATE TABLE learning_paths (
 - Zustand for state management
 
 **Backend:**
+
 - Supabase (PostgreSQL)
 - Row Level Security (RLS)
 - Edge Functions for serverless
@@ -558,12 +592,14 @@ CREATE TABLE learning_paths (
 - Real-time subscriptions
 
 **Media:**
+
 - Azure Media Services or Vimeo
 - Cloudinary for images
 - CDN for static assets
 - HLS streaming
 
 **Third-Party Integrations:**
+
 - Stripe for payments
 - SendGrid for emails
 - Zoom/Teams for live sessions
@@ -573,6 +609,7 @@ CREATE TABLE learning_paths (
 ### Database Architecture
 
 **Key Tables:**
+
 1. `courses` - Course metadata
 2. `course_modules` - Module organization
 3. `lessons` - Individual lessons
@@ -632,6 +669,7 @@ GET    /api/my/analytics                // Personal analytics
 ### Key Performance Indicators (KPIs)
 
 **Engagement Metrics:**
+
 - Course enrollment rate
 - Course completion rate (target: >60%)
 - Average time to completion
@@ -641,6 +679,7 @@ GET    /api/my/analytics                // Personal analytics
 - Daily/weekly active users
 
 **Quality Metrics:**
+
 - Student satisfaction (target: 4.5/5)
 - Net Promoter Score (NPS)
 - Course ratings
@@ -649,6 +688,7 @@ GET    /api/my/analytics                // Personal analytics
 - Bug report frequency
 
 **Business Metrics:**
+
 - Revenue per course
 - Customer lifetime value
 - Churn rate
@@ -657,6 +697,7 @@ GET    /api/my/analytics                // Personal analytics
 - Monthly recurring revenue (MRR)
 
 **Accessibility Metrics:**
+
 - WCAG compliance score
 - Screen reader usage
 - Keyboard navigation usage
@@ -668,6 +709,7 @@ GET    /api/my/analytics                // Personal analytics
 ## 🚀 Quick Start Implementation Plan
 
 ### Week 1-2: Foundation
+
 1. ✅ Create feature branch
 2. Review existing course schema
 3. Design enhanced database schema
@@ -676,6 +718,7 @@ GET    /api/my/analytics                // Personal analytics
 6. Set up development environment
 
 ### Week 3-4: Core Features
+
 1. Implement module system
 2. Build course creation wizard
 3. Create lesson editor
@@ -684,6 +727,7 @@ GET    /api/my/analytics                // Personal analytics
 6. Create enrollment system
 
 ### Week 5-6: Assessment
+
 1. Build quiz engine
 2. Create question types
 3. Implement grading system
@@ -692,6 +736,7 @@ GET    /api/my/analytics                // Personal analytics
 6. Build student transcript
 
 ### Week 7-8: Content Management
+
 1. Build instructor portal
 2. Create content upload tools
 3. Implement version control
@@ -700,6 +745,7 @@ GET    /api/my/analytics                // Personal analytics
 6. Build resource library
 
 ### Week 9-10: Engagement
+
 1. Implement achievement system
 2. Build points/rewards system
 3. Create discussion forums
@@ -708,6 +754,7 @@ GET    /api/my/analytics                // Personal analytics
 6. Implement notifications
 
 ### Week 11-12: Mobile
+
 1. Optimize for mobile
 2. Implement PWA features
 3. Build offline functionality
@@ -716,6 +763,7 @@ GET    /api/my/analytics                // Personal analytics
 6. Test on devices
 
 ### Week 13-14: Advanced
+
 1. Implement AI recommendations
 2. Build live session tools
 3. Create enterprise features
@@ -724,6 +772,7 @@ GET    /api/my/analytics                // Personal analytics
 6. Create white-label options
 
 ### Week 15-16: QA & Launch
+
 1. Comprehensive testing
 2. Accessibility audit
 3. Security review
@@ -773,6 +822,7 @@ GET    /api/my/analytics                // Personal analytics
 ## 📝 Compliance & Standards Checklist
 
 ### Canadian Requirements
+
 - [ ] WCAG 2.1 Level AA compliance
 - [ ] Official Languages Act (where applicable)
 - [ ] PIPEDA privacy compliance
@@ -783,6 +833,7 @@ GET    /api/my/analytics                // Personal analytics
 - [ ] Data residency options
 
 ### International Standards
+
 - [ ] SCORM/xAPI compatibility
 - [ ] Open Badges specification
 - [ ] ISO 29990 (learning services)
@@ -796,6 +847,7 @@ GET    /api/my/analytics                // Personal analytics
 ### Initial Course Catalog (Year 1)
 
 **Foundation Courses (Beginner):**
+
 1. Introduction to Arbitration in Canada
 2. Canadian Securities Regulations 101
 3. Real Estate Arbitration Fundamentals
@@ -803,6 +855,7 @@ GET    /api/my/analytics                // Personal analytics
 5. Professional Conduct & Ethics
 
 **Intermediate Courses:**
+
 1. Complex Commercial Arbitration
 2. Investment Dispute Resolution
 3. Multi-Party Arbitration Procedures
@@ -810,6 +863,7 @@ GET    /api/my/analytics                // Personal analytics
 5. Arbitration Award Writing
 
 **Advanced Courses:**
+
 1. International Commercial Arbitration
 2. Construction Arbitration Masterclass
 3. Sports Arbitration
@@ -817,6 +871,7 @@ GET    /api/my/analytics                // Personal analytics
 5. Arbitration in Family Law
 
 **Specialized Tracks:**
+
 1. Becoming an Arbitrator (Full Certificate Program)
 2. Corporate Counsel Track
 3. Government Regulator Track
@@ -824,6 +879,7 @@ GET    /api/my/analytics                // Personal analytics
 5. Expert Witness Training
 
 ### Content Partners
+
 - Law schools
 - Professional associations
 - Industry experts
@@ -835,16 +891,16 @@ GET    /api/my/analytics                // Personal analytics
 
 ## 📅 Timeline Summary
 
-| Phase | Duration | Key Deliverables |
-|-------|----------|------------------|
-| 1. Architecture | 2 weeks | Enhanced schema, migrations, documentation |
-| 2. Learning Experience | 2 weeks | Video player, progress tracking, interactions |
-| 3. Assessment | 2 weeks | Quiz engine, certifications, CE tracking |
-| 4. Content Management | 2 weeks | Course builder, instructor portal, QA tools |
-| 5. Gamification | 2 weeks | Achievements, points, social features |
-| 6. Mobile | 2 weeks | PWA, offline mode, mobile optimization |
-| 7. Advanced Features | 2 weeks | AI, live tools, enterprise features |
-| 8. QA & Launch | 2 weeks | Testing, documentation, launch |
+| Phase                  | Duration | Key Deliverables                              |
+| ---------------------- | -------- | --------------------------------------------- |
+| 1. Architecture        | 2 weeks  | Enhanced schema, migrations, documentation    |
+| 2. Learning Experience | 2 weeks  | Video player, progress tracking, interactions |
+| 3. Assessment          | 2 weeks  | Quiz engine, certifications, CE tracking      |
+| 4. Content Management  | 2 weeks  | Course builder, instructor portal, QA tools   |
+| 5. Gamification        | 2 weeks  | Achievements, points, social features         |
+| 6. Mobile              | 2 weeks  | PWA, offline mode, mobile optimization        |
+| 7. Advanced Features   | 2 weeks  | AI, live tools, enterprise features           |
+| 8. QA & Launch         | 2 weeks  | Testing, documentation, launch                |
 
 **Total Duration:** 16 weeks (4 months)
 
@@ -866,6 +922,7 @@ GET    /api/my/analytics                // Personal analytics
 ## 📞 Stakeholders & Team
 
 **Development Team:**
+
 - Lead Developer
 - Frontend Developer
 - Backend Developer
@@ -873,6 +930,7 @@ GET    /api/my/analytics                // Personal analytics
 - QA Engineer
 
 **Content Team:**
+
 - Content Manager
 - Instructional Designer
 - Video Producer
@@ -880,12 +938,14 @@ GET    /api/my/analytics                // Personal analytics
 - Translator (EN/FR)
 
 **Subject Matter Experts:**
+
 - Arbitration experts
 - Legal professionals
 - Regulatory advisors
 - Accessibility consultant
 
 **Advisory Board:**
+
 - Education specialists
 - Regulatory representatives
 - User representatives

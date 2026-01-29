@@ -1,46 +1,46 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Generate PWA Icons</title>
-</head>
-<body>
+  </head>
+  <body>
     <h1>PWA Icon Generator</h1>
     <p>Generating icons... Check your downloads folder.</p>
-    <canvas id="canvas" style="display: none;"></canvas>
-    
+    <canvas id="canvas" style="display: none"></canvas>
+
     <script>
-        const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        
-        sizes.forEach(size => {
-            canvas.width = size;
-            canvas.height = size;
-            
-            // Background
-            ctx.fillStyle = '#0070f3';
-            ctx.fillRect(0, 0, size, size);
-            
-            // Text
-            ctx.fillStyle = 'white';
-            ctx.font = `bold ${size * 0.4}px Arial, sans-serif`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('ABR', size / 2, size / 2);
-            
-            // Download
-            canvas.toBlob(blob => {
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `icon-${size}x${size}.png`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-            }, 'image/png');
-        });
+      const sizes = [72, 96, 128, 144, 152, 192, 384, 512]
+      const canvas = document.getElementById('canvas')
+      const ctx = canvas.getContext('2d')
+
+      sizes.forEach((size) => {
+        canvas.width = size
+        canvas.height = size
+
+        // Background
+        ctx.fillStyle = '#0070f3'
+        ctx.fillRect(0, 0, size, size)
+
+        // Text
+        ctx.fillStyle = 'white'
+        ctx.font = `bold ${size * 0.4}px Arial, sans-serif`
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.fillText('ABR', size / 2, size / 2)
+
+        // Download
+        canvas.toBlob((blob) => {
+          const url = URL.createObjectURL(blob)
+          const a = document.createElement('a')
+          a.href = url
+          a.download = `icon-${size}x${size}.png`
+          document.body.appendChild(a)
+          a.click()
+          document.body.removeChild(a)
+          URL.revokeObjectURL(url)
+        }, 'image/png')
+      })
     </script>
-</body>
+  </body>
 </html>

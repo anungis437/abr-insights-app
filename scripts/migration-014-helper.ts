@@ -1,6 +1,6 @@
 /**
  * Manual Migration Helper for 014_add_role_to_profiles.sql
- * 
+ *
  * Since Supabase doesn't allow DDL statements via API, this script
  * provides instructions to apply the migration manually.
  */

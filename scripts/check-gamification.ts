@@ -6,8 +6,8 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 const supabase = createClient(supabaseUrl, supabaseServiceKey, {
   auth: {
     autoRefreshToken: false,
-    persistSession: false
-  }
+    persistSession: false,
+  },
 })
 
 async function checkGamificationTables() {
@@ -38,7 +38,10 @@ async function checkGamificationTables() {
     console.error('   Code:', streaksError.code)
   } else {
     console.log('\n✅ user_streaks table exists')
-    console.log('   Columns:', streaksData ? Object.keys(streaksData[0] || {}).join(', ') : 'No data')
+    console.log(
+      '   Columns:',
+      streaksData ? Object.keys(streaksData[0] || {}).join(', ') : 'No data'
+    )
   }
 
   // Check point_transactions table
@@ -52,19 +55,24 @@ async function checkGamificationTables() {
     console.error('   Code:', transactionsError.code)
   } else {
     console.log('\n✅ point_transactions table exists')
-    console.log('   Columns:', transactionsData ? Object.keys(transactionsData[0] || {}).join(', ') : 'No data')
+    console.log(
+      '   Columns:',
+      transactionsData ? Object.keys(transactionsData[0] || {}).join(', ') : 'No data'
+    )
   }
 
   // Try the gamification service
   console.log('\n📝 Testing gamification service...\n')
-  
+
   try {
     const { gamificationService } = await import('@/lib/services/gamification')
-    
+
     // Get test user
-    const { data: { users } } = await supabase.auth.admin.listUsers()
-    const testUser = users.find(u => u.email === 'learner@abr-insights.com')
-    
+    const {
+      data: { users },
+    } = await supabase.auth.admin.listUsers()
+    const testUser = users.find((u) => u.email === 'learner@abr-insights.com')
+
     if (!testUser) {
       console.error('❌ Test user not found')
       return
@@ -92,7 +100,6 @@ async function checkGamificationTables() {
     )
 
     console.log('✅ Update streak succeeded:', streakResult)
-
   } catch (error: any) {
     console.error('❌ Gamification service error:', error.message)
     console.error('   Stack:', error.stack)

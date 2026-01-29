@@ -33,64 +33,67 @@ What would you like to explore today?`,
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<AIError | null>(null)
 
-  const sendMessage = useCallback(async (content: string) => {
-    if (!content.trim()) return
+  const sendMessage = useCallback(
+    async (content: string) => {
+      if (!content.trim()) return
 
-    // Add user message
-    const userMessage: Message = {
-      role: 'user',
-      content,
-      timestamp: new Date(),
-    }
-    setMessages(prev => [...prev, userMessage])
-    setIsLoading(true)
-    setError(null)
-
-    try {
-      const response = await fetch('/api/ai/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: content,
-          history: messages.map(m => ({
-            role: m.role,
-            content: m.content,
-          })),
-        }),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to get AI response')
-      }
-
-      const data = await response.json()
-
-      // Add assistant message
-      const assistantMessage: Message = {
-        role: 'assistant',
-        content: data.response || data.message || 'No response received',
+      // Add user message
+      const userMessage: Message = {
+        role: 'user',
+        content,
         timestamp: new Date(),
       }
-      setMessages(prev => [...prev, assistantMessage])
-    } catch (err) {
-      const error: AIError = {
-        message: err instanceof Error ? err.message : 'An error occurred',
-      }
-      setError(error)
+      setMessages((prev) => [...prev, userMessage])
+      setIsLoading(true)
+      setError(null)
 
-      // Add error message to chat
-      const errorMessage: Message = {
-        role: 'assistant',
-        content: `I apologize, but I encountered an error: ${error.message}. Please try again.`,
-        timestamp: new Date(),
-        isError: true,
+      try {
+        const response = await fetch('/api/ai/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: content,
+            history: messages.map((m) => ({
+              role: m.role,
+              content: m.content,
+            })),
+          }),
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json()
+          throw new Error(errorData.error || 'Failed to get AI response')
+        }
+
+        const data = await response.json()
+
+        // Add assistant message
+        const assistantMessage: Message = {
+          role: 'assistant',
+          content: data.response || data.message || 'No response received',
+          timestamp: new Date(),
+        }
+        setMessages((prev) => [...prev, assistantMessage])
+      } catch (err) {
+        const error: AIError = {
+          message: err instanceof Error ? err.message : 'An error occurred',
+        }
+        setError(error)
+
+        // Add error message to chat
+        const errorMessage: Message = {
+          role: 'assistant',
+          content: `I apologize, but I encountered an error: ${error.message}. Please try again.`,
+          timestamp: new Date(),
+          isError: true,
+        }
+        setMessages((prev) => [...prev, errorMessage])
+      } finally {
+        setIsLoading(false)
       }
-      setMessages(prev => [...prev, errorMessage])
-    } finally {
-      setIsLoading(false)
-    }
-  }, [messages])
+    },
+    [messages]
+  )
 
   const clearMessages = useCallback(() => {
     setMessages([

@@ -5,7 +5,14 @@ import { useAuth } from '@/lib/auth/AuthContext'
 import { createClient } from '@/lib/supabase/client'
 
 export type SubscriptionTier = 'free' | 'professional' | 'enterprise'
-export type SubscriptionStatus = 'active' | 'canceled' | 'past_due' | 'trialing' | 'incomplete' | 'incomplete_expired' | 'unpaid'
+export type SubscriptionStatus =
+  | 'active'
+  | 'canceled'
+  | 'past_due'
+  | 'trialing'
+  | 'incomplete'
+  | 'incomplete_expired'
+  | 'unpaid'
 
 export interface Subscription {
   tier: SubscriptionTier
@@ -19,11 +26,7 @@ export interface Subscription {
 }
 
 const TIER_FEATURES: Record<SubscriptionTier, string[]> = {
-  free: [
-    'basic_courses',
-    'community_forum',
-    'basic_search',
-  ],
+  free: ['basic_courses', 'community_forum', 'basic_search'],
   professional: [
     'basic_courses',
     'community_forum',
@@ -70,10 +73,12 @@ export function useSubscription() {
     async function fetchSubscription() {
       try {
         const supabase = createClient()
-        
+
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
-          .select('stripe_customer_id, subscription_tier, subscription_status, subscription_current_period_end')
+          .select(
+            'stripe_customer_id, subscription_tier, subscription_status, subscription_current_period_end'
+          )
           .eq('id', user!.id)
           .single()
 
@@ -143,11 +148,11 @@ export function useSubscription() {
       }
 
       const data = await response.json()
-      
+
       if (data.url) {
         window.location.href = data.url
       }
-      
+
       return data
     } catch (err) {
       console.error('Error creating checkout session:', err)
@@ -168,11 +173,11 @@ export function useSubscription() {
       }
 
       const data = await response.json()
-      
+
       if (data.url) {
         window.location.href = data.url
       }
-      
+
       return data
     } catch (err) {
       console.error('Error opening customer portal:', err)

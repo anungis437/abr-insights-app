@@ -39,7 +39,10 @@ export type ResourceBookmark = {
   updated_at: string
 }
 
-export type ResourceInsert = Omit<Resource, 'id' | 'created_at' | 'updated_at' | 'view_count' | 'download_count'>
+export type ResourceInsert = Omit<
+  Resource,
+  'id' | 'created_at' | 'updated_at' | 'view_count' | 'download_count'
+>
 export type ResourceUpdate = Partial<ResourceInsert>
 
 export type BookmarkInsert = Omit<ResourceBookmark, 'id' | 'created_at' | 'updated_at'>
@@ -56,7 +59,10 @@ export class ResourcesService {
    * List resources
    * Replaces: base44.entities.Resource.list()
    */
-  async list(filters?: { type?: ResourceType; tags?: string[]; featured?: boolean }, options?: { limit?: number; offset?: number }) {
+  async list(
+    filters?: { type?: ResourceType; tags?: string[]; featured?: boolean },
+    options?: { limit?: number; offset?: number }
+  ) {
     let query = this.supabase
       .from('resources')
       .select('*', { count: 'exact' })
@@ -78,7 +84,7 @@ export class ResourcesService {
       query = query.limit(options.limit)
     }
     if (options?.offset) {
-      query = query.range(options.offset, (options.offset + (options.limit || 10)) - 1)
+      query = query.range(options.offset, options.offset + (options.limit || 10) - 1)
     }
 
     const { data, error, count } = await query
@@ -136,7 +142,7 @@ export class ResourcesService {
       .insert({
         ...resource,
         view_count: 0,
-        download_count: 0
+        download_count: 0,
       })
       .select()
       .single()
@@ -196,10 +202,12 @@ export class ResourcesService {
   async getUserBookmarks(userId: string, options?: { limit?: number; offset?: number }) {
     let query = this.supabase
       .from('resource_bookmarks')
-      .select(`
+      .select(
+        `
         *,
         resource:resources(*)
-      `)
+      `
+      )
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
 
@@ -207,7 +215,7 @@ export class ResourcesService {
       query = query.limit(options.limit)
     }
     if (options?.offset) {
-      query = query.range(options.offset, (options.offset + (options.limit || 10)) - 1)
+      query = query.range(options.offset, options.offset + (options.limit || 10) - 1)
     }
 
     const { data, error } = await query
@@ -247,7 +255,7 @@ export class ResourcesService {
       .insert({
         user_id: userId,
         resource_id: resourceId,
-        notes: notes || null
+        notes: notes || null,
       })
       .select()
       .single()
@@ -278,7 +286,7 @@ export class ResourcesService {
       .from('resource_bookmarks')
       .update({
         notes,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq('user_id', userId)
       .eq('resource_id', resourceId)

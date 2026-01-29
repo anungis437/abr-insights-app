@@ -1,9 +1,9 @@
 /**
  * Azure AD B2C Logout API Route
- * 
+ *
  * Handles SSO logout by revoking enterprise session and optionally
  * redirecting to Azure AD B2C logout endpoint
- * 
+ *
  * @route POST /api/auth/azure/logout
  * @access Authenticated
  */
@@ -16,13 +16,13 @@ export async function POST(request: NextRequest) {
     const supabase = await createClient()
 
     // Get current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
 
     if (userError || !user) {
-      return NextResponse.json(
-        { error: 'Not authenticated' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
     }
 
     // Get user's profile and organization
@@ -33,16 +33,13 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (!profile) {
-      return NextResponse.json(
-        { error: 'Profile not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
     }
 
     // Revoke all active enterprise sessions for user
     await supabase.rpc('revoke_user_sso_sessions', {
       p_user_id: user.id,
-      p_reason: 'user_logout'
+      p_reason: 'user_logout',
     })
 
     // Sign out from Supabase
@@ -67,7 +64,7 @@ export async function POST(request: NextRequest) {
         const policy = ssoProvider.azure_policy_name || 'B2C_1_signupsignin1'
         const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
         const postLogoutRedirectUri = returnUrl || `${baseUrl}/login`
-        
+
         const logoutUrl = `https://${ssoProvider.azure_tenant_id}.b2clogin.com/${ssoProvider.azure_tenant_id}.onmicrosoft.com/${policy}/oauth2/v2.0/logout?post_logout_redirect_uri=${encodeURIComponent(postLogoutRedirectUri)}`
 
         return NextResponse.json({
@@ -106,13 +103,15 @@ export async function GET(request: NextRequest) {
     const supabase = await createClient()
 
     // Get current user
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
     if (user) {
       // Revoke SSO sessions
       await supabase.rpc('revoke_user_sso_sessions', {
         p_user_id: user.id,
-        p_reason: 'user_logout'
+        p_reason: 'user_logout',
       })
 
       // Sign out

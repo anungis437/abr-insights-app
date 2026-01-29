@@ -11,16 +11,20 @@ const supabaseUrl = '***REMOVED***'
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY
 
 if (!supabaseKey) {
-  console.error('❌ Error: SUPABASE_SERVICE_ROLE_KEY or SUPABASE_KEY environment variable is required')
-  console.error('   Set it in your .env.local file or pass it as: SUPABASE_KEY=your_key node scripts/push-migrations.mjs')
+  console.error(
+    '❌ Error: SUPABASE_SERVICE_ROLE_KEY or SUPABASE_KEY environment variable is required'
+  )
+  console.error(
+    '   Set it in your .env.local file or pass it as: SUPABASE_KEY=your_key node scripts/push-migrations.mjs'
+  )
   process.exit(1)
 }
 
 const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: {
     autoRefreshToken: false,
-    persistSession: false
-  }
+    persistSession: false,
+  },
 })
 
 // Migrations to apply (in order)
@@ -34,26 +38,26 @@ const migrations = [
   '012_tribunal_case_stats_rpc.sql',
   '013_testimonials.sql',
   '014_add_role_to_profiles.sql',
-  '015_ai_training_system.sql'
+  '015_ai_training_system.sql',
 ]
 
 async function applyMigration(filename) {
   const migrationPath = join(__dirname, '..', 'supabase', 'migrations', filename)
-  
+
   try {
     const sql = readFileSync(migrationPath, 'utf-8')
     console.log(`\n📄 Applying ${filename}...`)
-    
+
     // Execute SQL using Supabase REST API (PostgREST doesn't support raw SQL)
     // We need to use the SQL query directly
     const { data, error } = await supabase.rpc('exec_sql', { sql_query: sql })
-    
+
     if (error) {
       console.error(`❌ Error in ${filename}:`)
       console.error(error)
       return false
     }
-    
+
     console.log(`✅ ${filename} applied successfully`)
     return true
   } catch (err) {
@@ -65,15 +69,15 @@ async function applyMigration(filename) {
 
 async function checkConnection() {
   console.log('🔌 Testing Supabase connection...')
-  
+
   try {
     const { data, error } = await supabase.from('profiles').select('count').limit(1)
-    
+
     if (error) {
       console.error('❌ Connection failed:', error.message)
       return false
     }
-    
+
     console.log('✅ Connected to Supabase successfully')
     return true
   } catch (err) {
@@ -85,7 +89,7 @@ async function checkConnection() {
 async function main() {
   console.log('🚀 Supabase Migration Push Tool')
   console.log('================================\n')
-  
+
   // Check connection
   const connected = await checkConnection()
   if (!connected) {
@@ -95,15 +99,15 @@ async function main() {
     console.error('   3. The Supabase project is accessible')
     process.exit(1)
   }
-  
+
   console.log('\n⚠️  WARNING: This will execute SQL migrations directly.')
   console.log('   All migrations are idempotent (safe to re-run).')
   console.log(`   Applying ${migrations.length} migrations...\n`)
-  
+
   // Apply migrations sequentially
   let successCount = 0
   let failCount = 0
-  
+
   for (const migration of migrations) {
     const success = await applyMigration(migration)
     if (success) {
@@ -113,13 +117,13 @@ async function main() {
       console.log('\n⚠️  Continuing with remaining migrations...\n')
     }
   }
-  
+
   // Summary
   console.log('\n================================')
   console.log('📊 Migration Summary:')
   console.log(`   ✅ Success: ${successCount}/${migrations.length}`)
   console.log(`   ❌ Failed: ${failCount}/${migrations.length}`)
-  
+
   if (failCount === 0) {
     console.log('\n🎉 All migrations applied successfully!')
   } else {

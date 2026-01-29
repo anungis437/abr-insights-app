@@ -103,10 +103,10 @@ Authorization: Bearer <JWT>
 ```js
 supabase
   .channel('public:progress')
-  .on('postgres_changes', { event: '*', schema: 'public', table: 'progress' }, payload => {
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'progress' }, (payload) => {
     // Handle progress update
   })
-  .subscribe();
+  .subscribe()
 ```
 
 ---

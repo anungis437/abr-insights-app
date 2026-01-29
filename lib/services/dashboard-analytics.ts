@@ -77,17 +77,20 @@ export async function getDashboardStats(userId: string): Promise<DashboardStats 
       .eq('user_id', userId)
 
     // Calculate watch time statistics
-    const totalWatchTime = watchStats?.reduce((sum: number, session: any) => 
-      sum + (session.duration_seconds || 0), 0) || 0
-    
+    const totalWatchTime =
+      watchStats?.reduce((sum: number, session: any) => sum + (session.duration_seconds || 0), 0) ||
+      0
+
     const completedSessions = watchStats?.filter((s: any) => s.completed_session).length || 0
     const totalSessions = watchStats?.length || 0
-    const averageCompletionRate = totalSessions > 0 
-      ? Math.round((completedSessions / totalSessions) * 100) 
-      : 0
+    const averageCompletionRate =
+      totalSessions > 0 ? Math.round((completedSessions / totalSessions) * 100) : 0
 
-    const longestSession = watchStats?.reduce((max: number, session: any) => 
-      Math.max(max, session.duration_seconds || 0), 0) || 0
+    const longestSession =
+      watchStats?.reduce(
+        (max: number, session: any) => Math.max(max, session.duration_seconds || 0),
+        0
+      ) || 0
 
     // Get unique lessons started and completed
     const uniqueLessons = new Set(progressStats?.map((p: any) => p.lesson_id) || [])
@@ -107,7 +110,7 @@ export async function getDashboardStats(userId: string): Promise<DashboardStats 
       longest_session: longestSession,
       notes_created: notesCount || 0,
       current_streak: streak?.current_streak || 0,
-      ce_credits_earned: ceCredits?.total_credits_earned || 0
+      ce_credits_earned: ceCredits?.total_credits_earned || 0,
     }
   } catch (error) {
     console.error('Error getting dashboard stats:', error)
@@ -134,14 +137,14 @@ export async function getLearningStreak(userId: string): Promise<LearningStreak 
         current_streak: 0,
         longest_streak: 0,
         last_activity_date: null,
-        streak_dates: []
+        streak_dates: [],
       }
     }
 
     // Extract unique dates (YYYY-MM-DD format)
-    const activityDates = [...new Set(
-      sessions.map((s: any) => s.started_at.split('T')[0])
-    )].sort().reverse()
+    const activityDates = [...new Set(sessions.map((s: any) => s.started_at.split('T')[0]))]
+      .sort()
+      .reverse()
 
     // Calculate current streak
     let currentStreak = 0
@@ -155,7 +158,9 @@ export async function getLearningStreak(userId: string): Promise<LearningStreak 
       const activityDate = new Date(dateStr)
       activityDate.setHours(0, 0, 0, 0)
 
-      const daysDiff = Math.floor((checkDate.getTime() - activityDate.getTime()) / (1000 * 60 * 60 * 24))
+      const daysDiff = Math.floor(
+        (checkDate.getTime() - activityDate.getTime()) / (1000 * 60 * 60 * 24)
+      )
 
       if (daysDiff === 0 || (currentStreak > 0 && daysDiff === 1)) {
         currentStreak++
@@ -189,7 +194,7 @@ export async function getLearningStreak(userId: string): Promise<LearningStreak 
       current_streak: currentStreak,
       longest_streak: longestStreak,
       last_activity_date: (activityDates as string[])[0] || null,
-      streak_dates: streakDates
+      streak_dates: streakDates,
     }
   } catch (error) {
     console.error('Error calculating learning streak:', error)
@@ -207,7 +212,8 @@ export async function getSkillProgress(userId: string): Promise<SkillProgress[]>
     // Get all enrolled courses with lessons and progress
     const { data: enrollments } = await supabase
       .from('enrollments')
-      .select(`
+      .select(
+        `
         course:courses (
           id,
           title,
@@ -218,7 +224,8 @@ export async function getSkillProgress(userId: string): Promise<SkillProgress[]>
             )
           )
         )
-      `)
+      `
+      )
       .eq('user_id', userId)
 
     if (!enrollments) return []
@@ -235,9 +242,11 @@ export async function getSkillProgress(userId: string): Promise<SkillProgress[]>
       .select('lesson_id, duration_seconds')
       .eq('user_id', userId)
 
-    const progressMap = new Map(progressData?.map((p: any) => [p.lesson_id, p.status === 'completed']) || [])
+    const progressMap = new Map(
+      progressData?.map((p: any) => [p.lesson_id, p.status === 'completed']) || []
+    )
     const timeMap = new Map<string, number>()
-    
+
     // Aggregate time spent per lesson
     watchHistory?.forEach((w: any) => {
       const current = timeMap.get(w.lesson_id) || 0
@@ -254,7 +263,7 @@ export async function getSkillProgress(userId: string): Promise<SkillProgress[]>
       course.modules.forEach((module: any) => {
         module.lessons?.forEach((lesson: any) => {
           const skills = ['General'] // skill_tags column doesn't exist
-          
+
           skills.forEach((skill: string) => {
             const current = skillMap.get(skill) || { completed: 0, total: 0, time: 0 }
             current.total++
@@ -273,7 +282,7 @@ export async function getSkillProgress(userId: string): Promise<SkillProgress[]>
       lessons_completed: data.completed,
       total_lessons: data.total,
       completion_percentage: Math.round((data.completed / data.total) * 100),
-      time_spent_seconds: data.time
+      time_spent_seconds: data.time,
     }))
   } catch (error) {
     console.error('Error getting skill progress:', error)
@@ -284,14 +293,18 @@ export async function getSkillProgress(userId: string): Promise<SkillProgress[]>
 /**
  * Get recent learning activity
  */
-export async function getRecentActivity(userId: string, limit: number = 10): Promise<RecentActivity[]> {
+export async function getRecentActivity(
+  userId: string,
+  limit: number = 10
+): Promise<RecentActivity[]> {
   try {
     const supabase = createClient()
 
     // Get recent watch sessions
     const { data: sessions } = await supabase
       .from('watch_history')
-      .select(`
+      .select(
+        `
         id,
         started_at,
         duration_seconds,
@@ -305,7 +318,8 @@ export async function getRecentActivity(userId: string, limit: number = 10): Pro
             )
           )
         )
-      `)
+      `
+      )
       .eq('user_id', userId)
       .order('started_at', { ascending: false })
       .limit(limit)
@@ -313,7 +327,8 @@ export async function getRecentActivity(userId: string, limit: number = 10): Pro
     // Get recent notes
     const { data: notes } = await supabase
       .from('lesson_notes')
-      .select(`
+      .select(
+        `
         id,
         created_at,
         lesson:lessons (
@@ -325,7 +340,8 @@ export async function getRecentActivity(userId: string, limit: number = 10): Pro
             )
           )
         )
-      `)
+      `
+      )
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .limit(limit)
@@ -343,7 +359,7 @@ export async function getRecentActivity(userId: string, limit: number = 10): Pro
           course_title: lesson.course_module?.course?.title || 'Unknown Course',
           activity_type: session.completed_session ? 'complete' : 'watch',
           activity_date: session.started_at,
-          duration_seconds: session.duration_seconds
+          duration_seconds: session.duration_seconds,
         })
       }
     })
@@ -358,14 +374,17 @@ export async function getRecentActivity(userId: string, limit: number = 10): Pro
           lesson_title: lesson.title,
           course_title: lesson.course_module?.course?.title || 'Unknown Course',
           activity_type: 'note',
-          activity_date: note.created_at
+          activity_date: note.created_at,
         })
       }
     })
 
     // Sort by date and limit
     return activities
-      .sort((a: any, b: any) => new Date(b.activity_date).getTime() - new Date(a.activity_date).getTime())
+      .sort(
+        (a: any, b: any) =>
+          new Date(b.activity_date).getTime() - new Date(a.activity_date).getTime()
+      )
       .slice(0, limit)
   } catch (error) {
     console.error('Error getting recent activity:', error)
@@ -383,11 +402,13 @@ export async function getCECreditsEarned(userId: string): Promise<CECredits | nu
     // Get all completed lessons with CE credits
     const { data: completedLessons } = await supabase
       .from('lesson_progress')
-      .select(`
+      .select(
+        `
         lesson:lessons (
           ce_credits
         )
-      `)
+      `
+      )
       .eq('user_id', userId)
       .eq('status', 'completed')
 
@@ -395,7 +416,7 @@ export async function getCECreditsEarned(userId: string): Promise<CECredits | nu
       return {
         total_credits_earned: 0,
         credits_by_category: [],
-        credits_this_year: 0
+        credits_this_year: 0,
       }
     }
 
@@ -422,11 +443,13 @@ export async function getCECreditsEarned(userId: string): Promise<CECredits | nu
 
     return {
       total_credits_earned: totalCredits,
-      credits_by_category: Array.from(categoryMap.entries()).map(([category, credits]: [string, number]) => ({
-        category,
-        credits
-      })),
-      credits_this_year: creditsThisYear
+      credits_by_category: Array.from(categoryMap.entries()).map(
+        ([category, credits]: [string, number]) => ({
+          category,
+          credits,
+        })
+      ),
+      credits_this_year: creditsThisYear,
     }
   } catch (error) {
     console.error('Error getting CE credits:', error)
@@ -449,5 +472,3 @@ export function formatDuration(seconds: number): string {
     return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`
   }
 }
-
-

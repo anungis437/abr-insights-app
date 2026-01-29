@@ -1,15 +1,15 @@
 'use client'
 
-import Link from 'next/link';
+import Link from 'next/link'
 
 export default function OfflinePage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
-      <div className="max-w-md w-full bg-white rounded-xl shadow-2xl p-8 text-center">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
+      <div className="w-full max-w-md rounded-xl bg-white p-8 text-center shadow-2xl">
         <div className="mb-6">
-          <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-gray-200">
             <svg
-              className="w-12 h-12 text-gray-400"
+              className="h-12 w-12 text-gray-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -22,16 +22,17 @@ export default function OfflinePage() {
               />
             </svg>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">You&apos;re Offline</h1>
-          <p className="text-gray-600 mb-6">
-            It looks like you&apos;ve lost your internet connection. Don&apos;t worry, you can still access your downloaded courses!
+          <h1 className="mb-2 text-3xl font-bold text-gray-900">You&apos;re Offline</h1>
+          <p className="mb-6 text-gray-600">
+            It looks like you&apos;ve lost your internet connection. Don&apos;t worry, you can still
+            access your downloaded courses!
           </p>
         </div>
 
         <div className="space-y-4">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-left">
-            <h3 className="font-semibold text-blue-900 mb-2">📚 Offline Features</h3>
-            <ul className="text-sm text-blue-800 space-y-1">
+          <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-left">
+            <h3 className="mb-2 font-semibold text-blue-900">📚 Offline Features</h3>
+            <ul className="space-y-1 text-sm text-blue-800">
               <li>• View downloaded courses</li>
               <li>• Continue learning where you left off</li>
               <li>• Take quizzes (synced when online)</li>
@@ -42,33 +43,33 @@ export default function OfflinePage() {
           <div className="flex flex-col gap-3">
             <Link
               href="/courses"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors"
+              className="w-full rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-700"
             >
               View Downloaded Courses
             </Link>
-            
+
             <Link
               href="/dashboard"
-              className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 px-6 rounded-lg transition-colors"
+              className="w-full rounded-lg bg-gray-100 px-6 py-3 font-medium text-gray-700 transition-colors hover:bg-gray-200"
             >
               Go to Dashboard
             </Link>
-            
+
             <button
               onClick={() => window.location.reload()}
-              className="w-full bg-gray-50 hover:bg-gray-100 text-gray-600 font-medium py-3 px-6 rounded-lg transition-colors border border-gray-200"
+              className="w-full rounded-lg border border-gray-200 bg-gray-50 px-6 py-3 font-medium text-gray-600 transition-colors hover:bg-gray-100"
             >
               Try Again
             </button>
           </div>
         </div>
 
-        <div className="mt-6 pt-6 border-t border-gray-200">
+        <div className="mt-6 border-t border-gray-200 pt-6">
           <p className="text-xs text-gray-500">
             Your progress will automatically sync when you&apos;re back online
           </p>
         </div>
       </div>
     </div>
-  );
+  )
 }

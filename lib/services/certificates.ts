@@ -1,6 +1,6 @@
 /**
  * Certificate Service
- * 
+ *
  * Handles certificate generation, verification, and digital badge issuance.
  * Supports Open Badges 2.0 standard for portable digital credentials.
  */
@@ -12,7 +12,12 @@ import QRCode from 'qrcode'
 // TYPES
 // ============================================================================
 
-export type CertificateType = 'completion' | 'certification' | 'ce_credit' | 'achievement' | 'participation'
+export type CertificateType =
+  | 'completion'
+  | 'certification'
+  | 'ce_credit'
+  | 'achievement'
+  | 'participation'
 export type CertificateStatus = 'active' | 'revoked' | 'expired' | 'pending'
 export type BadgeStatus = 'issued' | 'revoked' | 'expired'
 
@@ -129,19 +134,15 @@ export async function getCertificateTemplates(
   type?: CertificateType
 ): Promise<CertificateTemplate[]> {
   const supabase = createClient()
-  
-  let query = supabase
-    .from('certificate_templates')
-    .select('*')
-    .eq('is_active', true)
-    .order('name')
-  
+
+  let query = supabase.from('certificate_templates').select('*').eq('is_active', true).order('name')
+
   if (type) {
     query = query.eq('template_type', type)
   }
-  
+
   const { data, error } = await query
-  
+
   if (error) throw error
   return (data || []) as CertificateTemplate[]
 }
@@ -153,7 +154,7 @@ export async function getDefaultTemplate(
   type: CertificateType
 ): Promise<CertificateTemplate | null> {
   const supabase = createClient()
-  
+
   const { data, error } = await supabase
     .from('certificate_templates')
     .select('*')
@@ -161,7 +162,7 @@ export async function getDefaultTemplate(
     .eq('is_default', true)
     .eq('is_active', true)
     .single()
-  
+
   if (error) return null
   return data as CertificateTemplate
 }
@@ -171,13 +172,13 @@ export async function getDefaultTemplate(
  */
 export async function getTemplate(templateId: string): Promise<CertificateTemplate | null> {
   const supabase = createClient()
-  
+
   const { data, error } = await supabase
     .from('certificate_templates')
     .select('*')
     .eq('id', templateId)
     .single()
-  
+
   if (error) return null
   return data as CertificateTemplate
 }
@@ -208,33 +209,33 @@ export interface CreateCertificateInput {
 /**
  * Create a new certificate
  */
-export async function createCertificate(
-  input: CreateCertificateInput
-): Promise<Certificate> {
+export async function createCertificate(input: CreateCertificateInput): Promise<Certificate> {
   const supabase = createClient()
-  
+
   // Generate certificate number
-  const { data: certNumber, error: numberError } = await supabase
-    .rpc('generate_certificate_number', {
-      cert_type: input.certificate_type || 'completion'
-    })
-  
+  const { data: certNumber, error: numberError } = await supabase.rpc(
+    'generate_certificate_number',
+    {
+      cert_type: input.certificate_type || 'completion',
+    }
+  )
+
   if (numberError) throw numberError
-  
+
   // Generate verification URL and QR code
   const verification_url = `${process.env.NEXT_PUBLIC_APP_URL || ''}/certificates/verify/${certNumber}`
-  
+
   let qr_code_data: string | undefined
   try {
     qr_code_data = await QRCode.toDataURL(verification_url, {
       errorCorrectionLevel: 'H',
       width: 300,
-      margin: 2
+      margin: 2,
     })
   } catch (error) {
     console.error('Failed to generate QR code:', error)
   }
-  
+
   // Insert certificate
   const { data, error } = await supabase
     .from('certificates')
@@ -258,11 +259,11 @@ export async function createCertificate(
       qr_code_data,
       verification_url,
       signatures: input.signatures || [],
-      metadata: input.metadata || {}
+      metadata: input.metadata || {},
     })
     .select()
     .single()
-  
+
   if (error) throw error
   return data as Certificate
 }
@@ -282,11 +283,12 @@ export async function createCertificateFromQuiz(
   }
 ): Promise<Certificate> {
   const supabase = createClient()
-  
+
   // Get quiz attempt details
   const { data: attempt, error: attemptError } = await supabase
     .from('quiz_attempts')
-    .select(`
+    .select(
+      `
       *,
       quiz:quizzes(
         *,
@@ -295,30 +297,34 @@ export async function createCertificateFromQuiz(
           course:courses(*)
         )
       )
-    `)
+    `
+    )
     .eq('id', quizAttemptId)
     .single()
-  
+
   if (attemptError) throw attemptError
   if (!attempt.passed) {
     throw new Error('Cannot issue certificate for failed quiz attempt')
   }
-  
+
   const quiz = attempt.quiz as any
   const course = quiz?.lesson?.course
-  
+
   if (!course) {
     throw new Error('Course information not found for quiz')
   }
-  
+
   // Determine certificate type
-  const certificate_type: CertificateType = 
-    quiz.quiz_type === 'certification' ? 'certification' :
-    options?.ce_credits ? 'ce_credit' : 'completion'
-  
+  const certificate_type: CertificateType =
+    quiz.quiz_type === 'certification'
+      ? 'certification'
+      : options?.ce_credits
+        ? 'ce_credit'
+        : 'completion'
+
   // Get default template for this type
   const template = await getDefaultTemplate(certificate_type)
-  
+
   return createCertificate({
     user_id: userId,
     course_id: course.id,
@@ -337,8 +343,8 @@ export async function createCertificateFromQuiz(
       quiz_type: quiz.quiz_type,
       score: attempt.score,
       passing_score: quiz.passing_score,
-      completion_date: attempt.completed_at
-    }
+      completion_date: attempt.completed_at,
+    },
   })
 }
 
@@ -354,19 +360,23 @@ export async function getCertificate(
   includeRelations = false
 ): Promise<CertificateWithRelations | null> {
   const supabase = createClient()
-  
+
   const { data, error } = await supabase
     .from('certificates')
-    .select(includeRelations ? `
+    .select(
+      includeRelations
+        ? `
       *,
       course:courses(id, title, slug),
       quiz_attempt:quiz_attempts(id, score, passed),
       template:certificate_templates(*),
       badge:digital_badges(*)
-    ` : '*')
+    `
+        : '*'
+    )
     .eq('id', certificateId)
     .single()
-  
+
   if (error) return null
   return data as any as CertificateWithRelations
 }
@@ -378,17 +388,19 @@ export async function getCertificateByNumber(
   certificateNumber: string
 ): Promise<CertificateWithRelations | null> {
   const supabase = createClient()
-  
+
   const { data, error } = await supabase
     .from('certificates')
-    .select(`
+    .select(
+      `
       *,
       course:courses(id, title, slug),
       template:certificate_templates(*)
-    `)
+    `
+    )
     .eq('certificate_number', certificateNumber)
     .single()
-  
+
   if (error) return null
   return data as any as CertificateWithRelations
 }
@@ -405,17 +417,19 @@ export async function getUserCertificates(
   }
 ): Promise<CertificateWithRelations[]> {
   const supabase = createClient()
-  
+
   let query = supabase
     .from('certificates')
-    .select(`
+    .select(
+      `
       *,
       course:courses(id, title, slug),
       template:certificate_templates(name)
-    `)
+    `
+    )
     .eq('user_id', userId)
     .order('issue_date', { ascending: false })
-  
+
   if (filters?.course_id) {
     query = query.eq('course_id', filters.course_id)
   }
@@ -425,9 +439,9 @@ export async function getUserCertificates(
   if (filters?.status) {
     query = query.eq('status', filters.status)
   }
-  
+
   const { data, error } = await query
-  
+
   if (error) throw error
   return (data || []) as any as CertificateWithRelations[]
 }
@@ -443,22 +457,22 @@ export async function getCourseCertificates(
   }
 ): Promise<Certificate[]> {
   const supabase = createClient()
-  
+
   let query = supabase
     .from('certificates')
     .select('*')
     .eq('course_id', courseId)
     .order('issue_date', { ascending: false })
-  
+
   if (filters?.status) {
     query = query.eq('status', filters.status)
   }
   if (filters?.limit) {
     query = query.limit(filters.limit)
   }
-  
+
   const { data, error } = await query
-  
+
   if (error) throw error
   return (data || []) as Certificate[]
 }
@@ -477,69 +491,69 @@ export interface VerificationResult {
 /**
  * Verify certificate by number
  */
-export async function verifyCertificate(
-  certificateNumber: string
-): Promise<VerificationResult> {
+export async function verifyCertificate(certificateNumber: string): Promise<VerificationResult> {
   const certificate = await getCertificateByNumber(certificateNumber)
-  
+
   if (!certificate) {
     return {
       valid: false,
-      reason: 'Certificate not found'
+      reason: 'Certificate not found',
     }
   }
-  
+
   const warnings: string[] = []
-  
+
   // Check status
   if (certificate.status === 'revoked') {
     return {
       valid: false,
       certificate,
-      reason: `Certificate revoked${certificate.revocation_reason ? `: ${certificate.revocation_reason}` : ''}`
+      reason: `Certificate revoked${certificate.revocation_reason ? `: ${certificate.revocation_reason}` : ''}`,
     }
   }
-  
+
   if (certificate.status === 'expired') {
     return {
       valid: false,
       certificate,
-      reason: 'Certificate has expired'
+      reason: 'Certificate has expired',
     }
   }
-  
+
   if (certificate.status === 'pending') {
     return {
       valid: false,
       certificate,
-      reason: 'Certificate is pending approval'
+      reason: 'Certificate is pending approval',
     }
   }
-  
+
   // Check expiry date
   if (certificate.expiry_date) {
     const expiryDate = new Date(certificate.expiry_date)
     const now = new Date()
-    
+
     if (expiryDate < now) {
       return {
         valid: false,
         certificate,
-        reason: `Certificate expired on ${expiryDate.toLocaleDateString()}`
+        reason: `Certificate expired on ${expiryDate.toLocaleDateString()}`,
       }
     }
-    
+
     // Warn if expiring soon (within 30 days)
-    const daysUntilExpiry = Math.floor((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+    const daysUntilExpiry = Math.floor(
+      (expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+    )
     if (daysUntilExpiry <= 30) {
       warnings.push(`Certificate expires in ${daysUntilExpiry} days`)
     }
   }
-  
+
   return {
     valid: true,
     certificate,
-    warnings: warnings.length > 0 ? warnings : undefined
+    warnings: warnings.length > 0 ? warnings : undefined,
   }
 }
 
@@ -556,26 +570,26 @@ export async function revokeCertificate(
   reason: string
 ): Promise<void> {
   const supabase = createClient()
-  
+
   const { error } = await supabase
     .from('certificates')
     .update({
       status: 'revoked',
       revoked_at: new Date().toISOString(),
       revoked_by: revokedBy,
-      revocation_reason: reason
+      revocation_reason: reason,
     })
     .eq('id', certificateId)
-  
+
   if (error) throw error
-  
+
   // Also revoke associated badge if exists
   await supabase
     .from('digital_badges')
     .update({
       status: 'revoked',
       revoked_at: new Date().toISOString(),
-      revocation_reason: reason
+      revocation_reason: reason,
     })
     .eq('certificate_id', certificateId)
 }
@@ -590,16 +604,16 @@ export async function updateCertificatePDF(
   thumbnail_url?: string
 ): Promise<void> {
   const supabase = createClient()
-  
+
   const { error } = await supabase
     .from('certificates')
     .update({
       pdf_url,
       pdf_file_path,
-      thumbnail_url
+      thumbnail_url,
     })
     .eq('id', certificateId)
-  
+
   if (error) throw error
 }
 
@@ -631,20 +645,19 @@ export interface CreateBadgeInput {
 /**
  * Create digital badge (Open Badges 2.0)
  */
-export async function createDigitalBadge(
-  input: CreateBadgeInput
-): Promise<DigitalBadge> {
+export async function createDigitalBadge(input: CreateBadgeInput): Promise<DigitalBadge> {
   const supabase = createClient()
-  
+
   // Generate assertion ID
-  const { data: assertionId, error: assertionError } = await supabase
-    .rpc('generate_badge_assertion_id')
-  
+  const { data: assertionId, error: assertionError } = await supabase.rpc(
+    'generate_badge_assertion_id'
+  )
+
   if (assertionError) throw assertionError
-  
+
   const assertion_url = `${process.env.NEXT_PUBLIC_APP_URL || ''}/badges/${assertionId}`
   const verification_url = `${process.env.NEXT_PUBLIC_APP_URL || ''}/badges/verify/${assertionId}`
-  
+
   // Build Open Badges 2.0 assertion
   const badge_assertion_json = {
     '@context': 'https://w3id.org/openbadges/v2',
@@ -656,29 +669,31 @@ export async function createDigitalBadge(
       name: input.name,
       description: input.description,
       image: input.image_url,
-      criteria: input.criteria_url || `${process.env.NEXT_PUBLIC_APP_URL}/badges/criteria/${input.badge_class_id}`,
+      criteria:
+        input.criteria_url ||
+        `${process.env.NEXT_PUBLIC_APP_URL}/badges/criteria/${input.badge_class_id}`,
       issuer: {
         type: 'Profile',
         id: input.issuer_url,
         name: input.issuer_name,
         email: input.issuer_email,
-        image: input.issuer_image_url
-      }
+        image: input.issuer_image_url,
+      },
     },
     recipient: {
       type: input.recipient_type || 'email',
       identity: input.recipient_identity,
-      hashed: input.recipient_hashed !== false
+      hashed: input.recipient_hashed !== false,
     },
     issuedOn: new Date().toISOString(),
     expires: input.expires_on,
     evidence: input.evidence_url,
     verification: {
       type: 'hosted',
-      url: verification_url
-    }
+      url: verification_url,
+    },
   }
-  
+
   // Insert badge
   const { data, error } = await supabase
     .from('digital_badges')
@@ -705,11 +720,11 @@ export async function createDigitalBadge(
       badge_assertion_json,
       expires_on: input.expires_on,
       tags: input.tags || [],
-      metadata: input.metadata || {}
+      metadata: input.metadata || {},
     })
     .select()
     .single()
-  
+
   if (error) throw error
   return data as DigitalBadge
 }
@@ -717,17 +732,15 @@ export async function createDigitalBadge(
 /**
  * Get badge by assertion ID
  */
-export async function getBadgeByAssertion(
-  assertionId: string
-): Promise<DigitalBadge | null> {
+export async function getBadgeByAssertion(assertionId: string): Promise<DigitalBadge | null> {
   const supabase = createClient()
-  
+
   const { data, error } = await supabase
     .from('digital_badges')
     .select('*')
     .eq('assertion_id', assertionId)
     .single()
-  
+
   if (error) return null
   return data as DigitalBadge
 }
@@ -735,17 +748,15 @@ export async function getBadgeByAssertion(
 /**
  * Get certificate badges
  */
-export async function getCertificateBadges(
-  certificateId: string
-): Promise<DigitalBadge[]> {
+export async function getCertificateBadges(certificateId: string): Promise<DigitalBadge[]> {
   const supabase = createClient()
-  
+
   const { data, error } = await supabase
     .from('digital_badges')
     .select('*')
     .eq('certificate_id', certificateId)
     .order('issued_on', { ascending: false })
-  
+
   if (error) throw error
   return (data || []) as DigitalBadge[]
 }
@@ -760,19 +771,19 @@ export async function getUserBadges(
   }
 ): Promise<DigitalBadge[]> {
   const supabase = createClient()
-  
+
   let query = supabase
     .from('digital_badges')
     .select('*')
     .eq('user_id', userId)
     .order('issued_on', { ascending: false })
-  
+
   if (filters?.status) {
     query = query.eq('status', filters.status)
   }
-  
+
   const { data, error } = await query
-  
+
   if (error) throw error
   return (data || []) as DigitalBadge[]
 }
@@ -792,7 +803,7 @@ export async function getUserCertificateStats(userId: string): Promise<{
   total_ce_hours: number
 }> {
   const certificates = await getUserCertificates(userId)
-  
+
   const stats = {
     total: certificates.length,
     by_type: {
@@ -800,22 +811,22 @@ export async function getUserCertificateStats(userId: string): Promise<{
       certification: 0,
       ce_credit: 0,
       achievement: 0,
-      participation: 0
+      participation: 0,
     } as Record<CertificateType, number>,
     by_status: {
       active: 0,
       revoked: 0,
       expired: 0,
-      pending: 0
+      pending: 0,
     } as Record<CertificateStatus, number>,
     total_ce_credits: 0,
-    total_ce_hours: 0
+    total_ce_hours: 0,
   }
-  
-  certificates.forEach(cert => {
+
+  certificates.forEach((cert) => {
     stats.by_type[cert.certificate_type] = (stats.by_type[cert.certificate_type] || 0) + 1
     stats.by_status[cert.status] = (stats.by_status[cert.status] || 0) + 1
-    
+
     if (cert.ce_credits) {
       stats.total_ce_credits += Number(cert.ce_credits)
     }
@@ -823,6 +834,6 @@ export async function getUserCertificateStats(userId: string): Promise<{
       stats.total_ce_hours += Number(cert.ce_hours)
     }
   })
-  
+
   return stats
 }

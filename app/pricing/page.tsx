@@ -3,11 +3,20 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Pricing Plans | ABR Insights - Start Free Today',
-  description: 'Flexible pricing for organizations of all sizes. Free plan available. Access tribunal case databases, expert training, and analytics to build more equitable workplaces.',
-  keywords: ['pricing', 'plans', 'free trial', 'anti-racism training cost', 'EDI platform pricing', 'HR analytics pricing'],
+  description:
+    'Flexible pricing for organizations of all sizes. Free plan available. Access tribunal case databases, expert training, and analytics to build more equitable workplaces.',
+  keywords: [
+    'pricing',
+    'plans',
+    'free trial',
+    'anti-racism training cost',
+    'EDI platform pricing',
+    'HR analytics pricing',
+  ],
   openGraph: {
     title: 'ABR Insights Pricing | Plans Starting Free',
-    description: 'Choose the right plan for your organization. Free, Professional, and Enterprise options available with transparent pricing.',
+    description:
+      'Choose the right plan for your organization. Free, Professional, and Enterprise options available with transparent pricing.',
     type: 'website',
     url: 'https://abrinsights.ca/pricing',
     siteName: 'ABR Insights',
@@ -21,7 +30,9 @@ export const metadata: Metadata = {
 
 export default function PricingPage() {
   return (
-    <div className="min-h-screen bg-white">      {/* Hero Section */}
+    <div className="min-h-screen bg-white">
+      {' '}
+      {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary-600 to-secondary-600 py-20 text-white">
         <div className="container-custom">
           <div className="mx-auto max-w-3xl text-center">
@@ -38,10 +49,9 @@ export default function PricingPage() {
         {/* Decorative Blurs */}
         <div className="absolute left-0 top-0 -z-10 h-full w-full opacity-10">
           <div className="absolute right-1/4 top-1/4 h-80 w-80 rounded-full bg-white blur-3xl" />
-          <div className="absolute left-1/3 bottom-1/3 h-96 w-96 rounded-full bg-yellow-300 blur-3xl" />
+          <div className="absolute bottom-1/3 left-1/3 h-96 w-96 rounded-full bg-yellow-300 blur-3xl" />
         </div>
       </section>
-
       {/* Pricing Cards */}
       <section className="py-20">
         <div className="container-custom">
@@ -122,7 +132,6 @@ export default function PricingPage() {
           </div>
         </div>
       </section>
-
       {/* FAQ Section */}
       <section className="relative bg-gray-50 py-20">
         <div className="container-custom">
@@ -161,31 +170,35 @@ export default function PricingPage() {
         {/* Decorative Blurs */}
         <div className="absolute left-0 top-0 -z-10 h-full w-full opacity-5">
           <div className="absolute left-1/4 top-1/3 h-72 w-72 rounded-full bg-primary-600 blur-3xl" />
-          <div className="absolute right-1/3 bottom-1/4 h-80 w-80 rounded-full bg-secondary-600 blur-3xl" />
+          <div className="absolute bottom-1/4 right-1/3 h-80 w-80 rounded-full bg-secondary-600 blur-3xl" />
         </div>
       </section>
-
       {/* CTA Section */}
       <section className="bg-gradient-to-br from-primary-600 to-secondary-600 py-20 text-white">
         <div className="container-custom">
           <div className="mx-auto max-w-3xl text-center">
-            <h2 className="mb-6 text-3xl font-bold md:text-4xl">
-              Still Have Questions?
-            </h2>
+            <h2 className="mb-6 text-3xl font-bold md:text-4xl">Still Have Questions?</h2>
             <p className="mb-8 text-lg text-primary-50">
               Our team is here to help you find the perfect plan for your organization.
             </p>
             <div className="flex flex-col justify-center gap-4 sm:flex-row">
-              <a href="/contact" className="btn-primary bg-white text-primary-600 hover:bg-gray-100">
+              <a
+                href="/contact"
+                className="btn-primary bg-white text-primary-600 hover:bg-gray-100"
+              >
                 Contact Sales
               </a>
-              <a href="/auth/signup" className="btn-secondary border-white text-white hover:bg-white/10">
+              <a
+                href="/auth/signup"
+                className="btn-secondary border-white text-white hover:bg-white/10"
+              >
                 Start Free Trial
               </a>
             </div>
           </div>
         </div>
-      </section>    </div>
+      </section>{' '}
+    </div>
   )
 }
 
@@ -212,11 +225,7 @@ function PricingCard({
   popular,
 }: PricingCardProps) {
   return (
-    <div
-      className={`card relative ${
-        popular ? 'border-2 border-primary-500 shadow-xl' : ''
-      }`}
-    >
+    <div className={`card relative ${popular ? 'border-2 border-primary-500 shadow-xl' : ''}`}>
       {popular && (
         <div className="absolute -top-4 left-1/2 -translate-x-1/2 transform">
           <span className="rounded-full bg-primary-500 px-4 py-1 text-sm font-semibold text-white">
@@ -253,9 +262,7 @@ function PricingCard({
             ) : (
               <X className="mt-0.5 h-5 w-5 flex-shrink-0 text-gray-400" />
             )}
-            <span
-              className={feature.included ? 'text-gray-700' : 'text-gray-400'}
-            >
+            <span className={feature.included ? 'text-gray-700' : 'text-gray-400'}>
               {feature.text}
             </span>
           </div>

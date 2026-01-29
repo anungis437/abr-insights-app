@@ -21,8 +21,9 @@ export default function OfflineDownloadButton({
   showLabel = true,
   estimatedSize,
 }: OfflineDownloadButtonProps) {
-  const { downloadedCourses, downloading, downloadCourse, removeCourse, isDownloaded } = useCourseDownload()
-  
+  const { downloadedCourses, downloading, downloadCourse, removeCourse, isDownloaded } =
+    useCourseDownload()
+
   const downloaded = isDownloaded(courseId)
   const isDownloading = downloading.includes(courseId)
   const progress = 0 // Progress tracking would need to be implemented in the hook
@@ -76,15 +77,19 @@ export default function OfflineDownloadButton({
         className={`
           ${sizeClasses[size]}
           ${variantClasses[variant]}
-          rounded-lg font-medium
-          transition-all duration-200
-          flex items-center gap-2
-          disabled:opacity-50 disabled:cursor-not-allowed
-          hover:shadow-md
-          focus:outline-none focus:ring-2 focus:ring-offset-2
+          flex items-center
+          gap-2 rounded-lg
+          font-medium transition-all duration-200
+          hover:shadow-md focus:outline-none
+          focus:ring-2
+          focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50
           ${downloaded ? 'focus:ring-green-500' : 'focus:ring-blue-500'}
         `}
-        aria-label={downloaded ? `Remove ${courseName} from offline storage` : `Download ${courseName} for offline use`}
+        aria-label={
+          downloaded
+            ? `Remove ${courseName} from offline storage`
+            : `Download ${courseName} for offline use`
+        }
       >
         {isDownloading ? (
           <>
@@ -106,7 +111,7 @@ export default function OfflineDownloadButton({
 
       {/* Progress bar */}
       {isDownloading && (
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-200 rounded-b-lg overflow-hidden">
+        <div className="absolute bottom-0 left-0 right-0 h-1 overflow-hidden rounded-b-lg bg-gray-200">
           <div
             className="h-full bg-blue-500 transition-all duration-300"
             style={{ width: `${progress}%` }}
@@ -121,7 +126,7 @@ export default function OfflineDownloadButton({
 
       {/* Estimated size badge */}
       {estimatedSize && !downloaded && !isDownloading && (
-        <div className="absolute -top-2 -right-2 bg-gray-800 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
+        <div className="absolute -right-2 -top-2 flex items-center gap-1 rounded-full bg-gray-800 px-2 py-1 text-xs text-white">
           <HardDrive size={12} />
           <span>{estimatedSize}MB</span>
         </div>
@@ -145,7 +150,7 @@ export function OfflineDownloadIcon({
 
   return (
     <div
-      className="inline-flex items-center gap-1 text-green-600 text-sm"
+      className="inline-flex items-center gap-1 text-sm text-green-600"
       title={`${courseName} is available offline`}
     >
       <CheckCircle size={16} />

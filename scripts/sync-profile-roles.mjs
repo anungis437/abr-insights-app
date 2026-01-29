@@ -14,21 +14,19 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey)
 // Map role names to profile role slugs
 const roleMapping = {
   'Super Admin': 'super_admin',
-  'Instructor': 'educator',
-  'Learner': 'learner',
-  'Admin': 'org_admin',
-  'Manager': 'compliance_officer',
-  'Analyst': 'analyst',
-  'Guest': 'guest'
+  Instructor: 'educator',
+  Learner: 'learner',
+  Admin: 'org_admin',
+  Manager: 'compliance_officer',
+  Analyst: 'analyst',
+  Guest: 'guest',
 }
 
 async function syncProfileRoles() {
   console.log('Syncing profile roles with user_roles...\n')
 
   // Get all profiles
-  const { data: profiles } = await supabase
-    .from('profiles')
-    .select('id, email, role')
+  const { data: profiles } = await supabase.from('profiles').select('id, email, role')
 
   for (const profile of profiles) {
     // Get user's primary role from user_roles
@@ -68,7 +66,7 @@ async function syncProfileRoles() {
 
 syncProfileRoles()
   .then(() => process.exit(0))
-  .catch(err => {
+  .catch((err) => {
     console.error('Error:', err)
     process.exit(1)
   })

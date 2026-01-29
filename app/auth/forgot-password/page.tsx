@@ -52,7 +52,7 @@ export default function ForgotPasswordPage() {
             <p className="mt-2 text-gray-600">
               {isSubmitted
                 ? 'Check your email for instructions'
-                : 'Enter your email address and we\'ll send you a link to reset your password'}
+                : "Enter your email address and we'll send you a link to reset your password"}
             </p>
           </div>
 
@@ -63,7 +63,7 @@ export default function ForgotPasswordPage() {
                 {/* Error Message */}
                 {error && (
                   <div className="flex items-start gap-3 rounded-lg bg-red-50 p-4 text-red-800">
-                    <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+                    <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0" />
                     <p className="text-sm">{error}</p>
                   </div>
                 )}
@@ -82,7 +82,7 @@ export default function ForgotPasswordPage() {
                       id="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="block w-full rounded-lg border border-gray-300 pl-10 pr-3 py-2.5 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                      className="block w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                       placeholder="you@example.com"
                       required
                     />
@@ -98,8 +98,20 @@ export default function ForgotPasswordPage() {
                   {isLoading ? (
                     <span className="flex items-center justify-center">
                       <svg className="mr-2 h-5 w-5 animate-spin" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                          fill="none"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        />
                       </svg>
                       Sending reset link...
                     </span>
@@ -159,10 +171,7 @@ export default function ForgotPasswordPage() {
                 <div className="space-y-3">
                   <p className="text-sm text-gray-600">Didn&apos;t receive the email?</p>
                   <div className="flex flex-col gap-2 sm:flex-row">
-                    <button
-                      onClick={() => setIsSubmitted(false)}
-                      className="btn-secondary flex-1"
-                    >
+                    <button onClick={() => setIsSubmitted(false)} className="btn-secondary flex-1">
                       Try Again
                     </button>
                     <Link href="/contact" className="btn-outline flex-1">

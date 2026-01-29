@@ -23,7 +23,7 @@ import {
   X,
   Play,
   Clock,
-  FileText
+  FileText,
 } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
 
@@ -89,7 +89,7 @@ interface QuizQuestion {
 export default function CoursePlayerPage({ params }: { params: { slug: string } }) {
   const router = useRouter()
   const supabase = createClient()
-  
+
   // State
   const [user, setUser] = useState<User | null>(null)
   const [course, setCourse] = useState<Course | null>(null)
@@ -107,7 +107,9 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
   // Load user
   useEffect(() => {
     const loadUser = async () => {
-      const { data: { user: currentUser } } = await supabase.auth.getUser()
+      const {
+        data: { user: currentUser },
+      } = await supabase.auth.getUser()
       if (!currentUser) {
         router.push(`/auth/login?redirect=/courses/${params.slug}/player`)
         return
@@ -168,9 +170,10 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
             .insert({
               user_id: user.id,
               course_id: courseData.id,
-              organization_id: user.user_metadata?.organization_id || '00000000-0000-0000-0000-000000000000',
+              organization_id:
+                user.user_metadata?.organization_id || '00000000-0000-0000-0000-000000000000',
               status: 'active',
-              progress_percentage: 0
+              progress_percentage: 0,
             })
             .select()
             .single()
@@ -193,7 +196,9 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
 
         // Set current lesson based on enrollment
         if (enrollmentData.current_lesson_id) {
-          const currentIndex = lessonsData.findIndex((l: any) => l.id === enrollmentData.current_lesson_id)
+          const currentIndex = lessonsData.findIndex(
+            (l: any) => l.id === enrollmentData.current_lesson_id
+          )
           if (currentIndex >= 0) {
             setCurrentLessonIndex(currentIndex)
           }
@@ -212,10 +217,10 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
   // Helper functions
   const currentLesson = lessons[currentLessonIndex]
   const isLessonCompleted = (lessonId: string) => {
-    return lessonProgress.some(p => p.lesson_id === lessonId && p.status === 'completed')
+    return lessonProgress.some((p) => p.lesson_id === lessonId && p.status === 'completed')
   }
   const getLessonProgress = (lessonId: string) => {
-    return lessonProgress.find(p => p.lesson_id === lessonId)
+    return lessonProgress.find((p) => p.lesson_id === lessonId)
   }
 
   const handleLessonComplete = async () => {
@@ -234,7 +239,7 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
 
       // Mark lesson as complete
       const progress = getLessonProgress(currentLesson.id)
-      
+
       if (progress) {
         await supabase
           .from('lesson_progress')
@@ -242,25 +247,23 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
             status: 'completed',
             progress_percentage: 100,
             completed_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
+            updated_at: new Date().toISOString(),
           })
           .eq('id', progress.id)
       } else {
-        await supabase
-          .from('lesson_progress')
-          .insert({
-            user_id: user.id,
-            lesson_id: currentLesson.id,
-            course_id: course!.id,
-            enrollment_id: enrollment.id,
-            status: 'completed',
-            progress_percentage: 100,
-            completed_at: new Date().toISOString()
-          })
+        await supabase.from('lesson_progress').insert({
+          user_id: user.id,
+          lesson_id: currentLesson.id,
+          course_id: course!.id,
+          enrollment_id: enrollment.id,
+          status: 'completed',
+          progress_percentage: 100,
+          completed_at: new Date().toISOString(),
+        })
       }
 
       // Update enrollment progress
-      const completedCount = lessonProgress.filter(p => p.status === 'completed').length + 1
+      const completedCount = lessonProgress.filter((p) => p.status === 'completed').length + 1
       const newProgress = (completedCount / lessons.length) * 100
 
       await supabase
@@ -269,7 +272,10 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
           progress_percentage: newProgress,
           last_accessed_at: new Date().toISOString(),
           completed_at: newProgress === 100 ? new Date().toISOString() : null,
-          current_lesson_id: currentLessonIndex < lessons.length - 1 ? lessons[currentLessonIndex + 1].id : currentLesson.id
+          current_lesson_id:
+            currentLessonIndex < lessons.length - 1
+              ? lessons[currentLessonIndex + 1].id
+              : currentLesson.id,
         })
         .eq('id', enrollment.id)
 
@@ -312,7 +318,7 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
         .from('lesson_progress')
         .update({
           progress_percentage: score,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .eq('id', progress.id)
     }
@@ -343,9 +349,9 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500 mx-auto mb-4"></div>
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-teal-500"></div>
           <p className="text-gray-600">Loading course...</p>
         </div>
       </div>
@@ -354,13 +360,15 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
 
   if (!course || lessons.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto p-8">
-          <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Course Not Available</h2>
-          <p className="text-gray-600 mb-6">This course could not be found or is not yet published.</p>
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="mx-auto max-w-md p-8 text-center">
+          <BookOpen className="mx-auto mb-4 h-16 w-16 text-gray-400" />
+          <h2 className="mb-2 text-2xl font-bold text-gray-900">Course Not Available</h2>
+          <p className="mb-6 text-gray-600">
+            This course could not be found or is not yet published.
+          </p>
           <Link href="/training">
-            <button className="bg-gradient-to-r from-teal-500 to-teal-600 text-white px-6 py-3 rounded-lg hover:shadow-lg transition-all">
+            <button className="rounded-lg bg-gradient-to-r from-teal-500 to-teal-600 px-6 py-3 text-white transition-all hover:shadow-lg">
               Back to Training Hub
             </button>
           </Link>
@@ -369,38 +377,39 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
     )
   }
 
-  const completedLessons = lessonProgress.filter(p => p.status === 'completed').length
+  const completedLessons = lessonProgress.filter((p) => p.status === 'completed').length
   const progressPercentage = (completedLessons / lessons.length) * 100
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      
-      <div className="flex-1 flex pt-16">
+    <div className="flex min-h-screen flex-col bg-gray-50">
+      <div className="flex flex-1 pt-16">
         {/* Sidebar */}
         {sidebarOpen && (
-          <aside className="w-80 bg-white border-r border-gray-200 flex flex-col fixed lg:relative h-[calc(100vh-4rem)] z-40 overflow-hidden">
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex items-start justify-between mb-4">
-                <h2 className="text-lg font-bold text-gray-900 line-clamp-2 flex-1">{course.title}</h2>
+          <aside className="fixed z-40 flex h-[calc(100vh-4rem)] w-80 flex-col overflow-hidden border-r border-gray-200 bg-white lg:relative">
+            <div className="border-b border-gray-200 p-6">
+              <div className="mb-4 flex items-start justify-between">
+                <h2 className="line-clamp-2 flex-1 text-lg font-bold text-gray-900">
+                  {course.title}
+                </h2>
                 <button
                   onClick={() => setSidebarOpen(false)}
-                  className="lg:hidden text-gray-400 hover:text-gray-600 ml-2 flex-shrink-0"
+                  className="ml-2 flex-shrink-0 text-gray-400 hover:text-gray-600 lg:hidden"
                   aria-label="Close sidebar"
                   title="Close sidebar"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="h-5 w-5" />
                 </button>
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Progress</span>
-                  <span className="text-teal-600 font-semibold">
+                  <span className="font-semibold text-teal-600">
                     {progressPercentage.toFixed(0)}%
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="h-2 w-full rounded-full bg-gray-200">
                   <div
-                    className="bg-gradient-to-r from-teal-500 to-teal-600 h-2 rounded-full transition-all duration-500"
+                    className="h-2 rounded-full bg-gradient-to-r from-teal-500 to-teal-600 transition-all duration-500"
                     style={{ width: `${progressPercentage}%` }}
                   />
                 </div>
@@ -422,38 +431,42 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
                       key={lesson.id}
                       onClick={() => !locked && setCurrentLessonIndex(index)}
                       disabled={locked}
-                      className={`w-full text-left p-3 rounded-lg transition-all ${
+                      className={`w-full rounded-lg p-3 text-left transition-all ${
                         current
                           ? 'bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-md'
                           : completed
-                          ? 'bg-gray-50 text-gray-900 hover:bg-gray-100'
-                          : locked
-                          ? 'bg-gray-50 text-gray-400 cursor-not-allowed'
-                          : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
+                            ? 'bg-gray-50 text-gray-900 hover:bg-gray-100'
+                            : locked
+                              ? 'cursor-not-allowed bg-gray-50 text-gray-400'
+                              : 'border border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
                       }`}
                     >
                       <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0 mt-1">
+                        <div className="mt-1 flex-shrink-0">
                           {completed ? (
-                            <CheckCircle className="w-5 h-5 text-green-500" />
+                            <CheckCircle className="h-5 w-5 text-green-500" />
                           ) : locked ? (
-                            <Lock className="w-5 h-5" />
+                            <Lock className="h-5 w-5" />
                           ) : (
-                            <div className={`w-5 h-5 rounded-full border-2 ${
-                              current ? 'border-white' : 'border-gray-300'
-                            }`} />
+                            <div
+                              className={`h-5 w-5 rounded-full border-2 ${
+                                current ? 'border-white' : 'border-gray-300'
+                              }`}
+                            />
                           )}
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <div className={`text-xs font-medium mb-1 ${current ? 'text-teal-100' : 'text-gray-500'}`}>
+                        <div className="min-w-0 flex-1">
+                          <div
+                            className={`mb-1 text-xs font-medium ${current ? 'text-teal-100' : 'text-gray-500'}`}
+                          >
                             Lesson {lesson.lesson_number}
                           </div>
-                          <div className="text-sm font-semibold line-clamp-2">
-                            {lesson.title}
-                          </div>
+                          <div className="line-clamp-2 text-sm font-semibold">{lesson.title}</div>
                           {lesson.video_duration_seconds && (
-                            <div className={`text-xs mt-1 flex items-center gap-1 ${current ? 'text-teal-100' : 'text-gray-500'}`}>
-                              <Clock className="w-3 h-3" />
+                            <div
+                              className={`mt-1 flex items-center gap-1 text-xs ${current ? 'text-teal-100' : 'text-gray-500'}`}
+                            >
+                              <Clock className="h-3 w-3" />
                               {Math.ceil(lesson.video_duration_seconds / 60)} min
                             </div>
                           )}
@@ -465,16 +478,16 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
               </div>
             </div>
 
-            <div className="p-4 border-t border-gray-200 space-y-2">
+            <div className="space-y-2 border-t border-gray-200 p-4">
               <Link href="/training">
-                <button className="w-full flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-all">
-                  <Home className="w-4 h-4" />
+                <button className="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-all hover:bg-gray-50">
+                  <Home className="h-4 w-4" />
                   Back to Courses
                 </button>
               </Link>
               {progressPercentage === 100 && (
-                <button className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-lg hover:shadow-lg transition-all">
-                  <Award className="w-4 h-4" />
+                <button className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-2 text-white transition-all hover:shadow-lg">
+                  <Award className="h-4 w-4" />
                   View Certificate
                 </button>
               )}
@@ -483,9 +496,9 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
         )}
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex min-w-0 flex-1 flex-col">
           {/* Top Bar */}
-          <div className="bg-white border-b border-gray-200 px-6 py-4 sticky top-16 z-30">
+          <div className="sticky top-16 z-30 border-b border-gray-200 bg-white px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 {!sidebarOpen && (
@@ -495,21 +508,19 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
                     aria-label="Open sidebar"
                     title="Open sidebar"
                   >
-                    <Menu className="w-6 h-6" />
+                    <Menu className="h-6 w-6" />
                   </button>
                 )}
                 <div>
-                  <div className="text-sm text-teal-600 font-medium mb-1">
+                  <div className="mb-1 text-sm font-medium text-teal-600">
                     Lesson {currentLesson.lesson_number} of {lessons.length}
                   </div>
-                  <h1 className="text-xl font-bold text-gray-900">
-                    {currentLesson.title}
-                  </h1>
+                  <h1 className="text-xl font-bold text-gray-900">{currentLesson.title}</h1>
                 </div>
               </div>
               {isLessonCompleted(currentLesson.id) && (
-                <div className="flex items-center gap-2 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
-                  <CheckCircle className="w-4 h-4" />
+                <div className="flex items-center gap-2 rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-700">
+                  <CheckCircle className="h-4 w-4" />
                   Completed
                 </div>
               )}
@@ -519,94 +530,108 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
           {/* Lesson Content */}
           <div className="flex-1 overflow-y-auto">
             {showQuiz ? (
-              <div className="max-w-3xl mx-auto p-6 lg:p-12">
-                <div className="bg-white rounded-lg shadow-sm p-8">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">Quiz</h2>
-                  <p className="text-gray-600 mb-8">Test your knowledge from this lesson</p>
+              <div className="mx-auto max-w-3xl p-6 lg:p-12">
+                <div className="rounded-lg bg-white p-8 shadow-sm">
+                  <h2 className="mb-2 text-2xl font-bold text-gray-900">Quiz</h2>
+                  <p className="mb-8 text-gray-600">Test your knowledge from this lesson</p>
 
-                  {(currentLesson.content_data?.quiz_questions as QuizQuestion[] || []).map((question, qIndex) => (
-                    <div key={qIndex} className="mb-8 pb-8 border-b border-gray-200 last:border-0">
-                      <div className="flex items-start gap-3 mb-4">
-                        <div className="flex-shrink-0 w-8 h-8 bg-teal-100 text-teal-600 rounded-full flex items-center justify-center font-bold text-sm">
-                          {qIndex + 1}
-                        </div>
-                        <p className="text-lg font-semibold text-gray-900 flex-1">
-                          {question.question}
-                        </p>
-                      </div>
-
-                      <div className="space-y-3 ml-11">
-                        {question.options.map((option, oIndex) => {
-                          const isSelected = quizAnswers[qIndex] === oIndex
-                          const isCorrect = oIndex === question.correct_answer
-                          const showFeedback = quizSubmitted
-
-                          return (
-                            <button
-                              key={oIndex}
-                              onClick={() => {
-                                if (!quizSubmitted) {
-                                  const newAnswers = [...quizAnswers]
-                                  newAnswers[qIndex] = oIndex
-                                  setQuizAnswers(newAnswers)
-                                }
-                              }}
-                              disabled={quizSubmitted}
-                              className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
-                                showFeedback && isCorrect
-                                  ? 'border-green-500 bg-green-50'
-                                  : showFeedback && isSelected && !isCorrect
-                                  ? 'border-red-500 bg-red-50'
-                                  : isSelected
-                                  ? 'border-teal-500 bg-teal-50'
-                                  : 'border-gray-200 hover:border-gray-300'
-                              }`}
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                                  showFeedback && isCorrect
-                                    ? 'border-green-500 bg-green-500'
-                                    : showFeedback && isSelected && !isCorrect
-                                    ? 'border-red-500 bg-red-500'
-                                    : isSelected
-                                    ? 'border-teal-500 bg-teal-500'
-                                    : 'border-gray-300'
-                                }`}>
-                                  {(showFeedback && isCorrect) || (isSelected && !showFeedback) ? (
-                                    <CheckCircle className="w-4 h-4 text-white" />
-                                  ) : showFeedback && isSelected && !isCorrect ? (
-                                    <X className="w-4 h-4 text-white" />
-                                  ) : null}
-                                </div>
-                                <span className="flex-1">{option}</span>
-                              </div>
-                            </button>
-                          )
-                        })}
-                      </div>
-
-                      {quizSubmitted && question.explanation && (
-                        <div className="ml-11 mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                          <p className="text-sm text-blue-900">
-                            <strong>Explanation:</strong> {question.explanation}
+                  {((currentLesson.content_data?.quiz_questions as QuizQuestion[]) || []).map(
+                    (question, qIndex) => (
+                      <div
+                        key={qIndex}
+                        className="mb-8 border-b border-gray-200 pb-8 last:border-0"
+                      >
+                        <div className="mb-4 flex items-start gap-3">
+                          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-teal-100 text-sm font-bold text-teal-600">
+                            {qIndex + 1}
+                          </div>
+                          <p className="flex-1 text-lg font-semibold text-gray-900">
+                            {question.question}
                           </p>
                         </div>
-                      )}
-                    </div>
-                  ))}
+
+                        <div className="ml-11 space-y-3">
+                          {question.options.map((option, oIndex) => {
+                            const isSelected = quizAnswers[qIndex] === oIndex
+                            const isCorrect = oIndex === question.correct_answer
+                            const showFeedback = quizSubmitted
+
+                            return (
+                              <button
+                                key={oIndex}
+                                onClick={() => {
+                                  if (!quizSubmitted) {
+                                    const newAnswers = [...quizAnswers]
+                                    newAnswers[qIndex] = oIndex
+                                    setQuizAnswers(newAnswers)
+                                  }
+                                }}
+                                disabled={quizSubmitted}
+                                className={`w-full rounded-lg border-2 p-4 text-left transition-all ${
+                                  showFeedback && isCorrect
+                                    ? 'border-green-500 bg-green-50'
+                                    : showFeedback && isSelected && !isCorrect
+                                      ? 'border-red-500 bg-red-50'
+                                      : isSelected
+                                        ? 'border-teal-500 bg-teal-50'
+                                        : 'border-gray-200 hover:border-gray-300'
+                                }`}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div
+                                    className={`flex h-6 w-6 items-center justify-center rounded-full border-2 ${
+                                      showFeedback && isCorrect
+                                        ? 'border-green-500 bg-green-500'
+                                        : showFeedback && isSelected && !isCorrect
+                                          ? 'border-red-500 bg-red-500'
+                                          : isSelected
+                                            ? 'border-teal-500 bg-teal-500'
+                                            : 'border-gray-300'
+                                    }`}
+                                  >
+                                    {(showFeedback && isCorrect) ||
+                                    (isSelected && !showFeedback) ? (
+                                      <CheckCircle className="h-4 w-4 text-white" />
+                                    ) : showFeedback && isSelected && !isCorrect ? (
+                                      <X className="h-4 w-4 text-white" />
+                                    ) : null}
+                                  </div>
+                                  <span className="flex-1">{option}</span>
+                                </div>
+                              </button>
+                            )
+                          })}
+                        </div>
+
+                        {quizSubmitted && question.explanation && (
+                          <div className="ml-11 mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4">
+                            <p className="text-sm text-blue-900">
+                              <strong>Explanation:</strong> {question.explanation}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  )}
 
                   {quizSubmitted && quizScore !== null && (
-                    <div className="mt-8 p-6 bg-gradient-to-r from-teal-50 to-teal-100 rounded-lg border border-teal-200">
+                    <div className="mt-8 rounded-lg border border-teal-200 bg-gradient-to-r from-teal-50 to-teal-100 p-6">
                       <div className="text-center">
-                        <div className="text-4xl font-bold text-teal-600 mb-2">{quizScore}%</div>
-                        <p className="text-gray-700 mb-4">
-                          {quizScore >= 80 ? 'Great job! 🎉' : quizScore >= 60 ? 'Good effort! 👍' : 'Keep learning! 📚'}
+                        <div className="mb-2 text-4xl font-bold text-teal-600">{quizScore}%</div>
+                        <p className="mb-4 text-gray-700">
+                          {quizScore >= 80
+                            ? 'Great job! 🎉'
+                            : quizScore >= 60
+                              ? 'Good effort! 👍'
+                              : 'Keep learning! 📚'}
                         </p>
                         <button
                           onClick={handleLessonComplete}
-                          className="bg-gradient-to-r from-teal-500 to-teal-600 text-white px-6 py-3 rounded-lg hover:shadow-lg transition-all"
+                          className="rounded-lg bg-gradient-to-r from-teal-500 to-teal-600 px-6 py-3 text-white transition-all hover:shadow-lg"
                         >
-                          {currentLessonIndex < lessons.length - 1 ? 'Continue to Next Lesson' : 'Complete Course'}
+                          {currentLessonIndex < lessons.length - 1
+                            ? 'Continue to Next Lesson'
+                            : 'Complete Course'}
                         </button>
                       </div>
                     </div>
@@ -616,7 +641,7 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
                     <button
                       onClick={handleQuizSubmit}
                       disabled={quizAnswers.includes(-1)}
-                      className="w-full bg-gradient-to-r from-teal-500 to-teal-600 text-white py-3 rounded-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full rounded-lg bg-gradient-to-r from-teal-500 to-teal-600 py-3 text-white transition-all hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Submit Quiz
                     </button>
@@ -624,29 +649,33 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
                 </div>
               </div>
             ) : (
-              <div className="max-w-5xl mx-auto p-6 lg:p-12">
+              <div className="mx-auto max-w-5xl p-6 lg:p-12">
                 {/* Video Player */}
                 {currentLesson.content_type === 'video' && currentLesson.content_url && (
-                  <div className="mb-8 bg-black rounded-lg overflow-hidden shadow-lg">
+                  <div className="mb-8 overflow-hidden rounded-lg bg-black shadow-lg">
                     <div className="aspect-video">
-                      {currentLesson.content_url.includes('youtube.com') || currentLesson.content_url.includes('youtu.be') ? (
+                      {currentLesson.content_url.includes('youtube.com') ||
+                      currentLesson.content_url.includes('youtu.be') ? (
                         <iframe
                           src={currentLesson.content_url.replace('watch?v=', 'embed/')}
-                          className="w-full h-full"
+                          className="h-full w-full"
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                           allowFullScreen
                           title={`${currentLesson.title} - Video lesson`}
                         />
                       ) : currentLesson.content_url.includes('vimeo.com') ? (
                         <iframe
-                          src={currentLesson.content_url.replace('vimeo.com/', 'player.vimeo.com/video/')}
-                          className="w-full h-full"
+                          src={currentLesson.content_url.replace(
+                            'vimeo.com/',
+                            'player.vimeo.com/video/'
+                          )}
+                          className="h-full w-full"
                           allow="autoplay; fullscreen; picture-in-picture"
                           allowFullScreen
                           title={`${currentLesson.title} - Video lesson`}
                         />
                       ) : (
-                        <video src={currentLesson.content_url} controls className="w-full h-full">
+                        <video src={currentLesson.content_url} controls className="h-full w-full">
                           Your browser does not support video playback.
                         </video>
                       )}
@@ -655,10 +684,10 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
                 )}
 
                 {/* Lesson Content */}
-                <div className="bg-white rounded-lg shadow-sm p-8 mb-8">
-                  <h2 className="text-3xl font-bold text-gray-900 mb-4">{currentLesson.title}</h2>
+                <div className="mb-8 rounded-lg bg-white p-8 shadow-sm">
+                  <h2 className="mb-4 text-3xl font-bold text-gray-900">{currentLesson.title}</h2>
                   {currentLesson.description && (
-                    <p className="text-gray-600 mb-6">{currentLesson.description}</p>
+                    <p className="mb-6 text-gray-600">{currentLesson.description}</p>
                   )}
                   {currentLesson.article_body && (
                     <div className="prose max-w-none">
@@ -671,34 +700,38 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
           </div>
 
           {/* Navigation Bar */}
-          <div className="bg-white border-t border-gray-200 px-6 py-4 sticky bottom-0">
-            <div className="max-w-5xl mx-auto flex items-center justify-between">
+          <div className="sticky bottom-0 border-t border-gray-200 bg-white px-6 py-4">
+            <div className="mx-auto flex max-w-5xl items-center justify-between">
               <button
                 onClick={handlePreviousLesson}
                 disabled={currentLessonIndex === 0 || showQuiz}
-                className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-all hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft className="h-4 w-4" />
                 Previous
               </button>
 
               {!showQuiz && !isLessonCompleted(currentLesson.id) && (
                 <button
                   onClick={handleLessonComplete}
-                  className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-lg hover:shadow-lg transition-all"
+                  className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-teal-500 to-teal-600 px-6 py-2 text-white transition-all hover:shadow-lg"
                 >
                   {currentLesson.content_data?.quiz_questions ? 'Take Quiz' : 'Mark Complete'}
-                  <CheckCircle className="w-4 h-4" />
+                  <CheckCircle className="h-4 w-4" />
                 </button>
               )}
 
               <button
                 onClick={handleNextLesson}
-                disabled={currentLessonIndex === lessons.length - 1 || !isLessonCompleted(currentLesson.id) || showQuiz}
-                className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={
+                  currentLessonIndex === lessons.length - 1 ||
+                  !isLessonCompleted(currentLesson.id) ||
+                  showQuiz
+                }
+                className="flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-all hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Next
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="h-4 w-4" />
               </button>
             </div>
           </div>

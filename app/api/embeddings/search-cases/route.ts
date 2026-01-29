@@ -1,8 +1,8 @@
 /**
  * API Route: Search Similar Cases
- * 
+ *
  * POST /api/embeddings/search-cases
- * 
+ *
  * Performs semantic similarity search for tribunal cases using vector embeddings
  */
 
@@ -19,7 +19,7 @@ export const POST = withRateLimit(
     async (request, context) => {
       // Lazy load to avoid build-time initialization
       const { searchSimilarCasesByText } = await import('@/lib/services/embedding-service')
-      
+
       const body = await request.json()
       const {
         query,
@@ -31,10 +31,7 @@ export const POST = withRateLimit(
 
       // Validate query
       if (!query || typeof query !== 'string' || query.trim().length === 0) {
-        return NextResponse.json(
-          { error: 'Query text is required' },
-          { status: 400 }
-        )
+        return NextResponse.json({ error: 'Query text is required' }, { status: 400 })
       }
 
       if (query.length > 2000) {
@@ -78,7 +75,7 @@ export const POST = withRateLimit(
     {
       requireAuth: true,
       requireOrg: true,
-      anyPermissions: ['cases.search', 'embeddings.search']
+      anyPermissions: ['cases.search', 'embeddings.search'],
     }
   )
 )

@@ -3,7 +3,7 @@ import { AlertTriangle, Flag, Eye, CheckCircle, XCircle, Clock } from 'lucide-re
 
 export const metadata: Metadata = {
   title: 'Flagged Cases | Cases | ABR Insights',
-  description: 'Review and manage flagged cases requiring attention'
+  description: 'Review and manage flagged cases requiring attention',
 }
 
 export default function FlaggedCasesPage() {
@@ -124,23 +124,32 @@ export default function FlaggedCasesPage() {
         {stats.map((stat) => {
           const Icon = stat.icon
           return (
-            <div key={stat.label} className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+            <div
+              key={stat.label}
+              className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
+            >
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">{stat.label}</p>
                   <p className="mt-2 text-3xl font-bold text-gray-900">{stat.value}</p>
-                  <p className={`mt-1 text-sm ${
-                    stat.trend === 'up' ? 'text-red-600' : 'text-green-600'
-                  }`}>
+                  <p
+                    className={`mt-1 text-sm ${
+                      stat.trend === 'up' ? 'text-red-600' : 'text-green-600'
+                    }`}
+                  >
                     {stat.change} from yesterday
                   </p>
                 </div>
-                <div className={`rounded-full p-3 ${
-                  stat.label === 'High Priority' ? 'bg-red-50' : 'bg-gray-50'
-                }`}>
-                  <Icon className={`h-6 w-6 ${
-                    stat.label === 'High Priority' ? 'text-red-600' : 'text-primary-600'
-                  }`} />
+                <div
+                  className={`rounded-full p-3 ${
+                    stat.label === 'High Priority' ? 'bg-red-50' : 'bg-gray-50'
+                  }`}
+                >
+                  <Icon
+                    className={`h-6 w-6 ${
+                      stat.label === 'High Priority' ? 'text-red-600' : 'text-primary-600'
+                    }`}
+                  />
                 </div>
               </div>
             </div>
@@ -155,7 +164,8 @@ export default function FlaggedCasesPage() {
           <div className="flex-1">
             <h3 className="font-semibold text-red-900">12 High Priority Cases</h3>
             <p className="mt-1 text-sm text-red-700">
-              These cases require immediate attention from compliance officers. Cases flagged for more than 7 days will be escalated.
+              These cases require immediate attention from compliance officers. Cases flagged for
+              more than 7 days will be escalated.
             </p>
           </div>
         </div>
@@ -166,10 +176,10 @@ export default function FlaggedCasesPage() {
         <input
           type="text"
           placeholder="Search flagged cases..."
-          className="flex-1 min-w-[250px] rounded-md border border-gray-300 px-4 py-2 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+          className="min-w-[250px] flex-1 rounded-md border border-gray-300 px-4 py-2 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
           aria-label="Search flagged cases"
         />
-        <select 
+        <select
           className="rounded-md border border-gray-300 px-4 py-2 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
           aria-label="Filter by severity"
         >
@@ -179,7 +189,7 @@ export default function FlaggedCasesPage() {
           <option value="medium">Medium</option>
           <option value="low">Low</option>
         </select>
-        <select 
+        <select
           className="rounded-md border border-gray-300 px-4 py-2 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
           aria-label="Filter by status"
         >
@@ -243,7 +253,9 @@ export default function FlaggedCasesPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold uppercase ${getSeverityBadge(flaggedCase.severity)}`}>
+                    <span
+                      className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold uppercase ${getSeverityBadge(flaggedCase.severity)}`}
+                    >
                       {flaggedCase.severity}
                     </span>
                   </td>
@@ -257,16 +269,22 @@ export default function FlaggedCasesPage() {
                     <p className="text-sm text-gray-900">{flaggedCase.assignee}</p>
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${getStatusBadge(flaggedCase.status)}`}>
+                    <span
+                      className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${getStatusBadge(flaggedCase.status)}`}
+                    >
                       {getStatusLabel(flaggedCase.status)}
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`text-sm font-medium ${
-                      flaggedCase.daysOpen >= 7 ? 'text-red-600' : 
-                      flaggedCase.daysOpen >= 5 ? 'text-orange-600' : 
-                      'text-gray-900'
-                    }`}>
+                    <span
+                      className={`text-sm font-medium ${
+                        flaggedCase.daysOpen >= 7
+                          ? 'text-red-600'
+                          : flaggedCase.daysOpen >= 5
+                            ? 'text-orange-600'
+                            : 'text-gray-900'
+                      }`}
+                    >
                       {flaggedCase.daysOpen} days
                     </span>
                   </td>

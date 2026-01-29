@@ -109,17 +109,17 @@ This is a **prototype-first** approach that will evolve into a production-grade 
 **Example (HRTO via CanLII)**:
 
 ```typescript
-const listing = await fetch('https://www.canlii.org/en/on/onhrt/');
-const $ = cheerio.load(await listing.text());
+const listing = await fetch('https://www.canlii.org/en/on/onhrt/')
+const $ = cheerio.load(await listing.text())
 
-const decisions: DecisionLink[] = [];
+const decisions: DecisionLink[] = []
 $('.result-title a').each((i, elem) => {
   decisions.push({
     title: $(elem).text().trim(),
     url: new URL($(elem).attr('href'), 'https://www.canlii.org').href,
     date: $(elem).closest('.result').find('.date').text(),
-  });
-});
+  })
+})
 ```
 
 ### 2. Content Fetcher
@@ -140,19 +140,19 @@ $('.result-title a').each((i, elem) => {
 
 ```typescript
 async function fetchContent(url: string): Promise<DecisionContent> {
-  await sleep(2000); // Throttle
-  
-  const response = await fetch(url);
-  const html = await response.text();
-  const $ = cheerio.load(html);
-  
+  await sleep(2000) // Throttle
+
+  const response = await fetch(url)
+  const html = await response.text()
+  const $ = cheerio.load(html)
+
   // Remove noise
-  $('nav, header, footer, .sidebar, .ad').remove();
-  
-  const fullText = $('.decision-content').text().trim();
-  const htmlExcerpt = $('.decision-content').html()?.substring(0, 5000) || '';
-  
-  return { fullText, htmlExcerpt };
+  $('nav, header, footer, .sidebar, .ad').remove()
+
+  const fullText = $('.decision-content').text().trim()
+  const htmlExcerpt = $('.decision-content').html()?.substring(0, 5000) || ''
+
+  return { fullText, htmlExcerpt }
 }
 ```
 
@@ -168,33 +168,33 @@ async function fetchContent(url: string): Promise<DecisionContent> {
 
 ```typescript
 function ruleClassifier(text: string) {
-  const lower = text.toLowerCase();
-  
+  const lower = text.toLowerCase()
+
   // Keywords
-  const raceKeywords = ['race', 'racial', 'colour', 'color', 'ancestry', 'ethnic'];
-  const blackKeywords = ['black', 'anti-black', 'african', 'caribbean', 'afro-canadian'];
-  const discriminationKeywords = ['discrimination', 'discriminatory', 'profiling', 'harassment'];
-  
+  const raceKeywords = ['race', 'racial', 'colour', 'color', 'ancestry', 'ethnic']
+  const blackKeywords = ['black', 'anti-black', 'african', 'caribbean', 'afro-canadian']
+  const discriminationKeywords = ['discrimination', 'discriminatory', 'profiling', 'harassment']
+
   // Detection logic
-  const hasRace = raceKeywords.some(kw => lower.includes(kw));
-  const hasDiscrimination = discriminationKeywords.some(kw => lower.includes(kw));
-  const hasBlack = blackKeywords.some(kw => lower.includes(kw));
-  
+  const hasRace = raceKeywords.some((kw) => lower.includes(kw))
+  const hasDiscrimination = discriminationKeywords.some((kw) => lower.includes(kw))
+  const hasBlack = blackKeywords.some((kw) => lower.includes(kw))
+
   return {
     isRaceRelated: hasRace && hasDiscrimination,
     isAntiBlackLikely: hasBlack && hasRace,
-    groundsDetected: detectGrounds(lower)
-  };
+    groundsDetected: detectGrounds(lower),
+  }
 }
 
 function detectGrounds(text: string): string[] {
-  const grounds = [];
-  if (text.includes('race') || text.includes('racial')) grounds.push('race');
-  if (text.includes('colour') || text.includes('color')) grounds.push('colour');
-  if (text.includes('ancestry')) grounds.push('ancestry');
-  if (text.includes('place of origin')) grounds.push('place_of_origin');
-  if (text.includes('ethnic')) grounds.push('ethnic_origin');
-  return grounds;
+  const grounds = []
+  if (text.includes('race') || text.includes('racial')) grounds.push('race')
+  if (text.includes('colour') || text.includes('color')) grounds.push('colour')
+  if (text.includes('ancestry')) grounds.push('ancestry')
+  if (text.includes('place of origin')) grounds.push('place_of_origin')
+  if (text.includes('ethnic')) grounds.push('ethnic_origin')
+  return grounds
 }
 ```
 
@@ -232,19 +232,19 @@ Respond in JSON format:
 
 ```typescript
 async function aiClassifier(text: string): Promise<ClassificationResult> {
-  const prompt = buildPrompt(text.substring(0, 4000)); // Limit tokens
-  
+  const prompt = buildPrompt(text.substring(0, 4000)) // Limit tokens
+
   const response = await openai.chat.completions.create({
     model: 'gpt-4o',
     messages: [
       { role: 'system', content: 'You are an expert in Canadian human rights law.' },
-      { role: 'user', content: prompt }
+      { role: 'user', content: prompt },
     ],
     temperature: 0.3,
-    response_format: { type: 'json_object' }
-  });
-  
-  return JSON.parse(response.choices[0].message.content);
+    response_format: { type: 'json_object' },
+  })
+
+  return JSON.parse(response.choices[0].message.content)
 }
 ```
 
@@ -262,31 +262,31 @@ async function aiClassifier(text: string): Promise<ClassificationResult> {
 
 ```typescript
 interface TribunalCaseRaw {
-  id: string; // UUID
-  source: 'HRTO' | 'CHRT' | 'CanLII' | 'BCHRT' | 'NSHRC';
-  title: string;
-  date: string; // ISO 8601
-  url: string; // Unique
-  decision_type?: string; // 'Preliminary', 'Final', 'Costs', etc.
-  full_text: string;
-  html_excerpt: string;
-  
+  id: string // UUID
+  source: 'HRTO' | 'CHRT' | 'CanLII' | 'BCHRT' | 'NSHRC'
+  title: string
+  date: string // ISO 8601
+  url: string // Unique
+  decision_type?: string // 'Preliminary', 'Final', 'Costs', etc.
+  full_text: string
+  html_excerpt: string
+
   // Classification results
-  is_race_related: boolean;
-  is_anti_black_likely: boolean;
-  grounds_detected: string[];
+  is_race_related: boolean
+  is_anti_black_likely: boolean
+  grounds_detected: string[]
   confidence_scores: {
-    race_related: number; // 0-1
-    anti_black: number; // 0-1
-  };
-  ai_summary: string;
-  
+    race_related: number // 0-1
+    anti_black: number // 0-1
+  }
+  ai_summary: string
+
   // Metadata
-  processing_status: 'pending' | 'processing' | 'classified' | 'promoted' | 'rejected' | 'failed';
-  processing_error?: string;
-  ingested_at: string; // Timestamp
-  processed_at?: string;
-  promoted_at?: string; // When moved to tribunal_cases
+  processing_status: 'pending' | 'processing' | 'classified' | 'promoted' | 'rejected' | 'failed'
+  processing_error?: string
+  ingested_at: string // Timestamp
+  processed_at?: string
+  promoted_at?: string // When moved to tribunal_cases
 }
 ```
 
@@ -399,15 +399,15 @@ resources:
     type: Azure Function App
     plan: Premium (EP1)
     runtime: Node.js 20
-    
+
   - name: st-abr-ingestion
     type: Storage Account
     purpose: Function storage, queue triggers
-    
+
   - name: appi-abr-ingestion
     type: Application Insights
     purpose: Monitoring, logging
-    
+
   - name: kv-abr-secrets
     type: Key Vault
     secrets:
@@ -641,25 +641,25 @@ Response 200 OK:
 // tests/unit/classifier.test.ts
 describe('Rule-based Classifier', () => {
   it('should detect race-related keywords', () => {
-    const text = 'The complainant alleged racial discrimination based on colour.';
-    const result = ruleClassifier(text);
-    expect(result.isRaceRelated).toBe(true);
-    expect(result.groundsDetected).toContain('race');
-    expect(result.groundsDetected).toContain('colour');
-  });
+    const text = 'The complainant alleged racial discrimination based on colour.'
+    const result = ruleClassifier(text)
+    expect(result.isRaceRelated).toBe(true)
+    expect(result.groundsDetected).toContain('race')
+    expect(result.groundsDetected).toContain('colour')
+  })
 
   it('should detect anti-Black keywords', () => {
-    const text = 'The Black employee faced discrimination and profiling.';
-    const result = ruleClassifier(text);
-    expect(result.isAntiBlackLikely).toBe(true);
-  });
+    const text = 'The Black employee faced discrimination and profiling.'
+    const result = ruleClassifier(text)
+    expect(result.isAntiBlackLikely).toBe(true)
+  })
 
   it('should not flag non-race cases', () => {
-    const text = 'The applicant alleged wage theft and unpaid overtime.';
-    const result = ruleClassifier(text);
-    expect(result.isRaceRelated).toBe(false);
-  });
-});
+    const text = 'The applicant alleged wage theft and unpaid overtime.'
+    const result = ruleClassifier(text)
+    expect(result.isRaceRelated).toBe(false)
+  })
+})
 ```
 
 ### Integration Tests
@@ -668,26 +668,26 @@ describe('Rule-based Classifier', () => {
 // tests/integration/scraper.test.ts
 describe('HRTO Scraper', () => {
   it('should discover recent decisions', async () => {
-    const scraper = new HRTOScraper();
+    const scraper = new HRTOScraper()
     const decisions = await scraper.discoverDecisions({
       listing_url: 'https://www.canlii.org/en/on/onhrt/',
-      max_decisions_per_run: 10
-    });
-    
-    expect(decisions).toHaveLength(10);
-    expect(decisions[0]).toHaveProperty('title');
-    expect(decisions[0]).toHaveProperty('url');
-    expect(decisions[0].url).toMatch(/^https:\/\//);
-  });
+      max_decisions_per_run: 10,
+    })
+
+    expect(decisions).toHaveLength(10)
+    expect(decisions[0]).toHaveProperty('title')
+    expect(decisions[0]).toHaveProperty('url')
+    expect(decisions[0].url).toMatch(/^https:\/\//)
+  })
 
   it('should fetch decision content', async () => {
-    const scraper = new HRTOScraper();
-    const content = await scraper.fetchContent('https://www.canlii.org/en/on/onhrt/doc/2024/...');
-    
-    expect(content.fullText.length).toBeGreaterThan(100);
-    expect(content.htmlExcerpt).toBeTruthy();
-  });
-});
+    const scraper = new HRTOScraper()
+    const content = await scraper.fetchContent('https://www.canlii.org/en/on/onhrt/doc/2024/...')
+
+    expect(content.fullText.length).toBeGreaterThan(100)
+    expect(content.htmlExcerpt).toBeTruthy()
+  })
+})
 ```
 
 ### E2E Test
@@ -697,24 +697,24 @@ describe('HRTO Scraper', () => {
 describe('Full Ingestion Pipeline', () => {
   it('should ingest and classify HRTO decisions', async () => {
     // Trigger job
-    const job = await triggerIngestionJob('HRTO', 5);
-    
+    const job = await triggerIngestionJob('HRTO', 5)
+
     // Wait for completion (with timeout)
-    await waitForJobCompletion(job.id, 120000); // 2 min
-    
+    await waitForJobCompletion(job.id, 120000) // 2 min
+
     // Verify results
-    const cases = await fetchIngestedCases({ source: 'HRTO', job_id: job.id });
-    expect(cases.length).toBeGreaterThan(0);
-    
+    const cases = await fetchIngestedCases({ source: 'HRTO', job_id: job.id })
+    expect(cases.length).toBeGreaterThan(0)
+
     // Check classification
-    const raceRelated = cases.filter(c => c.is_race_related);
-    expect(raceRelated.length).toBeGreaterThanOrEqual(1);
-    
+    const raceRelated = cases.filter((c) => c.is_race_related)
+    expect(raceRelated.length).toBeGreaterThanOrEqual(1)
+
     // Check AI summary exists
-    expect(cases[0].ai_summary).toBeTruthy();
-    expect(cases[0].confidence_scores.race_related).toBeGreaterThanOrEqual(0);
-  });
-});
+    expect(cases[0].ai_summary).toBeTruthy()
+    expect(cases[0].confidence_scores.race_related).toBeGreaterThanOrEqual(0)
+  })
+})
 ```
 
 ---
@@ -747,15 +747,15 @@ describe('Full Ingestion Pipeline', () => {
 
 ## Success Metrics
 
-| Metric | Target | Measurement |
-|--------|--------|-------------|
-| **Decisions Ingested/Day** | 50+ | Ingestion jobs table |
-| **Race-Related Accuracy** | > 85% | Manual review sample (50 cases) |
-| **Anti-Black Accuracy** | > 80% | Manual review sample (50 cases) |
-| **Scraper Uptime** | > 95% | Failed jobs / Total jobs |
-| **Processing Time** | < 20 min/job | Azure Function duration |
-| **False Positive Rate** | < 15% | Non-race flagged as race |
-| **False Negative Rate** | < 10% | Race cases missed |
+| Metric                     | Target       | Measurement                     |
+| -------------------------- | ------------ | ------------------------------- |
+| **Decisions Ingested/Day** | 50+          | Ingestion jobs table            |
+| **Race-Related Accuracy**  | > 85%        | Manual review sample (50 cases) |
+| **Anti-Black Accuracy**    | > 80%        | Manual review sample (50 cases) |
+| **Scraper Uptime**         | > 95%        | Failed jobs / Total jobs        |
+| **Processing Time**        | < 20 min/job | Azure Function duration         |
+| **False Positive Rate**    | < 15%        | Non-race flagged as race        |
+| **False Negative Rate**    | < 10%        | Race cases missed               |
 
 ---
 

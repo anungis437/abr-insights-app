@@ -15,7 +15,7 @@ export interface PermissionCheckResult {
 
 /**
  * Check if the current user has a specific permission
- * 
+ *
  * @example
  * ```ts
  * export async function POST(request: Request) {
@@ -27,14 +27,15 @@ export interface PermissionCheckResult {
  * }
  * ```
  */
-export async function checkPermission(
-  permission: string
-): Promise<PermissionCheckResult> {
+export async function checkPermission(permission: string): Promise<PermissionCheckResult> {
   try {
     const supabase = await createClient()
-    
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
-    
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
+
     if (userError || !user) {
       return {
         allowed: false,
@@ -50,12 +51,11 @@ export async function checkPermission(
       .single()
 
     // Check if user has the permission through their roles
-    const { data: hasPermission, error } = await supabase
-      .rpc('has_permission', {
-        p_user_id: user.id,
-        p_org_id: profile?.organization_id || null,
-        p_permission: permission,
-      })
+    const { data: hasPermission, error } = await supabase.rpc('has_permission', {
+      p_user_id: user.id,
+      p_org_id: profile?.organization_id || null,
+      p_permission: permission,
+    })
 
     if (error) {
       console.error('[checkPermission] RPC error:', error)
@@ -84,14 +84,15 @@ export async function checkPermission(
 /**
  * Check if user has any of the specified permissions
  */
-export async function checkAnyPermission(
-  permissions: string[]
-): Promise<PermissionCheckResult> {
+export async function checkAnyPermission(permissions: string[]): Promise<PermissionCheckResult> {
   try {
     const supabase = await createClient()
-    
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
-    
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
+
     if (userError || !user) {
       return {
         allowed: false,
@@ -105,12 +106,11 @@ export async function checkAnyPermission(
       .eq('id', user.id)
       .single()
 
-    const { data: hasAny, error } = await supabase
-      .rpc('has_any_permission', {
-        p_user_id: user.id,
-        p_org_id: profile?.organization_id || null,
-        p_permissions: permissions,
-      })
+    const { data: hasAny, error } = await supabase.rpc('has_any_permission', {
+      p_user_id: user.id,
+      p_org_id: profile?.organization_id || null,
+      p_permissions: permissions,
+    })
 
     if (error) {
       console.error('[checkAnyPermission] RPC error:', error)
@@ -139,14 +139,15 @@ export async function checkAnyPermission(
 /**
  * Check if user has all specified permissions
  */
-export async function checkAllPermissions(
-  permissions: string[]
-): Promise<PermissionCheckResult> {
+export async function checkAllPermissions(permissions: string[]): Promise<PermissionCheckResult> {
   try {
     const supabase = await createClient()
-    
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
-    
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
+
     if (userError || !user) {
       return {
         allowed: false,
@@ -160,12 +161,11 @@ export async function checkAllPermissions(
       .eq('id', user.id)
       .single()
 
-    const { data: hasAll, error } = await supabase
-      .rpc('has_all_permissions', {
-        p_user_id: user.id,
-        p_org_id: profile?.organization_id || null,
-        p_permissions: permissions,
-      })
+    const { data: hasAll, error } = await supabase.rpc('has_all_permissions', {
+      p_user_id: user.id,
+      p_org_id: profile?.organization_id || null,
+      p_permissions: permissions,
+    })
 
     if (error) {
       console.error('[checkAllPermissions] RPC error:', error)
@@ -197,14 +197,11 @@ export async function checkAllPermissions(
  */
 export async function requirePermission(permission: string): Promise<NextResponse | null> {
   const check = await checkPermission(permission)
-  
+
   if (!check.allowed) {
-    return NextResponse.json(
-      { error: check.error || 'Insufficient permissions' },
-      { status: 403 }
-    )
+    return NextResponse.json({ error: check.error || 'Insufficient permissions' }, { status: 403 })
   }
-  
+
   return null
 }
 
@@ -213,14 +210,11 @@ export async function requirePermission(permission: string): Promise<NextRespons
  */
 export async function requireAnyPermission(permissions: string[]): Promise<NextResponse | null> {
   const check = await checkAnyPermission(permissions)
-  
+
   if (!check.allowed) {
-    return NextResponse.json(
-      { error: check.error || 'Insufficient permissions' },
-      { status: 403 }
-    )
+    return NextResponse.json({ error: check.error || 'Insufficient permissions' }, { status: 403 })
   }
-  
+
   return null
 }
 
@@ -229,14 +223,11 @@ export async function requireAnyPermission(permissions: string[]): Promise<NextR
  */
 export async function requireAllPermissions(permissions: string[]): Promise<NextResponse | null> {
   const check = await checkAllPermissions(permissions)
-  
+
   if (!check.allowed) {
-    return NextResponse.json(
-      { error: check.error || 'Insufficient permissions' },
-      { status: 403 }
-    )
+    return NextResponse.json({ error: check.error || 'Insufficient permissions' }, { status: 403 })
   }
-  
+
   return null
 }
 
@@ -246,18 +237,17 @@ export async function requireAllPermissions(permissions: string[]): Promise<Next
 export async function getCurrentUserContext() {
   try {
     const supabase = await createClient()
-    
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
-    
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
+
     if (userError || !user) {
       return null
     }
 
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single()
+    const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
 
     return {
       user,

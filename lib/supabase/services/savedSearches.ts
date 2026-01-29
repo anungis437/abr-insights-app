@@ -24,7 +24,10 @@ export type SavedSearch = {
   deleted_at: string | null
 }
 
-export type SavedSearchInsert = Omit<SavedSearch, 'id' | 'created_at' | 'updated_at' | 'use_count' | 'last_used_at'>
+export type SavedSearchInsert = Omit<
+  SavedSearch,
+  'id' | 'created_at' | 'updated_at' | 'use_count' | 'last_used_at'
+>
 export type SavedSearchUpdate = Partial<SavedSearchInsert>
 
 export class SavedSearchesService {
@@ -38,7 +41,10 @@ export class SavedSearchesService {
    * Get user's saved searches
    * Replaces: base44.entities.SavedSearch.getUserSearches()
    */
-  async getUserSearches(userId: string, options?: { searchType?: SearchType; favoritesOnly?: boolean }) {
+  async getUserSearches(
+    userId: string,
+    options?: { searchType?: SearchType; favoritesOnly?: boolean }
+  ) {
     let query = this.supabase
       .from('saved_searches')
       .select('*')
@@ -85,7 +91,7 @@ export class SavedSearchesService {
       .from('saved_searches')
       .insert({
         ...search,
-        use_count: 0
+        use_count: 0,
       })
       .select()
       .single()
@@ -129,12 +135,12 @@ export class SavedSearchesService {
    */
   async toggleFavorite(id: string) {
     const search = await this.get(id)
-    
+
     const { data, error } = await this.supabase
       .from('saved_searches')
-      .update({ 
+      .update({
         is_favorite: !search.is_favorite,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq('id', id)
       .select()
@@ -155,7 +161,7 @@ export class SavedSearchesService {
       .update({
         use_count: (search.use_count || 0) + 1,
         last_used_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq('id', id)
       .select()
@@ -233,7 +239,7 @@ export class SavedSearchesService {
       return await this.update(existing.id, {
         query_text: search.query_text,
         filters: search.filters,
-        search_type: search.search_type
+        search_type: search.search_type,
       })
     }
 
@@ -262,13 +268,13 @@ export class SavedSearchesService {
         .select('*', { count: 'exact', head: true })
         .eq('user_id', userId)
         .not('last_used_at', 'is', null)
-        .is('deleted_at', null)
+        .is('deleted_at', null),
     ])
 
     return {
       total: totalSearches.count || 0,
       favorites: favoriteSearches.count || 0,
-      recent: recentSearches.count || 0
+      recent: recentSearches.count || 0,
     }
   }
 }

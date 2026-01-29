@@ -2,12 +2,13 @@ import { createClient } from '@supabase/supabase-js'
 
 // Supabase client for client-side operations
 // Only initialize if environment variables are available (skip during build)
-export const supabase = (typeof window !== 'undefined' || process.env.NEXT_PUBLIC_SUPABASE_URL)
-  ? createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    )
-  : null as any
+export const supabase =
+  typeof window !== 'undefined' || process.env.NEXT_PUBLIC_SUPABASE_URL
+    ? createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      )
+    : (null as any)
 
 // Type definitions for database tables
 export type Profile = {

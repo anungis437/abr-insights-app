@@ -26,19 +26,19 @@ export type Language = 'en' | 'fr'
 export interface CourseModule {
   id: string
   course_id: string
-  
+
   // Basic Info
   title: string
   slug: string
   description?: string
-  
+
   // Organization
   module_number: number
   sort_order: number
-  
+
   // Duration
   estimated_duration_minutes?: number
-  
+
   // Access Control
   is_published: boolean
   unlock_requirements?: {
@@ -47,11 +47,11 @@ export interface CourseModule {
     required_lessons?: string[]
     unlock_date?: string
   }
-  
+
   // Content
   learning_objectives?: string[]
   resources?: ModuleResource[]
-  
+
   // Timestamps
   published_at?: string
   created_at: string
@@ -76,51 +76,51 @@ export interface Lesson {
   id: string
   course_id: string
   module_id?: string
-  
+
   // Basic Info
   title: string
   slug: string
   description?: string
-  
+
   // Content
   content_type: ContentType
   content_url?: string
   content_data?: Record<string, any>
-  
+
   // Video-specific
   video_duration_seconds?: number
   video_provider?: VideoProvider
   video_id?: string
   thumbnail_url?: string
-  
+
   // Article-specific
   article_body?: string
   estimated_read_time_minutes?: number
-  
+
   // Bilingual Support
   transcript_en?: string
   transcript_fr?: string
   closed_captions_url?: string
   accessibility_notes?: string
-  
+
   // Continuing Education
   ce_credits?: number
   regulatory_body?: string // 'MFDA', 'IIROC', 'Insurance Council', etc.
-  
+
   // Organization
   module_number: number
   lesson_number: number
   sort_order: number
-  
+
   // Access
   is_published: boolean
   is_preview: boolean
   completion_required: boolean
   allow_download: boolean
-  
+
   // Resources
   resources?: LessonResource[]
-  
+
   // Timestamps
   published_at?: string
   created_at: string
@@ -144,21 +144,21 @@ export interface LessonResource {
 export interface CourseVersion {
   id: string
   course_id: string
-  
+
   // Version Info
   version_number: string
   version_name?: string
   change_summary?: string
   change_type: VersionChangeType
-  
+
   // Content Snapshot
   content_snapshot: Record<string, any>
   modules_snapshot?: CourseModule[]
   lessons_snapshot?: Lesson[]
-  
+
   // Status
   is_active: boolean
-  
+
   // Metadata
   created_by?: string
   published_at?: string
@@ -172,7 +172,7 @@ export interface CourseVersion {
 
 export interface LearningPath {
   id: string
-  
+
   // Basic Info
   title: string
   slug: string
@@ -180,40 +180,40 @@ export interface LearningPath {
   short_description?: string
   thumbnail_url?: string
   cover_image_url?: string
-  
+
   // Content
   learning_objectives?: string[]
   target_audience?: string
   career_outcomes?: string
-  
+
   // Course Sequence
   course_sequence: PathCourseItem[]
   total_courses: number
   estimated_hours?: number
-  
+
   // Classification
   difficulty_level: LearningPathDifficulty
   category?: string
   tags?: string[]
-  
+
   // Access Control
   is_published: boolean
   required_tier: CourseTier
-  
+
   // Certification
   certificate_name?: string
   certificate_description?: string
   ce_credits_total?: number
-  
+
   // Stats
   enrollments_count: number
   completions_count: number
   average_rating?: number
-  
+
   // SEO
   meta_title?: string
   meta_description?: string
-  
+
   // Timestamps
   published_at?: string
   created_at: string
@@ -238,37 +238,37 @@ export interface CourseReview {
   id: string
   course_id: string
   user_id: string
-  
+
   // Review Content
   rating: number // 1-5
   title?: string
   review_text?: string
-  
+
   // Detailed Ratings
   content_quality_rating?: number
   instructor_rating?: number
   value_rating?: number
   difficulty_rating?: number
-  
+
   // Verification
   is_verified_completion: boolean
   completion_date?: string
-  
+
   // Moderation
   is_published: boolean
   is_flagged: boolean
   moderation_notes?: string
   moderated_by?: string
   moderated_at?: string
-  
+
   // Engagement
   helpful_count: number
   reported_count: number
-  
+
   // Timestamps
   created_at: string
   updated_at: string
-  
+
   // Populated fields (from joins)
   user?: {
     id: string
@@ -286,41 +286,41 @@ export interface CourseDiscussion {
   course_id: string
   lesson_id?: string
   parent_id?: string
-  
+
   // Author
   user_id: string
-  
+
   // Content
   title?: string
   content: string
   discussion_type: DiscussionType
-  
+
   // Question-specific
   is_answered: boolean
   is_pinned: boolean
   is_instructor_question: boolean
-  
+
   // Engagement
   upvotes_count: number
   replies_count: number
   views_count: number
-  
+
   // Best Answer
   best_answer_id?: string
   marked_as_answer_at?: string
   marked_by?: string
-  
+
   // Moderation
   is_published: boolean
   is_flagged: boolean
   is_locked: boolean
   moderation_notes?: string
-  
+
   // Timestamps
   created_at: string
   updated_at: string
   deleted_at?: string
-  
+
   // Populated fields (from joins)
   user?: {
     id: string
@@ -341,41 +341,41 @@ export interface Enrollment {
   user_id: string
   course_id: string
   learning_path_id?: string
-  
+
   // Enrollment Info
   enrollment_date: string
   enrollment_source?: string
-  
+
   // Progress
   status: EnrollmentStatus
   progress_percentage: number
-  
+
   // Completion
   completed_at?: string
   completion_certificate_issued: boolean
   certificate_issued_at?: string
   certificate_id?: string
-  
+
   // Time Tracking
   last_accessed_at?: string
   total_time_spent_minutes: number
-  
+
   // Performance
   average_quiz_score?: number
   quizzes_passed: number
   quizzes_failed: number
-  
+
   // Access Control
   access_expires_at?: string
   is_access_granted: boolean
-  
+
   // Metadata
   enrollment_metadata?: Record<string, any>
-  
+
   // Timestamps
   created_at: string
   updated_at: string
-  
+
   // Populated fields
   course?: {
     id: string
@@ -395,32 +395,32 @@ export interface LessonProgress {
   user_id: string
   lesson_id: string
   enrollment_id?: string
-  
+
   // Status
   status: LessonStatus
-  
+
   // Progress Tracking
   progress_percentage: number
   last_position_seconds?: number
-  
+
   // Completion
   completed_at?: string
   time_spent_seconds: number
-  
+
   // Video-specific
   watch_count: number
   playback_speed: number
-  
+
   // Bookmarks and Notes
   bookmarks?: VideoBookmark[]
   notes?: string
-  
+
   // Timestamps
   first_accessed_at: string
   last_accessed_at: string
   created_at: string
   updated_at: string
-  
+
   // Populated fields
   lesson?: {
     id: string
@@ -447,28 +447,28 @@ export interface QuizAttempt {
   quiz_id: string
   lesson_id?: string
   enrollment_id?: string
-  
+
   // Attempt Info
   attempt_number: number
-  
+
   // Responses
   answers: Record<string, any>
   score: number
   percentage: number
-  
+
   // Result
   passed: boolean
   passing_score_percentage: number
-  
+
   // Timing
   started_at: string
   submitted_at?: string
   time_taken_seconds?: number
-  
+
   // Feedback
   feedback?: string
   detailed_results?: QuizQuestionResult[]
-  
+
   // Timestamps
   created_at: string
   updated_at: string
@@ -493,27 +493,27 @@ export interface LearningPathEnrollment {
   id: string
   user_id: string
   learning_path_id: string
-  
+
   // Status
   status: EnrollmentStatus
   progress_percentage: number
-  
+
   // Tracking
   courses_completed: number
   courses_total: number
   current_course_id?: string
-  
+
   // Completion
   completed_at?: string
   certificate_issued: boolean
   certificate_id?: string
-  
+
   // Timestamps
   enrolled_at: string
   last_accessed_at?: string
   created_at: string
   updated_at: string
-  
+
   // Populated fields
   learning_path?: LearningPath
   current_course?: {
@@ -543,7 +543,7 @@ export interface CourseWithDetails {
   completions_count: number
   average_rating?: number
   total_reviews: number
-  
+
   // Relations
   modules?: CourseModule[]
   lessons?: Lesson[]
@@ -558,7 +558,7 @@ export interface CourseWithDetails {
     name: string
     slug: string
   }
-  
+
   // User-specific (if authenticated)
   user_enrollment?: Enrollment
   user_progress?: number

@@ -3,8 +3,8 @@
  * Query auth.users table via SQL to see what's really there
  */
 
-import pkg from 'pg';
-const { Client } = pkg;
+import pkg from 'pg'
+const { Client } = pkg
 
 async function checkAuthUsers() {
   const client = new Client({
@@ -13,12 +13,12 @@ async function checkAuthUsers() {
     user: 'postgres',
     password: process.env.SUPABASE_DB_PASSWORD,
     database: 'postgres',
-    ssl: { rejectUnauthorized: false }
-  });
+    ssl: { rejectUnauthorized: false },
+  })
 
   try {
-    await client.connect();
-    console.log('✅ Connected to database\n');
+    await client.connect()
+    console.log('✅ Connected to database\n')
 
     // Check auth.users
     const usersResult = await client.query(`
@@ -26,15 +26,15 @@ async function checkAuthUsers() {
       FROM auth.users
       ORDER BY created_at DESC
       LIMIT 20
-    `);
+    `)
 
-    console.log(`📊 Auth Users (${usersResult.rows.length} found):`);
-    usersResult.rows.forEach(user => {
-      console.log(`  ${user.email}`);
-      console.log(`    ID: ${user.id}`);
-      console.log(`    Confirmed: ${user.email_confirmed_at ? '✅' : '❌'}`);
-      console.log('');
-    });
+    console.log(`📊 Auth Users (${usersResult.rows.length} found):`)
+    usersResult.rows.forEach((user) => {
+      console.log(`  ${user.email}`)
+      console.log(`    ID: ${user.id}`)
+      console.log(`    Confirmed: ${user.email_confirmed_at ? '✅' : '❌'}`)
+      console.log('')
+    })
 
     // Check if any match our test emails
     const testResult = await client.query(`
@@ -45,12 +45,12 @@ async function checkAuthUsers() {
         'compliance@abr-insights.com',
         'learner@abr-insights.com'
       )
-    `);
+    `)
 
-    console.log(`\n🔍 Test Accounts in auth.users: ${testResult.rows.length}/3`);
-    testResult.rows.forEach(user => {
-      console.log(`  ✅ ${user.email} → ${user.id}`);
-    });
+    console.log(`\n🔍 Test Accounts in auth.users: ${testResult.rows.length}/3`)
+    testResult.rows.forEach((user) => {
+      console.log(`  ✅ ${user.email} → ${user.id}`)
+    })
 
     // Check profiles
     const profilesResult = await client.query(`
@@ -58,19 +58,18 @@ async function checkAuthUsers() {
       FROM profiles
       WHERE email LIKE '%@abr-insights.com'
       ORDER BY role
-    `);
+    `)
 
-    console.log(`\n👤 Profiles: ${profilesResult.rows.length}`);
-    profilesResult.rows.forEach(prof => {
-      console.log(`  ${prof.email} (${prof.role})`);
-      console.log(`    Profile ID: ${prof.id}`);
-    });
-
+    console.log(`\n👤 Profiles: ${profilesResult.rows.length}`)
+    profilesResult.rows.forEach((prof) => {
+      console.log(`  ${prof.email} (${prof.role})`)
+      console.log(`    Profile ID: ${prof.id}`)
+    })
   } catch (error) {
-    console.error('❌ Error:', error.message);
+    console.error('❌ Error:', error.message)
   } finally {
-    await client.end();
+    await client.end()
   }
 }
 
-checkAuthUsers();
+checkAuthUsers()

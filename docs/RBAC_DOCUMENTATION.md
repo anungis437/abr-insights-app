@@ -81,40 +81,40 @@ guest (Tier 5)
 
 ## Permissions Matrix
 
-| Resource                    | super_admin | compliance | org_admin | analyst | investigator | educator | learner | viewer | guest |
-|----------------------------|-------------|------------|-----------|---------|--------------|----------|---------|--------|-------|
-| **User Management**         |             |            |           |         |              |          |         |        |       |
-| View all profiles           | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Update user roles           | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Delete users                | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **Organization**            |             |            |           |         |              |          |         |        |       |
-| View organizations          | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Create organizations        | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Update org settings         | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **Testimonials**            |             |            |           |         |              |          |         |        |       |
-| View testimonials           | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Create testimonials         | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Update testimonials         | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Delete testimonials         | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **AI Training**             |             |            |           |         |              |          |         |        |       |
-| View classification feedback| ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Submit feedback             | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Start training jobs         | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Deploy models               | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Configure automation        | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **Tribunal Cases**          |             |            |           |         |              |          |         |        |       |
-| View cases (public)         | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| View all cases              | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Create case annotations     | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| **Ingestion Pipeline**      |             |            |           |         |              |          |         |        |       |
-| View ingestion jobs         | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Start ingestion             | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Configure sources           | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **Courses**                 |             |            |           |         |              |          |         |        |       |
-| View courses                | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Create courses              | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
-| Update courses              | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
-| Enroll in courses           | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
+| Resource                     | super_admin | compliance | org_admin | analyst | investigator | educator | learner | viewer | guest |
+| ---------------------------- | ----------- | ---------- | --------- | ------- | ------------ | -------- | ------- | ------ | ----- |
+| **User Management**          |             |            |           |         |              |          |         |        |       |
+| View all profiles            | ✅          | ✅         | ✅        | ❌      | ❌           | ❌       | ❌      | ❌     | ❌    |
+| Update user roles            | ✅          | ✅         | ❌        | ❌      | ❌           | ❌       | ❌      | ❌     | ❌    |
+| Delete users                 | ✅          | ❌         | ❌        | ❌      | ❌           | ❌       | ❌      | ❌     | ❌    |
+| **Organization**             |             |            |           |         |              |          |         |        |       |
+| View organizations           | ✅          | ✅         | ✅        | ✅      | ❌           | ❌       | ❌      | ❌     | ❌    |
+| Create organizations         | ✅          | ❌         | ❌        | ❌      | ❌           | ❌       | ❌      | ❌     | ❌    |
+| Update org settings          | ✅          | ✅         | ✅        | ❌      | ❌           | ❌       | ❌      | ❌     | ❌    |
+| **Testimonials**             |             |            |           |         |              |          |         |        |       |
+| View testimonials            | ✅          | ✅         | ✅        | ✅      | ✅           | ✅       | ✅      | ✅     | ✅    |
+| Create testimonials          | ✅          | ✅         | ✅        | ❌      | ❌           | ❌       | ❌      | ❌     | ❌    |
+| Update testimonials          | ✅          | ✅         | ✅        | ❌      | ❌           | ❌       | ❌      | ❌     | ❌    |
+| Delete testimonials          | ✅          | ✅         | ✅        | ❌      | ❌           | ❌       | ❌      | ❌     | ❌    |
+| **AI Training**              |             |            |           |         |              |          |         |        |       |
+| View classification feedback | ✅          | ✅         | ✅        | ❌      | ❌           | ❌       | ❌      | ❌     | ❌    |
+| Submit feedback              | ✅          | ✅         | ✅        | ❌      | ❌           | ❌       | ❌      | ❌     | ❌    |
+| Start training jobs          | ✅          | ✅         | ✅        | ❌      | ❌           | ❌       | ❌      | ❌     | ❌    |
+| Deploy models                | ✅          | ✅         | ✅        | ❌      | ❌           | ❌       | ❌      | ❌     | ❌    |
+| Configure automation         | ✅          | ✅         | ✅        | ❌      | ❌           | ❌       | ❌      | ❌     | ❌    |
+| **Tribunal Cases**           |             |            |           |         |              |          |         |        |       |
+| View cases (public)          | ✅          | ✅         | ✅        | ✅      | ✅           | ✅       | ✅      | ✅     | ✅    |
+| View all cases               | ✅          | ✅         | ✅        | ✅      | ✅           | ❌       | ❌      | ❌     | ❌    |
+| Create case annotations      | ✅          | ✅         | ✅        | ❌      | ✅           | ❌       | ❌      | ❌     | ❌    |
+| **Ingestion Pipeline**       |             |            |           |         |              |          |         |        |       |
+| View ingestion jobs          | ✅          | ✅         | ✅        | ✅      | ❌           | ❌       | ❌      | ❌     | ❌    |
+| Start ingestion              | ✅          | ✅         | ✅        | ❌      | ❌           | ❌       | ❌      | ❌     | ❌    |
+| Configure sources            | ✅          | ✅         | ✅        | ❌      | ❌           | ❌       | ❌      | ❌     | ❌    |
+| **Courses**                  |             |            |           |         |              |          |         |        |       |
+| View courses                 | ✅          | ✅         | ✅        | ✅      | ✅           | ✅       | ✅      | ✅     | ✅    |
+| Create courses               | ✅          | ✅         | ✅        | ❌      | ❌           | ✅       | ❌      | ❌     | ❌    |
+| Update courses               | ✅          | ✅         | ✅        | ❌      | ❌           | ✅       | ❌      | ❌     | ❌    |
+| Enroll in courses            | ✅          | ✅         | ✅        | ✅      | ✅           | ✅       | ✅      | ❌     | ❌    |
 
 ---
 
@@ -148,7 +148,7 @@ CREATE POLICY "Compliance officers can update roles"
   ON profiles FOR UPDATE
   USING (
     auth.uid() IN (
-      SELECT id FROM profiles 
+      SELECT id FROM profiles
       WHERE role IN ('super_admin', 'compliance_officer')
     )
   )
@@ -163,6 +163,7 @@ CREATE POLICY "Compliance officers can update roles"
 ### 3. Audit Trail
 
 All tables include:
+
 - `created_at` - Record creation timestamp
 - `updated_at` - Last modification (auto-updated via trigger)
 - `created_by` / `updated_by` - User ID references
@@ -185,17 +186,17 @@ CREATE INDEX idx_profiles_org_role ON profiles(organization_id, role);
 
 Migration 016 creates comprehensive test accounts:
 
-| Email | Role | Full Name | Password |
-|-------|------|-----------|----------|
-| super_admin@abr-insights.com | super_admin | Super Admin User | TestPass123! |
-| compliance@abr-insights.com | compliance_officer | Compliance Officer | TestPass123! |
-| orgadmin@abr-insights.com | org_admin | Organization Admin | TestPass123! |
-| analyst@abr-insights.com | analyst | Data Analyst | TestPass123! |
-| investigator@abr-insights.com | investigator | Case Investigator | TestPass123! |
-| educator@abr-insights.com | educator | Course Educator | TestPass123! |
-| learner@abr-insights.com | learner | Student Learner | TestPass123! |
-| viewer@abr-insights.com | viewer | Read Only Viewer | TestPass123! |
-| guest@abr-insights.com | guest | Guest User | TestPass123! |
+| Email                         | Role               | Full Name          | Password     |
+| ----------------------------- | ------------------ | ------------------ | ------------ |
+| super_admin@abr-insights.com  | super_admin        | Super Admin User   | TestPass123! |
+| compliance@abr-insights.com   | compliance_officer | Compliance Officer | TestPass123! |
+| orgadmin@abr-insights.com     | org_admin          | Organization Admin | TestPass123! |
+| analyst@abr-insights.com      | analyst            | Data Analyst       | TestPass123! |
+| investigator@abr-insights.com | investigator       | Case Investigator  | TestPass123! |
+| educator@abr-insights.com     | educator           | Course Educator    | TestPass123! |
+| learner@abr-insights.com      | learner            | Student Learner    | TestPass123! |
+| viewer@abr-insights.com       | viewer             | Read Only Viewer   | TestPass123! |
+| guest@abr-insights.com        | guest              | Guest User         | TestPass123! |
 
 **Note:** Test accounts must be created via Supabase Dashboard Auth panel or by running migration 016.
 
@@ -206,16 +207,19 @@ Migration 016 creates comprehensive test accounts:
 ### Database Schema
 
 **Migration 014:** `014_add_role_to_profiles.sql`
+
 - Adds `role` column to `profiles` table
 - 9 role types with CHECK constraint
 - Default: `learner`
 - Indexed for performance
 
 **Migration 015:** `015_ai_training_system.sql`
+
 - Admin-only RLS policies for AI training tables
 - Checks for `super_admin`, `compliance_officer`, `org_admin`
 
 **Migration 016:** `016_rbac_test_accounts.sql`
+
 - Creates 9 test accounts (one per role)
 - Adds test account visibility policy
 
@@ -227,25 +231,27 @@ Admin routes check user role via middleware:
 // middleware.ts
 export async function middleware(request: NextRequest) {
   const supabase = createMiddlewareClient({ req: request, res: response })
-  const { data: { user } } = await supabase.auth.getUser()
-  
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
   if (request.nextUrl.pathname.startsWith('/admin')) {
     if (!user) {
       return NextResponse.redirect(new URL('/auth/login', request.url))
     }
-    
+
     const { data: profile } = await supabase
       .from('profiles')
       .select('role')
       .eq('id', user.id)
       .single()
-    
+
     const adminRoles = ['super_admin', 'compliance_officer', 'org_admin']
     if (!profile || !adminRoles.includes(profile.role)) {
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
   }
-  
+
   return response
 }
 ```
@@ -261,6 +267,7 @@ npx tsx --env-file=.env.local scripts/validate-rbac.ts
 ```
 
 Expected output:
+
 - ✅ Role distribution across all users
 - ✅ Test account verification
 - ✅ RLS policy counts per table
@@ -285,17 +292,20 @@ Expected output:
 
 ### Meets Industry Standards
 
-✅ **OWASP ASVS 4.0**  
+✅ **OWASP ASVS 4.0**
+
 - V4.1: Access Control Architecture
-- V4.2: Operation Level Access Control  
+- V4.2: Operation Level Access Control
 - V4.3: Other Access Control Considerations
 
-✅ **NIST SP 800-53**  
+✅ **NIST SP 800-53**
+
 - AC-2: Account Management
 - AC-3: Access Enforcement
 - AC-6: Least Privilege
 
-✅ **ISO 27001**  
+✅ **ISO 27001**
+
 - A.9.2: User Access Management
 - A.9.4: System and Application Access Control
 

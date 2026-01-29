@@ -3,33 +3,26 @@ import { AlertCircle } from 'lucide-react'
 
 export default function AuthCodeError() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl">
         <div className="flex flex-col items-center text-center">
-          <div className="rounded-full bg-red-100 p-3 mb-4">
+          <div className="mb-4 rounded-full bg-red-100 p-3">
             <AlertCircle className="h-8 w-8 text-red-600" />
           </div>
-          
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            Authentication Error
-          </h1>
-          
-          <p className="text-gray-600 mb-6">
-            Sorry, we couldn&apos;t verify your email. The link may have expired or already been used.
+
+          <h1 className="mb-2 text-2xl font-bold text-gray-900">Authentication Error</h1>
+
+          <p className="mb-6 text-gray-600">
+            Sorry, we couldn&apos;t verify your email. The link may have expired or already been
+            used.
           </p>
-          
-          <div className="space-y-3 w-full">
-            <Link 
-              href="/auth/signup" 
-              className="btn-primary w-full inline-block text-center"
-            >
+
+          <div className="w-full space-y-3">
+            <Link href="/auth/signup" className="btn-primary inline-block w-full text-center">
               Try Signing Up Again
             </Link>
-            
-            <Link 
-              href="/auth/login" 
-              className="btn-secondary w-full inline-block text-center"
-            >
+
+            <Link href="/auth/login" className="btn-secondary inline-block w-full text-center">
               Back to Login
             </Link>
           </div>

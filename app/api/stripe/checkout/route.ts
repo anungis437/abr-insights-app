@@ -14,27 +14,27 @@ const checkoutSchema = z.object({
 
 export async function POST(req: NextRequest) {
   // Check permissions - users need subscription.manage to create checkout sessions
-  const permissionError = await requireAnyPermission(['subscription.manage', 'admin.manage']);
-  if (permissionError) return permissionError;
+  const permissionError = await requireAnyPermission(['subscription.manage', 'admin.manage'])
+  if (permissionError) return permissionError
 
   try {
     // Lazy load Stripe to avoid build-time initialization
     const { stripe, getOrCreateStripeCustomer, STRIPE_PRICES } = await import('@/lib/stripe')
-    
+
     const supabase = await createClient()
-    
+
     // Get authenticated user
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
+
     if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const body = await req.json()
-    
+
     // Validate input - only accept tier, not arbitrary priceId
     const validation = checkoutSchema.safeParse(body)
     if (!validation.success) {
@@ -45,14 +45,11 @@ export async function POST(req: NextRequest) {
     }
 
     const { tier } = validation.data
-    
+
     // Map tier to server-approved price ID
     const priceId = STRIPE_PRICES[tier]
     if (!priceId) {
-      return NextResponse.json(
-        { error: 'Price not configured for this tier' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Price not configured for this tier' }, { status: 400 })
     }
 
     // Get or create Stripe customer
@@ -86,9 +83,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ sessionId: session.id, url: session.url })
   } catch (error) {
     console.error('Error creating checkout session:', error)
-    return NextResponse.json(
-      { error: 'Failed to create checkout session' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to create checkout session' }, { status: 500 })
   }
 }

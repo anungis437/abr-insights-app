@@ -175,16 +175,16 @@ function MultipleChoiceQuestion({
             return (
               <div
                 key={option.id}
-                className={`flex items-start space-x-3 p-4 rounded-lg border transition-colors ${
+                className={`flex items-start space-x-3 rounded-lg border p-4 transition-colors ${
                   showCorrectAnswer
                     ? isCorrect
                       ? 'border-green-500 bg-green-50'
                       : isSelected
-                      ? 'border-red-500 bg-red-50'
-                      : 'border-gray-200'
+                        ? 'border-red-500 bg-red-50'
+                        : 'border-gray-200'
                     : isSelected
-                    ? 'border-primary bg-primary/5'
-                    : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-primary bg-primary/5'
+                      : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
                 <RadioGroupItem value={option.id} id={option.id} className="mt-0.5" />
@@ -201,7 +201,7 @@ function MultipleChoiceQuestion({
                     </div>
                   </Label>
                   {showFeedback && option.feedback && (
-                    <p className="mt-2 text-sm text-muted-foreground">{option.feedback}</p>
+                    <p className="text-muted-foreground mt-2 text-sm">{option.feedback}</p>
                   )}
                 </div>
               </div>
@@ -237,7 +237,7 @@ function MultipleResponseQuestion({
   return (
     <div className="space-y-4">
       <p className="text-lg font-medium">{question.question_text}</p>
-      <p className="text-sm text-muted-foreground">Select all that apply</p>
+      <p className="text-muted-foreground text-sm">Select all that apply</p>
       <div className="space-y-3">
         {question.options.map((option) => {
           const isSelected = selectedIds.includes(option.id)
@@ -246,16 +246,16 @@ function MultipleResponseQuestion({
           return (
             <div
               key={option.id}
-              className={`flex items-start space-x-3 p-4 rounded-lg border transition-colors ${
+              className={`flex items-start space-x-3 rounded-lg border p-4 transition-colors ${
                 showCorrectAnswer
                   ? isCorrect
                     ? 'border-green-500 bg-green-50'
                     : isSelected
-                    ? 'border-red-500 bg-red-50'
-                    : 'border-gray-200'
+                      ? 'border-red-500 bg-red-50'
+                      : 'border-gray-200'
                   : isSelected
-                  ? 'border-primary bg-primary/5'
-                  : 'border-gray-200 hover:border-gray-300'
+                    ? 'border-primary bg-primary/5'
+                    : 'border-gray-200 hover:border-gray-300'
               }`}
             >
               <Checkbox
@@ -313,40 +313,40 @@ function TrueFalseQuestion({
         <div className="grid grid-cols-2 gap-4">
           {trueOption && (
             <div
-              className={`flex items-center space-x-3 p-6 rounded-lg border cursor-pointer transition-colors ${
+              className={`flex cursor-pointer items-center space-x-3 rounded-lg border p-6 transition-colors ${
                 showCorrectAnswer
                   ? trueOption.is_correct
                     ? 'border-green-500 bg-green-50'
                     : selectedId === trueOption.id
-                    ? 'border-red-500 bg-red-50'
-                    : 'border-gray-200'
+                      ? 'border-red-500 bg-red-50'
+                      : 'border-gray-200'
                   : selectedId === trueOption.id
-                  ? 'border-primary bg-primary/5'
-                  : 'border-gray-200 hover:border-gray-300'
+                    ? 'border-primary bg-primary/5'
+                    : 'border-gray-200 hover:border-gray-300'
               }`}
             >
               <RadioGroupItem value={trueOption.id} id={trueOption.id} />
-              <Label htmlFor={trueOption.id} className="cursor-pointer flex-1 text-center">
+              <Label htmlFor={trueOption.id} className="flex-1 cursor-pointer text-center">
                 <span className="text-xl font-semibold">True</span>
               </Label>
             </div>
           )}
           {falseOption && (
             <div
-              className={`flex items-center space-x-3 p-6 rounded-lg border cursor-pointer transition-colors ${
+              className={`flex cursor-pointer items-center space-x-3 rounded-lg border p-6 transition-colors ${
                 showCorrectAnswer
                   ? falseOption.is_correct
                     ? 'border-green-500 bg-green-50'
                     : selectedId === falseOption.id
-                    ? 'border-red-500 bg-red-50'
-                    : 'border-gray-200'
+                      ? 'border-red-500 bg-red-50'
+                      : 'border-gray-200'
                   : selectedId === falseOption.id
-                  ? 'border-primary bg-primary/5'
-                  : 'border-gray-200 hover:border-gray-300'
+                    ? 'border-primary bg-primary/5'
+                    : 'border-gray-200 hover:border-gray-300'
               }`}
             >
               <RadioGroupItem value={falseOption.id} id={falseOption.id} />
-              <Label htmlFor={falseOption.id} className="cursor-pointer flex-1 text-center">
+              <Label htmlFor={falseOption.id} className="flex-1 cursor-pointer text-center">
                 <span className="text-xl font-semibold">False</span>
               </Label>
             </div>
@@ -381,14 +381,15 @@ function FillBlankQuestion({
         disabled={disabled}
         className={
           showCorrectAnswer
-            ? textAnswer.toLowerCase().trim() === question.options[0]?.option_text.toLowerCase().trim()
+            ? textAnswer.toLowerCase().trim() ===
+              question.options[0]?.option_text.toLowerCase().trim()
               ? 'border-green-500'
               : 'border-red-500'
             : ''
         }
       />
       {showCorrectAnswer && (
-        <div className="p-3 bg-blue-50 rounded border border-blue-200">
+        <div className="rounded border border-blue-200 bg-blue-50 p-3">
           <p className="text-sm text-blue-900">
             <strong>Correct answer:</strong> {question.options[0]?.option_text}
           </p>
@@ -423,18 +424,18 @@ function SortableItem({ id, text, index }: SortableItemProps) {
     <div
       ref={setNodeRef}
       style={style}
-      className="flex items-center gap-3 p-4 bg-white border rounded-lg hover:border-primary transition-colors"
+      className="hover:border-primary flex items-center gap-3 rounded-lg border bg-white p-4 transition-colors"
     >
       <button
         {...attributes}
         {...listeners}
-        className="cursor-grab active:cursor-grabbing touch-none"
+        className="cursor-grab touch-none active:cursor-grabbing"
         aria-label="Drag to reorder"
       >
-        <GripVertical className="h-5 w-5 text-muted-foreground" />
+        <GripVertical className="text-muted-foreground h-5 w-5" />
       </button>
-      <div className="flex-1 flex items-center gap-3">
-        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-semibold text-sm">
+      <div className="flex flex-1 items-center gap-3">
+        <span className="bg-primary/10 text-primary flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold">
           {index + 1}
         </span>
         <span>{text}</span>
@@ -452,9 +453,7 @@ function DragDropOrderQuestion({
 }: QuestionRendererProps) {
   const [items, setItems] = useState(
     value?.ordered_option_ids
-      ? value.ordered_option_ids.map((id: string) =>
-          question.options.find((opt) => opt.id === id)
-        )
+      ? value.ordered_option_ids.map((id: string) => question.options.find((opt) => opt.id === id))
       : [...question.options]
   )
 
@@ -483,10 +482,13 @@ function DragDropOrderQuestion({
   return (
     <div className="space-y-4">
       <p className="text-lg font-medium">{question.question_text}</p>
-      <p className="text-sm text-muted-foreground">Drag and drop to arrange in the correct order</p>
+      <p className="text-muted-foreground text-sm">Drag and drop to arrange in the correct order</p>
 
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext items={items.map((item: QuestionOption) => item!.id)} strategy={verticalListSortingStrategy}>
+        <SortableContext
+          items={items.map((item: QuestionOption) => item!.id)}
+          strategy={verticalListSortingStrategy}
+        >
           <div className="space-y-2">
             {items.map((item: QuestionOption, index: number) => (
               <SortableItem key={item!.id} id={item!.id} text={item!.option_text} index={index} />
@@ -496,9 +498,9 @@ function DragDropOrderQuestion({
       </DndContext>
 
       {showCorrectAnswer && (
-        <div className="p-3 bg-blue-50 rounded border border-blue-200">
-          <p className="text-sm text-blue-900 font-semibold mb-2">Correct order:</p>
-          <ol className="text-sm text-blue-900 list-decimal list-inside space-y-1">
+        <div className="rounded border border-blue-200 bg-blue-50 p-3">
+          <p className="mb-2 text-sm font-semibold text-blue-900">Correct order:</p>
+          <ol className="list-inside list-decimal space-y-1 text-sm text-blue-900">
             {question.options
               .sort((a, b) => a.order_index - b.order_index)
               .map((option) => (
@@ -538,7 +540,9 @@ function MatchingQuestion({
   return (
     <div className="space-y-4">
       <p className="text-lg font-medium">{question.question_text}</p>
-      <p className="text-sm text-muted-foreground">Match items from the left with items on the right</p>
+      <p className="text-muted-foreground text-sm">
+        Match items from the left with items on the right
+      </p>
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
@@ -558,7 +562,7 @@ function MatchingQuestion({
               value={pairs[leftItem.id] || ''}
               onChange={(e) => handleMatch(leftItem.id, e.target.value)}
               disabled={disabled}
-              className="w-full p-4 border rounded-lg"
+              className="w-full rounded-lg border p-4"
               aria-label={`Match for ${leftItem.option_text}`}
             >
               <option value="">Select match...</option>
@@ -600,7 +604,7 @@ function CalculationQuestion({
         disabled={disabled}
       />
       {showCorrectAnswer && (
-        <div className="p-3 bg-blue-50 rounded border border-blue-200">
+        <div className="rounded border border-blue-200 bg-blue-50 p-3">
           <p className="text-sm text-blue-900">
             <strong>Correct answer:</strong> {question.metadata.correct_answer}
           </p>
@@ -627,9 +631,9 @@ function EssayQuestion({
     <div className="space-y-4">
       <p className="text-lg font-medium">{question.question_text}</p>
       {question.question_type === 'case_study' && question.metadata.case_text && (
-        <Card className="bg-blue-50 border-blue-200">
+        <Card className="border-blue-200 bg-blue-50">
           <CardContent className="pt-6">
-            <p className="text-sm whitespace-pre-wrap">{question.metadata.case_text}</p>
+            <p className="whitespace-pre-wrap text-sm">{question.metadata.case_text}</p>
           </CardContent>
         </Card>
       )}
@@ -641,7 +645,7 @@ function EssayQuestion({
         disabled={disabled}
         className="min-h-[200px]"
       />
-      <p className="text-sm text-muted-foreground">
+      <p className="text-muted-foreground text-sm">
         This question requires manual grading by an instructor.
       </p>
     </div>

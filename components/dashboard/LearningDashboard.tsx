@@ -7,17 +7,14 @@
  */
 
 import { useEffect, useState } from 'react'
-import { 
-  Clock, 
-  BookOpen, 
-  Flame, 
-  Target,
-  Activity,
-  FileText,
-  ChevronRight
-} from 'lucide-react'
+import { Clock, BookOpen, Flame, Target, Activity, FileText, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
-import { getDashboardStats, getLearningStreak, getSkillProgress, getRecentActivity } from '@/lib/services/dashboard-analytics'
+import {
+  getDashboardStats,
+  getLearningStreak,
+  getSkillProgress,
+  getRecentActivity,
+} from '@/lib/services/dashboard-analytics'
 import { useLanguage } from '@/lib/contexts/LanguageContext'
 
 export interface LearningDashboardProps {
@@ -43,7 +40,7 @@ export default function LearningDashboard({ userId }: LearningDashboardProps) {
           getDashboardStats(userId),
           getLearningStreak(userId),
           getSkillProgress(userId),
-          getRecentActivity(userId, 3) // Limit to 3 activities
+          getRecentActivity(userId, 3), // Limit to 3 activities
         ])
 
         setStats(statsData)
@@ -75,7 +72,7 @@ export default function LearningDashboard({ userId }: LearningDashboardProps) {
 
   if (error) {
     return (
-      <div className="rounded-lg bg-yellow-50 border border-yellow-200 p-6">
+      <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-6">
         <p className="text-sm text-yellow-800">{error}</p>
       </div>
     )
@@ -95,7 +92,7 @@ export default function LearningDashboard({ userId }: LearningDashboardProps) {
     const past = new Date(date)
     const diffMs = now.getTime() - past.getTime()
     const diffMins = Math.floor(diffMs / 60000)
-    
+
     if (diffMins < 1) return 'just now'
     if (diffMins < 60) return `${diffMins}m ago`
     const diffHours = Math.floor(diffMins / 60)
@@ -113,14 +110,10 @@ export default function LearningDashboard({ userId }: LearningDashboardProps) {
           <div className="flex items-center justify-between">
             <div>
               <div className="mb-2 flex items-center gap-3">
-                <Flame className="w-8 h-8" />
-                <h2 className="text-3xl font-bold">
-                  {streak.current_streak} Day Streak
-                </h2>
+                <Flame className="h-8 w-8" />
+                <h2 className="text-3xl font-bold">{streak.current_streak} Day Streak</h2>
               </div>
-              <p className="text-orange-100 text-lg mb-4">
-                Keep it going! You&apos;re on fire 🔥
-              </p>
+              <p className="mb-4 text-lg text-orange-100">Keep it going! You&apos;re on fire 🔥</p>
               <Link
                 href="/courses"
                 className="inline-flex items-center gap-2 rounded-lg bg-white/20 px-6 py-3 font-semibold transition-colors hover:bg-white/30"
@@ -130,7 +123,7 @@ export default function LearningDashboard({ userId }: LearningDashboardProps) {
               </Link>
             </div>
             <div className="text-right">
-              <p className="text-sm text-orange-100 mb-1">Longest Streak</p>
+              <p className="mb-1 text-sm text-orange-100">Longest Streak</p>
               <p className="text-2xl font-bold">{streak.longest_streak} Days</p>
             </div>
           </div>
@@ -140,12 +133,10 @@ export default function LearningDashboard({ userId }: LearningDashboardProps) {
           <div className="flex items-center justify-between">
             <div>
               <div className="mb-2 flex items-center gap-3">
-                <Target className="w-8 h-8" />
-                <h2 className="text-3xl font-bold">
-                  Start Your Learning Journey
-                </h2>
+                <Target className="h-8 w-8" />
+                <h2 className="text-3xl font-bold">Start Your Learning Journey</h2>
               </div>
-              <p className="text-blue-100 text-lg mb-4">
+              <p className="mb-4 text-lg text-blue-100">
                 Begin building your streak by completing your first lesson
               </p>
               <Link
@@ -157,7 +148,7 @@ export default function LearningDashboard({ userId }: LearningDashboardProps) {
               </Link>
             </div>
             <div className="text-right">
-              <p className="text-sm text-blue-100 mb-1">Your Goal</p>
+              <p className="mb-1 text-sm text-blue-100">Your Goal</p>
               <p className="text-2xl font-bold">7 Day Streak</p>
             </div>
           </div>
@@ -167,8 +158,8 @@ export default function LearningDashboard({ userId }: LearningDashboardProps) {
       {/* Key Stats - 3 Cards */}
       {stats && (
         <div className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-lg bg-white p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center gap-3 mb-2">
+          <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+            <div className="mb-2 flex items-center gap-3">
               <div className="rounded-lg bg-blue-100 p-2 text-blue-600">
                 <Clock className="h-5 w-5" />
               </div>
@@ -177,38 +168,40 @@ export default function LearningDashboard({ userId }: LearningDashboardProps) {
             <p className="text-2xl font-bold text-gray-900">
               {formatDuration(stats.total_watch_time)}
             </p>
-            <p className="text-xs text-gray-500 mt-1">
-              {stats.total_watch_time === 0 ? 'Start watching lessons to track your progress' : 'Keep learning!'}
+            <p className="mt-1 text-xs text-gray-500">
+              {stats.total_watch_time === 0
+                ? 'Start watching lessons to track your progress'
+                : 'Keep learning!'}
             </p>
           </div>
 
-          <div className="rounded-lg bg-white p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center gap-3 mb-2">
+          <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+            <div className="mb-2 flex items-center gap-3">
               <div className="rounded-lg bg-green-100 p-2 text-green-600">
                 <BookOpen className="h-5 w-5" />
               </div>
               <span className="text-sm font-medium text-gray-600">Lessons Completed</span>
             </div>
-            <p className="text-2xl font-bold text-gray-900">
-              {stats.lessons_completed}
-            </p>
-            <p className="text-xs text-gray-500 mt-1">
-              {stats.lessons_completed === 0 ? 'Complete your first lesson today' : `${stats.lessons_started} started`}
+            <p className="text-2xl font-bold text-gray-900">{stats.lessons_completed}</p>
+            <p className="mt-1 text-xs text-gray-500">
+              {stats.lessons_completed === 0
+                ? 'Complete your first lesson today'
+                : `${stats.lessons_started} started`}
             </p>
           </div>
 
-          <div className="rounded-lg bg-white p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center gap-3 mb-2">
+          <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+            <div className="mb-2 flex items-center gap-3">
               <div className="rounded-lg bg-purple-100 p-2 text-purple-600">
                 <FileText className="h-5 w-5" />
               </div>
               <span className="text-sm font-medium text-gray-600">Study Notes</span>
             </div>
-            <p className="text-2xl font-bold text-gray-900">
-              {stats.notes_created}
-            </p>
-            <p className="text-xs text-gray-500 mt-1">
-              {stats.notes_created === 0 ? 'Create notes while learning to retain knowledge' : 'Great note-taking!'}
+            <p className="text-2xl font-bold text-gray-900">{stats.notes_created}</p>
+            <p className="mt-1 text-xs text-gray-500">
+              {stats.notes_created === 0
+                ? 'Create notes while learning to retain knowledge'
+                : 'Great note-taking!'}
             </p>
           </div>
         </div>
@@ -216,13 +209,13 @@ export default function LearningDashboard({ userId }: LearningDashboardProps) {
 
       {/* Skills Progress - Top 2 Only */}
       {skills.length > 0 ? (
-        <div className="rounded-lg bg-white p-6 shadow-sm border border-gray-200">
+        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Target className="w-5 h-5 text-blue-600" />
+              <Target className="h-5 w-5 text-blue-600" />
               <h3 className="text-lg font-semibold text-gray-900">Top Skills</h3>
             </div>
-            <Link href="/profile" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+            <Link href="/profile" className="text-sm font-medium text-blue-600 hover:text-blue-700">
               View All
             </Link>
           </div>
@@ -241,18 +234,23 @@ export default function LearningDashboard({ userId }: LearningDashboardProps) {
                     </span>
                   </div>
                 </div>
-                
+
                 <div className="relative h-2 w-full overflow-hidden rounded-full bg-gray-200">
                   <div
                     className={`h-full rounded-full bg-blue-600 transition-all duration-500 ${
-                      skill.completion_percentage === 0 ? 'w-0' :
-                      skill.completion_percentage < 25 ? 'w-1/4' :
-                      skill.completion_percentage < 50 ? 'w-1/2' :
-                      skill.completion_percentage < 75 ? 'w-3/4' : 'w-full'
+                      skill.completion_percentage === 0
+                        ? 'w-0'
+                        : skill.completion_percentage < 25
+                          ? 'w-1/4'
+                          : skill.completion_percentage < 50
+                            ? 'w-1/2'
+                            : skill.completion_percentage < 75
+                              ? 'w-3/4'
+                              : 'w-full'
                     }`}
                   />
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-gray-500">
                     {skill.completion_percentage}% Complete
@@ -263,17 +261,18 @@ export default function LearningDashboard({ userId }: LearningDashboardProps) {
           </div>
         </div>
       ) : (
-        <div className="rounded-lg bg-white p-8 shadow-sm border border-gray-200 text-center">
-          <div className="inline-flex items-center justify-center rounded-full bg-blue-100 p-4 mb-4">
-            <Target className="w-8 h-8 text-blue-600" />
+        <div className="rounded-lg border border-gray-200 bg-white p-8 text-center shadow-sm">
+          <div className="mb-4 inline-flex items-center justify-center rounded-full bg-blue-100 p-4">
+            <Target className="h-8 w-8 text-blue-600" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Build Your Skills</h3>
-          <p className="text-sm text-gray-600 mb-4 max-w-md mx-auto">
-            As you complete lessons, we&apos;ll track your progress across different skills and competencies
+          <h3 className="mb-2 text-lg font-semibold text-gray-900">Build Your Skills</h3>
+          <p className="mx-auto mb-4 max-w-md text-sm text-gray-600">
+            As you complete lessons, we&apos;ll track your progress across different skills and
+            competencies
           </p>
           <Link
             href="/courses"
-            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
           >
             <span>Start Learning</span>
             <ChevronRight className="h-4 w-4" />
@@ -283,13 +282,13 @@ export default function LearningDashboard({ userId }: LearningDashboardProps) {
 
       {/* Recent Activity - Limit 3 */}
       {activities.length > 0 ? (
-        <div className="rounded-lg bg-white p-6 shadow-sm border border-gray-200">
+        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Activity className="w-5 h-5 text-green-600" />
+              <Activity className="h-5 w-5 text-green-600" />
               <h3 className="text-lg font-semibold text-gray-900">Recent Activity</h3>
             </div>
-            <Link href="/profile" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+            <Link href="/profile" className="text-sm font-medium text-blue-600 hover:text-blue-700">
               View All
             </Link>
           </div>
@@ -298,24 +297,22 @@ export default function LearningDashboard({ userId }: LearningDashboardProps) {
             {activities.map((activity) => (
               <div
                 key={activity.id}
-                className="flex items-center justify-between rounded-lg border border-gray-200 p-3 hover:bg-gray-50 transition-colors"
+                className="flex items-center justify-between rounded-lg border border-gray-200 p-3 transition-colors hover:bg-gray-50"
               >
-                <div className="flex items-center gap-3 flex-1 min-w-0">
+                <div className="flex min-w-0 flex-1 items-center gap-3">
                   <div className={`rounded-lg p-2 ${getActivityColor(activity.activity_type)}`}>
                     {getActivityIcon(activity.activity_type)}
                   </div>
-                  
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">
+
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-gray-900">
                       {activity.lesson_title}
                     </p>
-                    <p className="text-xs text-gray-500 truncate">
-                      {activity.course_title}
-                    </p>
+                    <p className="truncate text-xs text-gray-500">{activity.course_title}</p>
                   </div>
                 </div>
-                
-                <div className="text-right ml-2">
+
+                <div className="ml-2 text-right">
                   <span className="text-xs text-gray-400">
                     {getRelativeTime(activity.activity_date)}
                   </span>
@@ -325,17 +322,18 @@ export default function LearningDashboard({ userId }: LearningDashboardProps) {
           </div>
         </div>
       ) : (
-        <div className="rounded-lg bg-white p-8 shadow-sm border border-gray-200 text-center">
-          <div className="inline-flex items-center justify-center rounded-full bg-green-100 p-4 mb-4">
-            <Activity className="w-8 h-8 text-green-600" />
+        <div className="rounded-lg border border-gray-200 bg-white p-8 text-center shadow-sm">
+          <div className="mb-4 inline-flex items-center justify-center rounded-full bg-green-100 p-4">
+            <Activity className="h-8 w-8 text-green-600" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No Activity Yet</h3>
-          <p className="text-sm text-gray-600 mb-4 max-w-md mx-auto">
-            Your recent learning activity will appear here. Start watching lessons, taking notes, and completing courses!
+          <h3 className="mb-2 text-lg font-semibold text-gray-900">No Activity Yet</h3>
+          <p className="mx-auto mb-4 max-w-md text-sm text-gray-600">
+            Your recent learning activity will appear here. Start watching lessons, taking notes,
+            and completing courses!
           </p>
           <Link
             href="/training"
-            className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-6 py-2 text-sm font-semibold text-white hover:bg-green-700 transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-700"
           >
             <span>Explore Training</span>
             <ChevronRight className="h-4 w-4" />
@@ -364,12 +362,12 @@ function getActivityColor(type: string): string {
 function getActivityIcon(type: string): React.ReactNode {
   switch (type) {
     case 'complete':
-      return <BookOpen className="w-4 h-4" />
+      return <BookOpen className="h-4 w-4" />
     case 'watch':
-      return <Clock className="w-4 h-4" />
+      return <Clock className="h-4 w-4" />
     case 'note':
-      return <FileText className="w-4 h-4" />
+      return <FileText className="h-4 w-4" />
     default:
-      return <Activity className="w-4 h-4" />
+      return <Activity className="h-4 w-4" />
   }
 }

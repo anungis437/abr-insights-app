@@ -1,9 +1,9 @@
 /**
  * AI-Powered Classifier
- * 
+ *
  * Uses Azure OpenAI GPT-4o for intelligent case classification.
  * Provides detailed analysis, reasoning, and structured output.
- * 
+ *
  * Features:
  * - Anti-Black racism detection with reasoning
  * - Discrimination ground identification
@@ -13,14 +13,10 @@
  * - Confidence scoring
  */
 
-import OpenAI from 'openai';
-import type {
-  AIClassification,
-  DecisionContent,
-  DiscriminationGround,
-} from '../types';
-import { ENV, CLASSIFIER_CONFIG } from '../config';
-import { createError, getErrorMessage, truncateText } from '../utils';
+import OpenAI from 'openai'
+import type { AIClassification, DecisionContent, DiscriminationGround } from '../types'
+import { ENV, CLASSIFIER_CONFIG } from '../config'
+import { createError, getErrorMessage, truncateText } from '../utils'
 
 // ============================================================================
 // TYPES
@@ -30,15 +26,15 @@ import { createError, getErrorMessage, truncateText } from '../utils';
  * Structured response format from GPT-4o
  */
 interface GPTClassificationResponse {
-  category: 'anti_black_racism' | 'other_discrimination' | 'non_discrimination';
-  confidence: number;
-  reasoning: string;
-  keyPhrases: string[];
-  groundsDetected: DiscriminationGround[];
-  keyIssues: string[];
-  remedies: string[];
-  sentiment?: 'favorable' | 'unfavorable' | 'mixed' | 'neutral';
-  legislationCited?: string[];
+  category: 'anti_black_racism' | 'other_discrimination' | 'non_discrimination'
+  confidence: number
+  reasoning: string
+  keyPhrases: string[]
+  groundsDetected: DiscriminationGround[]
+  keyIssues: string[]
+  remedies: string[]
+  sentiment?: 'favorable' | 'unfavorable' | 'mixed' | 'neutral'
+  legislationCited?: string[]
 }
 
 // ============================================================================
@@ -46,16 +42,16 @@ interface GPTClassificationResponse {
 // ============================================================================
 
 export class AIClassifier {
-  private client: OpenAI | null = null;
-  private readonly deploymentName: string;
-  private readonly enabled: boolean;
+  private client: OpenAI | null = null
+  private readonly deploymentName: string
+  private readonly enabled: boolean
 
   constructor() {
-    this.deploymentName = ENV.AZURE_OPENAI_DEPLOYMENT;
-    
+    this.deploymentName = ENV.AZURE_OPENAI_DEPLOYMENT
+
     // Check if AI classification is enabled
-    this.enabled = Boolean(ENV.AZURE_OPENAI_ENDPOINT && ENV.AZURE_OPENAI_API_KEY);
-    
+    this.enabled = Boolean(ENV.AZURE_OPENAI_ENDPOINT && ENV.AZURE_OPENAI_API_KEY)
+
     if (this.enabled) {
       try {
         // Configure OpenAI SDK for Azure
@@ -64,13 +60,13 @@ export class AIClassifier {
           baseURL: `${ENV.AZURE_OPENAI_ENDPOINT}/openai/deployments/${this.deploymentName}`,
           defaultQuery: { 'api-version': ENV.AZURE_OPENAI_API_VERSION },
           defaultHeaders: { 'api-key': ENV.AZURE_OPENAI_API_KEY },
-        });
+        })
       } catch (error) {
-        console.warn('⚠️  Failed to initialize Azure OpenAI client:', getErrorMessage(error));
-        this.enabled = false;
+        console.warn('⚠️  Failed to initialize Azure OpenAI client:', getErrorMessage(error))
+        this.enabled = false
       }
     } else {
-      console.warn('⚠️  AI classification disabled: Missing Azure OpenAI credentials');
+      console.warn('⚠️  AI classification disabled: Missing Azure OpenAI credentials')
     }
   }
 
@@ -78,7 +74,7 @@ export class AIClassifier {
    * Checks if AI classification is available
    */
   isEnabled(): boolean {
-    return this.enabled && this.client !== null;
+    return this.enabled && this.client !== null
   }
 
   /**
@@ -89,29 +85,27 @@ export class AIClassifier {
       throw createError(
         'AI classification not available - missing Azure OpenAI credentials',
         'AI_DISABLED'
-      );
+      )
     }
 
     try {
       // Prepare text (truncate if too long to fit in context window)
-      const text = this.prepareText(content);
-      
+      const text = this.prepareText(content)
+
       // Build prompt
-      const prompt = this.buildPrompt(content, text);
-      
+      const prompt = this.buildPrompt(content, text)
+
       // Call Azure OpenAI
-      const response = await this.callGPT(prompt);
-      
+      const response = await this.callGPT(prompt)
+
       // Parse and validate response
-      const classification = this.parseResponse(response);
-      
-      return classification;
+      const classification = this.parseResponse(response)
+
+      return classification
     } catch (error) {
-      throw createError(
-        `AI classification failed: ${getErrorMessage(error)}`,
-        'AI_ERROR',
-        { url: content.url }
-      );
+      throw createError(`AI classification failed: ${getErrorMessage(error)}`, 'AI_ERROR', {
+        url: content.url,
+      })
     }
   }
 
@@ -123,31 +117,31 @@ export class AIClassifier {
     onProgress?: (current: number, total: number) => void
   ): Promise<Array<AIClassification | Error>> {
     if (!this.isEnabled()) {
-      throw createError('AI classification not available', 'AI_DISABLED');
+      throw createError('AI classification not available', 'AI_DISABLED')
     }
 
-    const results: Array<AIClassification | Error> = [];
+    const results: Array<AIClassification | Error> = []
 
     for (let i = 0; i < contents.length; i++) {
       try {
-        const classification = await this.classify(contents[i]);
-        results.push(classification);
+        const classification = await this.classify(contents[i])
+        results.push(classification)
       } catch (error) {
-        const err = error instanceof Error ? error : new Error(String(error));
-        results.push(err);
+        const err = error instanceof Error ? error : new Error(String(error))
+        results.push(err)
       }
 
       if (onProgress) {
-        onProgress(i + 1, contents.length);
+        onProgress(i + 1, contents.length)
       }
 
       // Brief delay between API calls to avoid rate limiting
       if (i < contents.length - 1) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000))
       }
     }
 
-    return results;
+    return results
   }
 
   // ==========================================================================
@@ -158,19 +152,19 @@ export class AIClassifier {
    * Prepares decision text for AI analysis
    */
   private prepareText(content: DecisionContent): string {
-    let text = content.fullText;
-    
+    let text = content.fullText
+
     // GPT-4 context window is ~8K tokens, roughly 32K characters
     // Use first 20K chars + last 5K chars for long decisions
-    const maxLength = 25000;
-    
+    const maxLength = 25000
+
     if (text.length > maxLength) {
-      const firstPart = text.slice(0, 20000);
-      const lastPart = text.slice(-5000);
-      text = firstPart + '\n\n[...middle section omitted...]\n\n' + lastPart;
+      const firstPart = text.slice(0, 20000)
+      const lastPart = text.slice(-5000)
+      text = firstPart + '\n\n[...middle section omitted...]\n\n' + lastPart
     }
-    
-    return text;
+
+    return text
   }
 
   // ==========================================================================
@@ -181,8 +175,8 @@ export class AIClassifier {
    * Builds classification prompt for GPT-4o
    */
   private buildPrompt(content: DecisionContent, text: string): string {
-    const metadata = this.formatMetadata(content);
-    
+    const metadata = this.formatMetadata(content)
+
     return `${CLASSIFIER_CONFIG.ai.systemPrompt}
 
 ## Task
@@ -237,36 +231,36 @@ Provide your analysis in the following JSON format:
 4. Consider intersectionality (multiple grounds)
 5. Review decision outcome and remedies awarded
 
-Respond ONLY with valid JSON. Do not include explanatory text outside the JSON structure.`;
+Respond ONLY with valid JSON. Do not include explanatory text outside the JSON structure.`
   }
 
   /**
    * Formats decision metadata for prompt
    */
   private formatMetadata(content: DecisionContent): string {
-    const parts: string[] = [];
-    
+    const parts: string[] = []
+
     if (content.caseTitle) {
-      parts.push(`**Case Title**: ${content.caseTitle}`);
+      parts.push(`**Case Title**: ${content.caseTitle}`)
     }
-    
+
     if (content.caseNumber) {
-      parts.push(`**Case Number**: ${content.caseNumber}`);
+      parts.push(`**Case Number**: ${content.caseNumber}`)
     }
-    
+
     if (content.tribunal) {
-      parts.push(`**Tribunal**: ${content.tribunal}`);
+      parts.push(`**Tribunal**: ${content.tribunal}`)
     }
-    
+
     if (content.decisionDate) {
-      parts.push(`**Decision Date**: ${content.decisionDate.toISOString().split('T')[0]}`);
+      parts.push(`**Decision Date**: ${content.decisionDate.toISOString().split('T')[0]}`)
     }
-    
+
     if (content.applicant && content.respondent) {
-      parts.push(`**Parties**: ${content.applicant} v. ${content.respondent}`);
+      parts.push(`**Parties**: ${content.applicant} v. ${content.respondent}`)
     }
-    
-    return parts.length > 0 ? `## Metadata\n\n${parts.join('\n')}\n` : '';
+
+    return parts.length > 0 ? `## Metadata\n\n${parts.join('\n')}\n` : ''
   }
 
   // ==========================================================================
@@ -278,7 +272,7 @@ Respond ONLY with valid JSON. Do not include explanatory text outside the JSON s
    */
   private async callGPT(prompt: string): Promise<string> {
     if (!this.client) {
-      throw createError('OpenAI client not initialized', 'CLIENT_ERROR');
+      throw createError('OpenAI client not initialized', 'CLIENT_ERROR')
     }
 
     try {
@@ -295,32 +289,32 @@ Respond ONLY with valid JSON. Do not include explanatory text outside the JSON s
         top_p: 1.0,
         frequency_penalty: 0,
         presence_penalty: 0,
-      });
+      })
 
-      const choice = response.choices[0];
-      
+      const choice = response.choices[0]
+
       if (!choice || !choice.message) {
-        throw createError('Empty response from GPT-4o', 'EMPTY_RESPONSE');
+        throw createError('Empty response from GPT-4o', 'EMPTY_RESPONSE')
       }
 
-      return choice.message.content || '';
+      return choice.message.content || ''
     } catch (error) {
       // Handle Azure OpenAI specific errors
-      const message = getErrorMessage(error);
-      
+      const message = getErrorMessage(error)
+
       if (message.includes('429')) {
-        throw createError('Rate limit exceeded', 'RATE_LIMIT', { retryable: true });
+        throw createError('Rate limit exceeded', 'RATE_LIMIT', { retryable: true })
       }
-      
+
       if (message.includes('401') || message.includes('403')) {
-        throw createError('Authentication failed', 'AUTH_ERROR');
+        throw createError('Authentication failed', 'AUTH_ERROR')
       }
-      
+
       if (message.includes('timeout')) {
-        throw createError('Request timeout', 'TIMEOUT', { retryable: true });
+        throw createError('Request timeout', 'TIMEOUT', { retryable: true })
       }
-      
-      throw error;
+
+      throw error
     }
   }
 
@@ -334,24 +328,22 @@ Respond ONLY with valid JSON. Do not include explanatory text outside the JSON s
   private parseResponse(responseText: string): AIClassification {
     try {
       // Extract JSON from response (handle markdown code blocks)
-      let jsonText = responseText.trim();
-      
+      let jsonText = responseText.trim()
+
       // Remove markdown code fences if present
-      jsonText = jsonText.replace(/^```json\s*/i, '');
-      jsonText = jsonText.replace(/\s*```\s*$/i, '');
-      jsonText = jsonText.trim();
-      
+      jsonText = jsonText.replace(/^```json\s*/i, '')
+      jsonText = jsonText.replace(/\s*```\s*$/i, '')
+      jsonText = jsonText.trim()
+
       // Parse JSON
-      const parsed: GPTClassificationResponse = JSON.parse(jsonText);
-      
+      const parsed: GPTClassificationResponse = JSON.parse(jsonText)
+
       // Validate and normalize
-      return this.validateAndNormalize(parsed);
+      return this.validateAndNormalize(parsed)
     } catch (error) {
-      throw createError(
-        `Failed to parse GPT response: ${getErrorMessage(error)}`,
-        'PARSE_ERROR',
-        { responseText: truncateText(responseText, 500) }
-      );
+      throw createError(`Failed to parse GPT response: ${getErrorMessage(error)}`, 'PARSE_ERROR', {
+        responseText: truncateText(responseText, 500),
+      })
     }
   }
 
@@ -361,27 +353,27 @@ Respond ONLY with valid JSON. Do not include explanatory text outside the JSON s
   private validateAndNormalize(parsed: GPTClassificationResponse): AIClassification {
     // Validate required fields
     if (!parsed.category) {
-      throw createError('Missing category in GPT response', 'VALIDATION_ERROR');
+      throw createError('Missing category in GPT response', 'VALIDATION_ERROR')
     }
-    
+
     if (typeof parsed.confidence !== 'number') {
-      throw createError('Missing or invalid confidence score', 'VALIDATION_ERROR');
+      throw createError('Missing or invalid confidence score', 'VALIDATION_ERROR')
     }
-    
+
     // Normalize confidence to 0-1 range
-    let confidence = parsed.confidence;
+    let confidence = parsed.confidence
     if (confidence > 1) {
-      confidence = confidence / 100; // Convert percentage to decimal
+      confidence = confidence / 100 // Convert percentage to decimal
     }
-    confidence = Math.max(0, Math.min(1, confidence));
-    
+    confidence = Math.max(0, Math.min(1, confidence))
+
     // Ensure arrays
-    const keyPhrases = Array.isArray(parsed.keyPhrases) ? parsed.keyPhrases : [];
-    const groundsDetected = Array.isArray(parsed.groundsDetected) ? parsed.groundsDetected : [];
-    const keyIssues = Array.isArray(parsed.keyIssues) ? parsed.keyIssues : [];
-    const remedies = Array.isArray(parsed.remedies) ? parsed.remedies : [];
-    const legislationCited = Array.isArray(parsed.legislationCited) ? parsed.legislationCited : [];
-    
+    const keyPhrases = Array.isArray(parsed.keyPhrases) ? parsed.keyPhrases : []
+    const groundsDetected = Array.isArray(parsed.groundsDetected) ? parsed.groundsDetected : []
+    const keyIssues = Array.isArray(parsed.keyIssues) ? parsed.keyIssues : []
+    const remedies = Array.isArray(parsed.remedies) ? parsed.remedies : []
+    const legislationCited = Array.isArray(parsed.legislationCited) ? parsed.legislationCited : []
+
     return {
       category: parsed.category,
       confidence,
@@ -392,7 +384,7 @@ Respond ONLY with valid JSON. Do not include explanatory text outside the JSON s
       remedies,
       sentiment: parsed.sentiment,
       legislationCited: legislationCited.length > 0 ? legislationCited : undefined,
-    };
+    }
   }
 }
 
@@ -404,19 +396,19 @@ Respond ONLY with valid JSON. Do not include explanatory text outside the JSON s
  * Creates an AI classifier instance
  */
 export function createAIClassifier(): AIClassifier {
-  return new AIClassifier();
+  return new AIClassifier()
 }
 
 /**
  * Quick AI classification helper
  */
 export async function classifyWithAI(content: DecisionContent): Promise<AIClassification> {
-  const classifier = new AIClassifier();
-  return classifier.classify(content);
+  const classifier = new AIClassifier()
+  return classifier.classify(content)
 }
 
 // ============================================================================
 // EXPORTS
 // ============================================================================
 
-export default AIClassifier;
+export default AIClassifier

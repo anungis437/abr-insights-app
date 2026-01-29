@@ -6,6 +6,7 @@
 ## Summary
 
 The Stripe integration is now fully implemented with:
+
 - ✅ **Backend API**: Checkout, Portal, and Webhook handlers
 - ✅ **Database Schema**: Subscription fields in profiles table
 - ✅ **Client Hooks**: `useSubscription` hook for subscription management
@@ -20,6 +21,7 @@ The Stripe integration is now fully implemented with:
 ### 1. Database Layer
 
 #### Profiles Table Schema
+
 ```sql
 -- Subscription fields added to profiles table
 ALTER TABLE profiles
@@ -32,11 +34,13 @@ ADD COLUMN subscription_current_period_end TIMESTAMPTZ;
 **Migration**: `supabase/migrations/20260128000005_add_subscription_to_profiles.sql`
 
 #### Subscription Tiers
+
 - **Free**: Basic access, limited features
 - **Professional**: $49/user/month - Full course access, AI search, certificates
 - **Enterprise**: $199/user/month - Unlimited teams, custom branding, API access
 
 #### Subscription Statuses
+
 - `active` - Subscription is current and paid
 - `trialing` - In trial period
 - `past_due` - Payment failed, grace period
@@ -50,6 +54,7 @@ ADD COLUMN subscription_current_period_end TIMESTAMPTZ;
 ### 2. API Routes
 
 #### `/api/stripe/checkout` - Create Checkout Session
+
 **Method**: POST  
 **Protection**: `requireAnyPermission(['subscription.manage', 'admin.manage'])`
 
@@ -68,12 +73,14 @@ POST /api/stripe/checkout
 ```
 
 **Features**:
+
 - ✅ Server-side tier validation (prevents price manipulation)
 - ✅ Automatic Stripe customer creation/retrieval
 - ✅ Metadata tracking (user ID, tier)
 - ✅ Success/cancel URL handling
 
 #### `/api/stripe/portal` - Customer Portal
+
 **Method**: POST  
 **Protection**: `requireAnyPermission(['subscription.view', 'subscription.manage', 'admin.manage'])`
 
@@ -88,16 +95,19 @@ POST /api/stripe/portal
 ```
 
 **Features**:
+
 - ✅ Manages subscription changes
 - ✅ Updates payment methods
 - ✅ Views invoice history
 - ✅ Cancels subscriptions
 
 #### `/api/webhooks/stripe` - Webhook Handler
+
 **Method**: POST  
 **Protection**: Stripe signature verification
 
 **Events Handled**:
+
 1. `checkout.session.completed` - New subscription
 2. `customer.subscription.created` - Subscription created
 3. `customer.subscription.updated` - Subscription changed
@@ -106,12 +116,10 @@ POST /api/stripe/portal
 6. `invoice.payment_failed` - Payment failed
 
 **Database Updates**:
+
 ```typescript
 // Updates profiles table with:
-- stripe_customer_id
-- subscription_status
-- subscription_tier
-- subscription_current_period_end
+;-stripe_customer_id - subscription_status - subscription_tier - subscription_current_period_end
 ```
 
 ---
@@ -119,6 +127,7 @@ POST /api/stripe/portal
 ### 3. Client Integration
 
 #### useSubscription Hook
+
 **Location**: `hooks/use-subscription.ts`
 
 ```typescript
@@ -126,11 +135,11 @@ import { useSubscription } from '@/hooks/use-subscription'
 
 function Component() {
   const {
-    subscription,       // Current subscription state
-    loading,           // Loading state
-    error,             // Error state
-    createCheckoutSession,  // Initiate checkout
-    openCustomerPortal,     // Open billing portal
+    subscription, // Current subscription state
+    loading, // Loading state
+    error, // Error state
+    createCheckoutSession, // Initiate checkout
+    openCustomerPortal, // Open billing portal
   } = useSubscription()
 
   // Check subscription status
@@ -161,12 +170,14 @@ function Component() {
 ```
 
 **Features**:
+
 - ✅ Real-time subscription updates (Supabase realtime)
 - ✅ Feature flag checking
 - ✅ Tier-based access control
 - ✅ Automatic customer portal integration
 
 #### Subscription Object
+
 ```typescript
 interface Subscription {
   tier: 'free' | 'professional' | 'enterprise'
@@ -185,12 +196,13 @@ interface Subscription {
 ### 4. UI Components
 
 #### PricingCard Component
+
 **Location**: `components/shared/PricingCard.tsx`
 
 ```tsx
 import { PricingCard } from '@/components/shared/PricingCard'
 
-<PricingCard
+;<PricingCard
   name="Professional"
   price="$49"
   billing="per user/month"
@@ -207,6 +219,7 @@ import { PricingCard } from '@/components/shared/PricingCard'
 ```
 
 **Features**:
+
 - ✅ Shows current plan status
 - ✅ Initiates Stripe checkout
 - ✅ Handles authenticated/guest users
@@ -214,31 +227,35 @@ import { PricingCard } from '@/components/shared/PricingCard'
 - ✅ Popular plan highlighting
 
 #### SubscriptionBadge Component
+
 **Location**: `components/shared/SubscriptionStatus.tsx`
 
 ```tsx
 import { SubscriptionBadge } from '@/components/shared/SubscriptionStatus'
 
 // Displays user's subscription tier badge
-<SubscriptionBadge />
+;<SubscriptionBadge />
 ```
 
 **Output**:
+
 - Free: Gray badge with checkmark
 - Professional: Purple gradient badge with crown
 - Enterprise: Amber gradient badge with crown
 
 #### SubscriptionStatus Component
+
 **Location**: `components/shared/SubscriptionStatus.tsx`
 
 ```tsx
 import { SubscriptionStatus } from '@/components/shared/SubscriptionStatus'
 
 // Full subscription status card
-<SubscriptionStatus />
+;<SubscriptionStatus />
 ```
 
 **Features**:
+
 - ✅ Shows subscription tier and status
 - ✅ Displays renewal date
 - ✅ "Manage Subscription" button
@@ -251,11 +268,13 @@ import { SubscriptionStatus } from '@/components/shared/SubscriptionStatus'
 #### Tier-Based Features
 
 **Free Tier**:
+
 - `basic_courses` - 3 introductory courses
 - `community_forum` - Forum access
 - `basic_search` - Basic case search
 
 **Professional Tier** (Includes Free +):
+
 - `all_courses` - All 50+ courses
 - `ai_search` - AI-powered search
 - `certificates` - Completion certificates
@@ -264,6 +283,7 @@ import { SubscriptionStatus } from '@/components/shared/SubscriptionStatus'
 - `downloadable_resources` - PDF downloads
 
 **Enterprise Tier** (Includes Professional +):
+
 - `unlimited_team` - Unlimited team members
 - `custom_branding` - White-label portal
 - `api_access` - REST API access
@@ -272,6 +292,7 @@ import { SubscriptionStatus } from '@/components/shared/SubscriptionStatus'
 - `sla_support` - SLA & priority support
 
 #### Usage Example
+
 ```typescript
 const { subscription } = useSubscription()
 
@@ -303,6 +324,7 @@ if (!subscription?.isActive) {
    - Set up recurring prices
 
 2. **Get API Keys**:
+
    ```
    Developers → API keys
    - Publishable key
@@ -310,6 +332,7 @@ if (!subscription?.isActive) {
    ```
 
 3. **Create Webhook**:
+
    ```
    Developers → Webhooks → Add endpoint
    URL: https://yourdomain.com/api/webhooks/stripe
@@ -329,6 +352,7 @@ if (!subscription?.isActive) {
 ### 2. Environment Variables
 
 Add to `.env.local`:
+
 ```bash
 # Stripe Keys
 STRIPE_SECRET_KEY=sk_test_xxx...
@@ -349,6 +373,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 ### 3. Database Migration
 
 Run the subscription fields migration:
+
 ```bash
 # Using Supabase CLI
 supabase db push
@@ -361,6 +386,7 @@ supabase db push
 ### 4. Testing
 
 #### Test Mode
+
 1. Use Stripe test keys (`sk_test_...`, `pk_test_...`)
 2. Use test cards:
    - Success: `4242 4242 4242 4242`
@@ -368,6 +394,7 @@ supabase db push
    - Requires auth: `4000 0025 0000 3155`
 
 #### Test Webhook Locally
+
 ```bash
 # Install Stripe CLI
 stripe listen --forward-to localhost:3000/api/webhooks/stripe
@@ -414,6 +441,7 @@ stripe trigger customer.subscription.updated
 ## Error Handling
 
 ### Checkout Errors
+
 ```typescript
 try {
   await createCheckoutSession('PROFESSIONAL')
@@ -425,6 +453,7 @@ try {
 ```
 
 ### Portal Errors
+
 ```typescript
 try {
   await openCustomerPortal()
@@ -436,6 +465,7 @@ try {
 ```
 
 ### Webhook Errors
+
 - Returns 400 for signature verification failures
 - Returns 500 for processing errors
 - Logs all errors to console
@@ -446,6 +476,7 @@ try {
 ## Security Considerations
 
 ### 1. Permission Protection
+
 ```typescript
 // Checkout requires subscription.manage
 await requireAnyPermission(['subscription.manage', 'admin.manage'])
@@ -455,6 +486,7 @@ await requireAnyPermission(['subscription.view', 'subscription.manage'])
 ```
 
 ### 2. Price Validation
+
 ```typescript
 // Server validates tier → price mapping
 // Prevents client-side price manipulation
@@ -462,16 +494,14 @@ const priceId = STRIPE_PRICES[tier] // Server-side only
 ```
 
 ### 3. Webhook Verification
+
 ```typescript
 // Verify webhook signature
-const event = stripe.webhooks.constructEvent(
-  body,
-  signature,
-  process.env.STRIPE_WEBHOOK_SECRET
-)
+const event = stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET)
 ```
 
 ### 4. Customer Matching
+
 ```typescript
 // Always verify customer belongs to user
 const { data: profile } = await supabase
@@ -486,6 +516,7 @@ const { data: profile } = await supabase
 ## Upgrade Paths
 
 ### Free → Professional
+
 1. User clicks "Upgrade" on pricing page
 2. `createCheckoutSession('PROFESSIONAL')` called
 3. Redirects to Stripe Checkout
@@ -493,6 +524,7 @@ const { data: profile } = await supabase
 5. User redirected to dashboard with Professional access
 
 ### Professional → Enterprise
+
 1. User clicks "Contact Sales" or "Upgrade"
 2. Either:
    - Self-service via portal (if enabled)
@@ -501,6 +533,7 @@ const { data: profile } = await supabase
 4. Enterprise features unlocked
 
 ### Downgrades
+
 1. User opens Customer Portal
 2. Selects "Update plan"
 3. Changes to lower tier
@@ -512,27 +545,35 @@ const { data: profile } = await supabase
 ## Common Issues & Solutions
 
 ### Issue: Webhook not receiving events
+
 **Solution**:
+
 - Verify webhook URL is publicly accessible
 - Check webhook secret matches
 - Review Stripe webhook logs
 - Ensure endpoint returns 200 status
 
 ### Issue: Customer portal shows wrong subscription
+
 **Solution**:
+
 - Verify `stripe_customer_id` in profiles table
 - Check subscription metadata matches user
 - Ensure webhook updates are processing
 
 ### Issue: Checkout session creation fails
+
 **Solution**:
+
 - Verify price IDs are correct
 - Check Stripe API key is valid
 - Ensure customer email is valid
 - Review Stripe API error logs
 
 ### Issue: Subscription not updating after payment
+
 **Solution**:
+
 - Check webhook is firing
 - Verify webhook handler updates database
 - Review application logs for errors
@@ -543,9 +584,11 @@ const { data: profile } = await supabase
 ## API Reference
 
 ### POST /api/stripe/checkout
+
 Creates a new checkout session.
 
 **Request**:
+
 ```json
 {
   "tier": "PROFESSIONAL"
@@ -553,6 +596,7 @@ Creates a new checkout session.
 ```
 
 **Response**:
+
 ```json
 {
   "sessionId": "cs_test_xxx",
@@ -561,15 +605,18 @@ Creates a new checkout session.
 ```
 
 **Errors**:
+
 - 401: Unauthorized (no user)
 - 403: Forbidden (no permission)
 - 400: Invalid tier
 - 500: Server error
 
 ### POST /api/stripe/portal
+
 Creates a customer portal session.
 
 **Response**:
+
 ```json
 {
   "url": "https://billing.stripe.com/p/session/xxx"
@@ -577,18 +624,22 @@ Creates a customer portal session.
 ```
 
 **Errors**:
+
 - 401: Unauthorized (no user)
 - 403: Forbidden (no permission)
 - 400: No active subscription
 - 500: Server error
 
 ### POST /api/webhooks/stripe
+
 Handles Stripe webhook events.
 
 **Headers**:
+
 - `stripe-signature`: Webhook signature (required)
 
 **Events Handled**:
+
 - checkout.session.completed
 - customer.subscription.created
 - customer.subscription.updated
@@ -597,6 +648,7 @@ Handles Stripe webhook events.
 - invoice.payment_failed
 
 **Response**:
+
 ```json
 { "received": true }
 ```
@@ -606,6 +658,7 @@ Handles Stripe webhook events.
 ## Testing Scenarios
 
 ### 1. New Subscription
+
 1. User clicks "Start Free Trial"
 2. Checkout session created
 3. User enters payment info
@@ -616,6 +669,7 @@ Handles Stripe webhook events.
 8. Verify tier access granted
 
 ### 2. Subscription Update
+
 1. User opens billing portal
 2. Changes plan (upgrade/downgrade)
 3. Stripe updates subscription
@@ -624,6 +678,7 @@ Handles Stripe webhook events.
 6. Verify new tier access
 
 ### 3. Subscription Cancellation
+
 1. User opens billing portal
 2. Cancels subscription
 3. Stripe marks subscription canceled
@@ -632,6 +687,7 @@ Handles Stripe webhook events.
 6. Access restricted to free tier
 
 ### 4. Failed Payment
+
 1. Subscription renewal attempted
 2. Payment fails
 3. Webhook fires: `invoice.payment_failed`
@@ -674,6 +730,7 @@ Handles Stripe webhook events.
 ## Summary
 
 The Stripe integration is production-ready with:
+
 - Complete checkout and portal flows
 - Webhook event handling
 - Database schema and migrations

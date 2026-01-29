@@ -6,13 +6,17 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 const supabase = createClient(supabaseUrl, supabaseServiceKey, {
   auth: {
     autoRefreshToken: false,
-    persistSession: false
-  }
+    persistSession: false,
+  },
 })
 
 const testAccounts = [
   { email: 'super_admin@abr-insights.com', role: 'super_admin', fullName: 'Super Admin' },
-  { email: 'compliance@abr-insights.com', role: 'compliance_officer', fullName: 'Compliance Officer' },
+  {
+    email: 'compliance@abr-insights.com',
+    role: 'compliance_officer',
+    fullName: 'Compliance Officer',
+  },
   { email: 'orgadmin@abr-insights.com', role: 'org_admin', fullName: 'Organization Admin' },
   { email: 'analyst@abr-insights.com', role: 'analyst', fullName: 'Data Analyst' },
   { email: 'investigator@abr-insights.com', role: 'investigator', fullName: 'Case Investigator' },
@@ -29,14 +33,14 @@ async function recreateTestUsers() {
 
   // Step 1: Delete existing test users (if any) using direct SQL
   console.log('🗑️  Removing manually inserted test users...')
-  
+
   const { error: deleteError } = await supabase.rpc('exec', {
     sql: `
       DELETE FROM auth.identities WHERE user_id IN (
         SELECT id FROM auth.users WHERE email LIKE '%@abr-insights.com'
       );
       DELETE FROM auth.users WHERE email LIKE '%@abr-insights.com';
-    `
+    `,
   })
 
   if (deleteError) {
@@ -57,8 +61,8 @@ async function recreateTestUsers() {
         email_confirm: true,
         user_metadata: {
           full_name: account.fullName,
-          role: account.role
-        }
+          role: account.role,
+        },
       })
 
       if (error) {
@@ -69,17 +73,16 @@ async function recreateTestUsers() {
         }
       } else {
         console.log(`✅ ${account.email} - Created (ID: ${data.user?.id})`)
-        
+
         // Step 3: Update profile with role
         if (data.user) {
           // Split full name into first and last name
           const nameParts = account.fullName.split(' ')
           const firstName = nameParts[0] || ''
           const lastName = nameParts.slice(1).join(' ') || ''
-          
-          const { error: profileError } = await supabase
-            .from('profiles')
-            .upsert({
+
+          const { error: profileError } = await supabase.from('profiles').upsert(
+            {
               id: data.user.id,
               email: account.email,
               first_name: firstName,
@@ -88,10 +91,12 @@ async function recreateTestUsers() {
               role: account.role,
               status: 'active',
               email_verified: true,
-              updated_at: new Date().toISOString()
-            }, {
-              onConflict: 'id'
-            })
+              updated_at: new Date().toISOString(),
+            },
+            {
+              onConflict: 'id',
+            }
+          )
 
           if (profileError) {
             console.error(`   ⚠️  Profile creation failed: ${profileError.message}`)
@@ -108,7 +113,7 @@ async function recreateTestUsers() {
   console.log('\n✅ Test user recreation complete!')
   console.log(`\n🔐 All test accounts use password: ${PASSWORD}`)
   console.log('\n📝 Test Credentials:')
-  testAccounts.forEach(acc => {
+  testAccounts.forEach((acc) => {
     console.log(`   ${acc.email} / ${PASSWORD}`)
   })
 }

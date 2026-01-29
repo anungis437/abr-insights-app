@@ -11,6 +11,7 @@
 ### 1. Docker Build Infrastructure ✅
 
 **Files Created**:
+
 - [Dockerfile](Dockerfile) - Multi-stage production image
 - [Dockerfile.build](Dockerfile.build) - Build-only extraction image
 - [Dockerfile.dev](Dockerfile.dev) - Development environment
@@ -20,12 +21,14 @@
 ### 2. Build Automation Scripts ✅
 
 **Windows PowerShell**:
+
 - [docker-build.ps1](docker-build.ps1) - One-command build script
   ```powershell
   .\docker-build.ps1 -Clean -Extract
   ```
 
 **Linux/macOS/WSL**:
+
 - [docker-build.sh](docker-build.sh) - Cross-platform bash script
   ```bash
   ./docker-build.sh --clean --extract
@@ -40,6 +43,7 @@
 ### 4. Next.js Configuration Updates ✅
 
 **next.config.js** enhancements:
+
 - Added standalone output mode for Docker
 - Disabled symlink resolution (exFAT workaround)
 - Memory-based caching for stability
@@ -109,6 +113,7 @@ ls .next  # Should show server/, static/, cache/ folders
 ```
 
 **Examples**:
+
 ```powershell
 .\docker-build.ps1 -Clean -Extract        # Recommended
 .\docker-build.ps1 -Extract               # Quick rebuild
@@ -125,6 +130,7 @@ services:
 ```
 
 **Commands**:
+
 ```powershell
 docker-compose up app    # Run production
 docker-compose up dev    # Run development
@@ -135,11 +141,11 @@ docker-compose down      # Stop all
 
 ## Advantages Over Other Solutions
 
-| Solution | Time | Complexity | Production Match | Recommended |
-|----------|------|------------|-----------------|-------------|
-| **Docker Build** | 15 min setup | Medium | ✅ Exact match | ✅ Yes |
-| Move to NTFS | 5 min | Easy | ⚠️ Different env | ✅ Also good |
-| WSL2 | 60 min | Medium | ✅ Linux env | ⚠️ Learning curve |
+| Solution         | Time         | Complexity | Production Match | Recommended       |
+| ---------------- | ------------ | ---------- | ---------------- | ----------------- |
+| **Docker Build** | 15 min setup | Medium     | ✅ Exact match   | ✅ Yes            |
+| Move to NTFS     | 5 min        | Easy       | ⚠️ Different env | ✅ Also good      |
+| WSL2             | 60 min       | Medium     | ✅ Linux env     | ⚠️ Learning curve |
 
 ### Why Docker?
 
@@ -256,12 +262,12 @@ The `.github/workflows/testing.yml` can be updated:
 
 ### Common Issues
 
-| Issue | Solution |
-|-------|----------|
-| Docker not running | Start Docker Desktop |
-| Build fails | `docker system prune -a` then retry |
-| Slow build | First build caches layers, next faster |
-| Port 3000 in use | `Stop-Process -Id (Get-NetTCPConnection -LocalPort 3000).OwningProcess` |
+| Issue              | Solution                                                                |
+| ------------------ | ----------------------------------------------------------------------- |
+| Docker not running | Start Docker Desktop                                                    |
+| Build fails        | `docker system prune -a` then retry                                     |
+| Slow build         | First build caches layers, next faster                                  |
+| Port 3000 in use   | `Stop-Process -Id (Get-NetTCPConnection -LocalPort 3000).OwningProcess` |
 
 ### Get Help
 
@@ -286,12 +292,14 @@ docker system prune -a --volumes
 ### Build Times
 
 **First Build**:
+
 - Download Node.js image: ~1 min
 - Install dependencies: ~3 min
 - Build application: ~2 min
 - **Total**: ~6 minutes
 
 **Subsequent Builds** (with cache):
+
 - Use cached layers: ~30 sec
 - Build application: ~2 min
 - **Total**: ~2.5 minutes
@@ -335,16 +343,19 @@ docker run --memory="512m" --cpus="1.0" abr-insights-app:latest
 ### Immediate Actions
 
 1. ✅ **Test the build**:
+
    ```powershell
    .\docker-build.ps1 -Clean -Extract
    ```
 
 2. ✅ **Verify artifacts**:
+
    ```powershell
    ls .next
    ```
 
 3. ✅ **Test production server**:
+
    ```powershell
    .\docker-build.ps1 -Run
    ```
@@ -407,6 +418,7 @@ docker run --memory="512m" --cpus="1.0" abr-insights-app:latest
 ## Files Reference
 
 ### Core Docker Files
+
 - `Dockerfile` - Production multi-stage build
 - `Dockerfile.build` - Build with artifact extraction
 - `Dockerfile.dev` - Development environment
@@ -414,16 +426,19 @@ docker run --memory="512m" --cpus="1.0" abr-insights-app:latest
 - `.dockerignore` - Build context optimization
 
 ### Build Scripts
+
 - `docker-build.ps1` - Windows PowerShell script
 - `docker-build.sh` - Linux/macOS bash script
 
 ### Documentation
+
 - `DOCKER_QUICK_START.md` - 5-minute quick start
 - `DOCKER_BUILD_GUIDE.md` - Complete guide (1,200+ lines)
 - `CRITICAL_ASSESSMENT_FILESYSTEM_ISSUE.md` - Root cause analysis
 - `DOCKER_SOLUTION_COMPLETE.md` - This file
 
 ### Configuration
+
 - `next.config.js` - Updated for Docker builds
 - `.github/workflows/testing.yml` - CI/CD (can add Docker)
 

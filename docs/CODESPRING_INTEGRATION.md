@@ -25,13 +25,14 @@ The API key is securely stored in environment variables and never exposed to the
 Type-safe client for interacting with the Codespring API:
 
 ```typescript
-import { getCodespringClient } from '@/lib/services/codespring';
+import { getCodespringClient } from '@/lib/services/codespring'
 
-const client = getCodespringClient();
-const response = await client.analyzeCode(code, language);
+const client = getCodespringClient()
+const response = await client.analyzeCode(code, language)
 ```
 
 **Key Features:**
+
 - ✅ Type-safe request/response interfaces
 - ✅ Automatic retry and timeout handling
 - ✅ Comprehensive error handling
@@ -41,9 +42,11 @@ const response = await client.analyzeCode(code, language);
 ### API Routes
 
 #### `GET /api/codespring/verify`
+
 Verify the API key is valid and working.
 
 **Response:**
+
 ```json
 {
   "valid": true,
@@ -53,12 +56,15 @@ Verify the API key is valid and working.
 ```
 
 #### `GET /api/codespring/health`
+
 Check Codespring API health status.
 
 #### `POST /api/codespring/analyze`
+
 Analyze code using Codespring.
 
 **Request:**
+
 ```json
 {
   "code": "function hello() { ... }",
@@ -71,16 +77,16 @@ Analyze code using Codespring.
 ### Basic Usage
 
 ```typescript
-import { getCodespringClient } from '@/lib/services/codespring';
+import { getCodespringClient } from '@/lib/services/codespring'
 
 async function analyzeCode(code: string, language: string) {
-  const client = getCodespringClient();
-  const response = await client.analyzeCode(code, language);
-  
+  const client = getCodespringClient()
+  const response = await client.analyzeCode(code, language)
+
   if (response.success) {
-    console.log('Analysis:', response.data);
+    console.log('Analysis:', response.data)
   } else {
-    console.error('Error:', response.error);
+    console.error('Error:', response.error)
   }
 }
 ```
@@ -88,38 +94,37 @@ async function analyzeCode(code: string, language: string) {
 ### Custom Endpoint
 
 ```typescript
-import { getCodespringClient } from '@/lib/services/codespring';
+import { getCodespringClient } from '@/lib/services/codespring'
 
 async function customRequest() {
-  const client = getCodespringClient();
+  const client = getCodespringClient()
   const response = await client.request({
     method: 'POST',
     endpoint: '/custom/endpoint',
-    body: { /* your data */ },
-  });
-  
-  return response;
+    body: {
+      /* your data */
+    },
+  })
+
+  return response
 }
 ```
 
 ### From API Route
 
 ```typescript
-import { NextRequest, NextResponse } from 'next/server';
-import { getCodespringClient } from '@/lib/services/codespring';
+import { NextRequest, NextResponse } from 'next/server'
+import { getCodespringClient } from '@/lib/services/codespring'
 
 export async function POST(request: NextRequest) {
-  const client = getCodespringClient();
-  const response = await client.analyzeCode(code, language);
-  
+  const client = getCodespringClient()
+  const response = await client.analyzeCode(code, language)
+
   if (!response.success) {
-    return NextResponse.json(
-      { error: response.error },
-      { status: response.statusCode }
-    );
+    return NextResponse.json({ error: response.error }, { status: response.statusCode })
   }
-  
-  return NextResponse.json(response.data);
+
+  return NextResponse.json(response.data)
 }
 ```
 
@@ -128,16 +133,19 @@ export async function POST(request: NextRequest) {
 ### Manual Testing
 
 1. **Start the development server:**
+
    ```bash
    npm run dev
    ```
 
 2. **Test the verify endpoint:**
+
    ```bash
    curl http://localhost:3000/api/codespring/verify
    ```
 
 3. **Test the health endpoint:**
+
    ```bash
    curl http://localhost:3000/api/codespring/health
    ```
@@ -160,55 +168,61 @@ npx tsx scripts/test-codespring.ts
 ## API Client Methods
 
 ### `healthCheck()`
+
 Check if the API is accessible.
 
 ### `verifyApiKey()`
+
 Verify the API key is valid.
 
 ### `analyzeCode(code, language)`
+
 Analyze code with Codespring.
 
 **Parameters:**
+
 - `code` (string): The code to analyze
 - `language` (string): Programming language (e.g., 'typescript', 'javascript')
 
 **Returns:** `CodespringResponse<CodespringAnalysisResult>`
 
 ### `getAnalysisResult(analysisId)`
+
 Get the result of a previous analysis.
 
 ### `request<T>(request)`
+
 Make a custom request to any endpoint.
 
 ## TypeScript Types
 
 ```typescript
 interface CodespringConfig {
-  apiKey: string;
-  baseUrl?: string;
-  timeout?: number;
+  apiKey: string
+  baseUrl?: string
+  timeout?: number
 }
 
 interface CodespringRequest {
-  method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
-  endpoint: string;
-  body?: any;
-  headers?: Record<string, string>;
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
+  endpoint: string
+  body?: any
+  headers?: Record<string, string>
 }
 
 interface CodespringResponse<T = any> {
-  success: boolean;
-  data?: T;
-  error?: string;
-  statusCode: number;
+  success: boolean
+  data?: T
+  error?: string
+  statusCode: number
 }
 
 interface CodespringAnalysisResult {
-  id: string;
-  status: 'pending' | 'processing' | 'completed' | 'failed';
-  result?: any;
-  createdAt: string;
-  completedAt?: string;
+  id: string
+  status: 'pending' | 'processing' | 'completed' | 'failed'
+  result?: any
+  createdAt: string
+  completedAt?: string
 }
 ```
 
@@ -223,22 +237,23 @@ The client provides comprehensive error handling:
 - **Network errors**: Connection failures
 
 Example:
+
 ```typescript
-const response = await client.analyzeCode(code, language);
+const response = await client.analyzeCode(code, language)
 
 if (!response.success) {
   switch (response.statusCode) {
     case 401:
-      console.error('Invalid API key');
-      break;
+      console.error('Invalid API key')
+      break
     case 429:
-      console.error('Rate limit exceeded');
-      break;
+      console.error('Rate limit exceeded')
+      break
     case 408:
-      console.error('Request timeout');
-      break;
+      console.error('Request timeout')
+      break
     default:
-      console.error('Error:', response.error);
+      console.error('Error:', response.error)
   }
 }
 ```
@@ -254,19 +269,21 @@ if (!response.success) {
 ## Configuration
 
 Default configuration:
+
 - **Base URL:** `https://api.codespring.ai` (update as needed)
 - **Timeout:** 30 seconds
 - **Authentication:** Bearer token
 
 To customize:
+
 ```typescript
-import { CodespringClient } from '@/lib/services/codespring';
+import { CodespringClient } from '@/lib/services/codespring'
 
 const client = new CodespringClient({
   apiKey: 'your-key',
   baseUrl: 'https://custom.api.url',
   timeout: 60000, // 60 seconds
-});
+})
 ```
 
 ## Next Steps
@@ -281,15 +298,18 @@ const client = new CodespringClient({
 ## Troubleshooting
 
 ### "API key not found"
+
 - Ensure `CODESPRING_API_KEY` is in `.env.local`
 - Restart the dev server after adding environment variables
 
 ### "Fetch failed" or timeout errors
+
 - Check the `baseUrl` in the client configuration
 - Verify Codespring API is accessible
 - Check network/firewall settings
 
 ### "Invalid API key"
+
 - Verify the API key is correct
 - Check if the key has expired
 - Contact Codespring support
@@ -297,6 +317,7 @@ const client = new CodespringClient({
 ## Support
 
 For Codespring API documentation and support:
+
 - Documentation: [Update with actual URL]
 - Support: [Update with support contact]
 

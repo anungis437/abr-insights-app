@@ -67,27 +67,42 @@ export default function Footer() {
             </h3>
             <ul className="space-y-3">
               <li>
-                <Link href="/courses" className="text-sm text-gray-600 transition-colors hover:text-primary-600">
+                <Link
+                  href="/courses"
+                  className="text-sm text-gray-600 transition-colors hover:text-primary-600"
+                >
                   Courses
                 </Link>
               </li>
               <li>
-                <Link href="/cases" className="text-sm text-gray-600 transition-colors hover:text-primary-600">
+                <Link
+                  href="/cases"
+                  className="text-sm text-gray-600 transition-colors hover:text-primary-600"
+                >
                   Case Explorer
                 </Link>
               </li>
               <li>
-                <Link href="/analytics" className="text-sm text-gray-600 transition-colors hover:text-primary-600">
+                <Link
+                  href="/analytics"
+                  className="text-sm text-gray-600 transition-colors hover:text-primary-600"
+                >
                   Analytics
                 </Link>
               </li>
               <li>
-                <Link href="/team" className="text-sm text-gray-600 transition-colors hover:text-primary-600">
+                <Link
+                  href="/team"
+                  className="text-sm text-gray-600 transition-colors hover:text-primary-600"
+                >
                   Team Management
                 </Link>
               </li>
               <li>
-                <Link href="/pricing" className="text-sm text-gray-600 transition-colors hover:text-primary-600">
+                <Link
+                  href="/pricing"
+                  className="text-sm text-gray-600 transition-colors hover:text-primary-600"
+                >
                   Pricing
                 </Link>
               </li>
@@ -101,32 +116,50 @@ export default function Footer() {
             </h3>
             <ul className="space-y-3">
               <li>
-                <Link href="/about" className="text-sm text-gray-600 transition-colors hover:text-primary-600">
+                <Link
+                  href="/about"
+                  className="text-sm text-gray-600 transition-colors hover:text-primary-600"
+                >
                   About Us
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-sm text-gray-600 transition-colors hover:text-primary-600">
+                <Link
+                  href="/contact"
+                  className="text-sm text-gray-600 transition-colors hover:text-primary-600"
+                >
                   Contact
                 </Link>
               </li>
               <li>
-                <Link href="/resources" className="text-sm text-gray-600 transition-colors hover:text-primary-600">
+                <Link
+                  href="/resources"
+                  className="text-sm text-gray-600 transition-colors hover:text-primary-600"
+                >
                   Resources
                 </Link>
               </li>
               <li>
-                <Link href="/faq" className="text-sm text-gray-600 transition-colors hover:text-primary-600">
+                <Link
+                  href="/faq"
+                  className="text-sm text-gray-600 transition-colors hover:text-primary-600"
+                >
                   FAQ
                 </Link>
               </li>
               <li>
-                <Link href="/blog" className="text-sm text-gray-600 transition-colors hover:text-primary-600">
+                <Link
+                  href="/blog"
+                  className="text-sm text-gray-600 transition-colors hover:text-primary-600"
+                >
                   Blog
                 </Link>
               </li>
               <li>
-                <Link href="/careers" className="text-sm text-gray-600 transition-colors hover:text-primary-600">
+                <Link
+                  href="/careers"
+                  className="text-sm text-gray-600 transition-colors hover:text-primary-600"
+                >
                   Careers
                 </Link>
               </li>
@@ -140,27 +173,42 @@ export default function Footer() {
             </h3>
             <ul className="space-y-3">
               <li>
-                <Link href="/privacy" className="text-sm text-gray-600 transition-colors hover:text-primary-600">
+                <Link
+                  href="/privacy"
+                  className="text-sm text-gray-600 transition-colors hover:text-primary-600"
+                >
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="/terms" className="text-sm text-gray-600 transition-colors hover:text-primary-600">
+                <Link
+                  href="/terms"
+                  className="text-sm text-gray-600 transition-colors hover:text-primary-600"
+                >
                   Terms of Service
                 </Link>
               </li>
               <li>
-                <Link href="/accessibility" className="text-sm text-gray-600 transition-colors hover:text-primary-600">
+                <Link
+                  href="/accessibility"
+                  className="text-sm text-gray-600 transition-colors hover:text-primary-600"
+                >
                   Accessibility
                 </Link>
               </li>
               <li>
-                <Link href="/cookies" className="text-sm text-gray-600 transition-colors hover:text-primary-600">
+                <Link
+                  href="/cookies"
+                  className="text-sm text-gray-600 transition-colors hover:text-primary-600"
+                >
                   Cookie Policy
                 </Link>
               </li>
               <li>
-                <Link href="/security" className="text-sm text-gray-600 transition-colors hover:text-primary-600">
+                <Link
+                  href="/security"
+                  className="text-sm text-gray-600 transition-colors hover:text-primary-600"
+                >
                   Security
                 </Link>
               </li>
@@ -174,9 +222,7 @@ export default function Footer() {
             <p className="text-sm text-gray-600">
               &copy; {currentYear} ABR Insights. All rights reserved.
             </p>
-            <p className="text-sm text-gray-600">
-              Built with ❤️ in Canada
-            </p>
+            <p className="text-sm text-gray-600">Built with ❤️ in Canada</p>
           </div>
         </div>
       </div>

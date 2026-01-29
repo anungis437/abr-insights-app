@@ -18,7 +18,7 @@ async function testStripe() {
     'STRIPE_PRICE_ID_ENTERPRISE',
   ]
 
-  const missing = requiredVars.filter(v => !process.env[v])
+  const missing = requiredVars.filter((v) => !process.env[v])
   if (missing.length > 0) {
     console.error('❌ Missing environment variables:', missing.join(', '))
     process.exit(1)
@@ -51,13 +51,15 @@ async function testStripe() {
       process.env.STRIPE_PRICE_ID_PROFESSIONAL!
     )
     console.log('✅ Professional Plan:', professionalPrice.nickname || 'Unnamed')
-    console.log(`   Price: $${(professionalPrice.unit_amount! / 100).toFixed(2)}/${professionalPrice.recurring?.interval}`)
-
-    const enterprisePrice = await stripe.prices.retrieve(
-      process.env.STRIPE_PRICE_ID_ENTERPRISE!
+    console.log(
+      `   Price: $${(professionalPrice.unit_amount! / 100).toFixed(2)}/${professionalPrice.recurring?.interval}`
     )
+
+    const enterprisePrice = await stripe.prices.retrieve(process.env.STRIPE_PRICE_ID_ENTERPRISE!)
     console.log('✅ Enterprise Plan:', enterprisePrice.nickname || 'Unnamed')
-    console.log(`   Price: $${(enterprisePrice.unit_amount! / 100).toFixed(2)}/${enterprisePrice.recurring?.interval}\n`)
+    console.log(
+      `   Price: $${(enterprisePrice.unit_amount! / 100).toFixed(2)}/${enterprisePrice.recurring?.interval}\n`
+    )
   } catch (error) {
     console.error('❌ Failed to retrieve products:', error)
     process.exit(1)
@@ -78,7 +80,9 @@ async function testStripe() {
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n')
 
   console.log('Next Steps:')
-  console.log('1. Start webhook listener: stripe listen --forward-to localhost:3001/api/webhooks/stripe')
+  console.log(
+    '1. Start webhook listener: stripe listen --forward-to localhost:3001/api/webhooks/stripe'
+  )
   console.log('2. Start dev server: pnpm run dev')
   console.log('3. Test checkout: Visit /pricing and click subscribe')
   console.log('4. Use test card: 4242 4242 4242 4242\n')

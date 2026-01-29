@@ -4,6 +4,7 @@
 **Status:** ✅ COMPLETE
 
 ## Overview
+
 Phase 2 focused on implementing comprehensive rate limiting infrastructure and securing all remaining unprotected AI/embeddings endpoints. This phase builds on Phase 1's authentication and permission infrastructure to prevent API abuse and ensure all endpoints have proper security controls.
 
 ## Implementation Details
@@ -13,6 +14,7 @@ Phase 2 focused on implementing comprehensive rate limiting infrastructure and s
 **File:** `lib/security/rateLimit.ts` (430 lines)
 
 **Implementation:**
+
 - Token bucket algorithm with in-memory storage
 - Automatic bucket cleanup (LRU eviction at 10,000 buckets)
 - Flexible key types: IP, user ID, org ID, custom
@@ -21,6 +23,7 @@ Phase 2 focused on implementing comprehensive rate limiting infrastructure and s
 - 429 responses with Retry-After header
 
 **Rate Limit Presets:**
+
 ```typescript
 RateLimitPresets = {
   aiChat: {
@@ -47,13 +50,16 @@ RateLimitPresets = {
 ```
 
 **HOC Functions:**
+
 - `withRateLimit(config, handler)` - Single rate limit
 - `withMultipleRateLimits(configs, handler)` - Multiple limits (all must pass)
 
 ### 2. AI Endpoints Secured
 
 #### 2.1 Chat Endpoint
+
 **File:** `app/api/ai/chat/route.ts`
+
 - **Rate Limits:** 30 req/min/user AND 120 req/min/org
 - **Auth:** Required (user + session)
 - **Permission:** ai.chat.use
@@ -61,7 +67,9 @@ RateLimitPresets = {
 - **Implementation:** `withMultipleRateLimits([aiChat, aiChatOrg], guardedRoute(...))`
 
 #### 2.2 Coach Endpoint
+
 **File:** `app/api/ai/coach/route.ts`
+
 - **Rate Limits:** 20 req/min/user AND 80 req/min/org
 - **Auth:** Required
 - **Permission:** ai.coach.use
@@ -69,8 +77,10 @@ RateLimitPresets = {
 - **Implementation:** `withMultipleRateLimits([aiCoach, aiCoachOrg], guardedRoute(...))`
 
 #### 2.3 Embeddings Generate
+
 **File:** `app/api/embeddings/generate/route.ts`
-- **Rate Limits:** 
+
+- **Rate Limits:**
   - POST: 2 req/hour/org (very expensive)
   - GET: 60 req/min/user
 - **Auth:** Required
@@ -80,7 +90,9 @@ RateLimitPresets = {
 - **Implementation:** `withRateLimit(embeddingsGenerate, guardedRoute(...))`
 
 #### 2.4 Feedback Endpoint
+
 **File:** `app/api/ai/feedback/route.ts`
+
 - **Refactored:** From manual auth checks to guardedRoute pattern
 - **Rate Limits:**
   - GET: 60 req/min/user
@@ -91,7 +103,9 @@ RateLimitPresets = {
 - **Methods:** GET, POST, PATCH
 
 #### 2.5 Automation Endpoint
+
 **File:** `app/api/ai/automation/route.ts`
+
 - **Refactored:** From manual auth checks to guardedRoute pattern
 - **Rate Limits:**
   - GET: 60 req/min/user
@@ -102,7 +116,9 @@ RateLimitPresets = {
 - **Methods:** GET, POST, PATCH, DELETE
 
 #### 2.6 Training Jobs Endpoint
+
 **File:** `app/api/ai/training-jobs/route.ts`
+
 - **Refactored:** From manual auth checks to guardedRoute pattern
 - **Rate Limits:**
   - GET: 60 req/min/user
@@ -117,7 +133,9 @@ RateLimitPresets = {
 ### 3. Embeddings Search Endpoints Secured
 
 #### 3.1 Case Search
+
 **File:** `app/api/embeddings/search-cases/route.ts`
+
 - **Before:** ❌ NO AUTHENTICATION
 - **After:** ✅ Full auth + rate limiting
 - **Rate Limit:** 60 req/min/user
@@ -130,7 +148,9 @@ RateLimitPresets = {
   - Similarity threshold 0-1
 
 #### 3.2 Course Search
+
 **File:** `app/api/embeddings/search-courses/route.ts`
+
 - **Before:** ❌ NO AUTHENTICATION
 - **After:** ✅ Full auth + rate limiting
 - **Rate Limit:** 60 req/min/user
@@ -145,14 +165,18 @@ RateLimitPresets = {
 ### 4. Public Forms Protected
 
 #### 4.1 Contact Form
+
 **File:** `app/api/contact/route.ts`
+
 - **Rate Limit:** 5 req/min/IP
 - **Protection:** IP-based rate limiting to prevent spam
 - **Auth:** Not required (public form)
 - **Validation:** Zod schema (name, email, subject, message)
 
 #### 4.2 Newsletter Subscription
+
 **File:** `app/api/newsletter/route.ts`
+
 - **Rate Limit:** 3 req/min/IP
 - **Protection:** IP-based rate limiting to prevent spam
 - **Auth:** Not required (public form)
@@ -162,6 +186,7 @@ RateLimitPresets = {
 ## Security Improvements
 
 ### Before Phase 2
+
 - ❌ No rate limiting infrastructure
 - ❌ 2 embeddings search endpoints completely unprotected
 - ❌ Manual auth checks scattered across files
@@ -170,6 +195,7 @@ RateLimitPresets = {
 - **Security Coverage:** 3/10 AI endpoints (30%)
 
 ### After Phase 2
+
 - ✅ Comprehensive rate limiting with token bucket algorithm
 - ✅ All AI endpoints protected with auth + permissions
 - ✅ All embeddings endpoints secured
@@ -182,9 +208,11 @@ RateLimitPresets = {
 ## Files Modified
 
 ### New Files (1)
+
 1. `lib/security/rateLimit.ts` - Rate limiting infrastructure (430 lines)
 
 ### Modified Files (8)
+
 1. `app/api/ai/chat/route.ts` - Added dual rate limits (user + org)
 2. `app/api/ai/coach/route.ts` - Added dual rate limits (user + org)
 3. `app/api/embeddings/generate/route.ts` - Added strict rate limit (2/hour)
@@ -197,18 +225,20 @@ RateLimitPresets = {
 10. `app/api/newsletter/route.ts` - Added IP-based rate limiting
 
 ### Documentation (1)
+
 1. `docs/security/phase2-implementation-summary.md` - This document
 
 ## Testing Recommendations
 
 ### 1. Rate Limiting Tests
+
 ```typescript
 // Test single user hitting rate limit
 for (let i = 0; i < 35; i++) {
   await fetch('/api/ai/chat', {
     method: 'POST',
-    headers: { 'Authorization': `Bearer ${token}` },
-    body: JSON.stringify({ message: 'test' })
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ message: 'test' }),
   })
 }
 // Expect: First 30 succeed, last 5 get 429
@@ -219,24 +249,26 @@ for (let i = 0; i < 35; i++) {
 ```
 
 ### 2. Endpoint Security Tests
+
 ```typescript
 // Test unauthenticated access
 await fetch('/api/embeddings/search-cases', {
   method: 'POST',
-  body: JSON.stringify({ query: 'test' })
+  body: JSON.stringify({ query: 'test' }),
 })
 // Expect: 401 Unauthorized
 
 // Test permission check
 await fetch('/api/ai/automation', {
   method: 'POST',
-  headers: { 'Authorization': `Bearer ${nonAdminToken}` },
-  body: JSON.stringify({ config: {} })
+  headers: { Authorization: `Bearer ${nonAdminToken}` },
+  body: JSON.stringify({ config: {} }),
 })
 // Expect: 403 Forbidden (admin.ai.manage required)
 ```
 
 ### 3. Public Form Protection
+
 ```typescript
 // Test contact form rate limit
 for (let i = 0; i < 7; i++) {
@@ -246,8 +278,8 @@ for (let i = 0; i < 7; i++) {
       name: 'Test',
       email: 'test@example.com',
       subject: 'Test',
-      message: 'Test message'
-    })
+      message: 'Test message',
+    }),
   })
 }
 // Expect: First 5 succeed, last 2 get 429
@@ -256,17 +288,20 @@ for (let i = 0; i < 7; i++) {
 ## Performance Considerations
 
 ### Memory Usage
+
 - **In-Memory Storage:** Rate limit buckets stored in Map
 - **Max Buckets:** 10,000 (with LRU eviction)
 - **Cleanup:** Automatic when limit exceeded
 - **Memory Estimate:** ~100KB-500KB depending on traffic
 
 ### Scalability
+
 - **Current:** In-memory (single instance)
 - **Future:** Consider Redis for multi-instance deployments
 - **Migration Path:** Storage interface designed for easy swap to Redis
 
 ### Response Times
+
 - **Rate Check:** <1ms (Map lookup)
 - **Header Calculation:** <1ms
 - **Total Overhead:** ~1-2ms per request
@@ -274,6 +309,7 @@ for (let i = 0; i < 7; i++) {
 ## Monitoring & Observability
 
 ### Rate Limit Headers
+
 ```
 X-RateLimit-Limit: 30
 X-RateLimit-Remaining: 25
@@ -282,6 +318,7 @@ Retry-After: 45  (only on 429 responses)
 ```
 
 ### Logging Recommendations
+
 ```typescript
 // Log rate limit violations
 if (response.status === 429) {
@@ -291,12 +328,13 @@ if (response.status === 429) {
     orgId: org.id,
     ip: request.ip,
     limit: 30,
-    windowMs: 60000
+    windowMs: 60000,
   })
 }
 ```
 
 ### Metrics to Track
+
 - Rate limit hit rate (429s / total requests)
 - Average rate limit remaining per endpoint
 - Rate limit bucket count (memory usage)
@@ -305,6 +343,7 @@ if (response.status === 429) {
 ## Next Steps: Phase 3
 
 ### RBAC Unification
+
 1. Seed base permission set to permissions table
 2. Migrate from role-based to permission-based RLS
 3. Update all RLS policies to use permission checks
@@ -312,12 +351,14 @@ if (response.status === 429) {
 5. Add org-level permission overrides
 
 ### AI Governance
+
 1. Add cost budgets per org/user
 2. Implement usage quotas
 3. Add citation tracking for AI responses
 4. Create AI usage analytics dashboard
 
 ### Tenant Isolation Testing
+
 1. Cross-tenant access tests for all endpoints
 2. RLS policy verification suite
 3. Permission boundary tests
@@ -326,6 +367,7 @@ if (response.status === 429) {
 ## Conclusion
 
 Phase 2 successfully implemented:
+
 - ✅ Production-grade rate limiting infrastructure
 - ✅ 100% AI endpoint security coverage
 - ✅ Public form abuse protection
@@ -334,6 +376,7 @@ Phase 2 successfully implemented:
 - ✅ Memory-efficient in-memory storage
 
 **Security Posture:** SIGNIFICANTLY IMPROVED
+
 - Before: 30% endpoint coverage, no rate limiting, 2 completely unprotected endpoints
 - After: 100% endpoint coverage, comprehensive rate limiting, all endpoints secured
 

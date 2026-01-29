@@ -71,7 +71,7 @@ export default function OrganizationDetailPage() {
 
   if (loading) {
     return (
-      <div className="container-custom pt-20 pb-8">
+      <div className="container-custom pb-8 pt-20">
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
             <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"></div>
@@ -84,11 +84,13 @@ export default function OrganizationDetailPage() {
 
   if (!organization) {
     return (
-      <div className="container-custom pt-20 pb-8">
-        <div className="text-center py-12">
+      <div className="container-custom pb-8 pt-20">
+        <div className="py-12 text-center">
           <Building2 className="mx-auto h-12 w-12 text-gray-400" />
           <h3 className="mt-2 text-sm font-medium text-gray-900">Organization not found</h3>
-          <p className="mt-1 text-sm text-gray-500">The organization you&apos;re looking for doesn&apos;t exist.</p>
+          <p className="mt-1 text-sm text-gray-500">
+            The organization you&apos;re looking for doesn&apos;t exist.
+          </p>
           <div className="mt-6">
             <Link href="/admin/organizations" className="btn-primary">
               <ArrowLeft className="h-4 w-4" />
@@ -100,16 +102,16 @@ export default function OrganizationDetailPage() {
     )
   }
 
-  const activeMembers = members.filter(m => m.role !== 'inactive')
+  const activeMembers = members.filter((m) => m.role !== 'inactive')
   const status = organization.settings?.status || 'active'
 
   return (
-    <div className="container-custom pt-20 pb-8">
+    <div className="container-custom pb-8 pt-20">
       {/* Header */}
       <div className="mb-6">
         <Link
           href="/admin/organizations"
-          className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-4"
+          className="mb-4 inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Organizations
@@ -170,7 +172,7 @@ export default function OrganizationDetailPage() {
             <div>
               <p className="text-sm text-gray-500">Domain</p>
               <p className="text-lg font-semibold text-gray-900">
-                {organization.domain || <span className="text-gray-400 text-sm">No domain</span>}
+                {organization.domain || <span className="text-sm text-gray-400">No domain</span>}
               </p>
             </div>
           </div>
@@ -206,7 +208,7 @@ export default function OrganizationDetailPage() {
           <div>
             <label className="text-sm font-medium text-gray-500">Type</label>
             <p className="mt-1">
-              <span className="inline-flex items-center rounded-md bg-gray-100 px-2 py-1 text-sm font-medium text-gray-800 capitalize">
+              <span className="inline-flex items-center rounded-md bg-gray-100 px-2 py-1 text-sm font-medium capitalize text-gray-800">
                 {organization.type || 'N/A'}
               </span>
             </p>
@@ -219,8 +221,8 @@ export default function OrganizationDetailPage() {
                   status === 'active'
                     ? 'bg-green-100 text-green-800'
                     : status === 'trial'
-                    ? 'bg-yellow-100 text-yellow-800'
-                    : 'bg-red-100 text-red-800'
+                      ? 'bg-yellow-100 text-yellow-800'
+                      : 'bg-red-100 text-red-800'
                 }`}
               >
                 {status}
@@ -229,11 +231,15 @@ export default function OrganizationDetailPage() {
           </div>
           <div>
             <label className="text-sm font-medium text-gray-500">Domain</label>
-            <p className="mt-1 text-gray-900">{organization.domain || <span className="text-gray-400">No domain configured</span>}</p>
+            <p className="mt-1 text-gray-900">
+              {organization.domain || <span className="text-gray-400">No domain configured</span>}
+            </p>
           </div>
           <div>
             <label className="text-sm font-medium text-gray-500">Last Updated</label>
-            <p className="mt-1 text-gray-900">{new Date(organization.updated_at).toLocaleString()}</p>
+            <p className="mt-1 text-gray-900">
+              {new Date(organization.updated_at).toLocaleString()}
+            </p>
           </div>
         </div>
       </div>
@@ -247,7 +253,9 @@ export default function OrganizationDetailPage() {
           <div className="px-6 py-12 text-center">
             <Users className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-sm font-medium text-gray-900">No members yet</h3>
-            <p className="mt-1 text-sm text-gray-500">This organization doesn&apos;t have any members.</p>
+            <p className="mt-1 text-sm text-gray-500">
+              This organization doesn&apos;t have any members.
+            </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -270,12 +278,14 @@ export default function OrganizationDetailPage() {
                   <tr key={member.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div>
-                        <p className="font-medium text-gray-900">{member.full_name || 'Unnamed User'}</p>
+                        <p className="font-medium text-gray-900">
+                          {member.full_name || 'Unnamed User'}
+                        </p>
                         <p className="text-sm text-gray-500">{member.email}</p>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="inline-flex items-center rounded-md bg-primary-100 px-2 py-1 text-xs font-medium text-primary-800 capitalize">
+                      <span className="inline-flex items-center rounded-md bg-primary-100 px-2 py-1 text-xs font-medium capitalize text-primary-800">
                         {member.role}
                       </span>
                     </td>

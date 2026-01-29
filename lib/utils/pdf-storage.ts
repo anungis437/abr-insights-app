@@ -4,7 +4,7 @@ import { generateCertificatePDF } from '@/components/certificates/CertificatePDF
 
 /**
  * Upload certificate PDF to Supabase Storage
- * 
+ *
  * @param certificate - Certificate data
  * @param organizationName - Organization name for PDF
  * @param courseTitle - Course title for PDF
@@ -27,7 +27,7 @@ export async function uploadCertificatePDF(
     // Generate PDF blob
     const pdfBlob = await generateCertificatePDF(certificate, {
       courseTitle: options?.courseTitle,
-      organizationName: options?.organizationName
+      organizationName: options?.organizationName,
     })
 
     // Create file path
@@ -36,13 +36,11 @@ export async function uploadCertificatePDF(
     const filePath = `certificates/${certificate.user_id}/${fileName}`
 
     // Upload to Supabase Storage
-    const { data, error } = await supabase.storage
-      .from('certificates')
-      .upload(filePath, pdfBlob, {
-        contentType: 'application/pdf',
-        upsert: false,
-        cacheControl: '31536000' // Cache for 1 year
-      })
+    const { data, error } = await supabase.storage.from('certificates').upload(filePath, pdfBlob, {
+      contentType: 'application/pdf',
+      upsert: false,
+      cacheControl: '31536000', // Cache for 1 year
+    })
 
     if (error) {
       console.error('Error uploading certificate PDF:', error)
@@ -50,27 +48,25 @@ export async function uploadCertificatePDF(
     }
 
     // Get public URL
-    const { data: urlData } = supabase.storage
-      .from('certificates')
-      .getPublicUrl(data.path)
+    const { data: urlData } = supabase.storage.from('certificates').getPublicUrl(data.path)
 
     return {
       pdf_url: urlData.publicUrl,
-      pdf_file_path: data.path
+      pdf_file_path: data.path,
     }
   } catch (error) {
     console.error('Failed to upload certificate PDF:', error)
     return {
       pdf_url: '',
       pdf_file_path: '',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     }
   }
 }
 
 /**
  * Delete certificate PDF from Supabase Storage
- * 
+ *
  * @param filePath - File path in storage
  * @returns Success boolean
  */
@@ -78,9 +74,7 @@ export async function deleteCertificatePDF(filePath: string): Promise<boolean> {
   try {
     const supabase = await createClient()
 
-    const { error } = await supabase.storage
-      .from('certificates')
-      .remove([filePath])
+    const { error } = await supabase.storage.from('certificates').remove([filePath])
 
     if (error) {
       console.error('Error deleting certificate PDF:', error)
@@ -110,7 +104,7 @@ export async function ensureCertificatesBucket(): Promise<boolean> {
       return false
     }
 
-    const bucketExists = buckets?.some(bucket => bucket.name === 'certificates')
+    const bucketExists = buckets?.some((bucket) => bucket.name === 'certificates')
 
     if (bucketExists) {
       return true
@@ -120,7 +114,7 @@ export async function ensureCertificatesBucket(): Promise<boolean> {
     const { error: createError } = await supabase.storage.createBucket('certificates', {
       public: true, // Make PDFs publicly accessible
       fileSizeLimit: 10485760, // 10MB limit
-      allowedMimeTypes: ['application/pdf']
+      allowedMimeTypes: ['application/pdf'],
     })
 
     if (createError) {

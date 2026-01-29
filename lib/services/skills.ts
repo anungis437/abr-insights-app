@@ -1,6 +1,6 @@
 /**
  * Skills Validation Service
- * 
+ *
  * Manages skill tracking, proficiency assessment, and validation.
  * Integrates with quiz system for automatic skill validation.
  */
@@ -176,20 +176,17 @@ export interface SkillProgress {
 /**
  * Get comprehensive skills dashboard data for a user
  */
-export async function getUserSkillsDashboard(
-  userId: string
-): Promise<SkillsDashboardData | null> {
+export async function getUserSkillsDashboard(userId: string): Promise<SkillsDashboardData | null> {
   try {
     const supabase = await createClient()
-    
-    const { data, error } = await supabase
-      .rpc('get_user_skills_dashboard', { p_user_id: userId })
-    
+
+    const { data, error } = await supabase.rpc('get_user_skills_dashboard', { p_user_id: userId })
+
     if (error) {
       console.error('Error fetching skills dashboard:', error)
       return null
     }
-    
+
     return data as SkillsDashboardData
   } catch (error) {
     console.error('Unexpected error in getUserSkillsDashboard:', error)
@@ -207,19 +204,18 @@ export async function getSkillValidationHistory(
 ): Promise<SkillValidation[]> {
   try {
     const supabase = await createClient()
-    
-    const { data, error } = await supabase
-      .rpc('get_skill_validation_history', {
-        p_user_id: userId,
-        p_skill_id: skillId || null,
-        p_limit: limit
-      })
-    
+
+    const { data, error } = await supabase.rpc('get_skill_validation_history', {
+      p_user_id: userId,
+      p_skill_id: skillId || null,
+      p_limit: limit,
+    })
+
     if (error) {
       console.error('Error fetching validation history:', error)
       return []
     }
-    
+
     return (data || []) as SkillValidation[]
   } catch (error) {
     console.error('Unexpected error in getSkillValidationHistory:', error)
@@ -236,18 +232,17 @@ export async function getRecommendedCourses(
 ): Promise<RecommendedCourse[]> {
   try {
     const supabase = await createClient()
-    
-    const { data, error } = await supabase
-      .rpc('get_recommended_courses_for_skills', {
-        p_user_id: userId,
-        p_limit: limit
-      })
-    
+
+    const { data, error } = await supabase.rpc('get_recommended_courses_for_skills', {
+      p_user_id: userId,
+      p_limit: limit,
+    })
+
     if (error) {
       console.error('Error fetching recommended courses:', error)
       return []
     }
-    
+
     return (data || []) as RecommendedCourse[]
   } catch (error) {
     console.error('Unexpected error in getRecommendedCourses:', error)
@@ -264,18 +259,17 @@ export async function validateSkillsFromQuiz(
 ): Promise<boolean> {
   try {
     const supabase = await createClient()
-    
-    const { error } = await supabase
-      .rpc('validate_skill_from_quiz', {
-        p_user_id: userId,
-        p_quiz_attempt_id: quizAttemptId
-      })
-    
+
+    const { error } = await supabase.rpc('validate_skill_from_quiz', {
+      p_user_id: userId,
+      p_quiz_attempt_id: quizAttemptId,
+    })
+
     if (error) {
       console.error('Error validating skills from quiz:', error)
       return false
     }
-    
+
     return true
   } catch (error) {
     console.error('Unexpected error in validateSkillsFromQuiz:', error)
@@ -290,34 +284,31 @@ export async function validateSkillsFromQuiz(
 /**
  * Get all skills (optionally filtered by category)
  */
-export async function getSkills(
-  category?: string,
-  regulatoryBody?: string
-): Promise<Skill[]> {
+export async function getSkills(category?: string, regulatoryBody?: string): Promise<Skill[]> {
   try {
     const supabase = await createClient()
-    
+
     let query = supabase
       .from('skills')
       .select('*')
       .eq('is_active', true)
       .order('order_index', { ascending: true })
-    
+
     if (category) {
       query = query.eq('category', category)
     }
-    
+
     if (regulatoryBody) {
       query = query.eq('regulatory_body', regulatoryBody)
     }
-    
+
     const { data, error } = await query
-    
+
     if (error) {
       console.error('Error fetching skills:', error)
       return []
     }
-    
+
     return (data || []) as Skill[]
   } catch (error) {
     console.error('Unexpected error in getSkills:', error)
@@ -328,35 +319,25 @@ export async function getSkills(
 /**
  * Get a single skill by ID or slug
  */
-export async function getSkill(
-  idOrSlug: string
-): Promise<Skill | null> {
+export async function getSkill(idOrSlug: string): Promise<Skill | null> {
   try {
     const supabase = await createClient()
-    
+
     // Try by ID first, then by slug
-    let { data, error } = await supabase
-      .from('skills')
-      .select('*')
-      .eq('id', idOrSlug)
-      .single()
-    
+    let { data, error } = await supabase.from('skills').select('*').eq('id', idOrSlug).single()
+
     if (error || !data) {
-      const result = await supabase
-        .from('skills')
-        .select('*')
-        .eq('slug', idOrSlug)
-        .single()
-      
+      const result = await supabase.from('skills').select('*').eq('slug', idOrSlug).single()
+
       data = result.data
       error = result.error
     }
-    
+
     if (error) {
       console.error('Error fetching skill:', error)
       return null
     }
-    
+
     return data as Skill
   } catch (error) {
     console.error('Unexpected error in getSkill:', error)
@@ -373,26 +354,28 @@ export async function getUserSkills(
 ): Promise<UserSkillWithDetails[]> {
   try {
     const supabase = await createClient()
-    
+
     let query = supabase
       .from('user_skills')
-      .select(`
+      .select(
+        `
         *,
         skill:skills(*)
-      `)
+      `
+      )
       .eq('user_id', userId)
-    
+
     if (category) {
       query = query.eq('skill.category', category)
     }
-    
+
     const { data, error } = await query
-    
+
     if (error) {
       console.error('Error fetching user skills:', error)
       return []
     }
-    
+
     return (data || []) as UserSkillWithDetails[]
   } catch (error) {
     console.error('Unexpected error in getUserSkills:', error)
@@ -403,23 +386,21 @@ export async function getUserSkills(
 /**
  * Get active validated skills for a user
  */
-export async function getActiveValidatedSkills(
-  userId: string
-): Promise<ActiveSkill[]> {
+export async function getActiveValidatedSkills(userId: string): Promise<ActiveSkill[]> {
   try {
     const supabase = await createClient()
-    
+
     const { data, error } = await supabase
       .from('active_validated_skills')
       .select('*')
       .eq('user_id', userId)
       .order('proficiency_score', { ascending: false })
-    
+
     if (error) {
       console.error('Error fetching active validated skills:', error)
       return []
     }
-    
+
     return (data || []) as ActiveSkill[]
   } catch (error) {
     console.error('Unexpected error in getActiveValidatedSkills:', error)
@@ -436,19 +417,19 @@ export async function getExpiringSkills(
 ): Promise<ExpiringSkill[]> {
   try {
     const supabase = await createClient()
-    
+
     const { data, error } = await supabase
       .from('skills_expiring_soon')
       .select('*')
       .eq('user_id', userId)
       .lte('days_until_expiry', daysAhead)
       .order('days_until_expiry', { ascending: true })
-    
+
     if (error) {
       console.error('Error fetching expiring skills:', error)
       return []
     }
-    
+
     return (data || []) as ExpiringSkill[]
   } catch (error) {
     console.error('Unexpected error in getExpiringSkills:', error)
@@ -459,35 +440,40 @@ export async function getExpiringSkills(
 /**
  * Get skill categories with counts
  */
-export async function getSkillCategories(): Promise<{ category: string; count: number; color: string | null }[]> {
+export async function getSkillCategories(): Promise<
+  { category: string; count: number; color: string | null }[]
+> {
   try {
     const supabase = await createClient()
-    
+
     const { data, error } = await supabase
       .from('skills')
       .select('category, color')
       .eq('is_active', true)
-    
+
     if (error) {
       console.error('Error fetching skill categories:', error)
       return []
     }
-    
+
     // Count and deduplicate
-    const categoryCounts = (data || []).reduce((acc, skill) => {
-      const existing = acc.find(c => c.category === skill.category)
-      if (existing) {
-        existing.count++
-      } else {
-        acc.push({
-          category: skill.category,
-          count: 1,
-          color: skill.color
-        })
-      }
-      return acc
-    }, [] as { category: string; count: number; color: string | null }[])
-    
+    const categoryCounts = (data || []).reduce(
+      (acc, skill) => {
+        const existing = acc.find((c) => c.category === skill.category)
+        if (existing) {
+          existing.count++
+        } else {
+          acc.push({
+            category: skill.category,
+            count: 1,
+            color: skill.color,
+          })
+        }
+        return acc
+      },
+      [] as { category: string; count: number; color: string | null }[]
+    )
+
     return categoryCounts.sort((a, b) => a.category.localeCompare(b.category))
   } catch (error) {
     console.error('Unexpected error in getSkillCategories:', error)
@@ -504,11 +490,11 @@ export async function getSkillProgress(
 ): Promise<SkillProgress | null> {
   try {
     const supabase = await createClient()
-    
+
     // Get skill details
     const skill = await getSkill(skillId)
     if (!skill) return null
-    
+
     // Get user skill data
     const { data: userSkillData } = await supabase
       .from('user_skills')
@@ -516,69 +502,65 @@ export async function getSkillProgress(
       .eq('user_id', userId)
       .eq('skill_id', skillId)
       .single()
-    
+
     // Get validation history
     const validations = await getSkillValidationHistory(userId, skillId, 20)
-    
+
     // Get related courses
     const { data: relatedCoursesData } = await supabase
       .from('course_skills')
-      .select(`
+      .select(
+        `
         course_id,
         proficiency_level,
         course:courses(title)
-      `)
+      `
+      )
       .eq('skill_id', skillId)
-    
-    const relatedCourses = (relatedCoursesData || []).map(rc => ({
+
+    const relatedCourses = (relatedCoursesData || []).map((rc) => ({
       course_id: rc.course_id,
       course_title: (rc.course as any)?.title || 'Unknown Course',
-      proficiency_level: rc.proficiency_level as ProficiencyLevel
+      proficiency_level: rc.proficiency_level as ProficiencyLevel,
     }))
-    
+
     // Get prerequisites
     const { data: prereqData } = await supabase
       .from('skill_prerequisites')
       .select('prerequisite_skill_id')
       .eq('skill_id', skillId)
-    
+
     const prerequisites: Skill[] = []
     if (prereqData && prereqData.length > 0) {
-      const prereqIds = prereqData.map(p => p.prerequisite_skill_id)
-      const { data: prereqSkills } = await supabase
-        .from('skills')
-        .select('*')
-        .in('id', prereqIds)
+      const prereqIds = prereqData.map((p) => p.prerequisite_skill_id)
+      const { data: prereqSkills } = await supabase.from('skills').select('*').in('id', prereqIds)
       if (prereqSkills) {
         prerequisites.push(...(prereqSkills as Skill[]))
       }
     }
-    
+
     // Get dependent skills (skills that require this one)
     const { data: dependentData } = await supabase
       .from('skill_prerequisites')
       .select('skill_id')
       .eq('prerequisite_skill_id', skillId)
-    
+
     const dependentSkills: Skill[] = []
     if (dependentData && dependentData.length > 0) {
-      const dependentIds = dependentData.map(d => d.skill_id)
-      const { data: depSkills } = await supabase
-        .from('skills')
-        .select('*')
-        .in('id', dependentIds)
+      const dependentIds = dependentData.map((d) => d.skill_id)
+      const { data: depSkills } = await supabase.from('skills').select('*').in('id', dependentIds)
       if (depSkills) {
         dependentSkills.push(...(depSkills as Skill[]))
       }
     }
-    
+
     return {
       skill,
       user_skill: userSkillData as UserSkill | null,
       validations,
       related_courses: relatedCourses,
       prerequisites,
-      dependent_skills: dependentSkills
+      dependent_skills: dependentSkills,
     }
   } catch (error) {
     console.error('Unexpected error in getSkillProgress:', error)
@@ -599,7 +581,7 @@ export function formatProficiencyLevel(level: ProficiencyLevel): string {
     beginner: 'Beginner',
     intermediate: 'Intermediate',
     advanced: 'Advanced',
-    expert: 'Expert'
+    expert: 'Expert',
   }
   return labels[level] || level
 }
@@ -613,7 +595,7 @@ export function getProficiencyColor(level: ProficiencyLevel): string {
     beginner: 'text-blue-600 bg-blue-100',
     intermediate: 'text-yellow-600 bg-yellow-100',
     advanced: 'text-purple-600 bg-purple-100',
-    expert: 'text-green-600 bg-green-100'
+    expert: 'text-green-600 bg-green-100',
   }
   return colors[level] || 'text-gray-600 bg-gray-100'
 }
@@ -627,7 +609,7 @@ export function getProficiencyBadgeColor(level: ProficiencyLevel): string {
     beginner: 'border-blue-300 bg-blue-50',
     intermediate: 'border-yellow-300 bg-yellow-50',
     advanced: 'border-purple-300 bg-purple-50',
-    expert: 'border-green-300 bg-green-50'
+    expert: 'border-green-300 bg-green-50',
   }
   return colors[level] || 'border-gray-300 bg-gray-50'
 }
@@ -640,7 +622,7 @@ export function getValidationStatus(status: ValidationStatus): { label: string; 
     pending: { label: 'Pending', color: 'text-gray-600 bg-gray-100' },
     validated: { label: 'Validated', color: 'text-green-600 bg-green-100' },
     expired: { label: 'Expired', color: 'text-orange-600 bg-orange-100' },
-    failed: { label: 'Failed', color: 'text-red-600 bg-red-100' }
+    failed: { label: 'Failed', color: 'text-red-600 bg-red-100' },
   }
   return statuses[status] || statuses.pending
 }
@@ -663,15 +645,15 @@ export function getExpiryStatus(
   if (!expiresAt) {
     return { label: 'No Expiry', color: 'text-gray-600 bg-gray-100' }
   }
-  
+
   if (validationStatus === 'expired') {
     return { label: 'Expired', color: 'text-red-600 bg-red-100' }
   }
-  
+
   const expiryDate = new Date(expiresAt)
   const now = new Date()
   const daysUntilExpiry = Math.floor((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-  
+
   if (daysUntilExpiry < 0) {
     return { label: 'Expired', color: 'text-red-600 bg-red-100' }
   } else if (daysUntilExpiry <= 30) {
@@ -703,20 +685,17 @@ export function getPassRateColor(passRate: number): string {
 /**
  * Calculate skill gap percentage
  */
-export function calculateSkillGap(
-  currentScore: number,
-  targetLevel: ProficiencyLevel
-): number {
+export function calculateSkillGap(currentScore: number, targetLevel: ProficiencyLevel): number {
   const targetScores: Record<ProficiencyLevel, number> = {
     novice: 10,
     beginner: 25,
     intermediate: 50,
     advanced: 75,
-    expert: 90
+    expert: 90,
   }
-  
+
   const targetScore = targetScores[targetLevel]
   const gap = targetScore - currentScore
-  
+
   return Math.max(0, gap)
 }

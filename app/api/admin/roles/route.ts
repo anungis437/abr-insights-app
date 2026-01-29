@@ -11,24 +11,24 @@ export async function GET(request: NextRequest) {
     if (check instanceof NextResponse) {
       return check // Return 403 response
     }
-    
+
     const supabase = await createClient()
-    
+
     // Get query params
     const { searchParams } = new URL(request.url)
     const include_permissions = searchParams.get('include_permissions') === 'true'
-    
+
     // Fetch roles
     const { data: roles, error } = await supabase
       .from('roles')
       .select('*')
       .order('level', { ascending: true })
-    
+
     if (error) {
       console.error('Error fetching roles:', error)
       return NextResponse.json({ error: 'Failed to fetch roles' }, { status: 500 })
     }
-    
+
     // Optionally include permissions for each role
     if (include_permissions && roles) {
       const rolesWithPermissions = await Promise.all(
@@ -37,17 +37,17 @@ export async function GET(request: NextRequest) {
             .from('role_permissions')
             .select('permission_id, permissions(id, slug, name, resource, action)')
             .eq('role_id', role.id)
-          
+
           return {
             ...role,
-            permissions: rolePerms?.map(rp => rp.permissions).filter(Boolean) || []
+            permissions: rolePerms?.map((rp) => rp.permissions).filter(Boolean) || [],
           }
         })
       )
-      
+
       return NextResponse.json({ roles: rolesWithPermissions })
     }
-    
+
     return NextResponse.json({ roles })
   } catch (error) {
     console.error('Roles API error:', error)
@@ -58,22 +58,25 @@ export async function GET(request: NextRequest) {
 // POST /api/admin/roles - Create new role (super_admin only)
 export async function POST(request: NextRequest) {
   // Check permissions
-  const permissionError = await requireAnyPermission(['roles.create', 'roles.manage']);
-  if (permissionError) return permissionError;
+  const permissionError = await requireAnyPermission(['roles.create', 'roles.manage'])
+  if (permissionError) return permissionError
 
   try {
     const supabase = await createClient()
-    
+
     const body = await request.json()
     const { name, slug, description, level, is_system } = body
-    
+
     // Validate required fields
     if (!name || !slug || level === undefined) {
-      return NextResponse.json({ 
-        error: 'Missing required fields: name, slug, level' 
-      }, { status: 400 })
+      return NextResponse.json(
+        {
+          error: 'Missing required fields: name, slug, level',
+        },
+        { status: 400 }
+      )
     }
-    
+
     // Insert role
     const { data: role, error } = await supabase
       .from('roles')
@@ -82,18 +85,21 @@ export async function POST(request: NextRequest) {
         slug,
         description: description || null,
         level,
-        is_system: is_system || false
+        is_system: is_system || false,
       })
       .select()
       .single()
-    
+
     if (error) {
       console.error('Error creating role:', error)
-      return NextResponse.json({ 
-        error: error.message || 'Failed to create role' 
-      }, { status: 500 })
+      return NextResponse.json(
+        {
+          error: error.message || 'Failed to create role',
+        },
+        { status: 500 }
+      )
     }
-    
+
     return NextResponse.json({ role }, { status: 201 })
   } catch (error) {
     console.error('Roles API error:', error)
