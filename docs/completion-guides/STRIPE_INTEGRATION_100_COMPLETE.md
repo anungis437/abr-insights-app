@@ -201,7 +201,6 @@ interface Subscription {
 
 ```tsx
 import { PricingCard } from '@/components/shared/PricingCard'
-
 ;<PricingCard
   name="Professional"
   price="$49"

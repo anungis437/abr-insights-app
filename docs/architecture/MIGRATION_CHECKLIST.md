@@ -611,13 +611,13 @@ All 9 core documents created at world-class level:
 
 ## Sign-Off
 
-**Technical Lead**: **********\_\_********** Date: ****\_\_****
+**Technical Lead**: ****\*\*****\_\_****\*\***** Date: \***\*\_\_\*\***
 
-**Product Owner**: **********\_\_********** Date: ****\_\_****
+**Product Owner**: ****\*\*****\_\_****\*\***** Date: \***\*\_\_\*\***
 
-**Security Officer**: **********\_\_********** Date: ****\_\_****
+**Security Officer**: ****\*\*****\_\_****\*\***** Date: \***\*\_\_\*\***
 
-**Compliance Officer**: **********\_\_********** Date: ****\_\_****
+**Compliance Officer**: ****\*\*****\_\_****\*\***** Date: \***\*\_\_\*\***
 
 ---
 

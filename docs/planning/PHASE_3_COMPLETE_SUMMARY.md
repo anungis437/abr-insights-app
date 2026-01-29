@@ -267,7 +267,6 @@ if (permissionError) return permissionError
 
 ```tsx
 import { Protected } from '@/components/shared/Protected'
-
 ;<Protected permission="courses.delete">
   <Button variant="destructive">Delete Course</Button>
 </Protected>

@@ -471,7 +471,6 @@ xl: 1280px  /* Extra large devices */
 ```javascript
 // Next.js Image Component Configuration
 import Image from 'next/image'
-
 ;<Image
   src="/images/hero.jpg"
   alt="Description"
