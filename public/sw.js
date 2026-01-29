@@ -420,14 +420,14 @@ async function cacheCourse(courseId) {
     await cache.put(`/api/courses/${courseId}`, new Response(JSON.stringify(course)));
     
     // Cache course modules and lessons
-    for (const module of course.modules || []) {
-      const moduleResponse = await fetch(`/api/modules/${module.id}`);
+    for (const courseModule of course.modules || []) {
+      const moduleResponse = await fetch(`/api/modules/${courseModule.id}`);
       if (moduleResponse.ok) {
-        await cache.put(`/api/modules/${module.id}`, moduleResponse.clone());
+        await cache.put(`/api/modules/${courseModule.id}`, moduleResponse.clone());
       }
       
       // Cache video content if present
-      if (module.video_url) {
+      if (courseModule.video_url) {
         const videoResponse = await fetch(module.video_url);
         if (videoResponse.ok) {
           const videoCache = await caches.open(VIDEO_CACHE);

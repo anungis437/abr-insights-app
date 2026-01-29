@@ -31,11 +31,11 @@ export default function ContactConfirmationEmail({
           </Text>
           
           <Text style={text}>
-            We've received your message regarding "{subject}" and appreciate you taking the time to contact us.
+            We&apos;ve received your message regarding &ldquo;{subject}&rdquo; and appreciate you taking the time to contact us.
           </Text>
           
           <Text style={text}>
-            Our team will review your inquiry and get back to you within 1-2 business days. We're committed to providing you with the support and information you need.
+            Our team will review your inquiry and get back to you within 1-2 business days. We&apos;re committed to providing you with the support and information you need.
           </Text>
           
           <Section style={infoBox}>

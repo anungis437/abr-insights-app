@@ -32,7 +32,7 @@ export default function NewsletterWelcomeEmail({
           </Text>
           
           <Text style={text}>
-            Thank you for subscribing to the ABR Insights newsletter! We're excited to have you join our community committed to advancing anti-racism and human rights excellence.
+            Thank you for subscribing to the ABR Insights newsletter! We&apos;re excited to have you join our community committed to advancing anti-racism and human rights excellence.
           </Text>
           
           <Section style={highlightBox}>
@@ -49,7 +49,7 @@ export default function NewsletterWelcomeEmail({
           </Section>
           
           <Text style={text}>
-            Our newsletter is published monthly, delivering valuable insights directly to your inbox. We respect your time and privacy—no spam, just quality content.
+            Our newsletter is published monthly, delivering valuable insights directly to your inbox. We respect your time and privacy&mdash;no spam, just quality content.
           </Text>
           
           <Section style={buttonContainer}>
@@ -59,7 +59,7 @@ export default function NewsletterWelcomeEmail({
           </Section>
           
           <Text style={text}>
-            Have questions or feedback? Simply reply to this email—we'd love to hear from you!
+            Have questions or feedback? Simply reply to this email&mdash;we&apos;d love to hear from you!
           </Text>
           
           <Text style={text}>
@@ -69,7 +69,7 @@ export default function NewsletterWelcomeEmail({
           
           <Text style={footer}>
             © {new Date().getFullYear()} ABR Insights. All rights reserved.<br />
-            You're receiving this because you subscribed to our newsletter.
+            You&apos;re receiving this because you subscribed to our newsletter.
           </Text>
         </Container>
       </Body>
