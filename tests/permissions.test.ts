@@ -43,13 +43,13 @@ describe.skipIf(skipTests)('Permission System Tests', () => {
     testOrgId = orgResult.data.id;
 
     // Create test user
-    const { data: authUser } = await supabase.auth.admin.createUser({
+    const authUserResult = await supabase.auth.admin.createUser({
       email: `test-${Date.now()}@example.com`,
       password: 'test-password-123',
       email_confirm: true,
     });
 
-    testUserId = authUser.user!.id;
+    testUserId = authUserResult.data.user!.id;
 
     // Create profile
     await supabase.from('profiles').insert({
