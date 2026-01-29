@@ -37,10 +37,11 @@ function LoginForm() {
       // Get user role to determine redirect
       const { createClient } = await import('@/lib/supabase/client')
       const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
       const { data: profile } = await supabase
         .from('profiles')
         .select('role')
-        .eq('id', data?.user?.id)
+        .eq('id', user?.id)
         .single()
 
       // Determine redirect path
