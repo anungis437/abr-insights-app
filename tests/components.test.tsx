@@ -45,7 +45,7 @@ describe('Component Tests', () => {
         password: '',
       };
 
-      const isValid = formData.email && formData.password;
+      const isValid = !!(formData.email && formData.password);
       expect(isValid).toBe(false);
     });
 
