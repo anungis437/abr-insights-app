@@ -68,7 +68,7 @@ export default function CoursesPage() {
           <div className="mx-auto max-w-6xl">
             <div className="mb-12 text-center">
               <h2 className="mb-4 text-3xl font-bold text-gray-900 md:text-4xl">
-                What You'll Learn
+                What You&apos;ll Learn
               </h2>
               <p className="text-xl text-gray-600">
                 Comprehensive training covering all aspects of anti-Black racism and workplace equity

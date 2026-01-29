@@ -149,7 +149,7 @@ export default function CasesPage() {
                 Tribunal Coverage
               </h2>
               <p className="text-xl text-gray-600">
-                Comprehensive decisions from Canada's leading human rights tribunals
+                Comprehensive decisions from Canada&apos;s leading human rights tribunals
               </p>
             </div>
 

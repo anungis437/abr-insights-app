@@ -140,7 +140,7 @@ export default function PermissionsDemo() {
 
           {!hasAnyPermission(['courses.view', 'courses.create', 'courses.update', 'courses.delete', 'courses.manage']) && (
             <p className="text-sm text-muted-foreground">
-              You don't have any course management permissions
+              You don&apos;t have any course management permissions
             </p>
           )}
         </CardContent>
@@ -198,7 +198,7 @@ export default function PermissionsDemo() {
 
           {!hasAnyPermission(['users.view', 'users.create', 'users.update', 'users.delete', 'users.manage']) && (
             <p className="text-sm text-muted-foreground">
-              You don't have any user management permissions
+              You don&apos;t have any user management permissions
             </p>
           )}
         </CardContent>
