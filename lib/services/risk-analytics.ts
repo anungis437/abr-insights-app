@@ -44,6 +44,23 @@ export interface RiskTrend {
   department?: string
 }
 
+export interface UserRiskDetail {
+  user_id: string
+  user_name: string
+  user_email: string
+  department: string
+  location?: string
+  risk_level: 'low' | 'medium' | 'high' | 'critical'
+  risk_score: number
+  training_status: 'completed' | 'in_progress' | 'not_started'
+  completion_percentage: number
+  quiz_score?: number
+  quiz_attempts: number
+  days_since_last_training?: number
+  last_training_date?: string
+  issues: string[]
+}
+
 /**
  * Calculate risk score for a department based on multiple factors
  */
@@ -342,3 +359,173 @@ export async function getRiskTrends(
     },
   ]
 }
+
+/**
+ * Get individual user risk details for a department
+ */
+export async function getDepartmentUserRiskDetails(
+  organizationId: string,
+  department: string
+): Promise<UserRiskDetail[]> {
+  const supabase = createClient()
+
+  // Get all users in the department with their profile and training data
+  const { data: users, error: usersError } = await supabase
+    .from('profiles')
+    .select(
+      `
+      id,
+      email,
+      first_name,
+      last_name,
+      department,
+      location,
+      enrollments!inner(
+        id,
+        status,
+        progress_percentage,
+        completed_at,
+        created_at,
+        course:courses(title)
+      )
+    `
+    )
+    .eq('organization_id', organizationId)
+    .eq('department', department)
+
+  if (usersError) throw usersError
+
+  // Get quiz attempts for all users
+  const userIds = users?.map((u) => u.id) || []
+  const { data: quizAttempts } = await supabase
+    .from('quiz_attempts')
+    .select('user_id, score, completed, created_at')
+    .in('user_id', userIds)
+    .eq('completed', true)
+    .order('created_at', { ascending: false })
+
+  const userRiskDetails: UserRiskDetail[] = []
+
+  for (const user of users || []) {
+    const userName = `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown User'
+    const issues: string[] = []
+
+    // Determine training status
+    const completedEnrollments = user.enrollments.filter((e: any) => e.status === 'completed')
+    const inProgressEnrollments = user.enrollments.filter(
+      (e: any) => e.status === 'active' && e.progress_percentage > 0
+    )
+
+    let trainingStatus: 'completed' | 'in_progress' | 'not_started'
+    if (completedEnrollments.length > 0) {
+      trainingStatus = 'completed'
+    } else if (inProgressEnrollments.length > 0) {
+      trainingStatus = 'in_progress'
+    } else {
+      trainingStatus = 'not_started'
+      issues.push('No training started')
+    }
+
+    // Calculate completion percentage (average across all enrollments)
+    const completionPercentage =
+      user.enrollments.length > 0
+        ? user.enrollments.reduce((sum: number, e: any) => sum + (e.progress_percentage || 0), 0) /
+          user.enrollments.length
+        : 0
+
+    if (completionPercentage < 100 && trainingStatus !== 'not_started') {
+      issues.push(`Training ${completionPercentage.toFixed(0)}% complete`)
+    }
+
+    // Get quiz data
+    const userQuizAttempts = quizAttempts?.filter((q) => q.user_id === user.id) || []
+    const quizScore =
+      userQuizAttempts.length > 0
+        ? userQuizAttempts.reduce((sum, q) => sum + q.score, 0) / userQuizAttempts.length
+        : undefined
+
+    if (quizScore !== undefined && quizScore < 70) {
+      issues.push(`Low quiz score: ${quizScore.toFixed(0)}%`)
+    } else if (quizScore === undefined && trainingStatus !== 'not_started') {
+      issues.push('No quiz attempts')
+    }
+
+    // Calculate days since last training
+    const lastTrainingDate =
+      completedEnrollments.length > 0
+        ? completedEnrollments.reduce((latest: any, e: any) => {
+            const eDate = new Date(e.completed_at)
+            return !latest || eDate > new Date(latest) ? e.completed_at : latest
+          }, null)
+        : undefined
+
+    const daysSinceLastTraining = lastTrainingDate
+      ? Math.floor((Date.now() - new Date(lastTrainingDate).getTime()) / (1000 * 60 * 60 * 24))
+      : undefined
+
+    if (daysSinceLastTraining && daysSinceLastTraining > 365) {
+      issues.push(`Training expired (${Math.floor(daysSinceLastTraining / 30)} months ago)`)
+    } else if (daysSinceLastTraining && daysSinceLastTraining > 180) {
+      issues.push(`Training aging (${Math.floor(daysSinceLastTraining / 30)} months old)`)
+    }
+
+    // Calculate individual risk score
+    let riskScore = 100 // Start at 100 (lowest risk)
+
+    // Deduct points for incomplete training
+    if (trainingStatus === 'not_started') {
+      riskScore -= 40
+    } else if (completionPercentage < 100) {
+      riskScore -= (100 - completionPercentage) * 0.3
+    }
+
+    // Deduct points for low quiz scores
+    if (quizScore !== undefined) {
+      if (quizScore < 70) {
+        riskScore -= (70 - quizScore) * 0.5
+      }
+    } else if (trainingStatus !== 'not_started') {
+      riskScore -= 20 // No quiz data
+    }
+
+    // Deduct points for training age
+    if (daysSinceLastTraining) {
+      if (daysSinceLastTraining > 365) {
+        riskScore -= 25
+      } else if (daysSinceLastTraining > 180) {
+        riskScore -= 15
+      }
+    }
+
+    // Ensure score is between 0 and 100
+    riskScore = Math.max(0, Math.min(100, riskScore))
+
+    // Determine risk level
+    let riskLevel: 'low' | 'medium' | 'high' | 'critical'
+    if (riskScore >= 80) riskLevel = 'low'
+    else if (riskScore >= 60) riskLevel = 'medium'
+    else if (riskScore >= 40) riskLevel = 'high'
+    else riskLevel = 'critical'
+
+    userRiskDetails.push({
+      user_id: user.id,
+      user_name: userName,
+      user_email: user.email,
+      department: user.department,
+      location: user.location,
+      risk_level: riskLevel,
+      risk_score: riskScore,
+      training_status: trainingStatus,
+      completion_percentage: completionPercentage,
+      quiz_score: quizScore,
+      quiz_attempts: userQuizAttempts.length,
+      days_since_last_training: daysSinceLastTraining,
+      last_training_date: lastTrainingDate,
+      issues,
+    })
+  }
+
+  // Sort by risk score (lowest first = highest risk)
+  return userRiskDetails.sort((a, b) => a.risk_score - b.risk_score)
+}
+

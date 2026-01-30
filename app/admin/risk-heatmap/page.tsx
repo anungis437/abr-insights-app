@@ -185,7 +185,10 @@ export default function RiskHeatmapPage() {
             {departmentScores.map((dept) => (
               <button
                 key={dept.department}
-                onClick={() => setSelectedDepartment(dept)}
+                onClick={() => {
+                  // Navigate to department drill-down
+                  router.push(`/admin/risk-heatmap/${encodeURIComponent(dept.department)}`)
+                }}
                 className={`p-6 rounded-lg border-2 transition-all hover:shadow-lg ${
                   selectedDepartment?.department === dept.department
                     ? 'border-blue-500 shadow-lg'

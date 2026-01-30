@@ -1,0 +1,377 @@
+'use client'
+
+/**
+ * Department User Risk Drill-Down
+ * Shows individual user compliance status within a department
+ */
+
+import { useState, useEffect } from 'react'
+import { useParams, useRouter } from 'next/navigation'
+import {
+  getDepartmentUserRiskDetails,
+  type UserRiskDetail,
+} from '@/lib/services/risk-analytics'
+import { ArrowLeft, AlertTriangle, CheckCircle, Clock, XCircle, Download } from 'lucide-react'
+
+export default function DepartmentUserRiskPage() {
+  const params = useParams()
+  const router = useRouter()
+  const department = decodeURIComponent(params.department as string)
+
+  const [loading, setLoading] = useState(true)
+  const [userDetails, setUserDetails] = useState<UserRiskDetail[]>([])
+  const [filteredUsers, setFilteredUsers] = useState<UserRiskDetail[]>([])
+  const [filterRiskLevel, setFilterRiskLevel] = useState<string>('all')
+  const [filterTrainingStatus, setFilterTrainingStatus] = useState<string>('all')
+  const [searchQuery, setSearchQuery] = useState('')
+
+  useEffect(() => {
+    loadUserDetails()
+  }, [department])
+
+  useEffect(() => {
+    applyFilters()
+  }, [userDetails, filterRiskLevel, filterTrainingStatus, searchQuery])
+
+  async function loadUserDetails() {
+    try {
+      setLoading(true)
+      const orgId = 'demo-org-id' // TODO: Replace with actual session management
+      const details = await getDepartmentUserRiskDetails(orgId, department)
+      setUserDetails(details)
+      setFilteredUsers(details)
+    } catch (error) {
+      console.error('Error loading user details:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  function applyFilters() {
+    let filtered = [...userDetails]
+
+    // Risk level filter
+    if (filterRiskLevel !== 'all') {
+      filtered = filtered.filter((u) => u.risk_level === filterRiskLevel)
+    }
+
+    // Training status filter
+    if (filterTrainingStatus !== 'all') {
+      filtered = filtered.filter((u) => u.training_status === filterTrainingStatus)
+    }
+
+    // Search query
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase()
+      filtered = filtered.filter(
+        (u) =>
+          u.user_name.toLowerCase().includes(query) || u.user_email.toLowerCase().includes(query)
+      )
+    }
+
+    setFilteredUsers(filtered)
+  }
+
+  function getRiskColor(level: string): string {
+    switch (level) {
+      case 'low':
+        return 'bg-green-500'
+      case 'medium':
+        return 'bg-yellow-500'
+      case 'high':
+        return 'bg-orange-500'
+      case 'critical':
+        return 'bg-red-600'
+      default:
+        return 'bg-gray-400'
+    }
+  }
+
+  function getRiskTextColor(level: string): string {
+    switch (level) {
+      case 'low':
+        return 'text-green-700'
+      case 'medium':
+        return 'text-yellow-700'
+      case 'high':
+        return 'text-orange-700'
+      case 'critical':
+        return 'text-red-700'
+      default:
+        return 'text-gray-700'
+    }
+  }
+
+  function getStatusIcon(status: string) {
+    switch (status) {
+      case 'completed':
+        return <CheckCircle className="h-5 w-5 text-green-600" />
+      case 'in_progress':
+        return <Clock className="h-5 w-5 text-blue-600" />
+      case 'not_started':
+        return <XCircle className="h-5 w-5 text-gray-400" />
+      default:
+        return null
+    }
+  }
+
+  function exportToCSV() {
+    const headers = [
+      'Name',
+      'Email',
+      'Risk Level',
+      'Risk Score',
+      'Training Status',
+      'Completion %',
+      'Quiz Score',
+      'Days Since Training',
+      'Issues',
+    ]
+    const rows = filteredUsers.map((u) => [
+      u.user_name,
+      u.user_email,
+      u.risk_level,
+      u.risk_score.toFixed(0),
+      u.training_status,
+      u.completion_percentage.toFixed(0) + '%',
+      u.quiz_score ? u.quiz_score.toFixed(0) + '%' : 'N/A',
+      u.days_since_last_training?.toString() || 'N/A',
+      u.issues.join('; '),
+    ])
+
+    const csv = [headers, ...rows].map((row) => row.map((cell) => `"${cell}"`).join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${department}-user-risk-report.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+      </div>
+    )
+  }
+
+  const riskStats = {
+    critical: filteredUsers.filter((u) => u.risk_level === 'critical').length,
+    high: filteredUsers.filter((u) => u.risk_level === 'high').length,
+    medium: filteredUsers.filter((u) => u.risk_level === 'medium').length,
+    low: filteredUsers.filter((u) => u.risk_level === 'low').length,
+  }
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      {/* Header */}
+      <div className="mb-8">
+        <button
+          onClick={() => router.back()}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4"
+        >
+          <ArrowLeft className="h-5 w-5" />
+          Back to Risk Heatmap
+        </button>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">{department}</h1>
+            <p className="text-gray-600">Individual user compliance status</p>
+          </div>
+          <button
+            onClick={exportToCSV}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            <Download className="h-5 w-5" />
+            Export CSV
+          </button>
+        </div>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="bg-red-50 rounded-lg shadow p-6 border-l-4 border-red-600">
+          <h3 className="text-sm font-medium text-gray-600 mb-2">Critical Risk</h3>
+          <p className="text-3xl font-bold text-red-700">{riskStats.critical}</p>
+        </div>
+        <div className="bg-orange-50 rounded-lg shadow p-6 border-l-4 border-orange-600">
+          <h3 className="text-sm font-medium text-gray-600 mb-2">High Risk</h3>
+          <p className="text-3xl font-bold text-orange-700">{riskStats.high}</p>
+        </div>
+        <div className="bg-yellow-50 rounded-lg shadow p-6 border-l-4 border-yellow-600">
+          <h3 className="text-sm font-medium text-gray-600 mb-2">Medium Risk</h3>
+          <p className="text-3xl font-bold text-yellow-700">{riskStats.medium}</p>
+        </div>
+        <div className="bg-green-50 rounded-lg shadow p-6 border-l-4 border-green-600">
+          <h3 className="text-sm font-medium text-gray-600 mb-2">Low Risk</h3>
+          <p className="text-3xl font-bold text-green-700">{riskStats.low}</p>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="bg-white rounded-lg shadow p-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Search User</label>
+            <input
+              type="text"
+              placeholder="Name or email..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Risk Level</label>
+            <select
+              value={filterRiskLevel}
+              onChange={(e) => setFilterRiskLevel(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="all">All Levels</option>
+              <option value="critical">Critical</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Training Status</label>
+            <select
+              value={filterTrainingStatus}
+              onChange={(e) => setFilterTrainingStatus(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="all">All Statuses</option>
+              <option value="completed">Completed</option>
+              <option value="in_progress">In Progress</option>
+              <option value="not_started">Not Started</option>
+            </select>
+          </div>
+        </div>
+        <div className="mt-4 text-sm text-gray-600">
+          Showing {filteredUsers.length} of {userDetails.length} users
+        </div>
+      </div>
+
+      {/* User Table */}
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                User
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Risk Level
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Training Status
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Completion
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Quiz Score
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Issues
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {filteredUsers.map((user) => (
+              <tr key={user.user_id} className="hover:bg-gray-50">
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div>
+                    <div className="text-sm font-medium text-gray-900">{user.user_name}</div>
+                    <div className="text-sm text-gray-500">{user.user_email}</div>
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-medium uppercase ${getRiskColor(
+                        user.risk_level
+                      )} text-white`}
+                    >
+                      {user.risk_level}
+                    </span>
+                    <span className="text-sm text-gray-600">
+                      {user.risk_score.toFixed(0)}
+                    </span>
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex items-center gap-2">
+                    {getStatusIcon(user.training_status)}
+                    <span className="text-sm capitalize">
+                      {user.training_status.replace('_', ' ')}
+                    </span>
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="w-24">
+                    <div className="text-sm font-medium mb-1">
+                      {user.completion_percentage.toFixed(0)}%
+                    </div>
+                    <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-blue-500"
+                        style={{ width: `${user.completion_percentage}%` }}
+                      />
+                    </div>
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {user.quiz_score !== undefined ? (
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`text-sm font-medium ${
+                          user.quiz_score >= 70 ? 'text-green-600' : 'text-red-600'
+                        }`}
+                      >
+                        {user.quiz_score.toFixed(0)}%
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        ({user.quiz_attempts} {user.quiz_attempts === 1 ? 'attempt' : 'attempts'})
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-sm text-gray-400">No attempts</span>
+                  )}
+                </td>
+                <td className="px-6 py-4">
+                  {user.issues.length > 0 ? (
+                    <div className="flex flex-col gap-1">
+                      {user.issues.map((issue, idx) => (
+                        <div key={idx} className="flex items-center gap-2">
+                          <AlertTriangle className="h-4 w-4 text-orange-500 flex-shrink-0" />
+                          <span className="text-sm text-gray-700">{issue}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                      <span className="text-sm text-green-600">No issues</span>
+                    </div>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {filteredUsers.length === 0 && (
+          <div className="text-center py-12">
+            <AlertTriangle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-600">No users match the selected filters</p>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
