@@ -88,8 +88,6 @@ export function LanguageTogglePill() {
   // Compute ARIA values before JSX to satisfy static analysis tools
   const isEnglish = language === 'en'
   const isFrench = language === 'fr'
-  const enPressedValue = isEnglish ? 'true' : 'false'
-  const frPressedValue = isFrench ? 'true' : 'false'
 
   return (
     <div
@@ -104,7 +102,7 @@ export function LanguageTogglePill() {
             ? 'bg-background text-foreground shadow-sm'
             : 'text-muted-foreground hover:text-foreground'
         }`}
-        aria-pressed={enPressedValue}
+        aria-pressed={isEnglish}
         aria-label="Switch to English"
       >
         EN
@@ -116,7 +114,7 @@ export function LanguageTogglePill() {
             ? 'bg-background text-foreground shadow-sm'
             : 'text-muted-foreground hover:text-foreground'
         }`}
-        aria-pressed={frPressedValue}
+        aria-pressed={isFrench}
         aria-label="Passer au français"
       >
         FR

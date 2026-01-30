@@ -19,6 +19,10 @@
 *.pem
 build.log
 migration-output.log
+lint-errors*.txt
+lint-check.txt
+lint-unused.txt
+lint-final.txt
 
 # debug
 npm-debug.log*
