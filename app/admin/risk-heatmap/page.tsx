@@ -21,6 +21,7 @@ import {
   printHTMLReport,
 } from '@/lib/services/risk-report-export'
 import { AlertTriangle, TrendingUp, TrendingDown, Users, AlertCircle, Download, Printer, Mail } from 'lucide-react'
+import RiskTrendChart from '@/components/dashboard/RiskTrendChart'
 
 export default function RiskHeatmapPage() {
   const router = useRouter()
@@ -229,6 +230,22 @@ export default function RiskHeatmapPage() {
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {/* Risk Trend Chart */}
+      {organizationId && (
+        <div className="mb-8">
+          <RiskTrendChart
+            organizationId={organizationId}
+            department={selectedDepartment?.department}
+            days={90}
+            title={
+              selectedDepartment
+                ? `${selectedDepartment.department} Risk Trend`
+                : 'Organization Risk Trend'
+            }
+          />
         </div>
       )}
 

@@ -343,21 +343,137 @@ export async function getRiskTrends(
   department?: string,
   days: number = 90
 ): Promise<RiskTrend[]> {
-  // TODO: Implement historical tracking by storing risk scores daily
-  // For now, return current score
-  const scores = await getDepartmentRiskScores(organizationId)
-  const score = department
-    ? scores.find((s) => s.department === department)?.risk_score || 0
-    : scores.reduce((sum, s) => sum + s.risk_score * s.total_users, 0) /
-      scores.reduce((sum, s) => sum + s.total_users, 0)
+  const supabase = createClient()
 
-  return [
-    {
-      date: new Date().toISOString(),
-      risk_score: score,
-      department,
-    },
-  ]
+  // Calculate start date for historical query
+  const startDate = new Date()
+  startDate.setDate(startDate.getDate() - days)
+  const startDateStr = startDate.toISOString().split('T')[0]
+
+  if (department) {
+    // Get department-specific trend
+    const { data, error } = await supabase
+      .from('risk_score_history')
+      .select('snapshot_date, risk_score')
+      .eq('organization_id', organizationId)
+      .eq('department', department)
+      .gte('snapshot_date', startDateStr)
+      .order('snapshot_date', { ascending: true })
+
+    if (error) {
+      console.error('Error fetching department risk trends:', error)
+      // Fallback to current score if no history
+      const scores = await getDepartmentRiskScores(organizationId)
+      const currentScore = scores.find((s) => s.department === department)?.risk_score || 0
+      return [
+        {
+          date: new Date().toISOString(),
+          risk_score: currentScore,
+          department,
+        },
+      ]
+    }
+
+    return (
+      data?.map((d) => ({
+        date: d.snapshot_date,
+        risk_score: d.risk_score,
+        department,
+      })) || []
+    )
+  } else {
+    // Get organization-wide trend
+    const { data, error } = await supabase
+      .from('organization_risk_history')
+      .select('snapshot_date, overall_risk_score')
+      .eq('organization_id', organizationId)
+      .gte('snapshot_date', startDateStr)
+      .order('snapshot_date', { ascending: true })
+
+    if (error) {
+      console.error('Error fetching organization risk trends:', error)
+      // Fallback to current score if no history
+      const scores = await getDepartmentRiskScores(organizationId)
+      const currentScore =
+        scores.reduce((sum, s) => sum + s.risk_score * s.total_users, 0) /
+        scores.reduce((sum, s) => sum + s.total_users, 0)
+      return [
+        {
+          date: new Date().toISOString(),
+          risk_score: currentScore,
+        },
+      ]
+    }
+
+    return (
+      data?.map((d) => ({
+        date: d.snapshot_date,
+        risk_score: d.overall_risk_score,
+      })) || []
+    )
+  }
+}
+
+/**
+ * Capture current risk scores as a snapshot (for scheduled jobs)
+ */
+export async function captureRiskSnapshot(organizationId: string): Promise<void> {
+  const supabase = createClient()
+  const today = new Date().toISOString().split('T')[0]
+
+  // Get current risk data
+  const [summary, departments] = await Promise.all([
+    getOrganizationRiskSummary(organizationId),
+    getDepartmentRiskScores(organizationId),
+  ])
+
+  // Insert organization-wide snapshot
+  const { error: orgError } = await supabase
+    .from('organization_risk_history')
+    .upsert(
+      {
+        organization_id: organizationId,
+        snapshot_date: today,
+        overall_risk_level: summary.overall_risk_level,
+        overall_risk_score: summary.overall_risk_score,
+        total_departments: summary.total_departments,
+        high_risk_departments: summary.high_risk_departments,
+        total_users: summary.total_users,
+        compliant_users: summary.compliant_users,
+        at_risk_users: summary.at_risk_users,
+      },
+      { onConflict: 'organization_id,snapshot_date' }
+    )
+
+  if (orgError) {
+    console.error('Error capturing organization risk snapshot:', orgError)
+    throw orgError
+  }
+
+  // Insert department-level snapshots
+  const departmentSnapshots = departments.map((dept) => ({
+    organization_id: organizationId,
+    department: dept.department,
+    location: dept.location,
+    snapshot_date: today,
+    risk_level: dept.risk_level,
+    risk_score: dept.risk_score,
+    total_users: dept.total_users,
+    training_completion_rate: dept.training_completion_rate,
+    avg_quiz_score: dept.avg_quiz_score,
+    days_since_last_training: dept.days_since_last_training,
+    pending_users: dept.pending_users,
+    at_risk_users: dept.at_risk_users,
+  }))
+
+  const { error: deptError } = await supabase
+    .from('risk_score_history')
+    .upsert(departmentSnapshots, { onConflict: 'organization_id,department,snapshot_date' })
+
+  if (deptError) {
+    console.error('Error capturing department risk snapshots:', deptError)
+    throw deptError
+  }
 }
 
 /**
