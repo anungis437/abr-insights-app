@@ -376,8 +376,17 @@ export function useCacheManagement() {
   })
 
   const checkCacheSize = useCallback(async () => {
-    if ('serviceWorker' in navigator) {
+    if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
+      return
+    }
+    
+    try {
       const registration = await navigator.serviceWorker.ready
+
+      // MessageChannel is not available in Edge Runtime, only use in browser
+      if (typeof MessageChannel === 'undefined') {
+        return
+      }
 
       const messageChannel = new MessageChannel()
 
@@ -388,6 +397,8 @@ export function useCacheManagement() {
       }
 
       registration.active?.postMessage({ type: 'GET_CACHE_SIZE' }, [messageChannel.port2])
+    } catch (error) {
+      console.error('Failed to check cache size:', error)
     }
   }, [])
 

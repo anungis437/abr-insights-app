@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { checkSeatAvailability } from './actions'
 
 export default function TeamManagementPage() {
   const router = useRouter()
@@ -79,13 +80,12 @@ export default function TeamManagementPage() {
 
       // ENFORCE SEAT LIMITS: Check if organization has available seats
       const currentMemberCount = members.length
-      const { enforceSeats } = await import('@/lib/services/seat-management')
-
-      const seatCheck = await enforceSeats(organization.id, 1)
+      const seatCheck = await checkSeatAvailability(organization.id, 1)
+      
       if (!seatCheck.allowed) {
         throw new Error(
           seatCheck.reason ||
-            `Your organization has reached its seat limit (${currentMemberCount} members). Please upgrade your plan to add more team members.`
+          `Your organization has reached its seat limit (${currentMemberCount} members). Please upgrade your plan to add more team members.`
         )
       }
 
