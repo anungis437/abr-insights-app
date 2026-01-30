@@ -91,7 +91,7 @@ INSERT INTO testimonials (name, role, organization, content, rating, featured, d
     5,
     true,
     1,
-    '/images/testimonials/sarah-johnson.jpg'
+    NULL
   ),
   (
     'Marcus Williams',
@@ -101,7 +101,7 @@ INSERT INTO testimonials (name, role, organization, content, rating, featured, d
     5,
     true,
     2,
-    '/images/testimonials/marcus-williams.jpg'
+    NULL
   ),
   (
     'Dr. Aisha Patel',
@@ -111,7 +111,7 @@ INSERT INTO testimonials (name, role, organization, content, rating, featured, d
     5,
     true,
     3,
-    '/images/testimonials/aisha-patel.jpg'
+    NULL
   ),
   (
     'James Chen',
