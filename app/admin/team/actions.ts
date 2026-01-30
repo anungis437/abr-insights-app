@@ -13,12 +13,23 @@ export async function checkSeatAvailability(
 ) {
   try {
     const result = await enforceSeats(organizationId, requestedSeats)
+    
+    if (result.allowed) {
+      return {
+        success: true,
+        allowed: true,
+        reason: undefined,
+        currentSeats: undefined,
+        maxSeats: undefined,
+      }
+    }
+    
     return {
       success: true,
-      allowed: result.allowed,
+      allowed: false,
       reason: result.reason,
-      currentSeats: result.currentSeats,
-      maxSeats: result.maxSeats,
+      currentSeats: result.subscription.seats_used,
+      maxSeats: result.subscription.seat_count,
     }
   } catch (error: any) {
     return {
