@@ -14,7 +14,12 @@
  *   npx tsx scripts/migrate-entitlements.ts [--dry-run] [--environment=<env>]
  */
 
+import { config } from 'dotenv'
+import { resolve } from 'path'
 import { createClient } from '@supabase/supabase-js'
+
+// Load environment variables from .env.local
+config({ path: resolve(process.cwd(), '.env.local') })
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!
