@@ -13,7 +13,14 @@ import {
   type DepartmentRiskScore,
   type OrganizationRiskSummary,
 } from '@/lib/services/risk-analytics'
-import { AlertTriangle, TrendingUp, TrendingDown, Users, AlertCircle } from 'lucide-react'
+import {
+  generateDepartmentRiskCSV,
+  generateDepartmentRiskHTML,
+  generateExecutiveSummary,
+  downloadCSV,
+  printHTMLReport,
+} from '@/lib/services/risk-report-export'
+import { AlertTriangle, TrendingUp, TrendingDown, Users, AlertCircle, Download, Printer, Mail } from 'lucide-react'
 
 export default function RiskHeatmapPage() {
   const router = useRouter()
@@ -81,6 +88,29 @@ export default function RiskHeatmapPage() {
     }
   }
 
+  function handleExportCSV() {
+    if (!summary || departmentScores.length === 0) return
+    const csv = generateDepartmentRiskCSV(summary, departmentScores)
+    const filename = `risk-assessment-${new Date().toISOString().split('T')[0]}.csv`
+    downloadCSV(filename, csv)
+  }
+
+  function handleExportPDF() {
+    if (!summary || departmentScores.length === 0) return
+    const html = generateDepartmentRiskHTML(summary, departmentScores, 'ABR Insights Organization')
+    printHTMLReport(html)
+  }
+
+  function handleExportExecutiveSummary() {
+    if (!summary || departmentScores.length === 0) return
+    const summary_text = generateExecutiveSummary(summary, departmentScores)
+    
+    // Copy to clipboard
+    navigator.clipboard.writeText(summary_text).then(() => {
+      alert('Executive summary copied to clipboard! Ready to paste into email.')
+    })
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -92,10 +122,40 @@ export default function RiskHeatmapPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Risk Heatmap</h1>
-        <p className="text-gray-600">
-          Visualize compliance risk across departments and locations
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Risk Heatmap</h1>
+            <p className="text-gray-600">
+              Visualize compliance risk across departments and locations
+            </p>
+          </div>
+          <div className="flex gap-3">
+            <button
+              onClick={handleExportCSV}
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              title="Export to CSV"
+            >
+              <Download className="h-5 w-5" />
+              CSV
+            </button>
+            <button
+              onClick={handleExportPDF}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              title="Print to PDF"
+            >
+              <Printer className="h-5 w-5" />
+              PDF
+            </button>
+            <button
+              onClick={handleExportExecutiveSummary}
+              className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              title="Copy executive summary"
+            >
+              <Mail className="h-5 w-5" />
+              Summary
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Organization Summary */}
