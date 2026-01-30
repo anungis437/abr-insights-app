@@ -1,7 +1,17 @@
-import { type NextRequest } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
 
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
+
+  // Redirect /team to pricing page (enterprise feature marketing)
+  if (pathname === '/team' || pathname.startsWith('/team/')) {
+    return NextResponse.redirect(new URL('/pricing', request.url))
+  }
+
+  // Let admin routes pass through (they have their own auth checks)
+  // but could add additional protection here if needed
+  
   return await updateSession(request)
 }
 

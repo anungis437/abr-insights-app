@@ -151,12 +151,6 @@ const roleSpecificNavigation: Record<UserRole, NavLink[]> = {
         { label: 'Data Explorer', href: '/analytics/explore' },
       ],
     },
-    {
-      label: 'Team',
-      href: '/team',
-      icon: Users,
-      description: 'Manage your team',
-    },
   ],
 
   investigator: [
@@ -171,21 +165,9 @@ const roleSpecificNavigation: Record<UserRole, NavLink[]> = {
         { label: 'Data Explorer', href: '/analytics/explore' },
       ],
     },
-    {
-      label: 'Team',
-      href: '/team',
-      icon: Users,
-      description: 'Manage your team',
-    },
   ],
 
   org_admin: [
-    {
-      label: 'Team',
-      href: '/team',
-      icon: Users,
-      description: 'Manage your team',
-    },
     {
       label: 'Admin',
       href: '#',
