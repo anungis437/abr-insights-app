@@ -49,7 +49,7 @@ export function PricingCard({
 
     try {
       setLoading(true)
-      
+
       // Call canonical checkout endpoint with org context
       const response = await fetch('/api/stripe/checkout', {
         method: 'POST',

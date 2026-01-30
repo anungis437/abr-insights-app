@@ -13,6 +13,7 @@ All critical alignment issues from assessment have been resolved. The user-facin
 **File:** `components/shared/PricingCard.tsx`
 
 **Changes:**
+
 - Replaced `useSubscription()` with `useEntitlements()`
 - Checkout calls `/api/stripe/checkout` with full metadata:
   - `tier`: Plan level
@@ -29,6 +30,7 @@ All critical alignment issues from assessment have been resolved. The user-facin
 **File:** `app/api/stripe/checkout/route.ts`
 
 **Changes:**
+
 - **REMOVED:** `requireAnyPermission(['subscription.manage', 'admin.manage'])`
 - Now allows any authenticated user to start checkout
 - Validates org admin role only if `organization_id` provided
@@ -40,10 +42,12 @@ All critical alignment issues from assessment have been resolved. The user-facin
 ### PR-3: Legacy Endpoints Fenced ✅
 
 **Changes:**
+
 - Moved `app/api/create-checkout-session` → `app/api/_dev/create-checkout-session`
 - Moved `app/test-checkout` → `app/_dev/test-checkout`
 
 **Impact:**
+
 - Production traffic cannot hit legacy endpoints
 - Webhook routes 100% to `createOrgSubscription()` + `allocateSeat()`
 - Test/dev endpoints isolated under `_dev/` namespace
@@ -55,6 +59,7 @@ All critical alignment issues from assessment have been resolved. The user-facin
 **File:** `app/admin/team/page.tsx`
 
 **Changes:**
+
 ```typescript
 // BEFORE adding member:
 const seatCheck = await enforceSeats(organization.id, 1)
@@ -64,6 +69,7 @@ if (!seatCheck.allowed) {
 ```
 
 **Impact:**
+
 - Org member invites blocked when seat limit reached
 - Clear error message with upgrade prompt
 - Aligns with `seat_allocations` table enforcement
@@ -95,11 +101,13 @@ if (!seatCheck.allowed) {
 ### ✅ Canonical Entitlements Service
 
 **Files:**
+
 - `lib/services/entitlements.ts` (server-side logic)
 - `app/api/entitlements/route.ts` (API endpoint)
 - `hooks/use-entitlements.ts` (client hook)
 
 **Architecture:**
+
 - ✅ Single source of truth: `organization_subscriptions` table
 - ✅ Seat allocation checked via `seat_allocations` table
 - ✅ Tier matrix: FREE → PROFESSIONAL → BUSINESS → BUSINESS_PLUS → ENTERPRISE
@@ -213,6 +221,7 @@ open http://localhost:3000/pricing
 **Commits:** 30+ (full entitlements migration + alignment fixes)
 
 **Files Changed:**
+
 - `components/shared/PricingCard.tsx` (pricing UI)
 - `app/api/stripe/checkout/route.ts` (checkout API)
 - `app/admin/team/page.tsx` (seat enforcement)
