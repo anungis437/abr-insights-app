@@ -98,7 +98,7 @@ export function LanguageTogglePill() {
             ? 'bg-background text-foreground shadow-sm'
             : 'text-muted-foreground hover:text-foreground'
         }`}
-        aria-pressed={language === 'en' ? 'true' : 'false'}
+        aria-pressed={String(language === 'en') as 'true' | 'false'}
         aria-label="Switch to English"
       >
         EN
@@ -110,7 +110,7 @@ export function LanguageTogglePill() {
             ? 'bg-background text-foreground shadow-sm'
             : 'text-muted-foreground hover:text-foreground'
         }`}
-        aria-pressed={language === 'fr' ? 'true' : 'false'}
+        aria-pressed={String(language === 'fr') as 'true' | 'false'}
         aria-label="Passer au français"
       >
         FR
