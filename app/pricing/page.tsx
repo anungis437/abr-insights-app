@@ -1,34 +1,11 @@
-import { Check, X } from 'lucide-react'
-import type { Metadata } from 'next'
+'use client'
 
-export const metadata: Metadata = {
-  title: 'Pricing Plans | ABR Insights - Start Free Today',
-  description:
-    'Flexible pricing for organizations of all sizes. Free plan available. Access tribunal case databases, expert training, and analytics to build more equitable workplaces.',
-  keywords: [
-    'pricing',
-    'plans',
-    'free trial',
-    'anti-racism training cost',
-    'EDI platform pricing',
-    'HR analytics pricing',
-  ],
-  openGraph: {
-    title: 'ABR Insights Pricing | Plans Starting Free',
-    description:
-      'Choose the right plan for your organization. Free, Professional, and Enterprise options available with transparent pricing.',
-    type: 'website',
-    url: 'https://abrinsights.ca/pricing',
-    siteName: 'ABR Insights',
-  },
-  twitter: {
-    card: 'summary',
-    title: 'ABR Insights Pricing',
-    description: 'Transparent pricing for anti-racism training and workplace equity tools.',
-  },
-}
+import { Check, X } from 'lucide-react'
+import { useEntitlements } from '@/hooks/use-entitlements'
 
 export default function PricingPage() {
+  const { entitlements, isLoading } = useEntitlements()
+  const currentTier = entitlements?.tier?.toUpperCase() || 'FREE'
   return (
     <div className="min-h-screen bg-white">
       {' '}
@@ -55,6 +32,18 @@ export default function PricingPage() {
       {/* Pricing Cards */}
       <section className="py-20">
         <div className="container-custom">
+          {/* Current Plan Badge */}
+          {!isLoading && currentTier && (
+            <div className="mb-8 text-center">
+              <p className="text-lg text-gray-600">
+                Your current plan:{' '}
+                <span className="font-semibold text-primary-600">
+                  {currentTier.charAt(0) + currentTier.slice(1).toLowerCase()}
+                </span>
+              </p>
+            </div>
+          )}
+
           <div className="grid gap-8 lg:grid-cols-3">
             {/* Free Tier */}
             <PricingCard
@@ -75,6 +64,7 @@ export default function PricingPage() {
               ctaText="Get Started"
               ctaHref="/auth/signup?plan=free"
               popular={false}
+              isCurrent={currentTier === 'FREE'}
             />
 
             {/* Professional Tier */}
@@ -96,6 +86,7 @@ export default function PricingPage() {
               ctaText="Start Free Trial"
               ctaHref="/auth/signup?plan=professional"
               popular={true}
+              isCurrent={currentTier === 'PROFESSIONAL'}
             />
 
             {/* Enterprise Tier */}
@@ -117,6 +108,7 @@ export default function PricingPage() {
               ctaText="Contact Sales"
               ctaHref="/contact?plan=enterprise"
               popular={false}
+              isCurrent={currentTier === 'ENTERPRISE'}
             />
           </div>
 
@@ -212,6 +204,7 @@ interface PricingCardProps {
   ctaText: string
   ctaHref: string
   popular: boolean
+  isCurrent?: boolean
 }
 
 function PricingCard({
@@ -223,13 +216,26 @@ function PricingCard({
   ctaText,
   ctaHref,
   popular,
+  isCurrent = false,
 }: PricingCardProps) {
   return (
-    <div className={`card relative ${popular ? 'border-2 border-primary-500 shadow-xl' : ''}`}>
+    <div
+      className={`card relative ${popular ? 'border-2 border-primary-500 shadow-xl' : ''} ${
+        isCurrent ? 'ring-2 ring-green-500' : ''
+      }`}
+    >
       {popular && (
         <div className="absolute -top-4 left-1/2 -translate-x-1/2 transform">
           <span className="rounded-full bg-primary-500 px-4 py-1 text-sm font-semibold text-white">
             Most Popular
+          </span>
+        </div>
+      )}
+
+      {isCurrent && (
+        <div className="absolute -top-4 right-4">
+          <span className="rounded-full bg-green-500 px-4 py-1 text-sm font-semibold text-white">
+            Current Plan
           </span>
         </div>
       )}

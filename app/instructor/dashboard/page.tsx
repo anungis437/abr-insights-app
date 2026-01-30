@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
+import { useEntitlements } from '@/hooks/use-entitlements'
 import {
   instructorsService,
   type InstructorDashboardSummary,
@@ -28,6 +29,7 @@ import {
 
 export default function InstructorDashboardPage() {
   const router = useRouter()
+  const { entitlements, canPerformAction } = useEntitlements()
   const [user, setUser] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [summary, setSummary] = useState<InstructorDashboardSummary | null>(null)
@@ -151,6 +153,22 @@ export default function InstructorDashboardPage() {
     )
   }
 
+  const currentCourseCount = summary?.total_courses || 0
+  const maxCourses = entitlements?.features.maxCoursesAuthored ?? 0
+  const canCreateCourse = maxCourses === -1 || currentCourseCount < maxCourses
+
+  const handleCreateCourse = async () => {
+    if (!canCreateCourse) {
+      alert(
+        `You've reached your course creation limit (${maxCourses} courses). Please upgrade your plan to create more courses.`
+      )
+      router.push('/pricing?feature=course-creation&upgrade=required')
+      return
+    }
+
+    router.push('/instructor/courses/create')
+  }
+
   return (
     <div className="container mx-auto max-w-7xl px-4 py-8">
       {/* Header */}
@@ -160,13 +178,24 @@ export default function InstructorDashboardPage() {
           <p className="text-gray-600">
             Welcome back! Here&apos;s an overview of your teaching activity.
           </p>
+          {maxCourses !== -1 && (
+            <p className="mt-1 text-sm text-gray-500">
+              Courses: {currentCourseCount} / {maxCourses}
+            </p>
+          )}
         </div>
         <button
-          onClick={() => router.push('/instructor/courses/create')}
-          className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
+          onClick={handleCreateCourse}
+          disabled={!canCreateCourse}
+          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-white transition-colors ${
+            canCreateCourse
+              ? 'bg-blue-600 hover:bg-blue-700'
+              : 'cursor-not-allowed bg-gray-400 opacity-60'
+          }`}
         >
           <Plus className="h-5 w-5" />
           Create New Course
+          {!canCreateCourse && ' (Limit Reached)'}
         </button>
       </div>
 

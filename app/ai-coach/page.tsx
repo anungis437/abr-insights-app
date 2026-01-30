@@ -30,6 +30,7 @@ import {
 } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
 import ReactMarkdown from 'react-markdown'
+import { useFeatureAccess } from '@/hooks/use-entitlements'
 
 // Types
 interface CoachingSession {
@@ -62,6 +63,7 @@ interface Stats {
 export default function AICoachPage() {
   const router = useRouter()
   const supabase = createClient()
+  const { hasAccess, isLoading: isCheckingAccess } = useFeatureAccess('aiCoachAccess')
 
   // State
   const [user, setUser] = useState<User | null>(null)
@@ -91,6 +93,13 @@ export default function AICoachPage() {
     }
     loadUser()
   }, [supabase.auth, router])
+
+  // Redirect if no access after loading
+  useEffect(() => {
+    if (!isCheckingAccess && !hasAccess && user) {
+      router.push('/pricing?feature=ai-coach&upgrade=required')
+    }
+  }, [isCheckingAccess, hasAccess, user, router])
 
   // Load stats
   useEffect(() => {

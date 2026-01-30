@@ -30,6 +30,7 @@ import {
 } from 'lucide-react'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 import ReactMarkdown from 'react-markdown'
+import { useFeatureAccess } from '@/hooks/use-entitlements'
 
 // Types
 interface Message {
@@ -49,6 +50,7 @@ export default function AIAssistantPage() {
   const router = useRouter()
   const supabase = createClient()
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const { hasAccess, isLoading: isCheckingAccess } = useFeatureAccess('aiAssistantAccess')
 
   // State
   const [user, setUser] = useState<SupabaseUser | null>(null)
@@ -112,6 +114,13 @@ What would you like to explore today?`,
     }
     loadUser()
   }, [supabase.auth])
+
+  // Redirect if no access after loading
+  useEffect(() => {
+    if (!isCheckingAccess && !hasAccess && user) {
+      router.push('/pricing?feature=ai-assistant&upgrade=required')
+    }
+  }, [isCheckingAccess, hasAccess, user, router])
 
   // Load stats
   useEffect(() => {

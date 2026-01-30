@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { useEntitlements } from '@/hooks/use-entitlements'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -74,6 +75,7 @@ export default function OrgDashboardPage() {
   const [courses, setCourses] = useState<Course[]>([])
   const router = useRouter()
   const supabase = createClient()
+  const { entitlements } = useEntitlements()
 
   useEffect(() => {
     loadData()
@@ -247,7 +249,9 @@ export default function OrgDashboardPage() {
 
   // Calculate metrics
   const totalMembers = members.length
-  const seatsAvailable = organization.seat_limit - totalMembers
+  const seatCount = entitlements?.seatCount ?? organization.seat_limit
+  const seatsUsed = entitlements?.seatsUsed ?? totalMembers
+  const seatsAvailable = entitlements?.seatsAvailable ?? Math.max(0, seatCount - totalMembers)
   const completedCourses = allProgress.filter((p) => p.completion_percentage === 100).length
   const totalCertificates = certificates.length
   const avgCompletion =
@@ -317,7 +321,17 @@ export default function OrgDashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold text-gray-900">{totalMembers}</div>
-                <p className="mt-1 text-xs text-gray-500">{seatsAvailable} seats available</p>
+                <p className="mt-1 text-xs text-gray-500">
+                  {seatsUsed} / {seatCount === -1 ? 'Unlimited' : seatCount} seats used
+                </p>
+                {seatsAvailable > 0 && seatCount !== -1 && (
+                  <p className="mt-1 text-xs text-green-600">
+                    {seatsAvailable} seats available
+                  </p>
+                )}
+                {seatsAvailable === 0 && seatCount !== -1 && (
+                  <p className="mt-1 text-xs text-amber-600">No seats available - upgrade to add more</p>
+                )}
               </CardContent>
             </Card>
 
