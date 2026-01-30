@@ -5,6 +5,14 @@
  */
 
 import { createClient } from '@/lib/supabase/client'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
+import JSZip from 'jszip'
+import { createHash } from 'crypto'
+
+// Storage paths
+const EVIDENCE_BUNDLES_PATH = 'evidence-bundles'
+const COMPLIANCE_ARTIFACTS_PATH = 'compliance-artifacts'
 
 export interface EvidenceBundleMetadata {
   id: string
@@ -409,13 +417,329 @@ export async function exportEvidenceBundle(
     return new Blob([json], { type: 'application/json' })
   }
 
-  // For PDF/ZIP, return a structured data blob
-  // In production, this would use a PDF library or zip utility
-  const data = {
-    ...bundle,
-    export_format: exportFormat,
-    exported_at: new Date().toISOString(),
+  if (exportFormat.format === 'pdf') {
+    return await generateEvidencePDF(bundle, exportFormat)
   }
 
-  return new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+  if (exportFormat.format === 'zip') {
+    return await generateEvidenceZIP(bundle, exportFormat)
+  }
+
+  throw new Error(`Unsupported export format: ${exportFormat.format}`)
+}
+
+/**
+ * Generate PDF evidence bundle
+ */
+async function generateEvidencePDF(
+  bundle: EvidenceBundle,
+  exportFormat: BundleExportFormat
+): Promise<Blob> {
+  const doc = new jsPDF()
+  const template = exportFormat.template || 'legal'
+  let yPosition = 20
+
+  // Title page
+  doc.setFontSize(20)
+  doc.text('Evidence Bundle', 105, yPosition, { align: 'center' })
+  yPosition += 10
+
+  doc.setFontSize(12)
+  doc.text(bundle.bundle_name, 105, yPosition, { align: 'center' })
+  yPosition += 7
+
+  doc.setFontSize(10)
+  doc.text(`Type: ${bundle.bundle_type}`, 105, yPosition, { align: 'center' })
+  yPosition += 7
+  doc.text(`Created: ${new Date(bundle.created_at).toLocaleDateString()}`, 105, yPosition, {
+    align: 'center',
+  })
+  yPosition += 7
+  doc.text(`Status: ${bundle.status}`, 105, yPosition, { align: 'center' })
+  yPosition += 15
+
+  if (bundle.description) {
+    doc.setFontSize(9)
+    const descLines = doc.splitTextToSize(bundle.description, 170)
+    doc.text(descLines, 20, yPosition)
+    yPosition += descLines.length * 5 + 10
+  }
+
+  // Add metadata section
+  doc.addPage()
+  yPosition = 20
+  doc.setFontSize(14)
+  doc.text('Bundle Metadata', 20, yPosition)
+  yPosition += 10
+
+  const metadata = [
+    ['Bundle ID', bundle.id],
+    ['Organization ID', bundle.organization_id],
+    ['Created By', bundle.created_by],
+    ['Tags', bundle.tags.join(', ')],
+    ['Components', bundle.components.length.toString()],
+    ['Policy Mappings', bundle.policy_mappings.length.toString()],
+    ['Timeline Events', bundle.timeline_events.length.toString()],
+  ]
+
+  autoTable(doc, {
+    startY: yPosition,
+    head: [['Property', 'Value']],
+    body: metadata,
+    theme: 'striped',
+    headStyles: { fillColor: [66, 66, 66] },
+  })
+
+  // Components section
+  if (bundle.components.length > 0) {
+    doc.addPage()
+    yPosition = 20
+    doc.setFontSize(14)
+    doc.text('Bundle Components', 20, yPosition)
+    yPosition += 10
+
+    const componentData = bundle.components.map((c) => [
+      c.component_type,
+      c.component_title,
+      new Date(c.included_at).toLocaleDateString(),
+    ])
+
+    autoTable(doc, {
+      startY: yPosition,
+      head: [['Type', 'Title', 'Included At']],
+      body: componentData,
+      theme: 'striped',
+      headStyles: { fillColor: [66, 66, 66] },
+      columnStyles: {
+        0: { cellWidth: 40 },
+        1: { cellWidth: 100 },
+        2: { cellWidth: 40 },
+      },
+    })
+  }
+
+  // Policy mappings section
+  if (bundle.policy_mappings.length > 0) {
+    doc.addPage()
+    yPosition = 20
+    doc.setFontSize(14)
+    doc.text('Policy Mappings', 20, yPosition)
+    yPosition += 10
+
+    bundle.policy_mappings.forEach((mapping, index) => {
+      if (yPosition > 250) {
+        doc.addPage()
+        yPosition = 20
+      }
+
+      doc.setFontSize(11)
+      doc.text(`${index + 1}. ${mapping.policy_title}`, 20, yPosition)
+      yPosition += 7
+
+      doc.setFontSize(9)
+      doc.text(`Reference: ${mapping.policy_reference}`, 25, yPosition)
+      yPosition += 5
+      doc.text(`Status: ${mapping.compliance_status}`, 25, yPosition)
+      yPosition += 5
+
+      if (mapping.tribunal_case_title) {
+        doc.text(`Case: ${mapping.tribunal_case_title}`, 25, yPosition)
+        yPosition += 5
+      }
+
+      if (mapping.related_training_title) {
+        doc.text(`Training: ${mapping.related_training_title}`, 25, yPosition)
+        yPosition += 5
+      }
+
+      const rationaleLines = doc.splitTextToSize(mapping.mapping_rationale, 160)
+      doc.text(`Rationale: ${rationaleLines[0]}`, 25, yPosition)
+      yPosition += 5
+      if (rationaleLines.length > 1) {
+        doc.text(rationaleLines.slice(1), 25, yPosition)
+        yPosition += (rationaleLines.length - 1) * 5
+      }
+
+      yPosition += 8
+    })
+  }
+
+  // Timeline section
+  if (bundle.timeline_events.length > 0) {
+    doc.addPage()
+    yPosition = 20
+    doc.setFontSize(14)
+    doc.text('Evidence Timeline', 20, yPosition)
+    yPosition += 10
+
+    const timelineData = bundle.timeline_events.map((event) => [
+      new Date(event.event_date).toLocaleDateString(),
+      event.event_type,
+      event.event_title,
+    ])
+
+    autoTable(doc, {
+      startY: yPosition,
+      head: [['Date', 'Type', 'Event']],
+      body: timelineData,
+      theme: 'striped',
+      headStyles: { fillColor: [66, 66, 66] },
+      columnStyles: {
+        0: { cellWidth: 30 },
+        1: { cellWidth: 40 },
+        2: { cellWidth: 110 },
+      },
+    })
+  }
+
+  // Add footer with metadata and hash
+  const pageCount = doc.getNumberOfPages()
+  const exportDate = new Date().toISOString()
+  const bundleData = JSON.stringify(bundle)
+  const bundleHash = createHash('sha256').update(bundleData).digest('hex')
+
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i)
+    doc.setFontSize(8)
+    doc.setTextColor(128, 128, 128)
+    doc.text(`Page ${i} of ${pageCount}`, 105, 285, { align: 'center' })
+    doc.text(`Exported: ${exportDate}`, 20, 290)
+    doc.text(`Hash: ${bundleHash.substring(0, 16)}...`, 20, 295)
+  }
+
+  return doc.output('blob')
+}
+
+/**
+ * Generate ZIP evidence bundle with all artifacts
+ */
+async function generateEvidenceZIP(
+  bundle: EvidenceBundle,
+  exportFormat: BundleExportFormat
+): Promise<Blob> {
+  const zip = new JSZip()
+
+  // Add bundle metadata as JSON
+  const metadata = {
+    ...bundle,
+    export_metadata: {
+      exported_at: new Date().toISOString(),
+      export_format: exportFormat,
+      version: '1.0',
+    },
+  }
+  zip.file('bundle-metadata.json', JSON.stringify(metadata, null, 2))
+
+  // Add PDF version
+  const pdfBlob = await generateEvidencePDF(bundle, exportFormat)
+  zip.file('evidence-bundle.pdf', pdfBlob)
+
+  // Add components manifest
+  const componentsManifest = bundle.components.map((c) => ({
+    id: c.component_id,
+    type: c.component_type,
+    title: c.component_title,
+    included_at: c.included_at,
+    metadata: c.metadata,
+  }))
+  zip.file('components-manifest.json', JSON.stringify(componentsManifest, null, 2))
+
+  // Add policy mappings
+  if (bundle.policy_mappings.length > 0) {
+    zip.file('policy-mappings.json', JSON.stringify(bundle.policy_mappings, null, 2))
+  }
+
+  // Add timeline
+  if (bundle.timeline_events.length > 0) {
+    zip.file('timeline.json', JSON.stringify(bundle.timeline_events, null, 2))
+  }
+
+  // Add verification file with cryptographic hash
+  const bundleData = JSON.stringify(bundle)
+  const bundleHash = createHash('sha256').update(bundleData).digest('hex')
+  const verification = {
+    bundle_id: bundle.id,
+    bundle_hash: bundleHash,
+    exported_at: new Date().toISOString(),
+    component_count: bundle.components.length,
+    policy_mapping_count: bundle.policy_mappings.length,
+    timeline_event_count: bundle.timeline_events.length,
+    verification_instructions:
+      'Verify this bundle by recomputing SHA-256 hash of bundle-metadata.json',
+  }
+  zip.file('verification.json', JSON.stringify(verification, null, 2))
+
+  // Generate ZIP blob
+  return await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' })
+}
+
+/**
+ * Upload evidence bundle to Supabase Storage
+ */
+export async function uploadEvidenceBundle(
+  organizationId: string,
+  bundleId: string,
+  blob: Blob,
+  format: 'pdf' | 'zip' | 'json'
+): Promise<{ path: string; url: string }> {
+  const supabase = createClient()
+  
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
+  const fileName = `${bundleId}-${timestamp}.${format}`
+  const filePath = `${EVIDENCE_BUNDLES_PATH}/${organizationId}/${fileName}`
+
+  const { data, error } = await supabase.storage
+    .from('compliance-artifacts')
+    .upload(filePath, blob, {
+      contentType: format === 'pdf' ? 'application/pdf' : format === 'zip' ? 'application/zip' : 'application/json',
+      upsert: false,
+    })
+
+  if (error) throw error
+
+  // Get public URL (or signed URL for private buckets)
+  const { data: urlData } = supabase.storage
+    .from('compliance-artifacts')
+    .getPublicUrl(filePath)
+
+  return {
+    path: data.path,
+    url: urlData.publicUrl,
+  }
+}
+
+/**
+ * Generate and upload evidence bundle
+ */
+export async function exportAndUploadEvidenceBundle(
+  bundleId: string,
+  exportFormat: BundleExportFormat
+): Promise<{ blob: Blob; storage: { path: string; url: string } }> {
+  const bundle = await getEvidenceBundle(bundleId)
+  const blob = await exportEvidenceBundle(bundleId, exportFormat)
+  
+  const storage = await uploadEvidenceBundle(
+    bundle.organization_id,
+    bundleId,
+    blob,
+    exportFormat.format
+  )
+
+  // Update bundle metadata with storage reference
+  const supabase = createClient()
+  await supabase
+    .from('evidence_bundles')
+    .update({
+      metadata: {
+        last_export: {
+          format: exportFormat.format,
+          exported_at: new Date().toISOString(),
+          storage_path: storage.path,
+          storage_url: storage.url,
+        },
+      },
+    })
+    .eq('id', bundleId)
+
+  return { blob, storage }
 }
