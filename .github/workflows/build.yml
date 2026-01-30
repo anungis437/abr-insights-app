@@ -1,5 +1,16 @@
 name: Build and Test
 
+# Required secrets (configure in repository settings):
+# - NEXT_PUBLIC_SUPABASE_URL
+# - NEXT_PUBLIC_SUPABASE_ANON_KEY
+# - SUPABASE_SERVICE_ROLE_KEY
+# - AZURE_OPENAI_ENDPOINT
+# - AZURE_OPENAI_API_KEY
+# - AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT
+# - STRIPE_SECRET_KEY
+# - NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+# - STRIPE_WEBHOOK_SECRET
+
 on:
   push:
     branches: [main, develop]
