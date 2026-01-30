@@ -349,6 +349,7 @@ export default function RiskHeatmapPage() {
               <button
                 onClick={() => setSelectedDepartment(null)}
                 className="text-gray-500 hover:text-gray-700"
+                aria-label="Close department details"
               >
                 <svg
                   className="h-6 w-6"
