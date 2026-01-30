@@ -209,6 +209,7 @@ export default function NewSavedSearchPage() {
                       <button
                         onClick={() => removeKeyword(keyword)}
                         className="ml-2 hover:text-destructive"
+                        aria-label={`Remove keyword ${keyword}`}
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -298,6 +299,7 @@ export default function NewSavedSearchPage() {
                 value={relevanceThreshold}
                 onChange={(e) => setRelevanceThreshold(parseFloat(e.target.value))}
                 className="w-full mt-2"
+                aria-label="Relevance threshold percentage"
               />
               <p className="text-xs text-muted-foreground mt-1">
                 Only show cases with at least this relevance score
