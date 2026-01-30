@@ -7,13 +7,10 @@ import { enforceSeats } from '@/lib/services/seat-management'
  * @param organizationId - Organization ID to check
  * @param requestedSeats - Number of seats requested (default 1)
  */
-export async function checkSeatAvailability(
-  organizationId: string,
-  requestedSeats: number = 1
-) {
+export async function checkSeatAvailability(organizationId: string, requestedSeats: number = 1) {
   try {
     const result = await enforceSeats(organizationId, requestedSeats)
-    
+
     if (result.allowed) {
       return {
         success: true,
@@ -23,7 +20,7 @@ export async function checkSeatAvailability(
         maxSeats: undefined,
       }
     }
-    
+
     return {
       success: true,
       allowed: false,

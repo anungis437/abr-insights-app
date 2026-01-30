@@ -379,7 +379,7 @@ export function useCacheManagement() {
     if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
       return
     }
-    
+
     try {
       const registration = await navigator.serviceWorker.ready
 
