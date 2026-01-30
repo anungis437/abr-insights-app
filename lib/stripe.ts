@@ -16,10 +16,13 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 
 /**
  * Stripe Price IDs for subscription tiers
+ * Set these in your environment variables
  */
 export const STRIPE_PRICES = {
   FREE: process.env.STRIPE_PRICE_ID_FREE || '',
   PROFESSIONAL: process.env.STRIPE_PRICE_ID_PROFESSIONAL || '',
+  BUSINESS: process.env.STRIPE_PRICE_ID_BUSINESS || '',
+  BUSINESS_PLUS: process.env.STRIPE_PRICE_ID_BUSINESS_PLUS || '',
   ENTERPRISE: process.env.STRIPE_PRICE_ID_ENTERPRISE || '',
 } as const
 

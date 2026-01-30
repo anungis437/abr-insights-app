@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/lib/auth/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -52,6 +53,7 @@ const ALERT_CHANNELS = [
 
 export default function NewSavedSearchPage() {
   const router = useRouter()
+  const { user, profile } = useAuth()
   const [loading, setLoading] = useState(false)
 
   // Form state
@@ -125,10 +127,17 @@ export default function NewSavedSearchPage() {
         relevance_threshold: relevanceThreshold,
       }
 
-      // TODO: Get actual user and org IDs from auth context
+      // Get user and org IDs from auth context
+      if (!user?.id) {
+        alert('You must be logged in to create a saved search.')
+        return
+      }
+
+      const orgId = profile?.organization_id || user.id // Fallback to user ID if no org
+
       await createSavedSearch(
-        'user-id-placeholder',
-        'org-id-placeholder',
+        user.id,
+        orgId,
         searchName,
         searchQuery || 'custom',
         filters,

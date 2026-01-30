@@ -8,6 +8,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 import Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabase/admin'
+import {
+  createOrgSubscription,
+  updateOrgSubscription,
+  recordInvoice,
+  getSubscriptionByStripeId,
+  allocateSeat,
+} from '@/lib/services/seat-management'
 
 export async function POST(req: NextRequest) {
   // Lazy load Stripe to avoid build-time initialization
@@ -97,6 +104,9 @@ export async function POST(req: NextRequest) {
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const supabase = createAdminClient()
   const userId = session.metadata?.supabase_user_id
+  const orgId = session.metadata?.organization_id
+  const tier = session.metadata?.tier || 'PROFESSIONAL'
+  const seatCount = parseInt(session.metadata?.seat_count || '1', 10)
 
   if (!userId) {
     console.error('No supabase_user_id in checkout session metadata')
@@ -105,19 +115,63 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
   console.log(`[Stripe] Checkout completed for user ${userId}`)
 
-  // Update user's subscription status in database
-  const { error } = await supabase
-    .from('profiles')
-    .update({
-      stripe_customer_id: session.customer as string,
-      subscription_status: 'active',
-      subscription_tier: session.metadata?.tier || 'professional',
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', userId)
+  // Get subscription ID from session
+  const subscriptionId = session.subscription as string
 
-  if (error) {
-    console.error('Error updating user subscription:', error)
+  if (!subscriptionId) {
+    console.error('No subscription ID in checkout session')
+    return
+  }
+
+  // Fetch full subscription details from Stripe
+  const { stripe } = await import('@/lib/stripe')
+  const subscription = await stripe.subscriptions.retrieve(subscriptionId)
+
+  // If organization subscription, create org subscription record
+  if (orgId) {
+    const result = await createOrgSubscription({
+      organization_id: orgId,
+      stripe_subscription_id: subscription.id,
+      stripe_customer_id: session.customer as string,
+      tier: tier as any,
+      status: subscription.status as any,
+      seat_count: seatCount,
+      billing_email: session.customer_email || undefined,
+      amount_cents: subscription.items.data[0]?.price.unit_amount || 0,
+      currency: subscription.currency.toUpperCase(),
+      billing_interval: subscription.items.data[0]?.price.recurring?.interval as any,
+      current_period_start: new Date((subscription as any).current_period_start * 1000).toISOString(),
+      current_period_end: new Date((subscription as any).current_period_end * 1000).toISOString(),
+      trial_start: (subscription as any).trial_start
+        ? new Date((subscription as any).trial_start * 1000).toISOString()
+        : undefined,
+      trial_end: (subscription as any).trial_end
+        ? new Date((subscription as any).trial_end * 1000).toISOString()
+        : undefined,
+    })
+
+    if (result.success && result.subscriptionId) {
+      // Allocate seat to purchasing user
+      await allocateSeat(result.subscriptionId, userId, userId, 'admin')
+      console.log(`[Stripe] Created org subscription ${result.subscriptionId}`)
+    } else {
+      console.error('[Stripe] Failed to create org subscription:', result.error)
+    }
+  } else {
+    // Fallback: Update profile (legacy individual subscriptions)
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        stripe_customer_id: session.customer as string,
+        subscription_status: 'active',
+        subscription_tier: tier.toLowerCase(),
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', userId)
+
+    if (error) {
+      console.error('Error updating user subscription:', error)
+    }
   }
 }
 
@@ -128,34 +182,55 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
   const supabase = createAdminClient()
   const customerId = subscription.customer as string
 
-  // Find user by Stripe customer ID
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('id')
-    .eq('stripe_customer_id', customerId)
-    .single()
+  console.log(`[Stripe] Subscription ${subscription.id} updated to status ${subscription.status}`)
 
-  if (!profile) {
-    console.error(`No user found for Stripe customer ${customerId}`)
-    return
-  }
+  // Try to find org subscription first
+  const orgSub = await getSubscriptionByStripeId(subscription.id)
 
-  console.log(`[Stripe] Subscription updated for user ${profile.id}`)
+  if (orgSub) {
+    // Update org subscription
+    const seatCount = subscription.items.data[0]?.quantity || 1
 
-  const { error } = await supabase
-    .from('profiles')
-    .update({
-      subscription_status: subscription.status,
-      subscription_tier: subscription.metadata?.tier || 'professional',
-      subscription_current_period_end: new Date(
-        (subscription as any).current_period_end * 1000
-      ).toISOString(),
-      updated_at: new Date().toISOString(),
+    await updateOrgSubscription(orgSub.id, {
+      status: subscription.status as any,
+      seat_count: seatCount,
+      amount_cents: subscription.items.data[0]?.price.unit_amount || 0,
+      current_period_start: new Date((subscription as any).current_period_start * 1000).toISOString(),
+      current_period_end: new Date((subscription as any).current_period_end * 1000).toISOString(),
+      canceled_at: (subscription as any).canceled_at
+        ? new Date((subscription as any).canceled_at * 1000).toISOString()
+        : null,
     })
-    .eq('id', profile.id)
 
-  if (error) {
-    console.error('Error updating subscription:', error)
+    console.log(`[Stripe] Updated org subscription ${orgSub.id}`)
+  } else {
+    // Fallback: Update profile (legacy individual subscription)
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('stripe_customer_id', customerId)
+      .single()
+
+    if (!profile) {
+      console.error(`No user or org found for Stripe customer ${customerId}`)
+      return
+    }
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        subscription_status: subscription.status,
+        subscription_tier: subscription.metadata?.tier || 'professional',
+        subscription_current_period_end: new Date(
+          (subscription as any).current_period_end * 1000
+        ).toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', profile.id)
+
+    if (error) {
+      console.error('Error updating subscription:', error)
+    }
   }
 }
 
@@ -166,30 +241,42 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   const supabase = createAdminClient()
   const customerId = subscription.customer as string
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('id')
-    .eq('stripe_customer_id', customerId)
-    .single()
+  console.log(`[Stripe] Subscription ${subscription.id} deleted`)
 
-  if (!profile) {
-    console.error(`No user found for Stripe customer ${customerId}`)
-    return
-  }
+  // Try org subscription first
+  const orgSub = await getSubscriptionByStripeId(subscription.id)
 
-  console.log(`[Stripe] Subscription deleted for user ${profile.id}`)
-
-  const { error } = await supabase
-    .from('profiles')
-    .update({
-      subscription_status: 'canceled',
-      subscription_tier: 'free',
-      updated_at: new Date().toISOString(),
+  if (orgSub) {
+    await updateOrgSubscription(orgSub.id, {
+      status: 'canceled',
+      canceled_at: new Date().toISOString(),
     })
-    .eq('id', profile.id)
+    console.log(`[Stripe] Canceled org subscription ${orgSub.id}`)
+  } else {
+    // Fallback: Update profile
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('stripe_customer_id', customerId)
+      .single()
 
-  if (error) {
-    console.error('Error canceling subscription:', error)
+    if (!profile) {
+      console.error(`No user found for Stripe customer ${customerId}`)
+      return
+    }
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        subscription_status: 'canceled',
+        subscription_tier: 'free',
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', profile.id)
+
+    if (error) {
+      console.error('Error canceling subscription:', error)
+    }
   }
 }
 
@@ -198,9 +285,41 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
  */
 async function handleInvoicePaid(invoice: Stripe.Invoice) {
   const customerId = invoice.customer as string
-  console.log(`[Stripe] Invoice paid for customer ${customerId}`)
+  console.log(`[Stripe] Invoice ${invoice.id} paid for customer ${customerId}`)
 
-  // Could update payment history or send confirmation email here
+  // Find org subscription by customer
+  const supabase = createAdminClient()
+  const { data: orgSub } = await supabase
+    .from('organization_subscriptions')
+    .select('id')
+    .eq('stripe_customer_id', customerId)
+    .single()
+
+  if (orgSub && (invoice as any).subscription) {
+    // Record invoice for audit trail
+    await recordInvoice(orgSub.id, {
+      stripe_invoice_id: invoice.id,
+      stripe_charge_id: (invoice as any).charge as string,
+      amount_due: invoice.amount_due,
+      amount_paid: invoice.amount_paid,
+      currency: invoice.currency.toUpperCase(),
+      tax_amount: (invoice as any).tax || 0,
+      tax_breakdown: (invoice as any).total_tax_amounts?.map((tax: any) => ({
+        type: tax.tax_rate ? 'rate' : 'amount',
+        rate: 0, // Would need to fetch tax rate details
+        amount: tax.amount,
+      })),
+      status: invoice.status as any,
+      invoice_date: new Date(invoice.created * 1000).toISOString(),
+      due_date: (invoice as any).due_date ? new Date((invoice as any).due_date * 1000).toISOString() : null,
+      paid_at: (invoice as any).status_transitions?.paid_at
+        ? new Date((invoice as any).status_transitions.paid_at * 1000).toISOString()
+        : null,
+      invoice_pdf_url: (invoice as any).invoice_pdf || null,
+    })
+
+    console.log(`[Stripe] Recorded invoice ${invoice.id} for org subscription ${orgSub.id}`)
+  }
 }
 
 /**

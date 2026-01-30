@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/lib/auth/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -25,6 +26,7 @@ import Link from 'next/link'
 
 export default function AlertsPage() {
   const router = useRouter()
+  const { user } = useAuth()
   const [alerts, setAlerts] = useState<CaseAlert[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'unread'>('all')
@@ -34,10 +36,11 @@ export default function AlertsPage() {
   }, [filter])
 
   const loadAlerts = async () => {
+    if (!user?.id) return
+
     setLoading(true)
     try {
-      // TODO: Get actual user ID from auth context
-      const data = await getCaseAlerts('user-id-placeholder', filter === 'unread', 100)
+      const data = await getCaseAlerts(user.id, filter === 'unread', 100)
       setAlerts(data)
     } catch (error) {
       console.error('Failed to load alerts:', error)
@@ -56,9 +59,10 @@ export default function AlertsPage() {
   }
 
   const handleMarkAllRead = async () => {
+    if (!user?.id) return
+
     try {
-      // TODO: Get actual user ID from auth context
-      await markAllAlertsRead('user-id-placeholder')
+      await markAllAlertsRead(user.id)
       loadAlerts()
     } catch (error) {
       console.error('Failed to mark all as read:', error)

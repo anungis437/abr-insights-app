@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/lib/auth/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -28,6 +29,7 @@ import {
 
 export default function CaseAlertsPage() {
   const router = useRouter()
+  const { user } = useAuth()
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([])
   const [recentAlerts, setRecentAlerts] = useState<CaseAlert[]>([])
   const [loading, setLoading] = useState(true)
@@ -40,11 +42,12 @@ export default function CaseAlertsPage() {
   const loadData = async () => {
     setLoading(true)
     try {
-      // TODO: Get actual user ID from auth context
-      const searches = await getSavedSearches('user-id-placeholder')
+      if (!user?.id) return
+      
+      const searches = await getSavedSearches(user.id)
       setSavedSearches(searches)
 
-      const alerts = await getCaseAlerts('user-id-placeholder', false, 10)
+      const alerts = await getCaseAlerts(user.id, false, 10)
       setRecentAlerts(alerts)
 
       const unread = alerts.filter((a) => !a.read).length

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/lib/auth/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
@@ -23,6 +24,7 @@ import {
 
 export default function AlertPreferencesPage() {
   const router = useRouter()
+  const { user } = useAuth()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
@@ -40,10 +42,11 @@ export default function AlertPreferencesPage() {
   }, [])
 
   const loadPreferences = async () => {
+    if (!user?.id) return
+
     setLoading(true)
     try {
-      // TODO: Get actual user ID from auth context
-      const prefs = await getAlertPreferences('user-id-placeholder')
+      const prefs = await getAlertPreferences(user.id)
 
       if (prefs) {
         setEmailNotifications(prefs.email_notifications)
@@ -62,10 +65,11 @@ export default function AlertPreferencesPage() {
   }
 
   const handleSave = async () => {
+    if (!user?.id) return
+
     setSaving(true)
     try {
-      // TODO: Get actual user ID from auth context
-      await updateAlertPreferences('user-id-placeholder', {
+      await updateAlertPreferences(user.id, {
         email_notifications: emailNotifications,
         in_app_notifications: inAppNotifications,
         webhook_url: webhookUrl || undefined,
