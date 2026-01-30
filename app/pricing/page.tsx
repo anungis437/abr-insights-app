@@ -33,7 +33,7 @@ export default function PricingPage() {
       <section className="py-20">
         <div className="container-custom">
           {/* Current Plan Badge */}
-          {!isLoading && currentTier && (
+          {!loading && currentTier && (
             <div className="mb-8 text-center">
               <p className="text-lg text-gray-600">
                 Your current plan:{' '}
