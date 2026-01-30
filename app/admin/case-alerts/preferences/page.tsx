@@ -88,7 +88,7 @@ export default function AlertPreferencesPage() {
   if (loading) {
     return (
       <div className="container mx-auto p-6">
-        <div className="text-center py-12">
+        <div className="py-12 text-center">
           <p className="text-muted-foreground">Loading preferences...</p>
         </div>
       </div>
@@ -96,7 +96,7 @@ export default function AlertPreferencesPage() {
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl">
+    <div className="container mx-auto max-w-4xl p-6">
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Alert Preferences</h1>
@@ -118,8 +118,8 @@ export default function AlertPreferencesPage() {
                 checked={emailNotifications}
                 onCheckedChange={(checked) => setEmailNotifications(checked as boolean)}
               />
-              <Mail className="h-4 w-4 text-muted-foreground" />
-              <label htmlFor="emailNotifications" className="text-sm cursor-pointer">
+              <Mail className="text-muted-foreground h-4 w-4" />
+              <label htmlFor="emailNotifications" className="cursor-pointer text-sm">
                 Email notifications
               </label>
             </div>
@@ -130,15 +130,15 @@ export default function AlertPreferencesPage() {
                 checked={inAppNotifications}
                 onCheckedChange={(checked) => setInAppNotifications(checked as boolean)}
               />
-              <Bell className="h-4 w-4 text-muted-foreground" />
-              <label htmlFor="inAppNotifications" className="text-sm cursor-pointer">
+              <Bell className="text-muted-foreground h-4 w-4" />
+              <label htmlFor="inAppNotifications" className="cursor-pointer text-sm">
                 In-app notifications
               </label>
             </div>
 
             <div>
-              <div className="flex items-center space-x-2 mb-2">
-                <Webhook className="h-4 w-4 text-muted-foreground" />
+              <div className="mb-2 flex items-center space-x-2">
+                <Webhook className="text-muted-foreground h-4 w-4" />
                 <Label htmlFor="webhookUrl">Webhook URL (optional)</Label>
               </div>
               <Input
@@ -148,7 +148,7 @@ export default function AlertPreferencesPage() {
                 onChange={(e) => setWebhookUrl(e.target.value)}
                 placeholder="https://your-webhook-url.com/alerts"
               />
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-muted-foreground mt-1 text-xs">
                 POST requests will be sent to this URL when new alerts are generated
               </p>
             </div>
@@ -162,7 +162,9 @@ export default function AlertPreferencesPage() {
           </CardHeader>
           <CardContent>
             <div>
-              <Label htmlFor="digestFrequency">How often should we send you a digest summary?</Label>
+              <Label htmlFor="digestFrequency">
+                How often should we send you a digest summary?
+              </Label>
               <Select
                 value={digestFrequency}
                 onValueChange={(value: any) => setDigestFrequency(value)}
@@ -176,7 +178,7 @@ export default function AlertPreferencesPage() {
                   <SelectItem value="monthly">Monthly</SelectItem>
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-muted-foreground mt-1 text-xs">
                 Digests provide a summary of all alerts in the selected period
               </p>
             </div>
@@ -190,9 +192,9 @@ export default function AlertPreferencesPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="flex items-center gap-2 mb-4">
-                <Clock className="h-4 w-4 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">
+              <div className="mb-4 flex items-center gap-2">
+                <Clock className="text-muted-foreground h-4 w-4" />
+                <p className="text-muted-foreground text-sm">
                   Don't send notifications during these hours (optional)
                 </p>
               </div>
@@ -218,7 +220,7 @@ export default function AlertPreferencesPage() {
                 </div>
               </div>
 
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 Example: 22:00 to 08:00 to avoid notifications at night
               </p>
             </div>
@@ -237,12 +239,13 @@ export default function AlertPreferencesPage() {
                 checked={notificationGrouping}
                 onCheckedChange={(checked) => setNotificationGrouping(checked as boolean)}
               />
-              <label htmlFor="notificationGrouping" className="text-sm cursor-pointer">
+              <label htmlFor="notificationGrouping" className="cursor-pointer text-sm">
                 Group multiple alerts into a single notification
               </label>
             </div>
-            <p className="text-xs text-muted-foreground">
-              When enabled, alerts from the same saved search will be batched together to reduce notification fatigue
+            <p className="text-muted-foreground text-xs">
+              When enabled, alerts from the same saved search will be batched together to reduce
+              notification fatigue
             </p>
           </CardContent>
         </Card>

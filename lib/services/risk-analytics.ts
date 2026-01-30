@@ -119,7 +119,7 @@ function calculateRiskScore(metrics: {
   // Factor 3: Training Recency (25% weight)
   const recencyWeight = 25
   const maxDays = 365
-  const recencyScore = Math.max(0, (1 - metrics.daysSinceTraining / maxDays)) * recencyWeight
+  const recencyScore = Math.max(0, 1 - metrics.daysSinceTraining / maxDays) * recencyWeight
   totalScore += recencyScore
 
   if (metrics.daysSinceTraining > 365) {
@@ -241,12 +241,14 @@ export async function getDepartmentRiskScores(
     const completedEnrollments = deptUsers
       .flatMap((u) => u.enrollments)
       .filter((e: any) => e.completed_at)
-    const mostRecentTraining = completedEnrollments.length > 0
-      ? Math.max(...completedEnrollments.map((e: any) => new Date(e.completed_at).getTime()))
-      : 0
-    const daysSinceTraining = mostRecentTraining > 0
-      ? Math.floor((Date.now() - mostRecentTraining) / (1000 * 60 * 60 * 24))
-      : 999
+    const mostRecentTraining =
+      completedEnrollments.length > 0
+        ? Math.max(...completedEnrollments.map((e: any) => new Date(e.completed_at).getTime()))
+        : 0
+    const daysSinceTraining =
+      mostRecentTraining > 0
+        ? Math.floor((Date.now() - mostRecentTraining) / (1000 * 60 * 60 * 24))
+        : 999
 
     // Calculate pending users
     const pendingUsers = deptUsers.filter(
@@ -428,22 +430,20 @@ export async function captureRiskSnapshot(organizationId: string): Promise<void>
   ])
 
   // Insert organization-wide snapshot
-  const { error: orgError } = await supabase
-    .from('organization_risk_history')
-    .upsert(
-      {
-        organization_id: organizationId,
-        snapshot_date: today,
-        overall_risk_level: summary.overall_risk_level,
-        overall_risk_score: summary.overall_risk_score,
-        total_departments: summary.total_departments,
-        high_risk_departments: summary.high_risk_departments,
-        total_users: summary.total_users,
-        compliant_users: summary.compliant_users,
-        at_risk_users: summary.at_risk_users,
-      },
-      { onConflict: 'organization_id,snapshot_date' }
-    )
+  const { error: orgError } = await supabase.from('organization_risk_history').upsert(
+    {
+      organization_id: organizationId,
+      snapshot_date: today,
+      overall_risk_level: summary.overall_risk_level,
+      overall_risk_score: summary.overall_risk_score,
+      total_departments: summary.total_departments,
+      high_risk_departments: summary.high_risk_departments,
+      total_users: summary.total_users,
+      compliant_users: summary.compliant_users,
+      at_risk_users: summary.at_risk_users,
+    },
+    { onConflict: 'organization_id,snapshot_date' }
+  )
 
   if (orgError) {
     console.error('Error capturing organization risk snapshot:', orgError)
@@ -644,4 +644,3 @@ export async function getDepartmentUserRiskDetails(
   // Sort by risk score (lowest first = highest risk)
   return userRiskDetails.sort((a, b) => a.risk_score - b.risk_score)
 }
-

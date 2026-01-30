@@ -20,7 +20,16 @@ import {
   downloadCSV,
   printHTMLReport,
 } from '@/lib/services/risk-report-export'
-import { AlertTriangle, TrendingUp, TrendingDown, Users, AlertCircle, Download, Printer, Mail } from 'lucide-react'
+import {
+  AlertTriangle,
+  TrendingUp,
+  TrendingDown,
+  Users,
+  AlertCircle,
+  Download,
+  Printer,
+  Mail,
+} from 'lucide-react'
 import RiskTrendChart from '@/components/dashboard/RiskTrendChart'
 
 export default function RiskHeatmapPage() {
@@ -105,7 +114,7 @@ export default function RiskHeatmapPage() {
   function handleExportExecutiveSummary() {
     if (!summary || departmentScores.length === 0) return
     const summary_text = generateExecutiveSummary(summary, departmentScores)
-    
+
     // Copy to clipboard
     navigator.clipboard.writeText(summary_text).then(() => {
       alert('Executive summary copied to clipboard! Ready to paste into email.')
@@ -114,8 +123,8 @@ export default function RiskHeatmapPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-gray-900"></div>
       </div>
     )
   }
@@ -125,7 +134,7 @@ export default function RiskHeatmapPage() {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold mb-2">Risk Heatmap</h1>
+            <h1 className="mb-2 text-3xl font-bold">Risk Heatmap</h1>
             <p className="text-gray-600">
               Visualize compliance risk across departments and locations
             </p>
@@ -133,7 +142,7 @@ export default function RiskHeatmapPage() {
           <div className="flex gap-3">
             <button
               onClick={handleExportCSV}
-              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-white transition-colors hover:bg-green-700"
               title="Export to CSV"
             >
               <Download className="h-5 w-5" />
@@ -141,7 +150,7 @@ export default function RiskHeatmapPage() {
             </button>
             <button
               onClick={handleExportPDF}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
               title="Print to PDF"
             >
               <Printer className="h-5 w-5" />
@@ -149,7 +158,7 @@ export default function RiskHeatmapPage() {
             </button>
             <button
               onClick={handleExportExecutiveSummary}
-              className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              className="flex items-center gap-2 rounded-lg bg-purple-600 px-4 py-2 text-white transition-colors hover:bg-purple-700"
               title="Copy executive summary"
             >
               <Mail className="h-5 w-5" />
@@ -161,9 +170,9 @@ export default function RiskHeatmapPage() {
 
       {/* Organization Summary */}
       {summary && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center justify-between mb-4">
+        <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-lg bg-white p-6 shadow">
+            <div className="mb-4 flex items-center justify-between">
               <h3 className="text-sm font-medium text-gray-600">Overall Risk Level</h3>
               <AlertTriangle
                 className={`h-5 w-5 ${getRiskTextColor(summary.overall_risk_level)}`}
@@ -175,16 +184,20 @@ export default function RiskHeatmapPage() {
                 {summary.overall_risk_score.toFixed(0)}/100
               </span>
             </div>
-            <div className="mt-4 h-2 bg-gray-200 rounded-full overflow-hidden">
+            <div className="mt-4 h-2 overflow-hidden rounded-full bg-gray-200">
               <div
                 className={`h-full ${getRiskColor(summary.overall_risk_level)}`}
-                style={{ ['--progress-width' as string]: `${summary.overall_risk_score}%` } as React.CSSProperties}
+                style={
+                  {
+                    ['--progress-width' as string]: `${summary.overall_risk_score}%`,
+                  } as React.CSSProperties
+                }
               />
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center justify-between mb-4">
+          <div className="rounded-lg bg-white p-6 shadow">
+            <div className="mb-4 flex items-center justify-between">
               <h3 className="text-sm font-medium text-gray-600">High-Risk Departments</h3>
               <AlertCircle className="h-5 w-5 text-orange-600" />
             </div>
@@ -200,8 +213,8 @@ export default function RiskHeatmapPage() {
             )}
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center justify-between mb-4">
+          <div className="rounded-lg bg-white p-6 shadow">
+            <div className="mb-4 flex items-center justify-between">
               <h3 className="text-sm font-medium text-gray-600">Compliant Users</h3>
               <Users className="h-5 w-5 text-green-600" />
             </div>
@@ -214,8 +227,8 @@ export default function RiskHeatmapPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center justify-between mb-4">
+          <div className="rounded-lg bg-white p-6 shadow">
+            <div className="mb-4 flex items-center justify-between">
               <h3 className="text-sm font-medium text-gray-600">At-Risk Users</h3>
               <AlertTriangle className="h-5 w-5 text-red-600" />
             </div>
@@ -250,15 +263,15 @@ export default function RiskHeatmapPage() {
       )}
 
       {/* Department Heatmap */}
-      <div className="bg-white rounded-lg shadow mb-8">
-        <div className="p-6 border-b">
+      <div className="mb-8 rounded-lg bg-white shadow">
+        <div className="border-b p-6">
           <h2 className="text-xl font-semibold">Department Risk Overview</h2>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="mt-1 text-sm text-gray-600">
             Click on a department to view detailed breakdown
           </p>
         </div>
         <div className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {departmentScores.map((dept) => (
               <button
                 key={dept.department}
@@ -266,19 +279,19 @@ export default function RiskHeatmapPage() {
                   // Navigate to department drill-down
                   router.push(`/admin/risk-heatmap/${encodeURIComponent(dept.department)}`)
                 }}
-                className={`p-6 rounded-lg border-2 transition-all hover:shadow-lg ${
+                className={`rounded-lg border-2 p-6 transition-all hover:shadow-lg ${
                   selectedDepartment?.department === dept.department
                     ? 'border-blue-500 shadow-lg'
                     : 'border-gray-200'
                 }`}
               >
-                <div className="flex items-start justify-between mb-4">
+                <div className="mb-4 flex items-start justify-between">
                   <div>
-                    <h3 className="font-semibold text-lg">{dept.department}</h3>
+                    <h3 className="text-lg font-semibold">{dept.department}</h3>
                     {dept.location && <p className="text-sm text-gray-500">{dept.location}</p>}
                   </div>
                   <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium uppercase ${getRiskColor(
+                    className={`rounded-full px-3 py-1 text-xs font-medium uppercase ${getRiskColor(
                       dept.risk_level
                     )} text-white`}
                   >
@@ -308,13 +321,13 @@ export default function RiskHeatmapPage() {
                 </div>
 
                 {dept.factors.length > 0 && (
-                  <div className="mt-4 pt-4 border-t">
-                    <p className="text-xs text-gray-600 font-medium mb-2">Key Risk Factors:</p>
+                  <div className="mt-4 border-t pt-4">
+                    <p className="mb-2 text-xs font-medium text-gray-600">Key Risk Factors:</p>
                     <div className="flex flex-wrap gap-1">
                       {dept.factors.map((factor, idx) => (
                         <span
                           key={idx}
-                          className={`px-2 py-1 rounded text-xs ${getRiskColor(
+                          className={`rounded px-2 py-1 text-xs ${getRiskColor(
                             factor.severity
                           )} text-white`}
                         >
@@ -329,8 +342,8 @@ export default function RiskHeatmapPage() {
           </div>
 
           {departmentScores.length === 0 && (
-            <div className="text-center py-12">
-              <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <div className="py-12 text-center">
+              <Users className="mx-auto mb-4 h-12 w-12 text-gray-400" />
               <p className="text-gray-600">No department data available</p>
             </div>
           )}
@@ -339,24 +352,19 @@ export default function RiskHeatmapPage() {
 
       {/* Selected Department Details */}
       {selectedDepartment && (
-        <div className="bg-white rounded-lg shadow">
-          <div className="p-6 border-b">
+        <div className="rounded-lg bg-white shadow">
+          <div className="border-b p-6">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-semibold">{selectedDepartment.department}</h2>
-                <p className="text-sm text-gray-600 mt-1">Detailed risk analysis</p>
+                <p className="mt-1 text-sm text-gray-600">Detailed risk analysis</p>
               </div>
               <button
                 onClick={() => setSelectedDepartment(null)}
                 className="text-gray-500 hover:text-gray-700"
                 aria-label="Close department details"
               >
-                <svg
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -369,39 +377,47 @@ export default function RiskHeatmapPage() {
           </div>
 
           <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
               <div>
-                <h3 className="text-sm font-medium text-gray-600 mb-2">Completion Rate</h3>
+                <h3 className="mb-2 text-sm font-medium text-gray-600">Completion Rate</h3>
                 <div className="flex items-baseline gap-2">
                   <span className="text-2xl font-bold">
                     {(selectedDepartment.training_completion_rate * 100).toFixed(0)}%
                   </span>
                 </div>
-                <div className="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div className="mt-2 h-2 overflow-hidden rounded-full bg-gray-200">
                   <div
                     className="h-full bg-blue-500"
-                    style={{ ['--progress-width' as string]: `${selectedDepartment.training_completion_rate * 100}%` } as React.CSSProperties}
+                    style={
+                      {
+                        ['--progress-width' as string]: `${selectedDepartment.training_completion_rate * 100}%`,
+                      } as React.CSSProperties
+                    }
                   />
                 </div>
               </div>
 
               <div>
-                <h3 className="text-sm font-medium text-gray-600 mb-2">Average Quiz Score</h3>
+                <h3 className="mb-2 text-sm font-medium text-gray-600">Average Quiz Score</h3>
                 <div className="flex items-baseline gap-2">
                   <span className="text-2xl font-bold">
                     {selectedDepartment.avg_quiz_score.toFixed(0)}%
                   </span>
                 </div>
-                <div className="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div className="mt-2 h-2 overflow-hidden rounded-full bg-gray-200">
                   <div
                     className="h-full bg-green-500"
-                    style={{ ['--progress-width' as string]: `${selectedDepartment.avg_quiz_score}%` } as React.CSSProperties}
+                    style={
+                      {
+                        ['--progress-width' as string]: `${selectedDepartment.avg_quiz_score}%`,
+                      } as React.CSSProperties
+                    }
                   />
                 </div>
               </div>
 
               <div>
-                <h3 className="text-sm font-medium text-gray-600 mb-2">Training Recency</h3>
+                <h3 className="mb-2 text-sm font-medium text-gray-600">Training Recency</h3>
                 <div className="flex items-baseline gap-2">
                   <span className="text-2xl font-bold">
                     {selectedDepartment.days_since_last_training}
@@ -413,23 +429,18 @@ export default function RiskHeatmapPage() {
 
             {selectedDepartment.factors.length > 0 && (
               <div>
-                <h3 className="text-lg font-semibold mb-4">Risk Factors</h3>
+                <h3 className="mb-4 text-lg font-semibold">Risk Factors</h3>
                 <div className="space-y-4">
                   {selectedDepartment.factors.map((factor, idx) => (
-                    <div
-                      key={idx}
-                      className="border rounded-lg p-4 flex items-start gap-4"
-                    >
-                      <div
-                        className={`mt-1 p-2 rounded-full ${getRiskColor(factor.severity)}`}
-                      >
+                    <div key={idx} className="flex items-start gap-4 rounded-lg border p-4">
+                      <div className={`mt-1 rounded-full p-2 ${getRiskColor(factor.severity)}`}>
                         <AlertTriangle className="h-4 w-4 text-white" />
                       </div>
                       <div className="flex-1">
-                        <div className="flex items-center justify-between mb-1">
+                        <div className="mb-1 flex items-center justify-between">
                           <h4 className="font-semibold">{factor.category}</h4>
                           <span
-                            className={`px-2 py-1 rounded text-xs font-medium uppercase ${getRiskColor(
+                            className={`rounded px-2 py-1 text-xs font-medium uppercase ${getRiskColor(
                               factor.severity
                             )} text-white`}
                           >
@@ -438,14 +449,18 @@ export default function RiskHeatmapPage() {
                         </div>
                         <p className="text-sm text-gray-600">{factor.description}</p>
                         <div className="mt-2">
-                          <div className="flex justify-between text-xs text-gray-500 mb-1">
+                          <div className="mb-1 flex justify-between text-xs text-gray-500">
                             <span>Impact Score</span>
                             <span>{factor.impact_score.toFixed(1)}</span>
                           </div>
-                          <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                          <div className="h-1.5 overflow-hidden rounded-full bg-gray-200">
                             <div
                               className={`h-full ${getRiskColor(factor.severity)}`}
-                              style={{ ['--progress-width' as string]: `${(factor.impact_score / 30) * 100}%` } as React.CSSProperties}
+                              style={
+                                {
+                                  ['--progress-width' as string]: `${(factor.impact_score / 30) * 100}%`,
+                                } as React.CSSProperties
+                              }
                             />
                           </div>
                         </div>
@@ -456,12 +471,12 @@ export default function RiskHeatmapPage() {
               </div>
             )}
 
-            <div className="mt-8 pt-6 border-t">
-              <h3 className="text-lg font-semibold mb-4">Recommended Actions</h3>
+            <div className="mt-8 border-t pt-6">
+              <h3 className="mb-4 text-lg font-semibold">Recommended Actions</h3>
               <ul className="space-y-3">
                 {selectedDepartment.pending_users > 0 && (
                   <li className="flex items-start gap-3">
-                    <div className="mt-1 h-2 w-2 rounded-full bg-red-500 flex-shrink-0" />
+                    <div className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-red-500" />
                     <p className="text-sm">
                       Enroll {selectedDepartment.pending_users} pending users in required training
                       courses
@@ -470,7 +485,7 @@ export default function RiskHeatmapPage() {
                 )}
                 {selectedDepartment.training_completion_rate < 0.8 && (
                   <li className="flex items-start gap-3">
-                    <div className="mt-1 h-2 w-2 rounded-full bg-orange-500 flex-shrink-0" />
+                    <div className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-orange-500" />
                     <p className="text-sm">
                       Send reminder notifications to users with incomplete training
                     </p>
@@ -478,7 +493,7 @@ export default function RiskHeatmapPage() {
                 )}
                 {selectedDepartment.avg_quiz_score < 75 && (
                   <li className="flex items-start gap-3">
-                    <div className="mt-1 h-2 w-2 rounded-full bg-yellow-500 flex-shrink-0" />
+                    <div className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-yellow-500" />
                     <p className="text-sm">
                       Review training materials - low quiz scores indicate comprehension issues
                     </p>
@@ -486,7 +501,7 @@ export default function RiskHeatmapPage() {
                 )}
                 {selectedDepartment.days_since_last_training > 180 && (
                   <li className="flex items-start gap-3">
-                    <div className="mt-1 h-2 w-2 rounded-full bg-blue-500 flex-shrink-0" />
+                    <div className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" />
                     <p className="text-sm">
                       Schedule refresher training - last training was{' '}
                       {Math.floor(selectedDepartment.days_since_last_training / 30)} months ago

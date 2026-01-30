@@ -43,10 +43,10 @@ export default function RiskTrendChart({
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="rounded-lg bg-white p-6 shadow">
         <div className="animate-pulse">
-          <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
-          <div className="h-64 bg-gray-200 rounded"></div>
+          <div className="mb-4 h-4 w-1/4 rounded bg-gray-200"></div>
+          <div className="h-64 rounded bg-gray-200"></div>
         </div>
       </div>
     )
@@ -54,11 +54,11 @@ export default function RiskTrendChart({
 
   if (trends.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold mb-4">{title || 'Risk Trend'}</h3>
-        <div className="text-center py-12 text-gray-500">
+      <div className="rounded-lg bg-white p-6 shadow">
+        <h3 className="mb-4 text-lg font-semibold">{title || 'Risk Trend'}</h3>
+        <div className="py-12 text-center text-gray-500">
           <p>No historical data available</p>
-          <p className="text-sm mt-2">Trends will appear after daily snapshots are captured</p>
+          <p className="mt-2 text-sm">Trends will appear after daily snapshots are captured</p>
         </div>
       </div>
     )
@@ -68,8 +68,7 @@ export default function RiskTrendChart({
   const firstScore = trends[0]?.risk_score || 0
   const lastScore = trends[trends.length - 1]?.risk_score || 0
   const scoreDiff = lastScore - firstScore
-  const percentChange =
-    firstScore > 0 ? ((scoreDiff / firstScore) * 100).toFixed(1) : '0.0'
+  const percentChange = firstScore > 0 ? ((scoreDiff / firstScore) * 100).toFixed(1) : '0.0'
 
   // Find min and max for scaling
   const scores = trends.map((t) => t.risk_score)
@@ -87,8 +86,7 @@ export default function RiskTrendChart({
   // Generate SVG path for line chart
   const points = trends.map((trend, index) => {
     const x = padding.left + (index / (trends.length - 1)) * plotWidth
-    const y =
-      padding.top + plotHeight - ((trend.risk_score - minScore) / scoreRange) * plotHeight
+    const y = padding.top + plotHeight - ((trend.risk_score - minScore) / scoreRange) * plotHeight
     return `${x},${y}`
   })
   const linePath = `M ${points.join(' L ')}`
@@ -109,8 +107,8 @@ export default function RiskTrendChart({
   )
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <div className="flex items-center justify-between mb-6">
+    <div className="rounded-lg bg-white p-6 shadow">
+      <div className="mb-6 flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold">{title || 'Risk Trend'}</h3>
           <p className="text-sm text-gray-600">Last {days} days</p>
@@ -146,7 +144,7 @@ export default function RiskTrendChart({
           width={chartWidth}
           height={chartHeight}
           viewBox={`0 0 ${chartWidth} ${chartHeight}`}
-          className="w-full h-auto"
+          className="h-auto w-full"
         >
           {/* Grid lines */}
           {[0, 25, 50, 75, 100].map((score) => {
@@ -161,13 +159,7 @@ export default function RiskTrendChart({
                   stroke="#e5e7eb"
                   strokeWidth="1"
                 />
-                <text
-                  x={padding.left - 10}
-                  y={y + 4}
-                  textAnchor="end"
-                  fontSize="12"
-                  fill="#6b7280"
-                >
+                <text x={padding.left - 10} y={y + 4} textAnchor="end" fontSize="12" fill="#6b7280">
                   {score}
                 </text>
               </g>
@@ -215,7 +207,7 @@ export default function RiskTrendChart({
       </div>
 
       {/* Legend */}
-      <div className="mt-6 pt-6 border-t">
+      <div className="mt-6 border-t pt-6">
         <div className="grid grid-cols-3 gap-4 text-sm">
           <div>
             <div className="text-gray-600">Start ({formatDate(trends[0].date)})</div>

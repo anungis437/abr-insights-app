@@ -65,8 +65,13 @@ export default function NewSavedSearchPage() {
   const [dateTo, setDateTo] = useState('')
   const [relevanceThreshold, setRelevanceThreshold] = useState(0.5)
   const [alertEnabled, setAlertEnabled] = useState(true)
-  const [alertFrequency, setAlertFrequency] = useState<'instant' | 'daily' | 'weekly' | 'monthly'>('daily')
-  const [selectedChannels, setSelectedChannels] = useState<('email' | 'in_app' | 'webhook')[]>(['email', 'in_app'])
+  const [alertFrequency, setAlertFrequency] = useState<'instant' | 'daily' | 'weekly' | 'monthly'>(
+    'daily'
+  )
+  const [selectedChannels, setSelectedChannels] = useState<('email' | 'in_app' | 'webhook')[]>([
+    'email',
+    'in_app',
+  ])
 
   const addKeyword = () => {
     if (keywordInput.trim() && !keywords.includes(keywordInput.trim())) {
@@ -76,12 +81,12 @@ export default function NewSavedSearchPage() {
   }
 
   const removeKeyword = (keyword: string) => {
-    setKeywords(keywords.filter(k => k !== keyword))
+    setKeywords(keywords.filter((k) => k !== keyword))
   }
 
   const toggleJurisdiction = (jurisdiction: string) => {
     if (selectedJurisdictions.includes(jurisdiction)) {
-      setSelectedJurisdictions(selectedJurisdictions.filter(j => j !== jurisdiction))
+      setSelectedJurisdictions(selectedJurisdictions.filter((j) => j !== jurisdiction))
     } else {
       setSelectedJurisdictions([...selectedJurisdictions, jurisdiction])
     }
@@ -89,7 +94,7 @@ export default function NewSavedSearchPage() {
 
   const toggleCaseType = (caseType: string) => {
     if (selectedCaseTypes.includes(caseType)) {
-      setSelectedCaseTypes(selectedCaseTypes.filter(c => c !== caseType))
+      setSelectedCaseTypes(selectedCaseTypes.filter((c) => c !== caseType))
     } else {
       setSelectedCaseTypes([...selectedCaseTypes, caseType])
     }
@@ -97,7 +102,7 @@ export default function NewSavedSearchPage() {
 
   const toggleChannel = (channel: 'email' | 'in_app' | 'webhook') => {
     if (selectedChannels.includes(channel)) {
-      setSelectedChannels(selectedChannels.filter(c => c !== channel))
+      setSelectedChannels(selectedChannels.filter((c) => c !== channel))
     } else {
       setSelectedChannels([...selectedChannels, channel])
     }
@@ -142,7 +147,7 @@ export default function NewSavedSearchPage() {
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl">
+    <div className="container mx-auto max-w-4xl p-6">
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Create Saved Search</h1>
         <p className="text-muted-foreground mt-1">
@@ -189,7 +194,7 @@ export default function NewSavedSearchPage() {
             {/* Keywords */}
             <div>
               <Label htmlFor="keywords">Keywords</Label>
-              <div className="flex gap-2 mt-2">
+              <div className="mt-2 flex gap-2">
                 <Input
                   id="keywords"
                   value={keywordInput}
@@ -202,13 +207,13 @@ export default function NewSavedSearchPage() {
                 </Button>
               </div>
               {keywords.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
+                <div className="mt-2 flex flex-wrap gap-2">
                   {keywords.map((keyword) => (
                     <Badge key={keyword} variant="secondary">
                       {keyword}
                       <button
                         onClick={() => removeKeyword(keyword)}
-                        className="ml-2 hover:text-destructive"
+                        className="hover:text-destructive ml-2"
                         aria-label={`Remove keyword ${keyword}`}
                       >
                         <X className="h-3 w-3" />
@@ -222,7 +227,7 @@ export default function NewSavedSearchPage() {
             {/* Jurisdictions */}
             <div>
               <Label>Jurisdictions</Label>
-              <div className="grid grid-cols-2 gap-2 mt-2">
+              <div className="mt-2 grid grid-cols-2 gap-2">
                 {JURISDICTIONS.map((jurisdiction) => (
                   <div key={jurisdiction} className="flex items-center space-x-2">
                     <Checkbox
@@ -232,7 +237,7 @@ export default function NewSavedSearchPage() {
                     />
                     <label
                       htmlFor={`jurisdiction-${jurisdiction}`}
-                      className="text-sm cursor-pointer"
+                      className="cursor-pointer text-sm"
                     >
                       {jurisdiction}
                     </label>
@@ -244,7 +249,7 @@ export default function NewSavedSearchPage() {
             {/* Case Types */}
             <div>
               <Label>Case Types</Label>
-              <div className="grid grid-cols-2 gap-2 mt-2">
+              <div className="mt-2 grid grid-cols-2 gap-2">
                 {CASE_TYPES.map((caseType) => (
                   <div key={caseType} className="flex items-center space-x-2">
                     <Checkbox
@@ -252,10 +257,7 @@ export default function NewSavedSearchPage() {
                       checked={selectedCaseTypes.includes(caseType)}
                       onCheckedChange={() => toggleCaseType(caseType)}
                     />
-                    <label
-                      htmlFor={`casetype-${caseType}`}
-                      className="text-sm cursor-pointer"
-                    >
+                    <label htmlFor={`casetype-${caseType}`} className="cursor-pointer text-sm">
                       {caseType}
                     </label>
                   </div>
@@ -298,10 +300,10 @@ export default function NewSavedSearchPage() {
                 step="0.1"
                 value={relevanceThreshold}
                 onChange={(e) => setRelevanceThreshold(parseFloat(e.target.value))}
-                className="w-full mt-2"
+                className="mt-2 w-full"
                 aria-label="Relevance threshold percentage"
               />
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-muted-foreground mt-1 text-xs">
                 Only show cases with at least this relevance score
               </p>
             </div>
@@ -320,7 +322,7 @@ export default function NewSavedSearchPage() {
                 checked={alertEnabled}
                 onCheckedChange={(checked) => setAlertEnabled(checked as boolean)}
               />
-              <label htmlFor="alertEnabled" className="text-sm cursor-pointer">
+              <label htmlFor="alertEnabled" className="cursor-pointer text-sm">
                 Enable alerts for this search
               </label>
             </div>
@@ -348,7 +350,7 @@ export default function NewSavedSearchPage() {
 
                 <div>
                   <Label>Notification Channels</Label>
-                  <div className="space-y-2 mt-2">
+                  <div className="mt-2 space-y-2">
                     {ALERT_CHANNELS.map((channel) => (
                       <div key={channel.value} className="flex items-center space-x-2">
                         <Checkbox
@@ -358,7 +360,7 @@ export default function NewSavedSearchPage() {
                         />
                         <label
                           htmlFor={`channel-${channel.value}`}
-                          className="text-sm cursor-pointer"
+                          className="cursor-pointer text-sm"
                         >
                           {channel.label}
                         </label>

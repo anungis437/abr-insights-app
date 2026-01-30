@@ -229,7 +229,7 @@ export default function SSOProvidersPage() {
                             </div>
                             <div>
                               <span className="text-xs font-medium text-gray-500">SSO URL</span>
-                              <p className="mt-1 font-mono text-sm text-gray-900 truncate">
+                              <p className="mt-1 truncate font-mono text-sm text-gray-900">
                                 {provider.saml_sso_url || 'Not configured'}
                               </p>
                             </div>
@@ -329,8 +329,8 @@ export default function SSOProvidersPage() {
           <h4 className="font-medium text-blue-900">About Enterprise SSO</h4>
           <p className="mt-2 text-sm text-blue-800">
             Single Sign-On (SSO) allows your organization&apos;s users to authenticate using your
-            existing identity provider. We support Azure AD B2C, SAML 2.0, OpenID Connect, Okta,
-            and Auth0.
+            existing identity provider. We support Azure AD B2C, SAML 2.0, OpenID Connect, Okta, and
+            Auth0.
           </p>
           <ul className="mt-3 list-inside list-disc space-y-1 text-sm text-blue-800">
             <li>Automatic user provisioning based on attribute mapping</li>

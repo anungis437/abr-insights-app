@@ -179,10 +179,7 @@ export async function updateSSOProviderStatus(
 ): Promise<void> {
   const supabase = createClient()
 
-  const { error } = await supabase
-    .from('sso_providers')
-    .update({ status })
-    .eq('id', providerId)
+  const { error } = await supabase.from('sso_providers').update({ status }).eq('id', providerId)
 
   if (error) throw error
 }
@@ -260,10 +257,7 @@ export async function revokeSession(sessionId: string): Promise<void> {
 /**
  * Get SSO login attempts (audit trail)
  */
-export async function getSSOLoginAttempts(
-  organizationId: string,
-  limit = 50
-): Promise<any[]> {
+export async function getSSOLoginAttempts(organizationId: string, limit = 50): Promise<any[]> {
   const supabase = createClient()
 
   const { data, error } = await supabase

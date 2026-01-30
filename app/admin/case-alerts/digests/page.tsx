@@ -5,14 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import {
-  Calendar,
-  TrendingUp,
-  FileText,
-  Download,
-  RefreshCw,
-  AlertCircle,
-} from 'lucide-react'
+import { Calendar, TrendingUp, FileText, Download, RefreshCw, AlertCircle } from 'lucide-react'
 import { generateCaseDigest, type CaseDigest } from '@/lib/services/case-alerts'
 
 export default function DigestsPage() {
@@ -76,7 +69,9 @@ STATISTICS
 - High Priority Cases: ${digest.high_priority_cases}
 
 CASES BY CATEGORY
-${Object.entries(digest.cases_by_category).map(([cat, count]) => `- ${cat}: ${count}`).join('\n')}
+${Object.entries(digest.cases_by_category)
+  .map(([cat, count]) => `- ${cat}: ${count}`)
+  .join('\n')}
 
 KEY FINDINGS
 ${digest.key_findings.map((finding, i) => `${i + 1}. ${finding}`).join('\n')}
@@ -94,7 +89,7 @@ ${digest.key_findings.map((finding, i) => `${i + 1}. ${finding}`).join('\n')}
   if (loading) {
     return (
       <div className="container mx-auto p-6">
-        <div className="text-center py-12">
+        <div className="py-12 text-center">
           <p className="text-muted-foreground">Loading digests...</p>
         </div>
       </div>
@@ -102,14 +97,12 @@ ${digest.key_findings.map((finding, i) => `${i + 1}. ${finding}`).join('\n')}
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-5xl">
+    <div className="container mx-auto max-w-5xl p-6">
       {/* Header */}
-      <div className="flex justify-between items-start mb-6">
+      <div className="mb-6 flex items-start justify-between">
         <div>
           <h1 className="text-3xl font-bold">Case Digests</h1>
-          <p className="text-muted-foreground mt-1">
-            Periodic summaries of tribunal case alerts
-          </p>
+          <p className="text-muted-foreground mt-1">Periodic summaries of tribunal case alerts</p>
         </div>
         <div className="flex gap-2">
           <Button onClick={handleGenerateDigest} disabled={generating}>
@@ -135,13 +128,13 @@ ${digest.key_findings.map((finding, i) => `${i + 1}. ${finding}`).join('\n')}
       <Card className="mb-6 border-blue-200 bg-blue-50/50">
         <CardContent className="pt-6">
           <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5" />
+            <AlertCircle className="mt-0.5 h-5 w-5 text-blue-600" />
             <div>
-              <h3 className="font-semibold text-blue-900 mb-1">About Case Digests</h3>
+              <h3 className="mb-1 font-semibold text-blue-900">About Case Digests</h3>
               <p className="text-sm text-blue-800">
-                Digests provide a consolidated view of all tribunal case alerts over a specified period.
-                They include statistics, categorization, and key findings to help you quickly assess
-                the most important developments.
+                Digests provide a consolidated view of all tribunal case alerts over a specified
+                period. They include statistics, categorization, and key findings to help you
+                quickly assess the most important developments.
               </p>
             </div>
           </div>
@@ -153,9 +146,10 @@ ${digest.key_findings.map((finding, i) => `${i + 1}. ${finding}`).join('\n')}
         <Card>
           <CardContent className="py-12">
             <div className="text-center">
-              <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <FileText className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
               <p className="text-muted-foreground mb-4">
-                No digests have been generated yet. Click "Generate Digest" to create your first one.
+                No digests have been generated yet. Click "Generate Digest" to create your first
+                one.
               </p>
             </div>
           </CardContent>
@@ -168,11 +162,11 @@ ${digest.key_findings.map((finding, i) => `${i + 1}. ${finding}`).join('\n')}
                 <div className="flex items-start justify-between">
                   <div>
                     <CardTitle className="text-lg">
-                      <Calendar className="inline h-5 w-5 mr-2 text-muted-foreground" />
+                      <Calendar className="text-muted-foreground mr-2 inline h-5 w-5" />
                       {new Date(digest.digest_period_start).toLocaleDateString()} -{' '}
                       {new Date(digest.digest_period_end).toLocaleDateString()}
                     </CardTitle>
-                    <p className="text-sm text-muted-foreground mt-1">
+                    <p className="text-muted-foreground mt-1 text-sm">
                       Generated {new Date(digest.generated_at).toLocaleString()}
                     </p>
                   </div>
@@ -181,48 +175,48 @@ ${digest.key_findings.map((finding, i) => `${i + 1}. ${finding}`).join('\n')}
                     className="h-8 px-3 text-sm"
                     onClick={() => downloadDigest(digest)}
                   >
-                    <Download className="h-3 w-3 mr-1" />
+                    <Download className="mr-1 h-3 w-3" />
                     Download
                   </Button>
                 </div>
               </CardHeader>
               <CardContent>
                 {/* Statistics */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                <div className="mb-4 grid grid-cols-2 gap-4 md:grid-cols-4">
                   <div className="bg-muted rounded-lg p-3">
                     <div className="text-2xl font-bold">{digest.total_cases}</div>
-                    <div className="text-xs text-muted-foreground">Total Cases</div>
+                    <div className="text-muted-foreground text-xs">Total Cases</div>
                   </div>
-                  <div className="bg-red-50 rounded-lg p-3">
+                  <div className="rounded-lg bg-red-50 p-3">
                     <div className="text-2xl font-bold text-red-600">
                       {digest.high_priority_cases}
                     </div>
-                    <div className="text-xs text-muted-foreground">High Priority</div>
+                    <div className="text-muted-foreground text-xs">High Priority</div>
                   </div>
-                  <div className="bg-blue-50 rounded-lg p-3">
+                  <div className="rounded-lg bg-blue-50 p-3">
                     <div className="text-2xl font-bold text-blue-600">
                       {Object.keys(digest.cases_by_category).length}
                     </div>
-                    <div className="text-xs text-muted-foreground">Categories</div>
+                    <div className="text-muted-foreground text-xs">Categories</div>
                   </div>
-                  <div className="bg-green-50 rounded-lg p-3">
+                  <div className="rounded-lg bg-green-50 p-3">
                     <div className="text-2xl font-bold text-green-600">
                       {digest.key_findings.length}
                     </div>
-                    <div className="text-xs text-muted-foreground">Key Findings</div>
+                    <div className="text-muted-foreground text-xs">Key Findings</div>
                   </div>
                 </div>
 
                 {/* Summary */}
                 <div className="mb-4">
-                  <h4 className="font-semibold mb-2">Summary</h4>
-                  <p className="text-sm text-muted-foreground">{digest.summary}</p>
+                  <h4 className="mb-2 font-semibold">Summary</h4>
+                  <p className="text-muted-foreground text-sm">{digest.summary}</p>
                 </div>
 
                 {/* Cases by Category */}
                 {Object.keys(digest.cases_by_category).length > 0 && (
                   <div className="mb-4">
-                    <h4 className="font-semibold mb-2">Cases by Category</h4>
+                    <h4 className="mb-2 font-semibold">Cases by Category</h4>
                     <div className="flex flex-wrap gap-2">
                       {Object.entries(digest.cases_by_category).map(([category, count]) => (
                         <Badge key={category} variant="secondary">
@@ -236,13 +230,13 @@ ${digest.key_findings.map((finding, i) => `${i + 1}. ${finding}`).join('\n')}
                 {/* Key Findings */}
                 {digest.key_findings.length > 0 && (
                   <div>
-                    <h4 className="font-semibold mb-2 flex items-center gap-2">
+                    <h4 className="mb-2 flex items-center gap-2 font-semibold">
                       <TrendingUp className="h-4 w-4" />
                       Key Findings
                     </h4>
                     <ul className="space-y-1">
                       {digest.key_findings.map((finding, idx) => (
-                        <li key={idx} className="text-sm flex items-start gap-2">
+                        <li key={idx} className="flex items-start gap-2 text-sm">
                           <span className="text-muted-foreground">{idx + 1}.</span>
                           <span>{finding}</span>
                         </li>

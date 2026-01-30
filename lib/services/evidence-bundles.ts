@@ -10,7 +10,12 @@ export interface EvidenceBundleMetadata {
   id: string
   organization_id: string
   bundle_name: string
-  bundle_type: 'incident_response' | 'audit_compliance' | 'policy_review' | 'training_validation' | 'custom'
+  bundle_type:
+    | 'incident_response'
+    | 'audit_compliance'
+    | 'policy_review'
+    | 'training_validation'
+    | 'custom'
   created_by: string
   created_at: string
   description?: string
@@ -19,7 +24,13 @@ export interface EvidenceBundleMetadata {
 }
 
 export interface EvidenceBundleComponent {
-  component_type: 'tribunal_case' | 'training_record' | 'policy_document' | 'audit_log' | 'certificate' | 'quiz_result'
+  component_type:
+    | 'tribunal_case'
+    | 'training_record'
+    | 'policy_document'
+    | 'audit_log'
+    | 'certificate'
+    | 'quiz_result'
   component_id: string
   component_title: string
   included_at: string
@@ -45,7 +56,13 @@ export interface PolicyMapping {
 
 export interface TimelineEvent {
   event_date: string
-  event_type: 'incident' | 'training_completed' | 'policy_updated' | 'audit_conducted' | 'tribunal_decision' | 'remediation'
+  event_type:
+    | 'incident'
+    | 'training_completed'
+    | 'policy_updated'
+    | 'audit_conducted'
+    | 'tribunal_decision'
+    | 'remediation'
   event_title: string
   event_description: string
   related_component_id?: string
@@ -230,10 +247,7 @@ export async function updateBundleStatus(
 ): Promise<void> {
   const supabase = createClient()
 
-  const { error } = await supabase
-    .from('evidence_bundles')
-    .update({ status })
-    .eq('id', bundleId)
+  const { error } = await supabase.from('evidence_bundles').update({ status }).eq('id', bundleId)
 
   if (error) throw error
 }
@@ -343,9 +357,7 @@ export async function buildEvidenceTimeline(bundleId: string): Promise<TimelineE
 
       if (enrollment?.completed_at) {
         const courseData = enrollment.course as any
-        const courseTitle = Array.isArray(courseData) 
-          ? courseData[0]?.title 
-          : courseData?.title
+        const courseTitle = Array.isArray(courseData) ? courseData[0]?.title : courseData?.title
         timeline.push({
           event_date: enrollment.completed_at,
           event_type: 'training_completed',
@@ -364,9 +376,7 @@ export async function buildEvidenceTimeline(bundleId: string): Promise<TimelineE
 
       if (certificate?.issued_at) {
         const courseData = certificate.course as any
-        const courseTitle = Array.isArray(courseData)
-          ? courseData[0]?.title
-          : courseData?.title
+        const courseTitle = Array.isArray(courseData) ? courseData[0]?.title : courseData?.title
         timeline.push({
           event_date: certificate.issued_at,
           event_type: 'training_completed',
@@ -380,7 +390,9 @@ export async function buildEvidenceTimeline(bundleId: string): Promise<TimelineE
   }
 
   // Sort by date
-  return timeline.sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime())
+  return timeline.sort(
+    (a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime()
+  )
 }
 
 /**

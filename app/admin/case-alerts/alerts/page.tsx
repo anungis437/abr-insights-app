@@ -81,7 +81,7 @@ export default function AlertsPage() {
   }
 
   const getAlertTypeLabel = (alertType: string) => {
-    return alertType.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+    return alertType.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())
   }
 
   const getRelevanceColor = (score: number) => {
@@ -91,12 +91,12 @@ export default function AlertsPage() {
     return 'text-blue-600'
   }
 
-  const unreadCount = alerts.filter(a => !a.read).length
+  const unreadCount = alerts.filter((a) => !a.read).length
 
   if (loading) {
     return (
       <div className="container mx-auto p-6">
-        <div className="text-center py-12">
+        <div className="py-12 text-center">
           <p className="text-muted-foreground">Loading alerts...</p>
         </div>
       </div>
@@ -104,9 +104,9 @@ export default function AlertsPage() {
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-5xl">
+    <div className="container mx-auto max-w-5xl p-6">
       {/* Header */}
-      <div className="flex justify-between items-start mb-6">
+      <div className="mb-6 flex items-start justify-between">
         <div>
           <h1 className="text-3xl font-bold">Case Alerts</h1>
           <p className="text-muted-foreground mt-1">
@@ -127,10 +127,10 @@ export default function AlertsPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-muted-foreground text-sm font-medium">
               Total Alerts
             </CardTitle>
           </CardHeader>
@@ -141,9 +141,7 @@ export default function AlertsPage() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Unread
-            </CardTitle>
+            <CardTitle className="text-muted-foreground text-sm font-medium">Unread</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-orange-600">{unreadCount}</div>
@@ -152,13 +150,13 @@ export default function AlertsPage() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-muted-foreground text-sm font-medium">
               High Priority
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">
-              {alerts.filter(a => a.relevance_score >= 0.8).length}
+              {alerts.filter((a) => a.relevance_score >= 0.8).length}
             </div>
           </CardContent>
         </Card>
@@ -167,12 +165,8 @@ export default function AlertsPage() {
       {/* Filter Tabs */}
       <Tabs value={filter} onValueChange={(v) => setFilter(v as 'all' | 'unread')} className="mb-6">
         <TabsList>
-          <TabsTrigger value="all">
-            All Alerts ({alerts.length})
-          </TabsTrigger>
-          <TabsTrigger value="unread">
-            Unread ({unreadCount})
-          </TabsTrigger>
+          <TabsTrigger value="all">All Alerts ({alerts.length})</TabsTrigger>
+          <TabsTrigger value="unread">Unread ({unreadCount})</TabsTrigger>
         </TabsList>
       </Tabs>
 
@@ -181,16 +175,14 @@ export default function AlertsPage() {
         <Card>
           <CardContent className="py-12">
             <div className="text-center">
-              <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <Bell className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
               <p className="text-muted-foreground mb-4">
-                {filter === 'unread' 
-                  ? 'No unread alerts. You\'re all caught up!'
+                {filter === 'unread'
+                  ? "No unread alerts. You're all caught up!"
                   : 'No alerts yet. Create a saved search to start receiving notifications.'}
               </p>
               <Link href="/admin/case-alerts">
-                <Button variant="outline">
-                  Manage Saved Searches
-                </Button>
+                <Button variant="outline">Manage Saved Searches</Button>
               </Link>
             </div>
           </CardContent>
@@ -205,18 +197,18 @@ export default function AlertsPage() {
               <CardContent className="p-4">
                 <div className="flex items-start gap-4">
                   {/* Icon */}
-                  <div className={`mt-1 ${!alert.read ? 'text-blue-600' : 'text-muted-foreground'}`}>
+                  <div
+                    className={`mt-1 ${!alert.read ? 'text-blue-600' : 'text-muted-foreground'}`}
+                  >
                     {getAlertIcon(alert.alert_type)}
                   </div>
 
                   {/* Content */}
                   <div className="flex-1">
-                    <div className="flex items-start justify-between mb-2">
+                    <div className="mb-2 flex items-start justify-between">
                       <div>
                         <h3 className="font-semibold">{alert.alert_title}</h3>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {alert.case_title}
-                        </p>
+                        <p className="text-muted-foreground mt-1 text-sm">{alert.case_title}</p>
                       </div>
                       {!alert.read && (
                         <Badge variant="default" className="ml-4">
@@ -225,28 +217,26 @@ export default function AlertsPage() {
                       )}
                     </div>
 
-                    <p className="text-sm text-muted-foreground mb-3">
-                      {alert.alert_summary}
-                    </p>
+                    <p className="text-muted-foreground mb-3 text-sm">{alert.alert_summary}</p>
 
                     {/* Metadata */}
-                    <div className="flex flex-wrap gap-2 mb-3">
+                    <div className="mb-3 flex flex-wrap gap-2">
                       <Badge variant="outline" className="text-xs">
                         {getAlertIcon(alert.alert_type)}
                         <span className="ml-1">{getAlertTypeLabel(alert.alert_type)}</span>
                       </Badge>
                       <Badge variant="secondary" className="text-xs">
-                        <Calendar className="h-3 w-3 mr-1" />
+                        <Calendar className="mr-1 h-3 w-3" />
                         {new Date(alert.decision_date).toLocaleDateString()}
                       </Badge>
                       <Badge
                         variant="outline"
                         className={`text-xs ${getRelevanceColor(alert.relevance_score)}`}
                       >
-                        <TrendingUp className="h-3 w-3 mr-1" />
+                        <TrendingUp className="mr-1 h-3 w-3" />
                         {Math.round(alert.relevance_score * 100)}% relevant
                       </Badge>
-                      <Badge variant="outline" className="text-xs text-muted-foreground">
+                      <Badge variant="outline" className="text-muted-foreground text-xs">
                         {new Date(alert.created_at).toLocaleString()}
                       </Badge>
                     </div>
@@ -255,7 +245,7 @@ export default function AlertsPage() {
                     <div className="flex gap-2">
                       <Link href={`/tribunal-cases/${alert.tribunal_case_id}`}>
                         <Button variant="outline" className="h-8 px-3 text-sm">
-                          <ExternalLink className="h-3 w-3 mr-1" />
+                          <ExternalLink className="mr-1 h-3 w-3" />
                           View Case
                         </Button>
                       </Link>
@@ -265,7 +255,7 @@ export default function AlertsPage() {
                           className="h-8 px-3 text-sm"
                           onClick={() => handleMarkRead(alert.id)}
                         >
-                          <CheckCircle className="h-3 w-3 mr-1" />
+                          <CheckCircle className="mr-1 h-3 w-3" />
                           Mark Read
                         </Button>
                       )}

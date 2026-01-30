@@ -3,11 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import {
-  createSSOProvider,
-  type SSOProviderCreate,
-  type ProviderType,
-} from '@/lib/services/sso'
+import { createSSOProvider, type SSOProviderCreate, type ProviderType } from '@/lib/services/sso'
 import { Shield, ArrowLeft, Save, AlertCircle } from 'lucide-react'
 
 export default function NewSSOProviderPage() {
@@ -74,7 +70,11 @@ export default function NewSSOProviderPage() {
     try {
       // Validate required fields based on provider type
       if (formData.provider_type === 'azure_ad_b2c') {
-        if (!formData.azure_tenant_id || !formData.azure_client_id || !formData.azure_client_secret) {
+        if (
+          !formData.azure_tenant_id ||
+          !formData.azure_client_id ||
+          !formData.azure_client_secret
+        ) {
           throw new Error('Azure AD B2C requires Tenant ID, Client ID, and Client Secret')
         }
       } else if (formData.provider_type === 'saml') {
@@ -159,7 +159,7 @@ export default function NewSSOProviderPage() {
           {/* Basic Information */}
           <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
             <h2 className="mb-4 text-lg font-semibold text-gray-900">Basic Information</h2>
-            
+
             <div className="space-y-4">
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700">
@@ -224,11 +224,16 @@ export default function NewSSOProviderPage() {
           {/* Azure AD B2C Configuration */}
           {formData.provider_type === 'azure_ad_b2c' && (
             <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-              <h2 className="mb-4 text-lg font-semibold text-gray-900">Azure AD B2C Configuration</h2>
-              
+              <h2 className="mb-4 text-lg font-semibold text-gray-900">
+                Azure AD B2C Configuration
+              </h2>
+
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="azure_tenant_id" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="azure_tenant_id"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Tenant ID <span className="text-red-600">*</span>
                   </label>
                   <input
@@ -243,7 +248,10 @@ export default function NewSSOProviderPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="azure_client_id" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="azure_client_id"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Client ID (Application ID) <span className="text-red-600">*</span>
                   </label>
                   <input
@@ -257,7 +265,10 @@ export default function NewSSOProviderPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="azure_client_secret" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="azure_client_secret"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Client Secret <span className="text-red-600">*</span>
                   </label>
                   <input
@@ -271,7 +282,10 @@ export default function NewSSOProviderPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="azure_policy_name" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="azure_policy_name"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Policy/User Flow Name
                   </label>
                   <input
@@ -291,10 +305,13 @@ export default function NewSSOProviderPage() {
           {formData.provider_type === 'saml' && (
             <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
               <h2 className="mb-4 text-lg font-semibold text-gray-900">SAML 2.0 Configuration</h2>
-              
+
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="saml_entity_id" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="saml_entity_id"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Entity ID (Issuer) <span className="text-red-600">*</span>
                   </label>
                   <input
@@ -338,7 +355,10 @@ export default function NewSSOProviderPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="saml_certificate" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="saml_certificate"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     X.509 Certificate <span className="text-red-600">*</span>
                   </label>
                   <textarea
@@ -356,19 +376,33 @@ export default function NewSSOProviderPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="saml_name_id_format" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="saml_name_id_format"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     NameID Format
                   </label>
                   <select
                     id="saml_name_id_format"
-                    value={formData.saml_name_id_format || 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress'}
+                    value={
+                      formData.saml_name_id_format ||
+                      'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress'
+                    }
                     onChange={(e) => updateFormData('saml_name_id_format', e.target.value)}
                     className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   >
-                    <option value="urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress">Email Address</option>
-                    <option value="urn:oasis:names:tc:SAML:2.0:nameid-format:persistent">Persistent</option>
-                    <option value="urn:oasis:names:tc:SAML:2.0:nameid-format:transient">Transient</option>
-                    <option value="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified">Unspecified</option>
+                    <option value="urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress">
+                      Email Address
+                    </option>
+                    <option value="urn:oasis:names:tc:SAML:2.0:nameid-format:persistent">
+                      Persistent
+                    </option>
+                    <option value="urn:oasis:names:tc:SAML:2.0:nameid-format:transient">
+                      Transient
+                    </option>
+                    <option value="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified">
+                      Unspecified
+                    </option>
                   </select>
                 </div>
               </div>
@@ -378,11 +412,16 @@ export default function NewSSOProviderPage() {
           {/* OIDC Configuration */}
           {formData.provider_type === 'oidc' && (
             <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-              <h2 className="mb-4 text-lg font-semibold text-gray-900">OpenID Connect Configuration</h2>
-              
+              <h2 className="mb-4 text-lg font-semibold text-gray-900">
+                OpenID Connect Configuration
+              </h2>
+
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="oidc_issuer_url" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="oidc_issuer_url"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Issuer URL <span className="text-red-600">*</span>
                   </label>
                   <input
@@ -397,7 +436,10 @@ export default function NewSSOProviderPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="oidc_client_id" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="oidc_client_id"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Client ID <span className="text-red-600">*</span>
                   </label>
                   <input
@@ -411,7 +453,10 @@ export default function NewSSOProviderPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="oidc_client_secret" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="oidc_client_secret"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Client Secret <span className="text-red-600">*</span>
                   </label>
                   <input
@@ -430,7 +475,7 @@ export default function NewSSOProviderPage() {
           {/* Advanced Settings */}
           <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
             <h2 className="mb-4 text-lg font-semibold text-gray-900">Advanced Settings</h2>
-            
+
             <div className="space-y-4">
               <div className="flex items-start gap-3">
                 <input
@@ -441,7 +486,10 @@ export default function NewSSOProviderPage() {
                   className="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
                 <div className="flex-1">
-                  <label htmlFor="auto_provision_users" className="block text-sm font-medium text-gray-900">
+                  <label
+                    htmlFor="auto_provision_users"
+                    className="block text-sm font-medium text-gray-900"
+                  >
                     Auto-provision users
                   </label>
                   <p className="mt-1 text-sm text-gray-600">
@@ -459,7 +507,10 @@ export default function NewSSOProviderPage() {
                   className="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
                 <div className="flex-1">
-                  <label htmlFor="require_email_verification" className="block text-sm font-medium text-gray-900">
+                  <label
+                    htmlFor="require_email_verification"
+                    className="block text-sm font-medium text-gray-900"
+                  >
                     Require email verification
                   </label>
                   <p className="mt-1 text-sm text-gray-600">
@@ -469,7 +520,10 @@ export default function NewSSOProviderPage() {
               </div>
 
               <div>
-                <label htmlFor="allowed_domains" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="allowed_domains"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Allowed Email Domains
                 </label>
                 <input
@@ -479,7 +533,7 @@ export default function NewSSOProviderPage() {
                   onChange={(e) => {
                     const domains = e.target.value
                       .split(',')
-                      .map(d => d.trim())
+                      .map((d) => d.trim())
                       .filter(Boolean)
                     updateFormData('allowed_domains', domains.length > 0 ? domains : undefined)
                   }}

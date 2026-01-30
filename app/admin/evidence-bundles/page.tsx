@@ -56,8 +56,8 @@ export default function EvidenceBundlesPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-gray-900"></div>
       </div>
     )
   }
@@ -67,14 +67,12 @@ export default function EvidenceBundlesPage() {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold mb-2">Evidence Bundles</h1>
-            <p className="text-gray-600">
-              Comprehensive compliance evidence packages
-            </p>
+            <h1 className="mb-2 text-3xl font-bold">Evidence Bundles</h1>
+            <p className="text-gray-600">Comprehensive compliance evidence packages</p>
           </div>
           <button
             onClick={() => router.push('/admin/evidence-bundles/new')}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
           >
             <Plus className="h-5 w-5" />
             New Bundle
@@ -83,7 +81,7 @@ export default function EvidenceBundlesPage() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow p-6 mb-8">
+      <div className="mb-8 rounded-lg bg-white p-6 shadow">
         <div className="flex items-center gap-4">
           <label className="text-sm font-medium text-gray-700">Status:</label>
           <div className="flex gap-2">
@@ -91,7 +89,7 @@ export default function EvidenceBundlesPage() {
               <button
                 key={status}
                 onClick={() => setFilterStatus(status)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                   filterStatus === status
                     ? 'bg-blue-600 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -106,36 +104,36 @@ export default function EvidenceBundlesPage() {
 
       {/* Bundles Grid */}
       {bundles.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-12 text-center">
-          <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No evidence bundles yet</h3>
-          <p className="text-gray-600 mb-6">
+        <div className="rounded-lg bg-white p-12 text-center shadow">
+          <Package className="mx-auto mb-4 h-16 w-16 text-gray-400" />
+          <h3 className="mb-2 text-lg font-semibold text-gray-900">No evidence bundles yet</h3>
+          <p className="mb-6 text-gray-600">
             Create your first evidence bundle to package compliance documentation
           </p>
           <button
             onClick={() => router.push('/admin/evidence-bundles/new')}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 text-white hover:bg-blue-700"
           >
             <Plus className="h-5 w-5" />
             Create Evidence Bundle
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {bundles.map((bundle) => (
             <div
               key={bundle.id}
-              className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer"
+              className="cursor-pointer rounded-lg bg-white shadow transition-shadow hover:shadow-lg"
               onClick={() => router.push(`/admin/evidence-bundles/${bundle.id}`)}
             >
               <div className="p-6">
-                <div className="flex items-start justify-between mb-4">
+                <div className="mb-4 flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-blue-50 rounded">
+                    <div className="rounded bg-blue-50 p-2">
                       <FileText className="h-6 w-6 text-blue-600" />
                     </div>
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium capitalize ${getStatusColor(
+                      className={`rounded-full px-2 py-1 text-xs font-medium capitalize ${getStatusColor(
                         bundle.status
                       )}`}
                     >
@@ -144,17 +142,17 @@ export default function EvidenceBundlesPage() {
                   </div>
                 </div>
 
-                <h3 className="text-lg font-semibold mb-2 line-clamp-2">{bundle.bundle_name}</h3>
-                
-                <div className="text-sm text-gray-600 mb-4">
+                <h3 className="mb-2 line-clamp-2 text-lg font-semibold">{bundle.bundle_name}</h3>
+
+                <div className="mb-4 text-sm text-gray-600">
                   {getBundleTypeLabel(bundle.bundle_type)}
                 </div>
 
                 {bundle.description && (
-                  <p className="text-sm text-gray-600 mb-4 line-clamp-2">{bundle.description}</p>
+                  <p className="mb-4 line-clamp-2 text-sm text-gray-600">{bundle.description}</p>
                 )}
 
-                <div className="flex items-center gap-4 text-xs text-gray-500 mb-4">
+                <div className="mb-4 flex items-center gap-4 text-xs text-gray-500">
                   <div className="flex items-center gap-1">
                     <Calendar className="h-3 w-3" />
                     {new Date(bundle.created_at).toLocaleDateString()}
@@ -162,13 +160,13 @@ export default function EvidenceBundlesPage() {
                 </div>
 
                 {bundle.tags && bundle.tags.length > 0 && (
-                  <div className="flex items-center gap-2 mb-4">
+                  <div className="mb-4 flex items-center gap-2">
                     <Tag className="h-3 w-3 text-gray-400" />
                     <div className="flex flex-wrap gap-1">
                       {bundle.tags.slice(0, 3).map((tag) => (
                         <span
                           key={tag}
-                          className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs"
+                          className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600"
                         >
                           {tag}
                         </span>
@@ -187,7 +185,7 @@ export default function EvidenceBundlesPage() {
                     e.stopPropagation()
                     router.push(`/admin/evidence-bundles/${bundle.id}`)
                   }}
-                  className="w-full mt-4 flex items-center justify-center gap-2 px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+                  className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg border border-blue-600 px-4 py-2 text-blue-600 transition-colors hover:bg-blue-50"
                 >
                   <Eye className="h-4 w-4" />
                   View Details

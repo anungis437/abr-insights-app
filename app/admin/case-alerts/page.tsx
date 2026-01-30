@@ -47,7 +47,7 @@ export default function CaseAlertsPage() {
       const alerts = await getCaseAlerts('user-id-placeholder', false, 10)
       setRecentAlerts(alerts)
 
-      const unread = alerts.filter(a => !a.read).length
+      const unread = alerts.filter((a) => !a.read).length
       setUnreadCount(unread)
     } catch (error) {
       console.error('Failed to load data:', error)
@@ -91,7 +91,7 @@ export default function CaseAlertsPage() {
   if (loading) {
     return (
       <div className="container mx-auto p-6">
-        <div className="text-center py-12">
+        <div className="py-12 text-center">
           <p className="text-muted-foreground">Loading case alerts...</p>
         </div>
       </div>
@@ -101,7 +101,7 @@ export default function CaseAlertsPage() {
   return (
     <div className="container mx-auto p-6">
       {/* Header */}
-      <div className="flex justify-between items-start mb-6">
+      <div className="mb-6 flex items-start justify-between">
         <div>
           <h1 className="text-3xl font-bold">Case Alerts</h1>
           <p className="text-muted-foreground mt-1">
@@ -130,10 +130,10 @@ export default function CaseAlertsPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-muted-foreground text-sm font-medium">
               Saved Searches
             </CardTitle>
           </CardHeader>
@@ -144,20 +144,20 @@ export default function CaseAlertsPage() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-muted-foreground text-sm font-medium">
               Active Alerts
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {savedSearches.filter(s => s.alert_enabled).length}
+              {savedSearches.filter((s) => s.alert_enabled).length}
             </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-muted-foreground text-sm font-medium">
               Unread Alerts
             </CardTitle>
           </CardHeader>
@@ -168,7 +168,7 @@ export default function CaseAlertsPage() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-muted-foreground text-sm font-medium">
               Recent Cases
             </CardTitle>
           </CardHeader>
@@ -185,8 +185,8 @@ export default function CaseAlertsPage() {
         </CardHeader>
         <CardContent>
           {savedSearches.length === 0 ? (
-            <div className="text-center py-12">
-              <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <div className="py-12 text-center">
+              <Search className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
               <p className="text-muted-foreground mb-4">
                 No saved searches yet. Create one to start tracking tribunal cases.
               </p>
@@ -202,20 +202,20 @@ export default function CaseAlertsPage() {
               {savedSearches.map((search) => (
                 <div
                   key={search.id}
-                  className="border rounded-lg p-4 hover:bg-muted/50 transition-colors"
+                  className="hover:bg-muted/50 rounded-lg border p-4 transition-colors"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
+                      <div className="mb-2 flex items-center gap-2">
                         <h3 className="font-semibold">{search.search_name}</h3>
                         {search.alert_enabled ? (
                           <Badge variant="default">
-                            <Bell className="h-3 w-3 mr-1" />
+                            <Bell className="mr-1 h-3 w-3" />
                             Alerts On
                           </Badge>
                         ) : (
                           <Badge variant="outline">
-                            <BellOff className="h-3 w-3 mr-1" />
+                            <BellOff className="mr-1 h-3 w-3" />
                             Alerts Off
                           </Badge>
                         )}
@@ -225,32 +225,33 @@ export default function CaseAlertsPage() {
                       </div>
 
                       {search.search_query && (
-                        <p className="text-sm text-muted-foreground mb-2">
-                          {search.search_query}
-                        </p>
+                        <p className="text-muted-foreground mb-2 text-sm">{search.search_query}</p>
                       )}
 
                       {/* Search Filters Summary */}
                       <div className="flex flex-wrap gap-2 text-xs">
-                        {search.search_filters.keywords && search.search_filters.keywords.length > 0 && (
-                          <Badge variant="secondary" className="font-normal">
-                            <Filter className="h-3 w-3 mr-1" />
-                            {search.search_filters.keywords.length} keywords
-                          </Badge>
-                        )}
-                        {search.search_filters.jurisdictions && search.search_filters.jurisdictions.length > 0 && (
-                          <Badge variant="secondary" className="font-normal">
-                            {search.search_filters.jurisdictions.length} jurisdictions
-                          </Badge>
-                        )}
-                        {search.search_filters.case_types && search.search_filters.case_types.length > 0 && (
-                          <Badge variant="secondary" className="font-normal">
-                            {search.search_filters.case_types.length} case types
-                          </Badge>
-                        )}
+                        {search.search_filters.keywords &&
+                          search.search_filters.keywords.length > 0 && (
+                            <Badge variant="secondary" className="font-normal">
+                              <Filter className="mr-1 h-3 w-3" />
+                              {search.search_filters.keywords.length} keywords
+                            </Badge>
+                          )}
+                        {search.search_filters.jurisdictions &&
+                          search.search_filters.jurisdictions.length > 0 && (
+                            <Badge variant="secondary" className="font-normal">
+                              {search.search_filters.jurisdictions.length} jurisdictions
+                            </Badge>
+                          )}
+                        {search.search_filters.case_types &&
+                          search.search_filters.case_types.length > 0 && (
+                            <Badge variant="secondary" className="font-normal">
+                              {search.search_filters.case_types.length} case types
+                            </Badge>
+                          )}
                         {search.last_checked_at && (
                           <Badge variant="outline" className="font-normal">
-                            <Calendar className="h-3 w-3 mr-1" />
+                            <Calendar className="mr-1 h-3 w-3" />
                             Last checked: {new Date(search.last_checked_at).toLocaleDateString()}
                           </Badge>
                         )}
@@ -258,7 +259,7 @@ export default function CaseAlertsPage() {
 
                       {/* Alert Channels */}
                       {search.alert_enabled && (
-                        <div className="flex gap-2 mt-2">
+                        <div className="mt-2 flex gap-2">
                           {search.alert_channels.map((channel) => (
                             <Badge key={channel} variant="outline" className="text-xs">
                               {channel}
@@ -269,7 +270,7 @@ export default function CaseAlertsPage() {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex gap-2 ml-4">
+                    <div className="ml-4 flex gap-2">
                       <Button
                         variant="outline"
                         className="h-8 w-8 p-0"
@@ -293,7 +294,7 @@ export default function CaseAlertsPage() {
                         className="h-8 w-8 p-0"
                         onClick={() => handleDelete(search.id)}
                       >
-                        <Trash2 className="h-4 w-4 text-destructive" />
+                        <Trash2 className="text-destructive h-4 w-4" />
                       </Button>
                     </div>
                   </div>
@@ -308,7 +309,7 @@ export default function CaseAlertsPage() {
       {recentAlerts.length > 0 && (
         <Card className="mt-6">
           <CardHeader>
-            <div className="flex justify-between items-center">
+            <div className="flex items-center justify-between">
               <CardTitle>Recent Alerts</CardTitle>
               <Link href="/admin/case-alerts/alerts">
                 <Button variant="outline" className="h-8 px-3 text-sm">
@@ -322,15 +323,15 @@ export default function CaseAlertsPage() {
               {recentAlerts.slice(0, 5).map((alert) => (
                 <div
                   key={alert.id}
-                  className={`border rounded p-3 ${!alert.read ? 'bg-blue-50 border-blue-200' : ''}`}
+                  className={`rounded border p-3 ${!alert.read ? 'border-blue-200 bg-blue-50' : ''}`}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <h4 className="font-medium text-sm">{alert.alert_title}</h4>
-                      <p className="text-xs text-muted-foreground mt-1">
+                      <h4 className="text-sm font-medium">{alert.alert_title}</h4>
+                      <p className="text-muted-foreground mt-1 text-xs">
                         {alert.alert_summary.substring(0, 120)}...
                       </p>
-                      <div className="flex gap-2 mt-2">
+                      <div className="mt-2 flex gap-2">
                         <Badge variant="outline" className="text-xs">
                           {alert.alert_type.replace('_', ' ')}
                         </Badge>

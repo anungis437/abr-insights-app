@@ -128,10 +128,7 @@ export async function updateSavedSearch(
 ): Promise<void> {
   const supabase = createClient()
 
-  const { error } = await supabase
-    .from('saved_searches')
-    .update(updates)
-    .eq('id', searchId)
+  const { error } = await supabase.from('saved_searches').update(updates).eq('id', searchId)
 
   if (error) throw error
 }
@@ -142,10 +139,7 @@ export async function updateSavedSearch(
 export async function deleteSavedSearch(searchId: string): Promise<void> {
   const supabase = createClient()
 
-  const { error } = await supabase
-    .from('saved_searches')
-    .delete()
-    .eq('id', searchId)
+  const { error } = await supabase.from('saved_searches').delete().eq('id', searchId)
 
   if (error) throw error
 }
@@ -176,7 +170,7 @@ export async function executeSavedSearch(searchId: string): Promise<CaseAlert[]>
 
   if (filters.keywords && filters.keywords.length > 0) {
     // Simple keyword search across title and summary
-    const keywordFilter = filters.keywords.map(k => `case_title.ilike.%${k}%`).join(',')
+    const keywordFilter = filters.keywords.map((k) => `case_title.ilike.%${k}%`).join(',')
     query = query.or(keywordFilter)
   }
 
@@ -205,7 +199,7 @@ export async function executeSavedSearch(searchId: string): Promise<CaseAlert[]>
   const alerts: CaseAlert[] = []
   for (const tribunalCase of cases || []) {
     const relevanceScore = calculateRelevance(tribunalCase, filters)
-    
+
     if (relevanceScore >= (filters.relevance_threshold || 0.5)) {
       alerts.push({
         id: '', // Will be generated on insert
@@ -231,20 +225,18 @@ export async function executeSavedSearch(searchId: string): Promise<CaseAlert[]>
 
   // Insert alerts if any
   if (alerts.length > 0) {
-    const { error: alertsError } = await supabase
-      .from('case_alerts')
-      .insert(
-        alerts.map(a => ({
-          saved_search_id: a.saved_search_id,
-          tribunal_case_id: a.tribunal_case_id,
-          alert_type: a.alert_type,
-          alert_title: a.alert_title,
-          alert_summary: a.alert_summary,
-          case_title: a.case_title,
-          decision_date: a.decision_date,
-          relevance_score: a.relevance_score,
-        }))
-      )
+    const { error: alertsError } = await supabase.from('case_alerts').insert(
+      alerts.map((a) => ({
+        saved_search_id: a.saved_search_id,
+        tribunal_case_id: a.tribunal_case_id,
+        alert_type: a.alert_type,
+        alert_title: a.alert_title,
+        alert_summary: a.alert_summary,
+        case_title: a.case_title,
+        decision_date: a.decision_date,
+        relevance_score: a.relevance_score,
+      }))
+    )
 
     if (alertsError) throw alertsError
   }
@@ -260,8 +252,9 @@ function calculateRelevance(tribunalCase: any, filters: SearchFilters): number {
 
   // Keyword matching
   if (filters.keywords && filters.keywords.length > 0) {
-    const caseText = `${tribunalCase.case_title} ${tribunalCase.decision_summary || ''} ${tribunalCase.keywords?.join(' ') || ''}`.toLowerCase()
-    const matchedKeywords = filters.keywords.filter(k => caseText.includes(k.toLowerCase()))
+    const caseText =
+      `${tribunalCase.case_title} ${tribunalCase.decision_summary || ''} ${tribunalCase.keywords?.join(' ') || ''}`.toLowerCase()
+    const matchedKeywords = filters.keywords.filter((k) => caseText.includes(k.toLowerCase()))
     score += (matchedKeywords.length / filters.keywords.length) * 0.3
   }
 
@@ -271,7 +264,8 @@ function calculateRelevance(tribunalCase: any, filters: SearchFilters): number {
   }
 
   // Recent decision (higher relevance)
-  const daysSinceDecision = (Date.now() - new Date(tribunalCase.decision_date).getTime()) / (1000 * 60 * 60 * 24)
+  const daysSinceDecision =
+    (Date.now() - new Date(tribunalCase.decision_date).getTime()) / (1000 * 60 * 60 * 24)
   if (daysSinceDecision < 7) score += 0.1
   else if (daysSinceDecision < 30) score += 0.05
 
@@ -290,10 +284,12 @@ export async function getCaseAlerts(
 
   let query = supabase
     .from('case_alerts')
-    .select(`
+    .select(
+      `
       *,
       saved_search:saved_searches(search_name)
-    `)
+    `
+    )
     .eq('saved_searches.user_id', userId)
     .order('created_at', { ascending: false })
     .limit(limit)
@@ -314,10 +310,7 @@ export async function getCaseAlerts(
 export async function markAlertRead(alertId: string): Promise<void> {
   const supabase = createClient()
 
-  const { error } = await supabase
-    .from('case_alerts')
-    .update({ read: true })
-    .eq('id', alertId)
+  const { error } = await supabase.from('case_alerts').update({ read: true }).eq('id', alertId)
 
   if (error) throw error
 }
@@ -349,10 +342,12 @@ export async function generateCaseDigest(
   // Get all alerts in period
   const { data: alerts, error } = await supabase
     .from('case_alerts')
-    .select(`
+    .select(
+      `
       *,
       saved_search:saved_searches!inner(organization_id)
-    `)
+    `
+    )
     .eq('saved_searches.organization_id', organizationId)
     .gte('created_at', periodStart)
     .lte('created_at', periodEnd)
@@ -360,21 +355,22 @@ export async function generateCaseDigest(
   if (error) throw error
 
   const totalCases = alerts?.length || 0
-  const highPriorityCases = alerts?.filter(a => a.relevance_score > 0.8).length || 0
+  const highPriorityCases = alerts?.filter((a) => a.relevance_score > 0.8).length || 0
 
   // Categorize cases
   const casesByCategory: Record<string, number> = {}
-  alerts?.forEach(alert => {
+  alerts?.forEach((alert) => {
     const category = alert.alert_type
     casesByCategory[category] = (casesByCategory[category] || 0) + 1
   })
 
   // Extract key findings (top 5 high-relevance cases)
-  const keyFindings = alerts
-    ?.filter(a => a.relevance_score > 0.7)
-    .sort((a, b) => b.relevance_score - a.relevance_score)
-    .slice(0, 5)
-    .map(a => a.alert_title) || []
+  const keyFindings =
+    alerts
+      ?.filter((a) => a.relevance_score > 0.7)
+      .sort((a, b) => b.relevance_score - a.relevance_score)
+      .slice(0, 5)
+      .map((a) => a.alert_title) || []
 
   const summary = `${totalCases} new tribunal cases tracked during this period. ${highPriorityCases} cases flagged as high priority based on relevance to your saved searches.`
 
@@ -428,12 +424,10 @@ export async function updateAlertPreferences(
 ): Promise<void> {
   const supabase = createClient()
 
-  const { error } = await supabase
-    .from('alert_preferences')
-    .upsert({
-      user_id: userId,
-      ...preferences,
-    })
+  const { error } = await supabase.from('alert_preferences').upsert({
+    user_id: userId,
+    ...preferences,
+  })
 
   if (error) throw error
 }

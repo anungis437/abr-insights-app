@@ -7,10 +7,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import {
-  getDepartmentUserRiskDetails,
-  type UserRiskDetail,
-} from '@/lib/services/risk-analytics'
+import { getDepartmentUserRiskDetails, type UserRiskDetail } from '@/lib/services/risk-analytics'
 import { ArrowLeft, AlertTriangle, CheckCircle, Clock, XCircle, Download } from 'lucide-react'
 
 export default function DepartmentUserRiskPage() {
@@ -151,8 +148,8 @@ export default function DepartmentUserRiskPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-gray-900"></div>
       </div>
     )
   }
@@ -170,19 +167,19 @@ export default function DepartmentUserRiskPage() {
       <div className="mb-8">
         <button
           onClick={() => router.back()}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4"
+          className="mb-4 flex items-center gap-2 text-gray-600 hover:text-gray-900"
         >
           <ArrowLeft className="h-5 w-5" />
           Back to Risk Heatmap
         </button>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold mb-2">{department}</h1>
+            <h1 className="mb-2 text-3xl font-bold">{department}</h1>
             <p className="text-gray-600">Individual user compliance status</p>
           </div>
           <button
             onClick={exportToCSV}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
           >
             <Download className="h-5 w-5" />
             Export CSV
@@ -191,44 +188,44 @@ export default function DepartmentUserRiskPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-red-50 rounded-lg shadow p-6 border-l-4 border-red-600">
-          <h3 className="text-sm font-medium text-gray-600 mb-2">Critical Risk</h3>
+      <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
+        <div className="rounded-lg border-l-4 border-red-600 bg-red-50 p-6 shadow">
+          <h3 className="mb-2 text-sm font-medium text-gray-600">Critical Risk</h3>
           <p className="text-3xl font-bold text-red-700">{riskStats.critical}</p>
         </div>
-        <div className="bg-orange-50 rounded-lg shadow p-6 border-l-4 border-orange-600">
-          <h3 className="text-sm font-medium text-gray-600 mb-2">High Risk</h3>
+        <div className="rounded-lg border-l-4 border-orange-600 bg-orange-50 p-6 shadow">
+          <h3 className="mb-2 text-sm font-medium text-gray-600">High Risk</h3>
           <p className="text-3xl font-bold text-orange-700">{riskStats.high}</p>
         </div>
-        <div className="bg-yellow-50 rounded-lg shadow p-6 border-l-4 border-yellow-600">
-          <h3 className="text-sm font-medium text-gray-600 mb-2">Medium Risk</h3>
+        <div className="rounded-lg border-l-4 border-yellow-600 bg-yellow-50 p-6 shadow">
+          <h3 className="mb-2 text-sm font-medium text-gray-600">Medium Risk</h3>
           <p className="text-3xl font-bold text-yellow-700">{riskStats.medium}</p>
         </div>
-        <div className="bg-green-50 rounded-lg shadow p-6 border-l-4 border-green-600">
-          <h3 className="text-sm font-medium text-gray-600 mb-2">Low Risk</h3>
+        <div className="rounded-lg border-l-4 border-green-600 bg-green-50 p-6 shadow">
+          <h3 className="mb-2 text-sm font-medium text-gray-600">Low Risk</h3>
           <p className="text-3xl font-bold text-green-700">{riskStats.low}</p>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow p-6 mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="mb-8 rounded-lg bg-white p-6 shadow">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Search User</label>
+            <label className="mb-2 block text-sm font-medium text-gray-700">Search User</label>
             <input
               type="text"
               placeholder="Name or email..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Risk Level</label>
+            <label className="mb-2 block text-sm font-medium text-gray-700">Risk Level</label>
             <select
               value={filterRiskLevel}
               onChange={(e) => setFilterRiskLevel(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
               aria-label="Filter by risk level"
             >
               <option value="all">All Levels</option>
@@ -239,11 +236,11 @@ export default function DepartmentUserRiskPage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Training Status</label>
+            <label className="mb-2 block text-sm font-medium text-gray-700">Training Status</label>
             <select
               value={filterTrainingStatus}
               onChange={(e) => setFilterTrainingStatus(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
               aria-label="Filter by training status"
             >
               <option value="all">All Statuses</option>
@@ -259,54 +256,52 @@ export default function DepartmentUserRiskPage() {
       </div>
 
       {/* User Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="overflow-hidden rounded-lg bg-white shadow">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                 User
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                 Risk Level
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                 Training Status
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                 Completion
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                 Quiz Score
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                 Issues
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="divide-y divide-gray-200 bg-white">
             {filteredUsers.map((user) => (
               <tr key={user.user_id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="whitespace-nowrap px-6 py-4">
                   <div>
                     <div className="text-sm font-medium text-gray-900">{user.user_name}</div>
                     <div className="text-sm text-gray-500">{user.user_email}</div>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="whitespace-nowrap px-6 py-4">
                   <div className="flex items-center gap-2">
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium uppercase ${getRiskColor(
+                      className={`rounded-full px-3 py-1 text-xs font-medium uppercase ${getRiskColor(
                         user.risk_level
                       )} text-white`}
                     >
                       {user.risk_level}
                     </span>
-                    <span className="text-sm text-gray-600">
-                      {user.risk_score.toFixed(0)}
-                    </span>
+                    <span className="text-sm text-gray-600">{user.risk_score.toFixed(0)}</span>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="whitespace-nowrap px-6 py-4">
                   <div className="flex items-center gap-2">
                     {getStatusIcon(user.training_status)}
                     <span className="text-sm capitalize">
@@ -314,12 +309,12 @@ export default function DepartmentUserRiskPage() {
                     </span>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="whitespace-nowrap px-6 py-4">
                   <div className="w-24">
-                    <div className="text-sm font-medium mb-1">
+                    <div className="mb-1 text-sm font-medium">
                       {user.completion_percentage.toFixed(0)}%
                     </div>
-                    <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div className="h-2 overflow-hidden rounded-full bg-gray-200">
                       <div
                         className="h-full bg-blue-500"
                         style={{ width: `${user.completion_percentage}%` }}
@@ -327,7 +322,7 @@ export default function DepartmentUserRiskPage() {
                     </div>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="whitespace-nowrap px-6 py-4">
                   {user.quiz_score !== undefined ? (
                     <div className="flex items-center gap-2">
                       <span
@@ -350,7 +345,7 @@ export default function DepartmentUserRiskPage() {
                     <div className="flex flex-col gap-1">
                       {user.issues.map((issue, idx) => (
                         <div key={idx} className="flex items-center gap-2">
-                          <AlertTriangle className="h-4 w-4 text-orange-500 flex-shrink-0" />
+                          <AlertTriangle className="h-4 w-4 flex-shrink-0 text-orange-500" />
                           <span className="text-sm text-gray-700">{issue}</span>
                         </div>
                       ))}
@@ -368,8 +363,8 @@ export default function DepartmentUserRiskPage() {
         </table>
 
         {filteredUsers.length === 0 && (
-          <div className="text-center py-12">
-            <AlertTriangle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+          <div className="py-12 text-center">
+            <AlertTriangle className="mx-auto mb-4 h-12 w-12 text-gray-400" />
             <p className="text-gray-600">No users match the selected filters</p>
           </div>
         )}
