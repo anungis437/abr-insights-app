@@ -150,7 +150,7 @@ export function PricingCard({
         )}
       </Button>
 
-      {isCurrentPlan && subscription?.stripeCustomerId && (
+      {isCurrentPlan && entitlements && (
         <p className="mt-4 text-center text-xs text-gray-500">
           <button
             onClick={() => router.push('/dashboard/billing')}
