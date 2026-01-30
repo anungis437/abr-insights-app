@@ -77,6 +77,18 @@ export default function TeamManagementPage() {
         throw new Error('This user is already a member')
       }
 
+      // ENFORCE SEAT LIMITS: Check if organization has available seats
+      const currentMemberCount = members.length
+      const { enforceSeats } = await import('@/lib/services/seat-management')
+      
+      const seatCheck = await enforceSeats(organization.id, 1)
+      if (!seatCheck.allowed) {
+        throw new Error(
+          seatCheck.reason || 
+          `Your organization has reached its seat limit (${currentMemberCount} members). Please upgrade your plan to add more team members.`
+        )
+      }
+
       // Check if user exists
       const { data: existingProfile } = await supabase
         .from('profiles')

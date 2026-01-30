@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Check, X, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { useSubscription } from '@/hooks/use-subscription'
+import { useEntitlements } from '@/hooks/use-entitlements'
 import { useAuth } from '@/lib/auth/AuthContext'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
@@ -15,7 +15,7 @@ interface PricingCardProps {
   description: string
   features: Array<{ text: string; included: boolean }>
   ctaText: string
-  tier: 'FREE' | 'PROFESSIONAL' | 'ENTERPRISE'
+  tier: 'FREE' | 'PROFESSIONAL' | 'BUSINESS' | 'BUSINESS_PLUS' | 'ENTERPRISE'
   popular?: boolean
   contactSales?: boolean
 }
@@ -32,8 +32,8 @@ export function PricingCard({
   contactSales = false,
 }: PricingCardProps) {
   const router = useRouter()
-  const { user } = useAuth()
-  const { subscription, createCheckoutSession } = useSubscription()
+  const { user, profile } = useAuth()
+  const { entitlements } = useEntitlements()
   const [loading, setLoading] = useState(false)
 
   const handleClick = async () => {
@@ -49,7 +49,29 @@ export function PricingCard({
 
     try {
       setLoading(true)
-      await createCheckoutSession(tier)
+      
+      // Call canonical checkout endpoint with org context
+      const response = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tier,
+          seat_count: 1, // Default to 1 seat for individual plans
+          organization_id: profile?.organization_id || undefined,
+          billing_email: user.email,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create checkout session')
+      }
+
+      // Redirect to Stripe Checkout
+      if (data.url) {
+        window.location.href = data.url
+      }
     } catch (error) {
       console.error('Error starting checkout:', error)
       alert('Failed to start checkout. Please try again.')
@@ -58,8 +80,8 @@ export function PricingCard({
     }
   }
 
-  const isCurrentPlan = subscription?.tier === tier.toLowerCase()
-  const canUpgrade = subscription && !isCurrentPlan
+  const isCurrentPlan = entitlements?.tier === tier
+  const canUpgrade = entitlements && !isCurrentPlan
 
   return (
     <div
