@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { STRIPE_PRICES } from '@/lib/stripe'
 import { loadStripe } from '@stripe/stripe-js'
 import { useEntitlements } from '@/hooks/use-entitlements'
@@ -239,30 +240,30 @@ export default function TestCheckoutPage() {
 
         {/* Quick Links */}
         <div className="flex flex-wrap gap-3">
-          <a
+          <Link
             href="/ai-assistant"
             className="rounded-lg border-2 border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100"
           >
             Test AI Assistant →
-          </a>
-          <a
+          </Link>
+          <Link
             href="/ai-coach"
             className="rounded-lg border-2 border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100"
           >
             Test AI Coach →
-          </a>
-          <a
+          </Link>
+          <Link
             href="/admin/risk-heatmap"
             className="rounded-lg border-2 border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100"
           >
             Test Export →
-          </a>
-          <a
+          </Link>
+          <Link
             href="/pricing"
             className="rounded-lg border-2 border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100"
           >
             View Pricing →
-          </a>
+          </Link>
         </div>
       </div>
     </div>
