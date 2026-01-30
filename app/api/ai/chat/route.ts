@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { guardedRoute, GuardedContext } from '@/lib/api/guard'
 import { withMultipleRateLimits, RateLimitPresets } from '@/lib/security/rateLimit'
+import {
+  validateAIResponse,
+  verifyCitations,
+  logAIInteraction,
+} from '@/lib/services/ai-verification'
 
 /**
  * AI Chat API Endpoint
@@ -98,10 +103,41 @@ Respond in a helpful, conversational tone with actionable insights.`
     }
 
     const data = await response.json()
-    const aiResponse = data.choices?.[0]?.message?.content || 'Unable to generate response.'
+    const rawResponse = data.choices?.[0]?.message?.content || 'Unable to generate response.'
 
-    // Log AI usage for audit trail and cost tracking
+    // Apply AI verification and safety controls
+    const verification = validateAIResponse(rawResponse)
+    const { citations, verifiedSources, unverifiedSources } = verifyCitations(rawResponse)
+
+    const finalResponse = verification.safe ? verification.modifiedResponse : verification.modifiedResponse
+    const flags = verification.flags
+
+    // Log AI interaction to audit trail
     const supabase = await createClient()
+    const sessionId = `chat-${Date.now()}-${Math.random().toString(36).substring(7)}`
+    
+    try {
+      await logAIInteraction({
+        organization_id: context.organizationId!,
+        user_id: context.user!.id,
+        session_id: sessionId,
+        interaction_type: 'chat',
+        prompt: message,
+        response: finalResponse,
+        model: deployment,
+        tokens_used: data.usage?.total_tokens || 0,
+        citations,
+        flags,
+        verified_sources: verifiedSources,
+        contains_legal_advice_warning: flags.includes('LEGAL_ADVICE_BLOCKED'),
+        human_reviewed: false,
+      })
+    } catch (err) {
+      // Log error but don't fail the request
+      console.error('Failed to log AI interaction:', err)
+    }
+
+    // Also log to legacy ai_usage_logs for cost tracking
     try {
       await supabase.from('ai_usage_logs').insert({
         user_id: context.user!.id,
@@ -114,13 +150,19 @@ Respond in a helpful, conversational tone with actionable insights.`
         created_at: new Date().toISOString(),
       })
     } catch (err) {
-      // Log error but don't fail the request
       console.error('Failed to log AI usage:', err)
     }
 
     return NextResponse.json({
-      response: aiResponse,
+      response: finalResponse,
       usage: data.usage,
+      verification: {
+        safe: verification.safe,
+        flags,
+        citations: citations.length,
+        verifiedSources: verifiedSources.length,
+        unverifiedSources: unverifiedSources.length,
+      },
     })
   } catch (error: any) {
     console.error('AI chat error:', error)

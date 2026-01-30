@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { guardedRoute, GuardedContext } from '@/lib/api/guard'
 import { createClient } from '@/lib/supabase/server'
 import { withMultipleRateLimits, RateLimitPresets } from '@/lib/security/rateLimit'
+import {
+  validateAIResponse,
+  verifyCitations,
+  logAIInteraction,
+} from '@/lib/services/ai-verification'
 
 /**
  * AI Coach API Endpoint
@@ -148,10 +153,40 @@ Provide specific, actionable advice tailored to their learning context.`
     }
 
     const data = await response.json()
-    const insights = data.choices?.[0]?.message?.content || 'Unable to generate insights.'
+    const rawInsights = data.choices?.[0]?.message?.content || 'Unable to generate insights.'
 
-    // Log AI usage for audit trail and cost tracking
+    // Apply AI verification and safety controls
+    const verification = validateAIResponse(rawInsights)
+    const { citations, verifiedSources, unverifiedSources } = verifyCitations(rawInsights)
+
+    const finalInsights = verification.safe ? verification.modifiedResponse : verification.modifiedResponse
+    const flags = verification.flags
+
+    // Log AI interaction to audit trail
     const supabase = await createClient()
+    const sessionId = `coach-${sessionType}-${Date.now()}-${Math.random().toString(36).substring(7)}`
+    
+    try {
+      await logAIInteraction({
+        organization_id: context.organizationId!,
+        user_id: context.user!.id,
+        session_id: sessionId,
+        interaction_type: 'coach',
+        prompt: `${sessionType}: ${userPrompt}`,
+        response: finalInsights,
+        model: deployment,
+        tokens_used: data.usage?.total_tokens || 0,
+        citations,
+        flags,
+        verified_sources: verifiedSources,
+        contains_legal_advice_warning: flags.includes('LEGAL_ADVICE_BLOCKED'),
+        human_reviewed: false,
+      })
+    } catch (err) {
+      console.error('Failed to log AI interaction:', err)
+    }
+
+    // Also log to legacy ai_usage_logs for cost tracking
     try {
       await supabase.from('ai_usage_logs').insert({
         user_id: context.user!.id,
@@ -165,7 +200,6 @@ Provide specific, actionable advice tailored to their learning context.`
         created_at: new Date().toISOString(),
       })
     } catch (err) {
-      // Log error but don't fail the request
       console.error('Failed to log AI usage:', err)
     }
 
@@ -173,10 +207,17 @@ Provide specific, actionable advice tailored to their learning context.`
     const recommendations = generateRecommendations(stats, sessionType)
 
     return NextResponse.json({
-      insights,
+      insights: finalInsights,
       recommendations,
       learningPath: [],
       usage: data.usage,
+      verification: {
+        safe: verification.safe,
+        flags,
+        citations: citations.length,
+        verifiedSources: verifiedSources.length,
+        unverifiedSources: unverifiedSources.length,
+      },
     })
   } catch (error) {
     console.error('AI Coach API error:', error)
