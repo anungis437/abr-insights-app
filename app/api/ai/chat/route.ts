@@ -109,13 +109,15 @@ Respond in a helpful, conversational tone with actionable insights.`
     const verification = validateAIResponse(rawResponse)
     const { citations, verifiedSources, unverifiedSources } = verifyCitations(rawResponse)
 
-    const finalResponse = verification.safe ? verification.modifiedResponse : verification.modifiedResponse
+    const finalResponse = verification.safe
+      ? verification.modifiedResponse
+      : verification.modifiedResponse
     const flags = verification.flags
 
     // Log AI interaction to audit trail
     const supabase = await createClient()
     const sessionId = `chat-${Date.now()}-${Math.random().toString(36).substring(7)}`
-    
+
     try {
       await logAIInteraction({
         organization_id: context.organizationId!,

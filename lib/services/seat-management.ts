@@ -47,10 +47,7 @@ export interface SubscriptionInvoice {
 /**
  * Check if organization can add users (seat enforcement)
  */
-export async function canAddUsers(
-  orgId: string,
-  count: number = 1
-): Promise<boolean> {
+export async function canAddUsers(orgId: string, count: number = 1): Promise<boolean> {
   const supabase = await createClient()
 
   const { data, error } = await supabase.rpc('can_add_users', {
@@ -69,9 +66,7 @@ export async function canAddUsers(
 /**
  * Get organization subscription info
  */
-export async function getOrgSubscription(
-  orgId: string
-): Promise<OrgSubscription | null> {
+export async function getOrgSubscription(orgId: string): Promise<OrgSubscription | null> {
   const supabase = await createClient()
 
   const { data, error } = await supabase.rpc('get_org_subscription', {
@@ -172,9 +167,7 @@ export async function revokeSeat(
 /**
  * Get all seat allocations for a subscription
  */
-export async function getSeatAllocations(
-  subscriptionId: string
-): Promise<SeatAllocation[]> {
+export async function getSeatAllocations(subscriptionId: string): Promise<SeatAllocation[]> {
   const supabase = await createClient()
 
   const { data, error } = await supabase
@@ -358,9 +351,7 @@ export async function createOrgSubscription(data: {
 /**
  * Get subscription by Stripe ID
  */
-export async function getSubscriptionByStripeId(
-  stripeSubscriptionId: string
-): Promise<{
+export async function getSubscriptionByStripeId(stripeSubscriptionId: string): Promise<{
   id: string
   organization_id: string
   tier: string
@@ -390,10 +381,7 @@ export async function getSubscriptionByStripeId(
 export async function enforceSeats(
   orgId: string,
   requestedCount: number = 1
-): Promise<
-  | { allowed: true }
-  | { allowed: false; reason: string; subscription: OrgSubscription }
-> {
+): Promise<{ allowed: true } | { allowed: false; reason: string; subscription: OrgSubscription }> {
   const subscription = await getOrgSubscription(orgId)
 
   if (!subscription) {

@@ -1,13 +1,13 @@
 /**
  * AI Verification Service
- * 
+ *
  * Implements safety controls for AI-generated content:
  * - Citation verification against trusted sources
  * - Legal advice detection and blocking
  * - AI usage disclaimers
  * - Audit logging of all AI interactions
  * - Source attribution requirements
- * 
+ *
  * Context: Canadian tribunal guidance requires caution with AI in legal proceedings
  */
 
@@ -198,7 +198,10 @@ export function validateAIResponse(response: string): {
     flags.push('UNVERIFIED_SOURCES')
   }
 
-  if (citations.length === 0 && response.includes('according to') || response.includes('case law')) {
+  if (
+    (citations.length === 0 && response.includes('according to')) ||
+    response.includes('case law')
+  ) {
     flags.push('MISSING_CITATIONS')
   }
 
@@ -372,7 +375,7 @@ export async function getAIUsageStats(
   logs?.forEach((log) => {
     byType[log.interaction_type] = (byType[log.interaction_type] || 0) + 1
     uniqueUserIds.add(log.user_id)
-    
+
     if (log.tokens_used) {
       totalTokens += log.tokens_used
       tokenCount++

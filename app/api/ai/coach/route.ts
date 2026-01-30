@@ -159,13 +159,15 @@ Provide specific, actionable advice tailored to their learning context.`
     const verification = validateAIResponse(rawInsights)
     const { citations, verifiedSources, unverifiedSources } = verifyCitations(rawInsights)
 
-    const finalInsights = verification.safe ? verification.modifiedResponse : verification.modifiedResponse
+    const finalInsights = verification.safe
+      ? verification.modifiedResponse
+      : verification.modifiedResponse
     const flags = verification.flags
 
     // Log AI interaction to audit trail
     const supabase = await createClient()
     const sessionId = `coach-${sessionType}-${Date.now()}-${Math.random().toString(36).substring(7)}`
-    
+
     try {
       await logAIInteraction({
         organization_id: context.organizationId!,

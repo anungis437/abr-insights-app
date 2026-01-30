@@ -140,7 +140,9 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       amount_cents: subscription.items.data[0]?.price.unit_amount || 0,
       currency: subscription.currency.toUpperCase(),
       billing_interval: subscription.items.data[0]?.price.recurring?.interval as any,
-      current_period_start: new Date((subscription as any).current_period_start * 1000).toISOString(),
+      current_period_start: new Date(
+        (subscription as any).current_period_start * 1000
+      ).toISOString(),
       current_period_end: new Date((subscription as any).current_period_end * 1000).toISOString(),
       trial_start: (subscription as any).trial_start
         ? new Date((subscription as any).trial_start * 1000).toISOString()
@@ -195,7 +197,9 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
       status: subscription.status as any,
       seat_count: seatCount,
       amount_cents: subscription.items.data[0]?.price.unit_amount || 0,
-      current_period_start: new Date((subscription as any).current_period_start * 1000).toISOString(),
+      current_period_start: new Date(
+        (subscription as any).current_period_start * 1000
+      ).toISOString(),
       current_period_end: new Date((subscription as any).current_period_end * 1000).toISOString(),
       canceled_at: (subscription as any).canceled_at
         ? new Date((subscription as any).canceled_at * 1000).toISOString()
@@ -311,7 +315,9 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
       })),
       status: invoice.status as any,
       invoice_date: new Date(invoice.created * 1000).toISOString(),
-      due_date: (invoice as any).due_date ? new Date((invoice as any).due_date * 1000).toISOString() : null,
+      due_date: (invoice as any).due_date
+        ? new Date((invoice as any).due_date * 1000).toISOString()
+        : null,
       paid_at: (invoice as any).status_transitions?.paid_at
         ? new Date((invoice as any).status_transitions.paid_at * 1000).toISOString()
         : null,

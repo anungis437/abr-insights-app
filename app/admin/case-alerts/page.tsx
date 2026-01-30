@@ -43,7 +43,7 @@ export default function CaseAlertsPage() {
     setLoading(true)
     try {
       if (!user?.id) return
-      
+
       const searches = await getSavedSearches(user.id)
       setSavedSearches(searches)
 

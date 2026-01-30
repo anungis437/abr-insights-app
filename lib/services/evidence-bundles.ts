@@ -683,7 +683,7 @@ export async function uploadEvidenceBundle(
   format: 'pdf' | 'zip' | 'json'
 ): Promise<{ path: string; url: string }> {
   const supabase = createClient()
-  
+
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
   const fileName = `${bundleId}-${timestamp}.${format}`
   const filePath = `${EVIDENCE_BUNDLES_PATH}/${organizationId}/${fileName}`
@@ -691,16 +691,19 @@ export async function uploadEvidenceBundle(
   const { data, error } = await supabase.storage
     .from('compliance-artifacts')
     .upload(filePath, blob, {
-      contentType: format === 'pdf' ? 'application/pdf' : format === 'zip' ? 'application/zip' : 'application/json',
+      contentType:
+        format === 'pdf'
+          ? 'application/pdf'
+          : format === 'zip'
+            ? 'application/zip'
+            : 'application/json',
       upsert: false,
     })
 
   if (error) throw error
 
   // Get public URL (or signed URL for private buckets)
-  const { data: urlData } = supabase.storage
-    .from('compliance-artifacts')
-    .getPublicUrl(filePath)
+  const { data: urlData } = supabase.storage.from('compliance-artifacts').getPublicUrl(filePath)
 
   return {
     path: data.path,
@@ -717,7 +720,7 @@ export async function exportAndUploadEvidenceBundle(
 ): Promise<{ blob: Blob; storage: { path: string; url: string } }> {
   const bundle = await getEvidenceBundle(bundleId)
   const blob = await exportEvidenceBundle(bundleId, exportFormat)
-  
+
   const storage = await uploadEvidenceBundle(
     bundle.organization_id,
     bundleId,

@@ -390,9 +390,7 @@ function getNextRunDate(schedule: 'daily' | 'weekly' | 'monthly' | 'quarterly'):
 /**
  * Export compliance report to PDF
  */
-export async function exportReportToPDF(
-  reportId: string
-): Promise<Blob> {
+export async function exportReportToPDF(reportId: string): Promise<Blob> {
   const supabase = await createClient()
 
   // Get report with audit logs
@@ -469,12 +467,14 @@ export async function exportReportToPDF(
     doc.text('Audit Log Events', 20, yPosition)
     yPosition += 10
 
-    const logData = logs.slice(0, 100).map((log) => [
-      new Date(log.created_at).toLocaleDateString(),
-      log.event_category || 'N/A',
-      log.severity || 'info',
-      log.event_description?.substring(0, 40) || 'N/A',
-    ])
+    const logData = logs
+      .slice(0, 100)
+      .map((log) => [
+        new Date(log.created_at).toLocaleDateString(),
+        log.event_category || 'N/A',
+        log.severity || 'info',
+        log.event_description?.substring(0, 40) || 'N/A',
+      ])
 
     autoTable(doc, {
       startY: yPosition,
@@ -494,9 +494,7 @@ export async function exportReportToPDF(
 
   // Add footer with hash
   const pageCount = doc.getNumberOfPages()
-  const reportHash = createHash('sha256')
-    .update(JSON.stringify(report))
-    .digest('hex')
+  const reportHash = createHash('sha256').update(JSON.stringify(report)).digest('hex')
 
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i)
@@ -513,9 +511,7 @@ export async function exportReportToPDF(
 /**
  * Export compliance report to CSV
  */
-export async function exportReportToCSV(
-  reportId: string
-): Promise<Blob> {
+export async function exportReportToCSV(reportId: string): Promise<Blob> {
   const supabase = await createClient()
 
   // Get report with audit logs
@@ -570,9 +566,7 @@ export async function exportReportToCSV(
   // Generate CSV string
   const csvContent = [
     headers.join(','),
-    ...rows.map((row) =>
-      row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')
-    ),
+    ...rows.map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')),
   ].join('\n')
 
   return new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
@@ -581,9 +575,7 @@ export async function exportReportToCSV(
 /**
  * Export compliance report to Excel (XLSX)
  */
-export async function exportReportToXLSX(
-  reportId: string
-): Promise<Buffer> {
+export async function exportReportToXLSX(reportId: string): Promise<Buffer> {
   const supabase = await createClient()
 
   // Get report with audit logs
@@ -736,9 +728,7 @@ export async function exportAndUploadReport(
   if (error) throw error
 
   // Get public URL
-  const { data: urlData } = supabase.storage
-    .from('compliance-artifacts')
-    .getPublicUrl(filePath)
+  const { data: urlData } = supabase.storage.from('compliance-artifacts').getPublicUrl(filePath)
 
   // Update export record with storage info
   await supabase
