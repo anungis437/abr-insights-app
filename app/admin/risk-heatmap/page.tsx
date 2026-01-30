@@ -35,7 +35,7 @@ import RiskTrendChart from '@/components/dashboard/RiskTrendChart'
 
 export default function RiskHeatmapPage() {
   const router = useRouter()
-  const { hasAccess: canExport } = useFeatureAccess('exportCapabilities')
+  const canExport = useFeatureAccess('exportCapabilities')
   const [loading, setLoading] = useState(true)
   const [summary, setSummary] = useState<OrganizationRiskSummary | null>(null)
   const [departmentScores, setDepartmentScores] = useState<DepartmentRiskScore[]>([])

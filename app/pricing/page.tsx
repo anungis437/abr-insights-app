@@ -4,7 +4,7 @@ import { Check, X } from 'lucide-react'
 import { useEntitlements } from '@/hooks/use-entitlements'
 
 export default function PricingPage() {
-  const { entitlements, isLoading } = useEntitlements()
+  const { entitlements, loading } = useEntitlements()
   const currentTier = entitlements?.tier?.toUpperCase() || 'FREE'
   return (
     <div className="min-h-screen bg-white">

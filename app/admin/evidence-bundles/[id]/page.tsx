@@ -19,7 +19,7 @@ export default function EvidenceBundleDetailPage() {
   const params = useParams()
   const router = useRouter()
   const bundleId = params.id as string
-  const { hasAccess: canExport } = useFeatureAccess('exportCapabilities')
+  const canExport = useFeatureAccess('exportCapabilities')
 
   const [bundle, setBundle] = useState<EvidenceBundle | null>(null)
   const [loading, setLoading] = useState(true)
