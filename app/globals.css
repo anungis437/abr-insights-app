@@ -39,10 +39,6 @@
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-
   /* Sidebar layout: Add left padding when sidebar is visible (authenticated users) */
   @media (min-width: 1024px) {
     body.has-sidebar main {
