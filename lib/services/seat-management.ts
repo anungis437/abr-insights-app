@@ -4,6 +4,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 export interface OrgSubscription {
   subscription_id: string
@@ -45,10 +46,24 @@ export interface SubscriptionInvoice {
 }
 
 /**
- * Check if organization can add users (seat enforcement)
+ * Get Supabase client - uses provided client or creates cookie-scoped one
+ * @param client Optional Supabase client (use admin client in webhooks)
  */
-export async function canAddUsers(orgId: string, count: number = 1): Promise<boolean> {
-  const supabase = await createClient()
+async function getClient(client?: SupabaseClient): Promise<SupabaseClient> {
+  if (client) return client
+  return await createClient()
+}
+
+/**
+ * Check if organization can add users (seat enforcement)
+ * @param client Optional Supabase client (use admin client in webhooks)
+ */
+export async function canAddUsers(
+  orgId: string,
+  count: number = 1,
+  client?: SupabaseClient
+): Promise<boolean> {
+  const supabase = await getClient(client)
 
   const { data, error } = await supabase.rpc('can_add_users', {
     org_id: orgId,
@@ -66,8 +81,11 @@ export async function canAddUsers(orgId: string, count: number = 1): Promise<boo
 /**
  * Get organization subscription info
  */
-export async function getOrgSubscription(orgId: string): Promise<OrgSubscription | null> {
-  const supabase = await createClient()
+export async function getOrgSubscription(
+  orgId: string,
+  client?: SupabaseClient
+): Promise<OrgSubscription | null> {
+  const supabase = await getClient(client)
 
   const { data, error } = await supabase.rpc('get_org_subscription', {
     org_id: orgId,
@@ -88,9 +106,10 @@ export async function allocateSeat(
   subscriptionId: string,
   userId: string,
   allocatedBy: string,
-  roleInOrg: string = 'member'
+  roleInOrg: string = 'member',
+  client?: SupabaseClient
 ): Promise<{ success: boolean; error?: string }> {
-  const supabase = await createClient()
+  const supabase = await getClient(client)
 
   // Check if seat already allocated
   const { data: existing } = await supabase
@@ -143,9 +162,10 @@ export async function allocateSeat(
  */
 export async function revokeSeat(
   subscriptionId: string,
-  userId: string
+  userId: string,
+  client?: SupabaseClient
 ): Promise<{ success: boolean; error?: string }> {
-  const supabase = await createClient()
+  const supabase = await getClient(client)
 
   const { error } = await supabase
     .from('seat_allocations')
@@ -167,8 +187,11 @@ export async function revokeSeat(
 /**
  * Get all seat allocations for a subscription
  */
-export async function getSeatAllocations(subscriptionId: string): Promise<SeatAllocation[]> {
-  const supabase = await createClient()
+export async function getSeatAllocations(
+  subscriptionId: string,
+  client?: SupabaseClient
+): Promise<SeatAllocation[]> {
+  const supabase = await getClient(client)
 
   const { data, error } = await supabase
     .from('seat_allocations')
@@ -189,16 +212,17 @@ export async function getSeatAllocations(subscriptionId: string): Promise<SeatAl
  */
 export async function getUserSeatStatus(
   userId: string,
-  orgId: string
+  orgId: string,
+  client?: SupabaseClient
 ): Promise<{
   hasSeat: boolean
   allocation: SeatAllocation | null
   subscription: OrgSubscription | null
 }> {
-  const supabase = await createClient()
+  const supabase = await getClient(client)
 
   // Get org subscription
-  const subscription = await getOrgSubscription(orgId)
+  const subscription = await getOrgSubscription(orgId, client)
 
   if (!subscription) {
     return { hasSeat: true, allocation: null, subscription: null } // No subscription = free tier
@@ -238,9 +262,10 @@ export async function recordInvoice(
     due_date?: string | null
     paid_at?: string | null
     invoice_pdf_url?: string | null
-  }
+  },
+  client?: SupabaseClient
 ): Promise<{ success: boolean; error?: string }> {
-  const supabase = await createClient()
+  const supabase = await getClient(client)
 
   const { error } = await supabase.from('subscription_invoices').insert({
     subscription_id: subscriptionId,
@@ -258,9 +283,10 @@ export async function recordInvoice(
  * Get invoices for subscription
  */
 export async function getSubscriptionInvoices(
-  subscriptionId: string
+  subscriptionId: string,
+  client?: SupabaseClient
 ): Promise<SubscriptionInvoice[]> {
-  const supabase = await createClient()
+  const supabase = await getClient(client)
 
   const { data, error } = await supabase
     .from('subscription_invoices')
@@ -289,9 +315,10 @@ export async function updateOrgSubscription(
     current_period_end: string
     canceled_at: string | null
     grace_period_ends_at: string | null
-  }>
+  }>,
+  client?: SupabaseClient
 ): Promise<{ success: boolean; error?: string }> {
-  const supabase = await createClient()
+  const supabase = await getClient(client)
 
   const { error } = await supabase
     .from('organization_subscriptions')
@@ -311,25 +338,28 @@ export async function updateOrgSubscription(
 /**
  * Create organization subscription
  */
-export async function createOrgSubscription(data: {
-  organization_id: string
-  stripe_subscription_id: string
-  stripe_customer_id: string
-  tier: 'FREE' | 'PROFESSIONAL' | 'BUSINESS' | 'BUSINESS_PLUS' | 'ENTERPRISE'
-  status: 'active' | 'trialing' | 'past_due'
-  seat_count: number
-  billing_email?: string
-  billing_address?: object
-  tax_ids?: { type: string; value: string }[]
-  amount_cents: number
-  currency?: string
-  billing_interval?: 'month' | 'year'
-  current_period_start?: string
-  current_period_end?: string
-  trial_start?: string
-  trial_end?: string
-}): Promise<{ success: boolean; subscriptionId?: string; error?: string }> {
-  const supabase = await createClient()
+export async function createOrgSubscription(
+  data: {
+    organization_id: string
+    stripe_subscription_id: string
+    stripe_customer_id: string
+    tier: 'FREE' | 'PROFESSIONAL' | 'BUSINESS' | 'BUSINESS_PLUS' | 'ENTERPRISE'
+    status: 'active' | 'trialing' | 'past_due'
+    seat_count: number
+    billing_email?: string
+    billing_address?: object
+    tax_ids?: { type: string; value: string }[]
+    amount_cents: number
+    currency?: string
+    billing_interval?: 'month' | 'year'
+    current_period_start?: string
+    current_period_end?: string
+    trial_start?: string
+    trial_end?: string
+  },
+  client?: SupabaseClient
+): Promise<{ success: boolean; subscriptionId?: string; error?: string }> {
+  const supabase = await getClient(client)
 
   const { data: subscription, error } = await supabase
     .from('organization_subscriptions')
@@ -351,7 +381,10 @@ export async function createOrgSubscription(data: {
 /**
  * Get subscription by Stripe ID
  */
-export async function getSubscriptionByStripeId(stripeSubscriptionId: string): Promise<{
+export async function getSubscriptionByStripeId(
+  stripeSubscriptionId: string,
+  client?: SupabaseClient
+): Promise<{
   id: string
   organization_id: string
   tier: string
@@ -359,7 +392,7 @@ export async function getSubscriptionByStripeId(stripeSubscriptionId: string): P
   seat_count: number
   seats_used: number
 } | null> {
-  const supabase = await createClient()
+  const supabase = await getClient(client)
 
   const { data, error } = await supabase
     .from('organization_subscriptions')
@@ -380,15 +413,16 @@ export async function getSubscriptionByStripeId(stripeSubscriptionId: string): P
  */
 export async function enforceSeats(
   orgId: string,
-  requestedCount: number = 1
+  requestedCount: number = 1,
+  client?: SupabaseClient
 ): Promise<{ allowed: true } | { allowed: false; reason: string; subscription: OrgSubscription }> {
-  const subscription = await getOrgSubscription(orgId)
+  const subscription = await getOrgSubscription(orgId, client)
 
   if (!subscription) {
     return { allowed: true } // No subscription = free tier, allow
   }
 
-  const canAdd = await canAddUsers(orgId, requestedCount)
+  const canAdd = await canAddUsers(orgId, requestedCount, client)
 
   if (!canAdd) {
     if (subscription.in_grace_period) {

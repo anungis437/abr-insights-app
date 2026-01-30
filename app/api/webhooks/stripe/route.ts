@@ -150,11 +150,11 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       trial_end: (subscription as any).trial_end
         ? new Date((subscription as any).trial_end * 1000).toISOString()
         : undefined,
-    })
+    }, supabase)
 
     if (result.success && result.subscriptionId) {
       // Allocate seat to purchasing user
-      await allocateSeat(result.subscriptionId, userId, userId, 'admin')
+      await allocateSeat(result.subscriptionId, userId, userId, 'admin', supabase)
       console.log(`[Stripe] Created org subscription ${result.subscriptionId}`)
     } else {
       console.error('[Stripe] Failed to create org subscription:', result.error)
@@ -187,7 +187,7 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
   console.log(`[Stripe] Subscription ${subscription.id} updated to status ${subscription.status}`)
 
   // Try to find org subscription first
-  const orgSub = await getSubscriptionByStripeId(subscription.id)
+  const orgSub = await getSubscriptionByStripeId(subscription.id, supabase)
 
   if (orgSub) {
     // Update org subscription
@@ -204,7 +204,7 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
       canceled_at: (subscription as any).canceled_at
         ? new Date((subscription as any).canceled_at * 1000).toISOString()
         : null,
-    })
+    }, supabase)
 
     console.log(`[Stripe] Updated org subscription ${orgSub.id}`)
   } else {
@@ -248,13 +248,13 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   console.log(`[Stripe] Subscription ${subscription.id} deleted`)
 
   // Try org subscription first
-  const orgSub = await getSubscriptionByStripeId(subscription.id)
+  const orgSub = await getSubscriptionByStripeId(subscription.id, supabase)
 
   if (orgSub) {
     await updateOrgSubscription(orgSub.id, {
       status: 'canceled',
       canceled_at: new Date().toISOString(),
-    })
+    }, supabase)
     console.log(`[Stripe] Canceled org subscription ${orgSub.id}`)
   } else {
     // Fallback: Update profile
@@ -322,7 +322,7 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
         ? new Date((invoice as any).status_transitions.paid_at * 1000).toISOString()
         : null,
       invoice_pdf_url: (invoice as any).invoice_pdf || null,
-    })
+    }, supabase)
 
     console.log(`[Stripe] Recorded invoice ${invoice.id} for org subscription ${orgSub.id}`)
   }
