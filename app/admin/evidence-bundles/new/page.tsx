@@ -318,7 +318,11 @@ export default function EvidenceBundleBuilderPage() {
                     className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm flex items-center gap-2"
                   >
                     {tag}
-                    <button onClick={() => removeTag(tag)} className="hover:text-blue-900">
+                    <button
+                      onClick={() => removeTag(tag)}
+                      className="hover:text-blue-900"
+                      aria-label={`Remove tag ${tag}`}
+                    >
                       <X className="h-3 w-3" />
                     </button>
                   </span>
@@ -401,6 +405,7 @@ export default function EvidenceBundleBuilderPage() {
                     <button
                       onClick={() => removeComponent(index)}
                       className="text-red-600 hover:text-red-700"
+                      aria-label={`Remove component ${component.title}`}
                     >
                       <X className="h-5 w-5" />
                     </button>
