@@ -19,11 +19,11 @@ const publicFooterSections: FooterSection[] = [
   {
     title: 'Product',
     links: [
-      { label: 'Courses', href: '/courses' },
-      { label: 'Cases', href: '/cases' },
-      { label: 'Analytics', href: '/analytics' },
-      { label: 'Team Management', href: '/team' },
-      { label: 'Pricing', href: '/pricing' },
+      { label: 'Training Courses', href: '/courses' },
+      { label: 'AI Case Explorer', href: '/cases' },
+      { label: 'AI Assistant', href: '/ai-assistant' },
+      { label: 'AI Coach', href: '/ai-coach' },
+      { label: 'Pricing & Plans', href: '/pricing' },
     ],
   },
   {
