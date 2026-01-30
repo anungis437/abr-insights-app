@@ -71,7 +71,7 @@ export default function Footer() {
                   href="/courses"
                   className="text-sm text-gray-600 transition-colors hover:text-primary-600"
                 >
-                  Courses
+                  Training Courses
                 </Link>
               </li>
               <li>
@@ -79,23 +79,23 @@ export default function Footer() {
                   href="/cases"
                   className="text-sm text-gray-600 transition-colors hover:text-primary-600"
                 >
-                  Case Explorer
+                  AI Case Explorer
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/analytics"
+                  href="/ai-assistant"
                   className="text-sm text-gray-600 transition-colors hover:text-primary-600"
                 >
-                  Analytics
+                  AI Assistant
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/team"
+                  href="/ai-coach"
                   className="text-sm text-gray-600 transition-colors hover:text-primary-600"
                 >
-                  Team Management
+                  AI Coach
                 </Link>
               </li>
               <li>
@@ -103,7 +103,7 @@ export default function Footer() {
                   href="/pricing"
                   className="text-sm text-gray-600 transition-colors hover:text-primary-600"
                 >
-                  Pricing
+                  Pricing & Plans
                 </Link>
               </li>
             </ul>
