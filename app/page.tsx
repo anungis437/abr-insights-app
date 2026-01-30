@@ -142,27 +142,37 @@ export default function HomePage() {
             <FeatureCard
               icon={<BookOpen className="h-8 w-8" />}
               title="Expert Training"
-              description="Interactive courses designed by anti-racism experts with real-world applications"
+              description="50+ interactive courses designed by anti-racism experts with real-world applications"
               href="/courses"
             />
             <FeatureCard
               icon={<Scale className="h-8 w-8" />}
-              title="Case Law Explorer"
+              title="AI Case Explorer"
               description="AI-powered search through thousands of tribunal decisions with smart insights"
               href="/cases"
             />
             <FeatureCard
               icon={<Users className="h-8 w-8" />}
-              title="Team Collaboration"
-              description="Track progress, share resources, and build accountability across your organization"
-              href="/team"
+              title="AI Assistant & Coach"
+              description="Get personalized learning guidance and case law analysis powered by advanced AI"
+              href="/pricing"
             />
             <FeatureCard
               icon={<TrendingUp className="h-8 w-8" />}
-              title="Progress Analytics"
-              description="Measure impact with comprehensive analytics and actionable reporting"
+              title="Advanced Analytics"
+              description="Measure impact with comprehensive dashboards, export capabilities, and insights"
               href="/analytics"
             />
+          </div>
+
+          <div className="mt-12 text-center">
+            <Link
+              href="/pricing"
+              className="inline-flex items-center text-lg font-semibold text-primary-600 hover:text-primary-700"
+            >
+              View All Features & Pricing
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Link>
           </div>
         </div>
       </section>
