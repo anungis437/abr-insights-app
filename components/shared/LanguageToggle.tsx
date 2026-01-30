@@ -98,7 +98,7 @@ export function LanguageTogglePill() {
             ? 'bg-background text-foreground shadow-sm'
             : 'text-muted-foreground hover:text-foreground'
         }`}
-        aria-pressed={language === 'en'}
+        aria-pressed={String(language === 'en')}
         aria-label="Switch to English"
       >
         EN
@@ -110,7 +110,7 @@ export function LanguageTogglePill() {
             ? 'bg-background text-foreground shadow-sm'
             : 'text-muted-foreground hover:text-foreground'
         }`}
-        aria-pressed={language === 'fr'}
+        aria-pressed={String(language === 'fr')}
         aria-label="Passer au français"
       >
         FR
