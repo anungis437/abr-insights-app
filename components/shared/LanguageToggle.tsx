@@ -85,6 +85,12 @@ export function LanguageTogglePill() {
     return null
   }
 
+  // Compute ARIA values before JSX to satisfy static analysis tools
+  const isEnglish = language === 'en'
+  const isFrench = language === 'fr'
+  const enPressedValue = isEnglish ? 'true' : 'false'
+  const frPressedValue = isFrench ? 'true' : 'false'
+
   return (
     <div
       className="bg-muted inline-flex items-center gap-1 rounded-lg p-1"
@@ -94,11 +100,11 @@ export function LanguageTogglePill() {
       <button
         onClick={() => setLanguage('en')}
         className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-          language === 'en'
+          isEnglish
             ? 'bg-background text-foreground shadow-sm'
             : 'text-muted-foreground hover:text-foreground'
         }`}
-        aria-pressed={String(language === 'en') as 'true' | 'false'}
+        aria-pressed={enPressedValue}
         aria-label="Switch to English"
       >
         EN
@@ -106,11 +112,11 @@ export function LanguageTogglePill() {
       <button
         onClick={() => setLanguage('fr')}
         className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-          language === 'fr'
+          isFrench
             ? 'bg-background text-foreground shadow-sm'
             : 'text-muted-foreground hover:text-foreground'
         }`}
-        aria-pressed={String(language === 'fr') as 'true' | 'false'}
+        aria-pressed={frPressedValue}
         aria-label="Passer au français"
       >
         FR
