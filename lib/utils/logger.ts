@@ -13,9 +13,11 @@ interface LogContext {
 
 class Logger {
   private isDevelopment: boolean
+  private isProduction: boolean
 
   constructor() {
     this.isDevelopment = process.env.NODE_ENV === 'development'
+    this.isProduction = process.env.NODE_ENV === 'production'
   }
 
   /**
@@ -85,6 +87,22 @@ class Logger {
     if (this.isDevelopment) {
       console.log(`[DB] ${operation} on ${table}`, context || '')
     }
+  }
+
+  /**
+   * Webhook event logging (all environments)
+   * Critical for production monitoring of external integrations
+   */
+  webhook(event: string, context?: LogContext): void {
+    console.log(`[WEBHOOK] ${event}`, context || '')
+  }
+
+  /**
+   * Billing/payment event logging (all environments)
+   * Critical for production monitoring of revenue operations
+   */
+  billing(event: string, context?: LogContext): void {
+    console.log(`[BILLING] ${event}`, context || '')
   }
 }
 

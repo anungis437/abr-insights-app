@@ -16,6 +16,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { logger } from '@/lib/utils/logger'
 import {
   Shield,
   Plus,
@@ -120,11 +121,11 @@ export default function SSOConfigPage() {
       }
 
       if (!user) {
-        console.warn('No authenticated user found')
+        logger.warn('No authenticated user found')
         throw new Error('Not authenticated')
       }
 
-      console.log('Current user:', { id: user.id, email: user.email })
+      logger.debug('Current user loaded', { id: user.id, email: user.email })
 
       // Check user's profile and organization
       const { data: profile, error: profileError } = await supabase
@@ -136,7 +137,7 @@ export default function SSOConfigPage() {
       if (profileError) {
         console.error('Error loading profile:', profileError)
       } else {
-        console.log('User profile:', profile)
+        logger.debug('User profile loaded', { profile })
       }
 
       // Get organizations (for super admins)
@@ -153,13 +154,11 @@ export default function SSOConfigPage() {
           code: orgsError.code,
         })
       } else {
-        console.log('Organizations loaded:', orgs?.length || 0)
-      }
+        logger.debug('Organizations loaded', { count: orgs?.length || 0 })      }
 
       setOrganizations(orgs || [])
-
       // Get SSO providers
-      console.log('Attempting to load SSO providers...')
+      logger.debug('Loading SSO providers')
       const { data: ssoData, error: ssoError } = await supabase
         .from('sso_providers')
         .select(
@@ -198,11 +197,10 @@ export default function SSOConfigPage() {
           ssoError.message?.includes('permission') ||
           ssoError.message?.includes('policy')
         ) {
-          console.warn('⚠️  Permission denied accessing SSO providers.')
-          console.warn('This user may need:')
-          console.warn('  - An admin or super_admin role')
-          console.warn('  - To be assigned to an organization')
-          console.warn('  - Proper RLS policies to be enabled')
+          logger.warn('Permission denied accessing SSO providers - check user role and RLS policies', {
+            needsAdminRole: true,
+            needsOrgAssignment: true,
+          })
         }
 
         // Don't throw, just log and continue with empty array
@@ -211,7 +209,7 @@ export default function SSOConfigPage() {
         return
       }
 
-      console.log('SSO providers loaded:', ssoData?.length || 0)
+      logger.debug('SSO providers loaded', { count: ssoData?.length || 0 })
       // Flatten organization slug
       const flattenedData = ssoData?.map((provider: any) => ({
         ...provider,

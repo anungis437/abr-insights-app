@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 import Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { logger } from '@/lib/utils/logger'
 import {
   createOrgSubscription,
   updateOrgSubscription,
@@ -42,7 +43,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
 
-  console.log(`[Stripe Webhook] Received event: ${event.type}`)
+  logger.webhook('Stripe event received', { eventType: event.type, eventId: event.id })
 
   // Check idempotency - prevent duplicate processing
   const supabase = createAdminClient()
@@ -53,7 +54,7 @@ export async function POST(req: NextRequest) {
     .single()
 
   if (existingEvent) {
-    console.log(`[Stripe Webhook] Event ${event.id} already processed, skipping`)
+    logger.webhook('Stripe event already processed, skipping', { eventId: event.id })
     return NextResponse.json({ received: true, skipped: true })
   }
 
@@ -81,7 +82,7 @@ export async function POST(req: NextRequest) {
         break
 
       default:
-        console.log(`[Stripe Webhook] Unhandled event type: ${event.type}`)
+        logger.webhook('Unhandled Stripe event type', { eventType: event.type })
     }
 
     // Mark event as processed
@@ -113,7 +114,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     return
   }
 
-  console.log(`[Stripe] Checkout completed for user ${userId}`)
+  logger.billing('Checkout completed', { userId, orgId, tier, seatCount })
 
   // Get subscription ID from session
   const subscriptionId = session.subscription as string
@@ -155,7 +156,11 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     if (result.success && result.subscriptionId) {
       // Allocate seat to purchasing user
       await allocateSeat(result.subscriptionId, userId, userId, 'admin', supabase)
-      console.log(`[Stripe] Created org subscription ${result.subscriptionId}`)
+      logger.billing('Organization subscription created and seat allocated', {
+        subscriptionId: result.subscriptionId,
+        orgId,
+        userId,
+      })
     } else {
       console.error('[Stripe] Failed to create org subscription:', result.error)
     }
@@ -184,7 +189,11 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
   const supabase = createAdminClient()
   const customerId = subscription.customer as string
 
-  console.log(`[Stripe] Subscription ${subscription.id} updated to status ${subscription.status}`)
+  logger.webhook('Subscription updated', {
+    subscriptionId: subscription.id,
+    status: subscription.status,
+    customerId,
+  })
 
   // Try to find org subscription first
   const orgSub = await getSubscriptionByStripeId(subscription.id, supabase)
@@ -206,7 +215,11 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
         : null,
     }, supabase)
 
-    console.log(`[Stripe] Updated org subscription ${orgSub.id}`)
+    logger.billing('Organization subscription updated', {
+      orgSubscriptionId: orgSub.id,
+      status: subscription.status,
+      seatCount,
+    })
   } else {
     // Fallback: Update profile (legacy individual subscription)
     const { data: profile } = await supabase
@@ -245,7 +258,10 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   const supabase = createAdminClient()
   const customerId = subscription.customer as string
 
-  console.log(`[Stripe] Subscription ${subscription.id} deleted`)
+  logger.webhook('Subscription deleted', {
+    subscriptionId: subscription.id,
+    customerId,
+  })
 
   // Try org subscription first
   const orgSub = await getSubscriptionByStripeId(subscription.id, supabase)
@@ -255,7 +271,9 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
       status: 'canceled',
       canceled_at: new Date().toISOString(),
     }, supabase)
-    console.log(`[Stripe] Canceled org subscription ${orgSub.id}`)
+    logger.billing('Organization subscription canceled', {
+      orgSubscriptionId: orgSub.id,
+    })
   } else {
     // Fallback: Update profile
     const { data: profile } = await supabase
@@ -289,7 +307,11 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
  */
 async function handleInvoicePaid(invoice: Stripe.Invoice) {
   const customerId = invoice.customer as string
-  console.log(`[Stripe] Invoice ${invoice.id} paid for customer ${customerId}`)
+  logger.billing('Invoice paid', {
+    invoiceId: invoice.id,
+    customerId,
+    amount: invoice.amount_paid,
+  })
 
   // Find org subscription by customer
   const supabase = createAdminClient()
@@ -324,7 +346,10 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
       invoice_pdf_url: (invoice as any).invoice_pdf || null,
     }, supabase)
 
-    console.log(`[Stripe] Recorded invoice ${invoice.id} for org subscription ${orgSub.id}`)
+    logger.billing('Invoice recorded for organization', {
+      invoiceId: invoice.id,
+      orgSubscriptionId: orgSub.id,
+    })
   }
 }
 
@@ -333,7 +358,11 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
  */
 async function handleInvoiceFailed(invoice: Stripe.Invoice) {
   const customerId = invoice.customer as string
-  console.log(`[Stripe] Invoice payment failed for customer ${customerId}`)
+  logger.billing('Invoice payment failed', {
+    invoiceId: invoice.id,
+    customerId,
+    attemptCount: invoice.attempt_count,
+  })
 
   // Could send payment failure notification email here
 }
