@@ -7,6 +7,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useFeatureAccess } from '@/hooks/use-entitlements'
 import {
   getDepartmentRiskScores,
   getOrganizationRiskSummary,
@@ -34,6 +35,7 @@ import RiskTrendChart from '@/components/dashboard/RiskTrendChart'
 
 export default function RiskHeatmapPage() {
   const router = useRouter()
+  const { hasAccess: canExport } = useFeatureAccess('exportCapabilities')
   const [loading, setLoading] = useState(true)
   const [summary, setSummary] = useState<OrganizationRiskSummary | null>(null)
   const [departmentScores, setDepartmentScores] = useState<DepartmentRiskScore[]>([])
@@ -142,16 +144,18 @@ export default function RiskHeatmapPage() {
           <div className="flex gap-3">
             <button
               onClick={handleExportCSV}
-              className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-white transition-colors hover:bg-green-700"
-              title="Export to CSV"
+              disabled={!canExport}
+              className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-white transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:opacity-60"
+              title={canExport ? 'Export to CSV' : 'Upgrade to Professional for export features'}
             >
               <Download className="h-5 w-5" />
               CSV
             </button>
             <button
               onClick={handleExportPDF}
-              className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
-              title="Print to PDF"
+              disabled={!canExport}
+              className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:opacity-60"
+              title={canExport ? 'Print to PDF' : 'Upgrade to Professional for export features'}
             >
               <Printer className="h-5 w-5" />
               PDF

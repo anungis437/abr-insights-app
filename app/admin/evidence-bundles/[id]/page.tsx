@@ -7,6 +7,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import { useFeatureAccess } from '@/hooks/use-entitlements'
 import {
   getEvidenceBundle,
   exportEvidenceBundle,
@@ -18,6 +19,7 @@ export default function EvidenceBundleDetailPage() {
   const params = useParams()
   const router = useRouter()
   const bundleId = params.id as string
+  const { hasAccess: canExport } = useFeatureAccess('exportCapabilities')
 
   const [bundle, setBundle] = useState<EvidenceBundle | null>(null)
   const [loading, setLoading] = useState(true)
@@ -134,24 +136,27 @@ export default function EvidenceBundleDetailPage() {
           <div className="flex gap-3">
             <button
               onClick={() => handleExport('pdf')}
-              disabled={exporting}
-              className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700 disabled:opacity-50"
+              disabled={exporting || !canExport}
+              className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:opacity-50"
+              title={canExport ? 'Export to PDF' : 'Upgrade to Professional for export features'}
             >
               <Download className="h-5 w-5" />
               {exporting ? 'Exporting...' : 'PDF'}
             </button>
             <button
               onClick={() => handleExport('zip')}
-              disabled={exporting}
-              className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+              disabled={exporting || !canExport}
+              className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:opacity-50"
+              title={canExport ? 'Export to ZIP' : 'Upgrade to Professional for export features'}
             >
               <Download className="h-5 w-5" />
               {exporting ? 'Exporting...' : 'ZIP'}
             </button>
             <button
               onClick={() => handleExport('json')}
-              disabled={exporting}
-              className="flex items-center gap-2 rounded-lg bg-gray-600 px-4 py-2 text-white hover:bg-gray-700 disabled:opacity-50"
+              disabled={exporting || !canExport}
+              className="flex items-center gap-2 rounded-lg bg-gray-600 px-4 py-2 text-white hover:bg-gray-700 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:opacity-50"
+              title={canExport ? 'Export to JSON' : 'Upgrade to Professional for export features'}
             >
               <Download className="h-5 w-5" />
               {exporting ? 'Exporting...' : 'JSON'}
