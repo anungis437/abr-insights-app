@@ -289,7 +289,7 @@ function CourseCard({ course }: { course: Course }) {
     <Link href={`/courses/${course.slug}`} className="card group transition-shadow hover:shadow-xl">
       <div className="mb-4 flex items-center justify-between">
         <span className={`rounded-full px-3 py-1 text-xs font-semibold ${levelColor}`}>
-          {course.level.charAt(0).toUpperCase() + course.level.slice(1)}
+          {course.level ? course.level.charAt(0).toUpperCase() + course.level.slice(1) : 'Beginner'}
         </span>
         {course.estimated_duration_minutes && (
           <span className="flex items-center text-sm text-gray-500">
