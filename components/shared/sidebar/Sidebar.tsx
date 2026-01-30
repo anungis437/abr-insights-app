@@ -84,7 +84,7 @@ export default function Sidebar({ items, role }: SidebarProps) {
               level === 0 ? 'text-gray-900 hover:bg-gray-100' : 'text-gray-700 hover:bg-gray-50',
               childActive && 'bg-primary-50 text-primary-700 hover:bg-primary-100'
             )}
-            style={{ paddingLeft: `${0.75 + level * 1}rem` }}
+            style={{ ['--indent-level' as string]: level } as React.CSSProperties}
           >
             <div className="flex items-center gap-3">
               {Icon && <Icon className="h-4 w-4 flex-shrink-0" />}
@@ -121,7 +121,7 @@ export default function Sidebar({ items, role }: SidebarProps) {
             : 'text-gray-700 hover:bg-gray-100',
           level > 0 && !active && 'text-gray-600'
         )}
-        style={{ paddingLeft: `${0.75 + level * 1}rem` }}
+        style={{ ['--indent-level' as string]: level } as React.CSSProperties}
       >
         {Icon && <Icon className="h-4 w-4 flex-shrink-0" />}
         <span className="flex-1">{item.label}</span>
