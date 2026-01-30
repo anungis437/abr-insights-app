@@ -3,13 +3,16 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth/AuthContext'
+import { useEntitlements } from '@/hooks/use-entitlements'
 import { BarChart3, Lock, Sparkles, CheckCircle, ArrowRight } from 'lucide-react'
 
 type PlanTier = 'free' | 'professional' | 'enterprise'
 
 export default function AnalyticsPage() {
   const { profile } = useAuth()
-  const userPlan: PlanTier = (profile?.subscription_tier as PlanTier) || 'free'
+  const { entitlements, loading: entitlementsLoading } = useEntitlements()
+  const userPlan: PlanTier = entitlements?.tier.toLowerCase() as PlanTier || 'free'
+  const hasAdvancedAnalytics = entitlements?.features.advancedAnalytics || false
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 pt-16">

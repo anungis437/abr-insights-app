@@ -4,10 +4,12 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth/AuthContext'
+import { useEntitlements } from '@/hooks/use-entitlements'
 import { Users, Lock, Sparkles, CheckCircle } from 'lucide-react'
 
 export default function TeamPage() {
   const { user, profile, loading } = useAuth()
+  const { entitlements, loading: entitlementsLoading } = useEntitlements()
   const router = useRouter()
 
   useEffect(() => {
@@ -26,10 +28,11 @@ export default function TeamPage() {
 
   if (!user) return null
 
+  // Check if user has team management features (available on higher tiers)
   const hasPermission =
     profile?.role === 'admin' ||
     profile?.role === 'team_lead' ||
-    profile?.subscription_tier === 'enterprise'
+    (entitlements?.features.maxOrganizationMembers ?? 1) > 1
 
   if (!hasPermission) {
     return (

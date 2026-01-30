@@ -28,6 +28,7 @@ export interface UserEntitlements {
 export interface EntitlementFeatures {
   maxCoursesAuthored: number
   maxStudentsPerCourse: number
+  maxOrganizationMembers: number
   aiAssistantAccess: boolean
   aiCoachAccess: boolean
   advancedAnalytics: boolean
@@ -56,6 +57,7 @@ const TIER_CONFIG: Record<string, TierLimits> = {
     features: {
       maxCoursesAuthored: 1,
       maxStudentsPerCourse: 10,
+      maxOrganizationMembers: 1,
       aiAssistantAccess: false,
       aiCoachAccess: false,
       advancedAnalytics: false,
@@ -73,6 +75,7 @@ const TIER_CONFIG: Record<string, TierLimits> = {
     features: {
       maxCoursesAuthored: 10,
       maxStudentsPerCourse: 100,
+      maxOrganizationMembers: 5,
       aiAssistantAccess: true,
       aiCoachAccess: true,
       advancedAnalytics: true,
@@ -90,6 +93,7 @@ const TIER_CONFIG: Record<string, TierLimits> = {
     features: {
       maxCoursesAuthored: 50,
       maxStudentsPerCourse: 500,
+      maxOrganizationMembers: 25,
       aiAssistantAccess: true,
       aiCoachAccess: true,
       advancedAnalytics: true,
@@ -107,6 +111,7 @@ const TIER_CONFIG: Record<string, TierLimits> = {
     features: {
       maxCoursesAuthored: 200,
       maxStudentsPerCourse: 2000,
+      maxOrganizationMembers: 100,
       aiAssistantAccess: true,
       aiCoachAccess: true,
       advancedAnalytics: true,
@@ -124,6 +129,7 @@ const TIER_CONFIG: Record<string, TierLimits> = {
     features: {
       maxCoursesAuthored: -1,
       maxStudentsPerCourse: -1,
+      maxOrganizationMembers: -1,
       aiAssistantAccess: true,
       aiCoachAccess: true,
       advancedAnalytics: true,
