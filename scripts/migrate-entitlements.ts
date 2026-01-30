@@ -1,15 +1,15 @@
 /**
  * Migration Script: Consolidate Entitlements to organization_subscriptions
- * 
+ *
  * This script migrates existing entitlement data from:
  * - profiles.subscription_tier (legacy individual subscriptions)
  * - organizations.subscription_tier/max_users (organization-level fields)
- * 
+ *
  * To the canonical source:
  * - organization_subscriptions table
- * 
+ *
  * Run this ONCE before removing redundant fields from profiles/organizations.
- * 
+ *
  * Usage:
  *   npx tsx scripts/migrate-entitlements.ts [--dry-run] [--environment=<env>]
  */
@@ -35,7 +35,9 @@ interface MigrationStats {
 
 async function migrateEntitlements(dryRun = false): Promise<MigrationStats> {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-    throw new Error('Missing Supabase credentials. Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY')
+    throw new Error(
+      'Missing Supabase credentials. Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY'
+    )
   }
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
@@ -93,7 +95,9 @@ async function migrateEntitlements(dryRun = false): Promise<MigrationStats> {
         .single()
 
       if (!existingError && existing) {
-        console.log(`⏭️  Skipping profile ${profile.id}: Subscription already exists for org ${membership.organization_id}`)
+        console.log(
+          `⏭️  Skipping profile ${profile.id}: Subscription already exists for org ${membership.organization_id}`
+        )
         stats.profilesSkipped++
         continue
       }
@@ -102,11 +106,14 @@ async function migrateEntitlements(dryRun = false): Promise<MigrationStats> {
       const tier = mapLegacyTier(profile.subscription_tier)
 
       if (dryRun) {
-        console.log(`🔍 [DRY RUN] Would create subscription for org ${membership.organization_id}:`, {
-          tier,
-          stripe_subscription_id: profile.stripe_subscription_id,
-          stripe_customer_id: profile.stripe_customer_id,
-        })
+        console.log(
+          `🔍 [DRY RUN] Would create subscription for org ${membership.organization_id}:`,
+          {
+            tier,
+            stripe_subscription_id: profile.stripe_subscription_id,
+            stripe_customer_id: profile.stripe_customer_id,
+          }
+        )
         stats.profilesMigrated++
         continue
       }
@@ -320,7 +327,8 @@ function printSummary(stats: MigrationStats, dryRun: boolean) {
 async function main() {
   const args = process.argv.slice(2)
   const dryRun = args.includes('--dry-run')
-  const environment = args.find((arg) => arg.startsWith('--environment='))?.split('=')[1] || 'production'
+  const environment =
+    args.find((arg) => arg.startsWith('--environment='))?.split('=')[1] || 'production'
 
   console.log('')
   console.log('='.repeat(60))

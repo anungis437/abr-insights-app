@@ -18,11 +18,11 @@ async function applyMigrations() {
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
     auth: {
       autoRefreshToken: false,
-      persistSession: false
+      persistSession: false,
     },
     db: {
-      schema: 'public'
-    }
+      schema: 'public',
+    },
   })
 
   console.log('📋 Applying schema migrations via Supabase Dashboard...\n')
@@ -30,7 +30,7 @@ async function applyMigrations() {
   console.log('Please run the following SQL in your Supabase Dashboard SQL Editor:\n')
   console.log('Dashboard URL: https://supabase.com/dashboard/project/zdcmugkafbczvxcyofiz/sql')
   console.log('\n--- COPY THE SQL BELOW ---\n')
-  
+
   const sql = `
 -- Migration 1: Add subscription fields to profiles
 ALTER TABLE profiles
@@ -101,7 +101,7 @@ CREATE POLICY seat_allocations_select ON seat_allocations
     )
   );
 `
-  
+
   console.log(sql)
   console.log('\n--- END SQL ---\n')
   console.log('After running the SQL, press Enter to continue...')

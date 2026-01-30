@@ -9,6 +9,7 @@
 3. **organization_subscriptions table** - New comprehensive subscription management system (Phase 5)
 
 This duplication creates:
+
 - **Data Integrity Risks**: Updates to one location may not propagate to others
 - **Query Confusion**: Developers unsure which field to check for entitlements
 - **Billing Accuracy Issues**: Inconsistent seat counts across tables
@@ -43,7 +44,7 @@ This duplication creates:
 -- 2. Migrate organizations.subscription_tier/max_users to organization_subscriptions
 -- 3. Remove redundant columns
 
-ALTER TABLE profiles 
+ALTER TABLE profiles
   DROP COLUMN IF EXISTS subscription_tier,
   DROP COLUMN IF EXISTS subscription_status,
   DROP COLUMN IF EXISTS stripe_subscription_id,
@@ -63,7 +64,7 @@ If removing fields breaks too many existing queries, keep them as cached/denorma
 ```sql
 -- Create materialized view for backward compatibility
 CREATE MATERIALIZED VIEW org_subscription_cache AS
-SELECT 
+SELECT
   o.id as organization_id,
   COALESCE(os.tier, 'FREE') as subscription_tier,
   COALESCE(os.seat_count, 1) as max_users,
@@ -412,7 +413,7 @@ migrateEntitlements()
 1. **Unit Tests**: Test `getUserEntitlements()` with various scenarios
 2. **Integration Tests**: Verify Stripe webhook updates organization_subscriptions correctly
 3. **E2E Tests**: Validate seat allocation/revocation flows
-4. **Manual Testing**: 
+4. **Manual Testing**:
    - Create org subscription via Stripe checkout
    - Verify seat allocation
    - Update subscription in Stripe dashboard
@@ -423,15 +424,18 @@ migrateEntitlements()
 ## Rollout Plan
 
 ### Week 1: Foundation
+
 - Day 1-2: Create entitlements service
 - Day 3-4: Run migration script in staging
 - Day 5: Validate data integrity
 
 ### Week 2: Implementation
+
 - Day 1-3: Update all UI components
 - Day 4-5: Update API routes and server actions
 
 ### Week 3: Testing & Cleanup
+
 - Day 1-2: Integration testing
 - Day 3-4: Remove redundant fields (if Option A chosen)
 - Day 5: Production deployment
@@ -439,6 +443,7 @@ migrateEntitlements()
 ## Monitoring & Alerts
 
 **Add monitoring for:**
+
 - Mismatches between organization_subscriptions and Stripe API
 - Seat allocation failures
 - Grace period expirations
@@ -456,6 +461,7 @@ migrateEntitlements()
 **Deprecation Period**: 30 days
 
 During transition:
+
 1. Keep old fields in database but mark as deprecated in code comments
 2. Log warnings when old fields are accessed
 3. After 30 days, remove fields and legacy queries

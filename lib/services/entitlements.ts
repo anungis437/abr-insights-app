@@ -1,11 +1,11 @@
 /**
  * Entitlements Service
  * Single source of truth for user/organization subscription entitlements
- * 
+ *
  * This service consolidates entitlements from organization_subscriptions table,
  * resolving the split between profiles.subscription_tier, organizations.subscription_tier,
  * and organization_subscriptions (the canonical source).
- * 
+ *
  * @see docs/ENTITLEMENTS_SOURCE_OF_TRUTH.md
  */
 
@@ -144,12 +144,12 @@ const TIER_CONFIG: Record<string, TierLimits> = {
 
 /**
  * Get user's organization entitlements
- * 
+ *
  * CANONICAL ENTITLEMENT CHECK - USE THIS FOR ALL ENTITLEMENT QUERIES
- * 
+ *
  * This function queries organization_subscriptions as the single source of truth
  * and returns a comprehensive entitlements object.
- * 
+ *
  * @param userId - User ID to check entitlements for
  * @param client - Optional Supabase client (for admin/webhook contexts)
  * @returns UserEntitlements object or null if user has no organization
@@ -233,7 +233,7 @@ export async function getUserEntitlements(
 
 /**
  * Check if user has specific feature access
- * 
+ *
  * @param userId - User ID to check
  * @param feature - Feature key to check access for
  * @param client - Optional Supabase client
@@ -248,19 +248,19 @@ export async function hasFeatureAccess(
   if (!entitlements) return false
 
   const featureValue = entitlements.features[feature]
-  
+
   // Handle numeric features (limits)
   if (typeof featureValue === 'number') {
     return featureValue > 0 || featureValue === -1 // -1 means unlimited
   }
-  
+
   // Handle boolean features
   return featureValue as boolean
 }
 
 /**
  * Check if user can perform an action based on current usage vs limits
- * 
+ *
  * @param userId - User ID to check
  * @param action - Action type: 'create_course', 'add_student', etc.
  * @param currentUsage - Current usage count
@@ -274,7 +274,7 @@ export async function canPerformAction(
   client?: SupabaseClient
 ): Promise<{ allowed: true } | { allowed: false; reason: string; upgradeUrl: string }> {
   const entitlements = await getUserEntitlements(userId, client)
-  
+
   if (!entitlements) {
     return {
       allowed: false,
@@ -335,7 +335,7 @@ export async function canPerformAction(
 
 /**
  * Get organization entitlements (for org admins)
- * 
+ *
  * @param organizationId - Organization ID
  * @param client - Optional Supabase client
  * @returns Organization entitlements or null

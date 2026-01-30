@@ -154,7 +154,8 @@ export default function SSOConfigPage() {
           code: orgsError.code,
         })
       } else {
-        logger.debug('Organizations loaded', { count: orgs?.length || 0 })      }
+        logger.debug('Organizations loaded', { count: orgs?.length || 0 })
+      }
 
       setOrganizations(orgs || [])
       // Get SSO providers
@@ -197,10 +198,13 @@ export default function SSOConfigPage() {
           ssoError.message?.includes('permission') ||
           ssoError.message?.includes('policy')
         ) {
-          logger.warn('Permission denied accessing SSO providers - check user role and RLS policies', {
-            needsAdminRole: true,
-            needsOrgAssignment: true,
-          })
+          logger.warn(
+            'Permission denied accessing SSO providers - check user role and RLS policies',
+            {
+              needsAdminRole: true,
+              needsOrgAssignment: true,
+            }
+          )
         }
 
         // Don't throw, just log and continue with empty array

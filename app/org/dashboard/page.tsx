@@ -325,12 +325,12 @@ export default function OrgDashboardPage() {
                   {seatsUsed} / {seatCount === -1 ? 'Unlimited' : seatCount} seats used
                 </p>
                 {seatsAvailable > 0 && seatCount !== -1 && (
-                  <p className="mt-1 text-xs text-green-600">
-                    {seatsAvailable} seats available
-                  </p>
+                  <p className="mt-1 text-xs text-green-600">{seatsAvailable} seats available</p>
                 )}
                 {seatsAvailable === 0 && seatCount !== -1 && (
-                  <p className="mt-1 text-xs text-amber-600">No seats available - upgrade to add more</p>
+                  <p className="mt-1 text-xs text-amber-600">
+                    No seats available - upgrade to add more
+                  </p>
                 )}
               </CardContent>
             </Card>

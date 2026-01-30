@@ -9,6 +9,7 @@
 ### Console Logging Locations
 
 **app/ directory** (17 matches found):
+
 - `app/admin/sso-config/page.tsx`: 5 debug logs (lines 127, 139, 156, 162, 214)
 - `app/api/webhooks/stripe/route.ts`: 12 operational logs (lines 45, 56, 84, 116, 158, 187, 209, 248, 258, 292, 327, 336)
 
@@ -63,18 +64,18 @@ console.log(`[Stripe] Checkout completed for user ${userId}`)
 import { logger } from '@/lib/utils/logger'
 
 // Keep webhook logs in production but use info level
-logger.info('Stripe webhook received', { 
-  eventType: event.type, 
-  eventId: event.id 
+logger.info('Stripe webhook received', {
+  eventType: event.type,
+  eventId: event.id,
 })
 
-logger.info('Stripe webhook event already processed', { 
-  eventId: event.id 
+logger.info('Stripe webhook event already processed', {
+  eventId: event.id,
 })
 
-logger.info('Stripe checkout completed', { 
-  userId, 
-  subscriptionId: result.subscriptionId 
+logger.info('Stripe checkout completed', {
+  userId,
+  subscriptionId: result.subscriptionId,
 })
 ```
 
@@ -146,6 +147,7 @@ console.log('Processing...')
 ### Phase 4: Integrate Production Logging Service (Post-Launch)
 
 **Options**:
+
 1. **Sentry** (already planned): Captures errors + breadcrumbs
 2. **Datadog** or **New Relic**: Full observability platform
 3. **Azure Application Insights**: Native Azure integration

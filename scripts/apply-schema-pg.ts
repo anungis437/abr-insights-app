@@ -14,7 +14,7 @@ const DATABASE_URL = process.env.DATABASE_URL!
 
 async function applyMigrations() {
   const client = new Client({ connectionString: DATABASE_URL })
-  
+
   try {
     console.log('🔌 Connecting to database...\n')
     await client.connect()
@@ -113,7 +113,7 @@ async function applyMigrations() {
     } catch (e: any) {
       if (!e.message.includes('already exists')) throw e
     }
-    
+
     try {
       await client.query(`
         DROP POLICY IF EXISTS seat_allocations_select ON seat_allocations;
@@ -135,7 +135,6 @@ async function applyMigrations() {
     console.log('✅ RLS policies created')
 
     console.log('\n✅ All schema migrations applied successfully!\n')
-    
   } catch (error: any) {
     console.error('❌ Migration failed:', error.message)
     throw error

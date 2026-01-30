@@ -13,6 +13,7 @@ Successfully implemented the canonical entitlements service resolving **Producti
 ### ✅ Phase 1: Core Service (Commit 8383af9)
 
 **lib/services/entitlements.ts** (528 lines)
+
 - `getUserEntitlements()`: Canonical entitlement check using organization_subscriptions
 - `hasFeatureAccess()`: Boolean feature checks (AI, SSO, exports, analytics, etc.)
 - `canPerformAction()`: Validate actions against tier limits with usage tracking
@@ -21,6 +22,7 @@ Successfully implemented the canonical entitlements service resolving **Producti
 - `TIER_CONFIG`: Complete feature matrix for all 5 tiers
 
 **scripts/migrate-entitlements.ts** (371 lines)
+
 - Migrates profiles.subscription_tier → organization_subscriptions
 - Migrates organizations.subscription_tier/max_users → organization_subscriptions
 - Creates seat_allocations for migrated users
@@ -30,11 +32,13 @@ Successfully implemented the canonical entitlements service resolving **Producti
 ### ✅ Phase 2: Client Access (Commit ae9b5c5)
 
 **app/api/entitlements/route.ts**
+
 - GET endpoint for authenticated users
 - Returns full UserEntitlements object
 - Server-side validation with Supabase auth
 
 **hooks/use-entitlements.ts** (177 lines)
+
 - `useEntitlements()`: Main React hook with loading/error states
 - `useFeatureAccess()`: Simple boolean feature check
 - `useTierCheck()`: Legacy tier comparison helper
@@ -46,19 +50,19 @@ Successfully implemented the canonical entitlements service resolving **Producti
 
 ### Feature Matrix
 
-| Feature | FREE | PROFESSIONAL | BUSINESS | BUSINESS_PLUS | ENTERPRISE |
-|---------|------|--------------|----------|---------------|------------|
-| **Courses Authored** | 1 | 10 | 50 | 200 | Unlimited |
-| **Students/Course** | 10 | 100 | 500 | 2,000 | Unlimited |
-| **Org Members** | 1 | 5 | 25 | 100 | Unlimited |
-| **AI Assistant** | ❌ | ✅ | ✅ | ✅ | ✅ |
-| **AI Coach** | ❌ | ✅ | ✅ | ✅ | ✅ |
-| **Advanced Analytics** | ❌ | ✅ | ✅ | ✅ | ✅ |
-| **Export Capabilities** | ❌ | ✅ | ✅ | ✅ | ✅ |
-| **Citatory Integration** | ❌ | ✅ | ✅ | ✅ | ✅ |
-| **Custom Branding** | ❌ | ❌ | ✅ | ✅ | ✅ |
-| **SSO** | ❌ | ❌ | ✅ | ✅ | ✅ |
-| **Priority Support** | ❌ | ❌ | ✅ | ✅ | ✅ |
+| Feature                  | FREE | PROFESSIONAL | BUSINESS | BUSINESS_PLUS | ENTERPRISE |
+| ------------------------ | ---- | ------------ | -------- | ------------- | ---------- |
+| **Courses Authored**     | 1    | 10           | 50       | 200           | Unlimited  |
+| **Students/Course**      | 10   | 100          | 500      | 2,000         | Unlimited  |
+| **Org Members**          | 1    | 5            | 25       | 100           | Unlimited  |
+| **AI Assistant**         | ❌   | ✅           | ✅       | ✅            | ✅         |
+| **AI Coach**             | ❌   | ✅           | ✅       | ✅            | ✅         |
+| **Advanced Analytics**   | ❌   | ✅           | ✅       | ✅            | ✅         |
+| **Export Capabilities**  | ❌   | ✅           | ✅       | ✅            | ✅         |
+| **Citatory Integration** | ❌   | ✅           | ✅       | ✅            | ✅         |
+| **Custom Branding**      | ❌   | ❌           | ✅       | ✅            | ✅         |
+| **SSO**                  | ❌   | ❌           | ✅       | ✅            | ✅         |
+| **Priority Support**     | ❌   | ❌           | ✅       | ✅            | ✅         |
 
 ---
 
@@ -97,13 +101,13 @@ function CourseCreationButton() {
 
   const handleCreate = async () => {
     const result = await canPerformAction('create_course', courseCount)
-    
+
     if (!result.allowed) {
       // Show upgrade prompt
       showUpgradeModal(result.reason, result.upgradeUrl)
       return
     }
-    
+
     // Proceed with course creation
     await createCourse()
   }
@@ -118,9 +122,9 @@ function CourseCreationButton() {
 // Simple feature check
 function AIAssistantButton() {
   const hasAI = useFeatureAccess('aiAssistantAccess')
-  
+
   if (!hasAI) return null
-  
+
   return <Button>Ask AI Assistant</Button>
 }
 ```
@@ -168,7 +172,7 @@ npx tsx scripts/migrate-entitlements.ts
 
 ```sql
 -- Check migrated subscriptions
-SELECT 
+SELECT
   os.organization_id,
   os.tier,
   os.status,
@@ -180,10 +184,10 @@ LEFT JOIN seat_allocations sa ON sa.subscription_id = os.id AND sa.status = 'act
 GROUP BY os.id;
 
 -- Find discrepancies
-SELECT * FROM organization_subscriptions 
+SELECT * FROM organization_subscriptions
 WHERE seats_used != (
-  SELECT COUNT(*) FROM seat_allocations 
-  WHERE subscription_id = organization_subscriptions.id 
+  SELECT COUNT(*) FROM seat_allocations
+  WHERE subscription_id = organization_subscriptions.id
   AND status = 'active'
 );
 ```
@@ -239,12 +243,13 @@ const canAccess = hasFeature('advancedAnalytics')
   - Estimated time: 1 day
 
 - [ ] **Remove redundant fields** (Option A from strategy doc)
+
   ```sql
   -- After all components updated and tested
-  ALTER TABLE profiles 
+  ALTER TABLE profiles
     DROP COLUMN subscription_tier,
     DROP COLUMN subscription_status;
-  
+
   ALTER TABLE organizations
     DROP COLUMN subscription_tier,
     DROP COLUMN max_users;
@@ -260,6 +265,7 @@ const canAccess = hasFeature('advancedAnalytics')
 ## Testing Checklist
 
 ### Unit Tests
+
 - [ ] `getUserEntitlements()` with no org
 - [ ] `getUserEntitlements()` with FREE tier
 - [ ] `getUserEntitlements()` with paid tier
@@ -268,12 +274,14 @@ const canAccess = hasFeature('advancedAnalytics')
 - [ ] `getTierComparison()` for upgrade flows
 
 ### Integration Tests
+
 - [ ] Stripe checkout → webhook → entitlements
 - [ ] Seat allocation → getUserEntitlements reflects seat
 - [ ] Subscription update → entitlements refresh
 - [ ] Grace period → entitlements shows warning
 
 ### E2E Tests
+
 - [ ] User purchases PROFESSIONAL tier
 - [ ] User creates courses up to limit
 - [ ] User hits limit, sees upgrade prompt
@@ -281,6 +289,7 @@ const canAccess = hasFeature('advancedAnalytics')
 - [ ] Limits increase, user can create more
 
 ### Manual Testing
+
 - [ ] `/api/entitlements` returns correct data
 - [ ] `useEntitlements()` loads and updates
 - [ ] Feature checks work (AI, SSO, exports)
@@ -336,12 +345,14 @@ try {
 ## Success Metrics
 
 ### Before Migration
+
 - ❌ Entitlements split across 3 sources
 - ❌ Data inconsistency risk
 - ❌ Query confusion (which field to check?)
 - ❌ Manual seat tracking
 
 ### After Migration
+
 - ✅ Single source of truth: organization_subscriptions
 - ✅ Type-safe feature checks
 - ✅ Consistent queries across entire app
@@ -350,6 +361,7 @@ try {
 - ✅ Audit trail for all entitlement changes
 
 ### Target Metrics
+
 - **Data Consistency**: 100% (0 discrepancies between sources)
 - **Query Migration**: 100% (all components using new service)
 - **Test Coverage**: 80%+ (unit + integration tests)
@@ -362,6 +374,7 @@ try {
 ### Blocker #2 Status: 90% Complete
 
 **Completed**:
+
 - ✅ Entitlements service (server-side)
 - ✅ Migration script (dry-run tested)
 - ✅ Client-side API + hooks
@@ -369,6 +382,7 @@ try {
 - ✅ Documentation complete
 
 **Remaining**:
+
 - ⏳ Run migration (1 hour)
 - ⏳ Update UI components (4 hours)
 - ⏳ Test Stripe flow (1 hour)

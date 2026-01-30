@@ -11,7 +11,7 @@ export async function middleware(request: NextRequest) {
 
   // Let admin routes pass through (they have their own auth checks)
   // but could add additional protection here if needed
-  
+
   return await updateSession(request)
 }
 

@@ -7,24 +7,29 @@ This guide shows how to migrate UI components from legacy `subscription_tier` ch
 ## ✅ Completed Migrations
 
 ### app/analytics/page.tsx
+
 **Before:**
+
 ```typescript
 const { profile } = useAuth()
 const userPlan: PlanTier = (profile?.subscription_tier as PlanTier) || 'free'
 ```
 
 **After:**
+
 ```typescript
 import { useEntitlements } from '@/hooks/use-entitlements'
 
 const { profile } = useAuth()
 const { entitlements, loading: entitlementsLoading } = useEntitlements()
-const userPlan: PlanTier = entitlements?.tier.toLowerCase() as PlanTier || 'free'
+const userPlan: PlanTier = (entitlements?.tier.toLowerCase() as PlanTier) || 'free'
 const hasAdvancedAnalytics = entitlements?.features.advancedAnalytics || false
 ```
 
 ### app/team/page.tsx
+
 **Before:**
+
 ```typescript
 const hasPermission =
   profile?.role === 'admin' ||
@@ -33,6 +38,7 @@ const hasPermission =
 ```
 
 **After:**
+
 ```typescript
 import { useEntitlements } from '@/hooks/use-entitlements'
 
@@ -50,23 +56,26 @@ const hasPermission =
 ### Priority Components (Immediate)
 
 #### 1. Course Authoring Pages
+
 **Files:**
+
 - `app/instructor/courses/create/page.tsx`
 - `app/admin/courses/create/page.tsx`
 - `app/instructor/dashboard/page.tsx`
 
 **Add Limit Validation:**
+
 ```typescript
 import { useEntitlements } from '@/hooks/use-entitlements'
 
 function CreateCourseButton() {
   const { canPerformAction, entitlements } = useEntitlements()
   const [courseCount, setCourseCount] = useState(0) // Load from DB
-  
+
   const handleCreateCourse = async () => {
     // Check if user can create more courses
     const result = await canPerformAction('create_course', courseCount)
-    
+
     if (!result.allowed) {
       // Show upgrade modal
       showModal({
@@ -77,11 +86,11 @@ function CreateCourseButton() {
       })
       return
     }
-    
+
     // Proceed with course creation
     router.push('/instructor/courses/create')
   }
-  
+
   return (
     <button onClick={handleCreateCourse}>
       Create Course ({courseCount}/{entitlements?.features.maxCoursesAuthored ?? 0})
@@ -91,17 +100,20 @@ function CreateCourseButton() {
 ```
 
 #### 2. AI Features Pages
+
 **Files:**
+
 - `app/ai-assistant/page.tsx`
 - `app/ai-coach/page.tsx`
 
 **Add Feature Gates:**
+
 ```typescript
 import { useFeatureAccess } from '@/hooks/use-entitlements'
 
 function AIAssistantPage() {
   const hasAI = useFeatureAccess('aiAssistantAccess')
-  
+
   if (!hasAI) {
     return (
       <UpgradePrompt
@@ -111,24 +123,27 @@ function AIAssistantPage() {
       />
     )
   }
-  
+
   // Show AI assistant UI
   return <AIAssistantInterface />
 }
 ```
 
 #### 3. Pricing Page
+
 **Files:**
+
 - `app/pricing/page.tsx`
 
 **Show Current Tier:**
+
 ```typescript
 import { useEntitlements } from '@/hooks/use-entitlements'
 
 function PricingPage() {
   const { entitlements } = useEntitlements()
   const currentTier = entitlements?.tier || 'FREE'
-  
+
   return (
     <div>
       {TIER_PLANS.map(plan => (
@@ -145,10 +160,13 @@ function PricingPage() {
 ```
 
 #### 4. Organization Dashboard
+
 **Files:**
+
 - `app/org/dashboard/page.tsx`
 
 **Remove Legacy Subscription Field:**
+
 ```typescript
 // BEFORE
 interface Organization {
@@ -161,12 +179,12 @@ import { useEntitlements } from '@/hooks/use-entitlements'
 
 function OrgDashboard() {
   const { entitlements } = useEntitlements()
-  
+
   // Use entitlements instead of organization.subscription_tier
   const seatLimit = entitlements?.seatCount ?? 1
   const seatsUsed = entitlements?.seatsUsed ?? 0
   const seatsAvailable = entitlements?.seatsAvailable ?? 0
-  
+
   return (
     <div>
       <h2>{entitlements?.tier} Plan</h2>
@@ -180,17 +198,20 @@ function OrgDashboard() {
 ### Secondary Components (This Week)
 
 #### 5. Export Features
+
 **Files:**
+
 - Any component with PDF/CSV export buttons
 - Look for `exportCapabilities` checks
 
 **Add Feature Check:**
+
 ```typescript
 import { useFeatureAccess } from '@/hooks/use-entitlements'
 
 function ExportButton() {
   const hasExport = useFeatureAccess('exportCapabilities')
-  
+
   if (!hasExport) {
     return (
       <button disabled title="Upgrade to Professional for exports">
@@ -198,22 +219,25 @@ function ExportButton() {
       </button>
     )
   }
-  
+
   return <button onClick={handleExport}>Export</button>
 }
 ```
 
 #### 6. SSO Configuration
+
 **Files:**
+
 - `app/admin/sso-config/page.tsx`
 
 **Add Feature Gate:**
+
 ```typescript
 import { useFeatureAccess } from '@/hooks/use-entitlements'
 
 export default function SSOConfigPage() {
   const hasSSO = useFeatureAccess('ssoEnabled')
-  
+
   if (!hasSSO) {
     return (
       <FeatureLockedView
@@ -227,28 +251,31 @@ export default function SSOConfigPage() {
       />
     )
   }
-  
+
   // Show SSO configuration UI
   return <SSOConfigForm />
 }
 ```
 
 #### 7. Student Enrollment
+
 **Files:**
+
 - Any component that adds students to courses
 - `app/instructor/courses/[id]/students/page.tsx`
 
 **Add Limit Validation:**
+
 ```typescript
 import { useEntitlements } from '@/hooks/use-entitlements'
 
 function AddStudentButton({ courseId }: { courseId: string }) {
   const { canPerformAction } = useEntitlements()
   const [studentCount, setStudentCount] = useState(0) // Load from DB
-  
+
   const handleAddStudent = async () => {
     const result = await canPerformAction('add_student', studentCount)
-    
+
     if (!result.allowed) {
       showModal({
         title: 'Student Limit Reached',
@@ -257,11 +284,11 @@ function AddStudentButton({ courseId }: { courseId: string }) {
       })
       return
     }
-    
+
     // Show add student form
     openAddStudentModal()
   }
-  
+
   return <button onClick={handleAddStudent}>Add Student</button>
 }
 ```
@@ -277,9 +304,9 @@ import { useFeatureAccess } from '@/hooks/use-entitlements'
 
 function MyComponent() {
   const hasFeature = useFeatureAccess('aiAssistantAccess')
-  
+
   if (!hasFeature) return <UpgradePrompt />
-  
+
   return <FeatureContent />
 }
 ```
@@ -294,10 +321,10 @@ import { useEntitlements } from '@/hooks/use-entitlements'
 function MyComponent() {
   const { canPerformAction, entitlements } = useEntitlements()
   const [currentUsage, setCurrentUsage] = useState(0)
-  
+
   const handleAction = async () => {
     const result = await canPerformAction('create_course', currentUsage)
-    
+
     if (!result.allowed) {
       // Show upgrade prompt with specific reason
       showUpgradeModal({
@@ -308,11 +335,11 @@ function MyComponent() {
       })
       return
     }
-    
+
     // Proceed with action
     await performAction()
   }
-  
+
   return (
     <button onClick={handleAction}>
       Action ({currentUsage}/{entitlements?.features.maxCoursesAuthored ?? 0})
@@ -330,11 +357,11 @@ import { useTierCheck } from '@/hooks/use-entitlements'
 
 function MyComponent() {
   const isProfessionalOrHigher = useTierCheck('PROFESSIONAL')
-  
+
   if (!isProfessionalOrHigher) {
     return <UpgradePrompt requiredTier="PROFESSIONAL" />
   }
-  
+
   return <PremiumContent />
 }
 ```
@@ -348,24 +375,24 @@ import { useEntitlements } from '@/hooks/use-entitlements'
 
 function MyComponent() {
   const { entitlements, loading, error, refresh } = useEntitlements()
-  
+
   if (loading) return <Spinner />
   if (error) return <ErrorView error={error} />
   if (!entitlements) return <NoEntitlementsView />
-  
+
   return (
     <div>
       <h2>Your Plan: {entitlements.tier}</h2>
       <p>Courses: {entitlements.features.maxCoursesAuthored}</p>
       <p>Students: {entitlements.features.maxStudentsPerCourse}</p>
       <p>Members: {entitlements.features.maxOrganizationMembers}</p>
-      
+
       {entitlements.inGracePeriod && (
         <Alert>
           Grace period ends {entitlements.gracePeriodEndsAt}
         </Alert>
       )}
-      
+
       {!entitlements.hasSeat && (
         <Alert>No seat allocated - contact admin</Alert>
       )}
@@ -384,21 +411,23 @@ import { createClient } from '@/lib/supabase/server'
 
 export async function GET(request: Request) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
   if (!user) {
     return new Response('Unauthorized', { status: 401 })
   }
-  
+
   // Check feature access
   const hasAI = await hasFeatureAccess(user.id, 'aiAssistantAccess', supabase)
   if (!hasAI) {
     return new Response('AI features not available on your plan', { status: 403 })
   }
-  
+
   // Or get full entitlements
   const entitlements = await getUserEntitlements(user.id, supabase)
-  
+
   return Response.json({ entitlements })
 }
 ```
@@ -467,6 +496,7 @@ After migrating each component:
 ## Common Gotchas
 
 ### 1. Loading State
+
 Always handle the loading state:
 
 ```typescript
@@ -478,6 +508,7 @@ if (loading) {
 ```
 
 ### 2. Null Checks
+
 Entitlements may be null if no subscription:
 
 ```typescript
@@ -486,6 +517,7 @@ const maxCourses = entitlements?.features.maxCoursesAuthored ?? 1
 ```
 
 ### 3. Tier Comparison
+
 Use helper for tier comparisons:
 
 ```typescript
@@ -497,6 +529,7 @@ const isProfessionalOrHigher = useTierCheck('PROFESSIONAL')
 ```
 
 ### 4. Server vs Client
+
 Use correct API for context:
 
 ```typescript
@@ -526,14 +559,14 @@ interface UpgradePromptProps {
 
 export function UpgradePrompt({ feature, requiredTier, description, benefits }: UpgradePromptProps) {
   const { entitlements } = useEntitlements()
-  
+
   return (
     <div className="rounded-lg border-2 border-amber-200 bg-amber-50 p-8 text-center">
       <Sparkles className="mx-auto mb-4 h-16 w-16 text-amber-600" />
       <h2 className="mb-2 text-2xl font-bold text-gray-900">{feature}</h2>
       <p className="mb-2 text-lg text-gray-700">{requiredTier}+ Feature</p>
       {description && <p className="mb-6 text-gray-600">{description}</p>}
-      
+
       {benefits && benefits.length > 0 && (
         <ul className="mb-6 space-y-2 text-left">
           {benefits.map((benefit, i) => (
@@ -544,7 +577,7 @@ export function UpgradePrompt({ feature, requiredTier, description, benefits }: 
           ))}
         </ul>
       )}
-      
+
       <Link
         href={`/pricing?upgrade=${requiredTier.toLowerCase()}&from=${entitlements?.tier.toLowerCase()}`}
         className="btn-primary inline-flex items-center gap-2"
@@ -552,7 +585,7 @@ export function UpgradePrompt({ feature, requiredTier, description, benefits }: 
         Upgrade to {requiredTier}
         <ArrowRight className="h-5 w-5" />
       </Link>
-      
+
       <p className="mt-4 text-sm text-gray-500">
         Current plan: {entitlements?.tier || 'FREE'}
       </p>
@@ -564,10 +597,12 @@ export function UpgradePrompt({ feature, requiredTier, description, benefits }: 
 ## Progress Tracking
 
 ### Completed (2 components)
+
 - ✅ app/analytics/page.tsx
 - ✅ app/team/page.tsx
 
 ### High Priority (Next 5)
+
 - ⏳ app/instructor/courses/create/page.tsx
 - ⏳ app/instructor/dashboard/page.tsx
 - ⏳ app/ai-assistant/page.tsx
@@ -575,6 +610,7 @@ export function UpgradePrompt({ feature, requiredTier, description, benefits }: 
 - ⏳ app/pricing/page.tsx
 
 ### Medium Priority (Next 10)
+
 - ⏳ app/org/dashboard/page.tsx
 - ⏳ app/admin/courses/create/page.tsx
 - ⏳ app/admin/sso-config/page.tsx
@@ -587,6 +623,7 @@ export function UpgradePrompt({ feature, requiredTier, description, benefits }: 
 - ⏳ Custom branding components
 
 ### Estimated Timeline
+
 - High priority: 4-6 hours
 - Medium priority: 1-2 days
 - Testing: 4-6 hours
@@ -595,6 +632,7 @@ export function UpgradePrompt({ feature, requiredTier, description, benefits }: 
 ---
 
 **Next Steps:**
+
 1. Start with high-priority components (course creation, AI features)
 2. Test each migration thoroughly before moving to next component
 3. Create reusable upgrade prompt component
@@ -602,6 +640,7 @@ export function UpgradePrompt({ feature, requiredTier, description, benefits }: 
 5. Run full E2E test suite after all migrations complete
 
 **Documentation:**
+
 - [Entitlements Service](../../lib/services/entitlements.ts)
 - [useEntitlements Hook](../../hooks/use-entitlements.ts)
 - [Migration Guide](./MIGRATION_EXECUTION_GUIDE.md)

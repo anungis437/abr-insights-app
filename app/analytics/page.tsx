@@ -11,7 +11,7 @@ type PlanTier = 'free' | 'professional' | 'enterprise'
 export default function AnalyticsPage() {
   const { profile } = useAuth()
   const { entitlements, loading: entitlementsLoading } = useEntitlements()
-  const userPlan: PlanTier = entitlements?.tier.toLowerCase() as PlanTier || 'free'
+  const userPlan: PlanTier = (entitlements?.tier.toLowerCase() as PlanTier) || 'free'
   const hasAdvancedAnalytics = entitlements?.features.advancedAnalytics || false
 
   return (

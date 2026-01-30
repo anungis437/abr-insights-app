@@ -20,6 +20,7 @@
 ### 1. Verify Stripe Configuration
 
 Check `.env.local` has these keys:
+
 ```env
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
 STRIPE_SECRET_KEY=sk_test_...
@@ -79,6 +80,7 @@ npm run dev
 3. Complete checkout
 
 4. **Watch Terminal 1** for webhook events:
+
    ```
    2026-01-30 14:23:45   --> customer.subscription.created [evt_xxx]
    2026-01-30 14:23:46   --> checkout.session.completed [evt_xxx]
@@ -98,7 +100,7 @@ npm run dev
 #### Check organization_subscriptions table:
 
 ```sql
-SELECT 
+SELECT
   id,
   organization_id,
   stripe_subscription_id,
@@ -113,6 +115,7 @@ LIMIT 1;
 ```
 
 **Expected Result:**
+
 - tier: `PROFESSIONAL`
 - status: `active`
 - seat_count: `1`
@@ -122,7 +125,7 @@ LIMIT 1;
 #### Check seat_allocations table:
 
 ```sql
-SELECT 
+SELECT
   id,
   subscription_id,
   user_id,
@@ -134,6 +137,7 @@ LIMIT 1;
 ```
 
 **Expected Result:**
+
 - status: `active`
 - user_id matches your test user
 
@@ -149,6 +153,7 @@ curl -H "Authorization: Bearer YOUR_TOKEN" \
 ```
 
 **Expected Response:**
+
 ```json
 {
   "tier": "PROFESSIONAL",
@@ -174,6 +179,7 @@ curl -H "Authorization: Bearer YOUR_TOKEN" \
 ### Step 5: Verify UI Feature Unlocks
 
 Refresh http://localhost:3000/test-checkout and verify:
+
 - ✅ Tier shows: PROFESSIONAL
 - ✅ AI Assistant: ✅ Yes
 - ✅ AI Coach: ✅ Yes
@@ -181,6 +187,7 @@ Refresh http://localhost:3000/test-checkout and verify:
 - ✅ Max Courses: 50
 
 Test feature access:
+
 1. **AI Assistant:** Navigate to /ai-assistant → Should load (no redirect)
 2. **AI Coach:** Navigate to /ai-coach → Should load (no redirect)
 3. **Export Buttons:** Go to /admin/risk-heatmap → CSV/PDF buttons enabled
@@ -204,6 +211,7 @@ Test feature access:
 ## Test Enterprise Upgrade (Optional)
 
 Repeat steps 2-7 with Enterprise tier:
+
 - Use "Test Enterprise Checkout" button
 - Verify tier: ENTERPRISE
 - Check unlimited features (-1 values)
@@ -214,17 +222,20 @@ Repeat steps 2-7 with Enterprise tier:
 ## Edge Case Testing
 
 ### Test 1: Expired Subscription
+
 ```bash
 # Trigger subscription cancellation
 stripe trigger customer.subscription.deleted
 ```
 
 Verify:
+
 - Status changes to `canceled` in database
 - Features revert to FREE tier
 - UI shows upgrade prompts
 
 ### Test 2: Failed Payment
+
 ```bash
 # Use test card that requires authentication
 # Card: 4000 0025 0000 3155
@@ -235,6 +246,7 @@ Verify webhook handles `invoice.payment_failed`
 ### Test 3: Seat Limit Enforcement
 
 For PROFESSIONAL tier (1 seat):
+
 1. Create organization_subscriptions with seat_count=1, seats_used=1
 2. Try adding another member
 3. Should show error: "No seats available"
@@ -262,6 +274,7 @@ For PROFESSIONAL tier (1 seat):
 ## Troubleshooting
 
 ### Webhook Not Firing
+
 ```bash
 # Verify listener is running
 stripe listen --forward-to localhost:3000/api/webhooks/stripe
@@ -271,16 +284,19 @@ echo $STRIPE_WEBHOOK_SECRET
 ```
 
 ### Database Record Not Created
+
 - Check Terminal 2 logs for webhook errors
 - Verify RLS policies allow insert
 - Check admin client being used in webhook handler
 
 ### Entitlements Not Updating
+
 - Refresh browser (entitlements cached)
 - Check organization_subscriptions has correct tier
 - Verify user's organization_id matches subscription
 
 ### Features Not Unlocking
+
 - Hard refresh browser (Ctrl+Shift+R)
 - Clear localStorage
 - Check entitlements service TIER_CONFIG
@@ -295,7 +311,7 @@ echo $STRIPE_WEBHOOK_SECRET
 ✅ **API Response:** GET /api/entitlements returns correct tier  
 ✅ **Feature Unlocks:** AI features accessible, export enabled  
 ✅ **UI Updates:** All components show upgraded features  
-✅ **Limits Display:** Course and seat limits accurate  
+✅ **Limits Display:** Course and seat limits accurate
 
 ---
 

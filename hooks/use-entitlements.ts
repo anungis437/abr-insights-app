@@ -1,10 +1,10 @@
 /**
  * useEntitlements Hook
  * Client-side hook for accessing user entitlements from canonical source
- * 
+ *
  * This hook replaces legacy subscription checks with the new entitlements service.
  * Use this instead of checking profiles.subscription_tier directly.
- * 
+ *
  * @see lib/services/entitlements.ts
  */
 
@@ -66,12 +66,12 @@ export function useEntitlements(): UseEntitlementsReturn {
     (feature: keyof EntitlementFeatures): boolean => {
       if (!entitlements) return false
       const featureValue = entitlements.features[feature]
-      
+
       // Handle numeric features (limits)
       if (typeof featureValue === 'number') {
         return featureValue > 0 || featureValue === -1 // -1 means unlimited
       }
-      
+
       // Handle boolean features
       return featureValue as boolean
     },
@@ -160,7 +160,7 @@ export function useTierCheck(
   requiredTier: 'FREE' | 'PROFESSIONAL' | 'BUSINESS' | 'BUSINESS_PLUS' | 'ENTERPRISE'
 ): boolean {
   const { entitlements } = useEntitlements()
-  
+
   if (!entitlements) return false
 
   const tierOrder = ['FREE', 'PROFESSIONAL', 'BUSINESS', 'BUSINESS_PLUS', 'ENTERPRISE']

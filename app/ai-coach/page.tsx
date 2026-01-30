@@ -39,7 +39,10 @@ export default function AICoachPage() {
                 <Target className="mr-2 h-5 w-5" />
                 Start Learning Journey
               </Link>
-              <Link href="/pricing" className="btn-secondary border-white text-white hover:bg-white/10">
+              <Link
+                href="/pricing"
+                className="btn-secondary border-white text-white hover:bg-white/10"
+              >
                 View Plans
               </Link>
             </div>
@@ -246,7 +249,9 @@ export default function AICoachPage() {
             </blockquote>
             <div className="text-center">
               <div className="font-semibold text-gray-900">Taylor Chen</div>
-              <div className="text-sm text-gray-600">Learning & Development Director, Tech Corp</div>
+              <div className="text-sm text-gray-600">
+                Learning & Development Director, Tech Corp
+              </div>
             </div>
           </div>
         </div>
@@ -258,7 +263,8 @@ export default function AICoachPage() {
           <div className="card mx-auto max-w-4xl bg-gradient-to-r from-primary-600 to-green-600 text-center text-white">
             <h2 className="mb-4 text-3xl font-bold">Start Your Learning Journey Today</h2>
             <p className="mb-8 text-xl text-blue-100">
-              Join thousands of professionals building anti-racism expertise with AI-powered coaching
+              Join thousands of professionals building anti-racism expertise with AI-powered
+              coaching
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
               <Link
@@ -268,7 +274,10 @@ export default function AICoachPage() {
                 Get Started Free
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
-              <Link href="/pricing" className="btn-secondary border-white text-white hover:bg-white/10">
+              <Link
+                href="/pricing"
+                className="btn-secondary border-white text-white hover:bg-white/10"
+              >
                 View Pricing
               </Link>
             </div>

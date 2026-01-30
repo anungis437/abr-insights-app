@@ -12,11 +12,11 @@
 
 ### Blockers Status
 
-| Blocker | Priority | Status | Completion |
-|---------|----------|--------|------------|
-| **#1: Webhook RLS Failure** | CRITICAL | ✅ RESOLVED | 100% |
-| **#2: Entitlements Split** | HIGH | 🔄 IN PROGRESS | 80% |
-| **#3: Console.log Statements** | MEDIUM | ✅ RESOLVED | 100% |
+| Blocker                        | Priority | Status         | Completion |
+| ------------------------------ | -------- | -------------- | ---------- |
+| **#1: Webhook RLS Failure**    | CRITICAL | ✅ RESOLVED    | 100%       |
+| **#2: Entitlements Split**     | HIGH     | 🔄 IN PROGRESS | 80%        |
+| **#3: Console.log Statements** | MEDIUM   | ✅ RESOLVED    | 100%       |
 
 **Key Achievement:** Infrastructure for single source of truth entitlements is **100% complete**. Migration execution and UI updates in progress.
 
@@ -25,14 +25,17 @@
 ## Completed Work (7 Commits)
 
 ### Commit 1: Blocker #1 Resolution (3545adc)
+
 **Title:** Webhook RLS fix - seat management dependency injection
 
 **Changes:**
+
 - `lib/services/seat-management.ts`: All 12 functions accept optional `SupabaseClient`
 - `app/api/webhooks/stripe/route.ts`: Pass admin client to all seat operations
 - **Impact:** Webhooks can now create org subscriptions and allocate seats without RLS errors
 
 **Verification:**
+
 - ✅ Type check passed
 - ✅ No RLS policy violations in webhook context
 - ✅ 2 files, 84 insertions
@@ -40,15 +43,18 @@
 ---
 
 ### Commit 2: Blocker #2 Strategy Documentation (cfd2195)
+
 **Title:** Entitlements source of truth strategy document
 
 **Changes:**
+
 - `docs/ENTITLEMENTS_SOURCE_OF_TRUTH.md` (476 lines)
 - Complete implementation plan (5 phases)
 - Migration approach for consolidating 3 legacy sources
 - **Impact:** Clear roadmap for resolving entitlements inconsistency
 
 **Content:**
+
 - Problem statement: 3 conflicting sources (profiles, organizations, organization_subscriptions)
 - Recommendation: Single source of truth pattern
 - Phases: Service creation, migration, client access, UI updates, cleanup
@@ -57,15 +63,18 @@
 ---
 
 ### Commit 3: Blocker #3 Resolution (70e9442)
+
 **Title:** Console.log cleanup with structured logging
 
 **Changes:**
+
 - `lib/utils/logger.ts`: Added `webhook()` and `billing()` methods
 - `app/admin/sso-config/page.tsx`: 5 console.log → logger.debug()
 - `app/api/webhooks/stripe/route.ts`: 12 console.log → logger.webhook/billing()
 - **Impact:** Production-ready logging without PII leaks
 
 **Verification:**
+
 - ✅ Zero console.log in app/ directory (verified with grep)
 - ✅ Structured logging supports environment filtering
 - ✅ 4 files, 340 insertions
@@ -73,114 +82,130 @@
 ---
 
 ### Commit 4: Blocker #2 Core Service (8383af9)
+
 **Title:** Canonical entitlements service and migration script
 
 **Changes:**
+
 - `lib/services/entitlements.ts` (528 lines):
-  * `getUserEntitlements()`: Canonical entitlement check
-  * `hasFeatureAccess()`: Boolean feature validation
-  * `canPerformAction()`: Usage limit enforcement
-  * `getOrganizationEntitlements()`: Org-level view
-  * `TIER_CONFIG`: Complete feature matrix (5 tiers)
+  - `getUserEntitlements()`: Canonical entitlement check
+  - `hasFeatureAccess()`: Boolean feature validation
+  - `canPerformAction()`: Usage limit enforcement
+  - `getOrganizationEntitlements()`: Org-level view
+  - `TIER_CONFIG`: Complete feature matrix (5 tiers)
 
 - `scripts/migrate-entitlements.ts` (371 lines):
-  * Phase 1: Migrate profiles.subscription_tier → organization_subscriptions
-  * Phase 2: Migrate organizations.subscription_tier → organization_subscriptions
-  * Dry-run mode for safe testing
-  * Comprehensive error handling and rollback support
+  - Phase 1: Migrate profiles.subscription_tier → organization_subscriptions
+  - Phase 2: Migrate organizations.subscription_tier → organization_subscriptions
+  - Dry-run mode for safe testing
+  - Comprehensive error handling and rollback support
 
 **Impact:**
+
 - Single source of truth for all entitlement checks
 - Type-safe, testable, maintainable architecture
 - Ready for production use
 
 **Verification:**
+
 - ✅ Type check passed (0 errors)
 - ✅ 2 files, 805 insertions
 
 ---
 
 ### Commit 5: Blocker #2 Client Access (ae9b5c5)
+
 **Title:** Client-side entitlements API and React hooks
 
 **Changes:**
+
 - `app/api/entitlements/route.ts`:
-  * GET endpoint for authenticated users
-  * Returns full UserEntitlements object
-  * Server-side validation with Supabase auth
+  - GET endpoint for authenticated users
+  - Returns full UserEntitlements object
+  - Server-side validation with Supabase auth
 
 - `hooks/use-entitlements.ts` (177 lines):
-  * `useEntitlements()`: Main hook with loading/error states
-  * `hasFeature()`: Client-side feature validation
-  * `canPerformAction()`: Client-side limit checks
-  * Helper hooks: `useFeatureAccess()`, `useTierCheck()`
+  - `useEntitlements()`: Main hook with loading/error states
+  - `hasFeature()`: Client-side feature validation
+  - `canPerformAction()`: Client-side limit checks
+  - Helper hooks: `useFeatureAccess()`, `useTierCheck()`
 
 **Impact:**
+
 - Client components can access entitlements easily
 - Type-safe React hooks with auto-refresh
 - Legacy compatibility helpers
 
 **Verification:**
+
 - ✅ Type check passed (0 errors)
 - ✅ 2 files, 208 insertions
 
 ---
 
 ### Commit 6: Blocker #2 UI Updates (e2003cc)
+
 **Title:** Update UI components to use useEntitlements hook
 
 **Changes:**
+
 - `app/analytics/page.tsx`:
-  * Replace `subscription_tier` with `useEntitlements()`
-  * Use `entitlements.tier` for plan display
-  * Added `hasAdvancedAnalytics` feature check
+  - Replace `subscription_tier` with `useEntitlements()`
+  - Use `entitlements.tier` for plan display
+  - Added `hasAdvancedAnalytics` feature check
 
 - `app/team/page.tsx`:
-  * Replace tier check with `maxOrganizationMembers` feature
-  * Team features now based on member limit (> 1)
+  - Replace tier check with `maxOrganizationMembers` feature
+  - Team features now based on member limit (> 1)
 
 - `lib/services/entitlements.ts`:
-  * Added `maxOrganizationMembers` to EntitlementFeatures interface
-  * Updated all tier configs (FREE → ENTERPRISE)
-  * Consistent feature exposure across tiers
+  - Added `maxOrganizationMembers` to EntitlementFeatures interface
+  - Updated all tier configs (FREE → ENTERPRISE)
+  - Consistent feature exposure across tiers
 
 - `docs/MIGRATION_EXECUTION_GUIDE.md` (NEW):
-  * Complete migration execution guide
-  * Prerequisites, step-by-step instructions
-  * SQL verification queries
-  * Rollback plans and troubleshooting
+  - Complete migration execution guide
+  - Prerequisites, step-by-step instructions
+  - SQL verification queries
+  - Rollback plans and troubleshooting
 
 **Impact:**
+
 - First 2 components migrated to canonical entitlements
 - Pattern established for remaining migrations
 - Production-ready execution guide
 
 **Verification:**
+
 - ✅ Type check passed (0 errors)
 - ✅ 5 files, 824 insertions
 
 ---
 
 ### Commit 7: UI Migration Guide (569170b)
+
 **Title:** Comprehensive UI components migration guide
 
 **Changes:**
+
 - `docs/UI_COMPONENTS_MIGRATION_GUIDE.md` (600+ lines):
-  * ✅ Completed migrations (analytics, team)
-  * 🔄 Pending migrations with priorities
-  * Migration patterns (4 types)
-  * Server-side vs client-side usage
-  * Reusable UpgradePrompt component
-  * Testing checklist and common gotchas
-  * Search commands for finding components
-  * Progress tracking (2 done, 15 pending)
+  - ✅ Completed migrations (analytics, team)
+  - 🔄 Pending migrations with priorities
+  - Migration patterns (4 types)
+  - Server-side vs client-side usage
+  - Reusable UpgradePrompt component
+  - Testing checklist and common gotchas
+  - Search commands for finding components
+  - Progress tracking (2 done, 15 pending)
 
 **Impact:**
+
 - Clear guide for migrating remaining 15 components
 - Estimated 2-3 days for complete UI migration
 - Standardized patterns for consistency
 
 **Verification:**
+
 - ✅ All patterns type-checked
 - ✅ 1 file, 608 insertions
 
@@ -189,6 +214,7 @@
 ## Technical Achievements
 
 ### Architecture Improvements
+
 1. **Single Source of Truth**: `organization_subscriptions` table is now canonical entitlements source
 2. **Type Safety**: Full TypeScript types for all entitlement interfaces
 3. **Dependency Injection**: Services accept optional client for webhook contexts
@@ -196,6 +222,7 @@
 5. **Client-Server Separation**: Clear APIs for React components vs server code
 
 ### Code Quality
+
 - **Total Lines Added**: 2,869 lines (across 7 commits)
 - **Files Created**: 8 new files (services, scripts, docs, hooks, API routes)
 - **Files Modified**: 6 existing files (webhooks, logger, UI components)
@@ -203,6 +230,7 @@
 - **Lint Warnings**: 0 (all code passes eslint)
 
 ### Documentation
+
 - **Strategy Document**: Complete implementation plan (476 lines)
 - **Execution Guide**: Step-by-step migration instructions (824 lines)
 - **UI Migration Guide**: Pattern catalog and component tracking (608 lines)
@@ -213,32 +241,35 @@
 
 ## Feature Matrix (TIER_CONFIG)
 
-| Feature | FREE | PROFESSIONAL | BUSINESS | BUSINESS_PLUS | ENTERPRISE |
-|---------|------|--------------|----------|---------------|------------|
-| **Courses** | 1 | 10 | 50 | 200 | ∞ |
-| **Students/Course** | 10 | 100 | 500 | 2,000 | ∞ |
-| **Org Members** | 1 | 5 | 25 | 100 | ∞ |
-| **AI Assistant** | ❌ | ✅ | ✅ | ✅ | ✅ |
-| **AI Coach** | ❌ | ✅ | ✅ | ✅ | ✅ |
-| **Advanced Analytics** | ❌ | ✅ | ✅ | ✅ | ✅ |
-| **Exports (PDF/CSV)** | ❌ | ✅ | ✅ | ✅ | ✅ |
-| **Citatory Integration** | ❌ | ✅ | ✅ | ✅ | ✅ |
-| **Custom Branding** | ❌ | ❌ | ✅ | ✅ | ✅ |
-| **SSO** | ❌ | ❌ | ✅ | ✅ | ✅ |
-| **Priority Support** | ❌ | ❌ | ✅ | ✅ | ✅ |
+| Feature                  | FREE | PROFESSIONAL | BUSINESS | BUSINESS_PLUS | ENTERPRISE |
+| ------------------------ | ---- | ------------ | -------- | ------------- | ---------- |
+| **Courses**              | 1    | 10           | 50       | 200           | ∞          |
+| **Students/Course**      | 10   | 100          | 500      | 2,000         | ∞          |
+| **Org Members**          | 1    | 5            | 25       | 100           | ∞          |
+| **AI Assistant**         | ❌   | ✅           | ✅       | ✅            | ✅         |
+| **AI Coach**             | ❌   | ✅           | ✅       | ✅            | ✅         |
+| **Advanced Analytics**   | ❌   | ✅           | ✅       | ✅            | ✅         |
+| **Exports (PDF/CSV)**    | ❌   | ✅           | ✅       | ✅            | ✅         |
+| **Citatory Integration** | ❌   | ✅           | ✅       | ✅            | ✅         |
+| **Custom Branding**      | ❌   | ❌           | ✅       | ✅            | ✅         |
+| **SSO**                  | ❌   | ❌           | ✅       | ✅            | ✅         |
+| **Priority Support**     | ❌   | ❌           | ✅       | ✅            | ✅         |
 
 ---
 
 ## Remaining Work
 
 ### Immediate (Requires Environment Setup)
+
 **Task:** Run migration script  
 **Prerequisites:**
+
 - Set `NEXT_PUBLIC_SUPABASE_URL` in `.env.local`
 - Set `SUPABASE_SERVICE_ROLE_KEY` in `.env.local`
 - Create database backup
 
 **Commands:**
+
 ```bash
 # 1. Copy environment template
 cp .env.example .env.local
@@ -261,9 +292,11 @@ npx tsx scripts/migrate-entitlements.ts
 ---
 
 ### High Priority (This Week)
+
 **Task:** Update remaining UI components
 
 **Components (15 total):**
+
 1. ⏳ Course creation pages (instructor + admin)
 2. ⏳ Instructor dashboard (usage tracking)
 3. ⏳ AI assistant page (feature gate)
@@ -281,6 +314,7 @@ npx tsx scripts/migrate-entitlements.ts
 15. ⏳ Member invitation (limit validation)
 
 **Pattern:**
+
 ```typescript
 // Feature check
 const hasAI = useFeatureAccess('aiAssistantAccess')
@@ -297,9 +331,11 @@ if (!result.allowed) return showUpgradeModal(result)
 ---
 
 ### Critical Testing (Before Launch)
+
 **Task:** End-to-end Stripe checkout flow
 
 **Test Scenarios:**
+
 1. User purchases PROFESSIONAL tier
 2. Stripe webhook received
 3. `organization_subscriptions` record created
@@ -310,17 +346,18 @@ if (!result.allowed) return showUpgradeModal(result)
 8. Usage limits update
 
 **Verification Queries:**
+
 ```sql
 -- Check subscription created
-SELECT * FROM organization_subscriptions 
+SELECT * FROM organization_subscriptions
 WHERE stripe_subscription_id = 'sub_xxx';
 
 -- Check seat allocated
-SELECT * FROM seat_allocations 
+SELECT * FROM seat_allocations
 WHERE subscription_id = 'sub-uuid' AND status = 'active';
 
 -- Verify consistency
-SELECT 
+SELECT
   os.seats_used,
   COUNT(sa.id) as actual_seats
 FROM organization_subscriptions os
@@ -335,9 +372,11 @@ GROUP BY os.id;
 ---
 
 ### Post-Validation (Next Week)
+
 **Task:** Clean up legacy fields
 
 **Actions:**
+
 1. Remove `profiles.subscription_tier` column
 2. Remove `profiles.subscription_status` column
 3. Keep `profiles.stripe_customer_id` (still needed for Stripe)
@@ -346,9 +385,10 @@ GROUP BY os.id;
 6. Update RLS policies to reference `organization_subscriptions` only
 
 **SQL:**
+
 ```sql
 -- After validation complete (2 weeks)
-ALTER TABLE profiles 
+ALTER TABLE profiles
   DROP COLUMN subscription_tier,
   DROP COLUMN subscription_status;
 
@@ -365,6 +405,7 @@ ALTER TABLE organizations
 ## Production Readiness Metrics
 
 ### Before Session
+
 - ❌ Webhook RLS failures blocking seat allocation
 - ❌ Entitlements split across 3 tables (data inconsistency risk)
 - ❌ ~30+ console.log statements in production code
@@ -373,6 +414,7 @@ ALTER TABLE organizations
 - **Production Readiness: 85%**
 
 ### After Session
+
 - ✅ Webhooks work with admin client (blocker #1 resolved)
 - ✅ Canonical entitlements service implemented (528 lines)
 - ✅ Migration script ready with dry-run mode (371 lines)
@@ -386,6 +428,7 @@ ALTER TABLE organizations
 - **Production Readiness: 92%**
 
 ### Target Metrics (Production Launch)
+
 - 100% components using canonical entitlements service
 - 0 RLS policy violations in webhook context
 - 0 console.log statements in production code
@@ -398,17 +441,20 @@ ALTER TABLE organizations
 ## Risk Assessment
 
 ### Low Risk (Mitigated)
+
 - ✅ **Webhook RLS failures**: Resolved with dependency injection
 - ✅ **Console.log leaks**: Resolved with structured logger
 - ✅ **Type safety**: All code type-checks with 0 errors
 - ✅ **Migration rollback**: Dry-run mode + backup strategy documented
 
 ### Medium Risk (Manageable)
+
 - 🔄 **Migration execution**: Needs Supabase credentials (1 hour to set up)
 - 🔄 **UI component updates**: Systematic guide provided (4-6 hours)
 - 🔄 **Stripe webhook testing**: Requires test mode setup (1 hour)
 
 ### No Risk (Documented)
+
 - ✅ **Data inconsistency**: Single source of truth pattern resolves
 - ✅ **Feature parity**: All tiers defined in TIER_CONFIG
 - ✅ **Client-side access**: Type-safe hooks with error handling
@@ -418,18 +464,21 @@ ALTER TABLE organizations
 ## Next Session Priorities
 
 ### Priority 1: Environment Setup (30 minutes)
+
 1. Create `.env.local` from `.env.example`
 2. Add `NEXT_PUBLIC_SUPABASE_URL` from Supabase Dashboard
 3. Add `SUPABASE_SERVICE_ROLE_KEY` from Supabase Dashboard
 4. Verify connection: `npx tsx scripts/migrate-entitlements.ts --dry-run`
 
 ### Priority 2: Migration Execution (30 minutes)
+
 1. Create database backup (Supabase Dashboard → Backups)
 2. Run dry-run migration (review output)
 3. Run live migration (verify success)
 4. Test `/api/entitlements` endpoint (curl or browser)
 
 ### Priority 3: High-Priority UI Updates (4 hours)
+
 1. Course creation pages (limit validation)
 2. AI features (feature gates)
 3. Pricing page (tier display)
@@ -437,6 +486,7 @@ ALTER TABLE organizations
 5. Organization dashboard (seat management)
 
 ### Priority 4: E2E Testing (1 hour)
+
 1. Stripe test mode checkout
 2. Webhook verification
 3. Entitlements API test
@@ -447,6 +497,7 @@ ALTER TABLE organizations
 ## Success Criteria
 
 ### Phase 1: Complete ✅
+
 - [x] Blocker #1 resolved (webhooks working)
 - [x] Blocker #3 resolved (structured logging)
 - [x] Entitlements service implemented
@@ -456,6 +507,7 @@ ALTER TABLE organizations
 - [x] First 2 components migrated
 
 ### Phase 2: In Progress 🔄
+
 - [ ] Supabase credentials configured
 - [ ] Migration executed successfully
 - [ ] Remaining 13 components migrated
@@ -463,6 +515,7 @@ ALTER TABLE organizations
 - [ ] All usage limits enforced
 
 ### Phase 3: Testing 🔄
+
 - [ ] Stripe checkout → webhook → entitlements E2E tested
 - [ ] All tiers verified (FREE → ENTERPRISE)
 - [ ] Feature gates tested (AI, SSO, exports, analytics)
@@ -470,6 +523,7 @@ ALTER TABLE organizations
 - [ ] Upgrade flows tested
 
 ### Phase 4: Production Launch 🎯
+
 - [ ] Zero errors in production logs
 - [ ] Zero data inconsistencies
 - [ ] 100% components using canonical service
@@ -493,6 +547,7 @@ ALTER TABLE organizations
 ## Resource Links
 
 ### Documentation
+
 - [Entitlements Strategy](../docs/ENTITLEMENTS_SOURCE_OF_TRUTH.md)
 - [Migration Execution Guide](../docs/MIGRATION_EXECUTION_GUIDE.md)
 - [UI Components Migration Guide](../docs/UI_COMPONENTS_MIGRATION_GUIDE.md)
@@ -500,12 +555,14 @@ ALTER TABLE organizations
 - [Production Blockers Resolution](../docs/PRODUCTION_BLOCKERS_RESOLUTION.md)
 
 ### Code
+
 - [Entitlements Service](../lib/services/entitlements.ts)
 - [Migration Script](../scripts/migrate-entitlements.ts)
 - [useEntitlements Hook](../hooks/use-entitlements.ts)
 - [Entitlements API](../app/api/entitlements/route.ts)
 
 ### Commits
+
 1. Webhook RLS fix: `3545adc`
 2. Strategy docs: `cfd2195`
 3. Console.log cleanup: `70e9442`
@@ -527,6 +584,7 @@ ALTER TABLE organizations
 - ✅ First components migrated (pattern proven)
 
 **Remaining work is execution-focused:**
+
 - 1 hour: Run migration (requires Supabase credentials)
 - 6 hours: Update remaining UI components
 - 1 hour: E2E testing

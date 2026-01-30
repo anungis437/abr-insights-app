@@ -39,7 +39,10 @@ export default function AIAssistantPage() {
                 <MessageSquare className="mr-2 h-5 w-5" />
                 Try AI Assistant
               </Link>
-              <Link href="/pricing" className="btn-secondary border-white text-white hover:bg-white/10">
+              <Link
+                href="/pricing"
+                className="btn-secondary border-white text-white hover:bg-white/10"
+              >
                 View Plans
               </Link>
             </div>
@@ -247,7 +250,10 @@ export default function AIAssistantPage() {
                 Start Free Trial
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
-              <Link href="/pricing" className="btn-secondary border-white text-white hover:bg-white/10">
+              <Link
+                href="/pricing"
+                className="btn-secondary border-white text-white hover:bg-white/10"
+              >
                 View Pricing
               </Link>
             </div>

@@ -10,7 +10,7 @@ import { createClient } from '@/lib/supabase/server'
 export async function GET() {
   try {
     const supabase = await createClient()
-    
+
     const {
       data: { user },
       error: authError,
@@ -29,9 +29,6 @@ export async function GET() {
     return NextResponse.json({ entitlements })
   } catch (error) {
     console.error('Error fetching entitlements:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch entitlements' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to fetch entitlements' }, { status: 500 })
   }
 }

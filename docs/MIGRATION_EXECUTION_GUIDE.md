@@ -5,16 +5,18 @@
 Before running the migration, you need:
 
 1. **Supabase Credentials** - Set in `.env.local`:
+
    ```env
    NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
    SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
    ```
 
 2. **Database Backup** - Create before running live migration:
+
    ```bash
    # Via Supabase Dashboard:
    # Project Settings → Database → Backups → Create Backup
-   
+
    # Or via CLI:
    supabase db dump -f backup-pre-entitlements-$(date +%Y%m%d).sql
    ```
@@ -35,13 +37,13 @@ npx tsx scripts/migrate-entitlements.ts --dry-run
 # 🔄 ENTITLEMENTS MIGRATION
 # ============================================================
 # Mode: 🔍 DRY RUN (no changes)
-# 
+#
 # Phase 1: Migrating profiles.subscription_tier...
 # Would migrate: 15 profiles
-# 
+#
 # Phase 2: Migrating organizations.subscription_tier...
 # Would migrate: 8 organizations
-# 
+#
 # Summary:
 # ✅ Profiles to migrate: 15
 # ✅ Organizations to migrate: 8
@@ -52,6 +54,7 @@ npx tsx scripts/migrate-entitlements.ts --dry-run
 ### Step 2: Review Dry Run Results
 
 Check for:
+
 - **Count of profiles/orgs to migrate**: Should match your database
 - **Error messages**: Fix any issues before proceeding
 - **Unexpected behavior**: Investigate anomalies
@@ -88,22 +91,22 @@ npx tsx scripts/migrate-entitlements.ts
 # 🔄 ENTITLEMENTS MIGRATION
 # ============================================================
 # Mode: 🚀 LIVE MODE (will modify data)
-# 
+#
 # Phase 1: Migrating profiles...
 # ✅ Migrated profile: user@example.com (FREE → organization_subscriptions)
 # ✅ Migrated profile: premium@example.com (PROFESSIONAL → organization_subscriptions)
 # ...
-# 
+#
 # Phase 2: Migrating organizations...
 # ✅ Migrated org: Acme Corp (BUSINESS → organization_subscriptions)
 # ...
-# 
+#
 # Final Summary:
 # ✅ Profiles migrated: 15
 # ✅ Organizations migrated: 8
 # ✅ Seats allocated: 15
 # ❌ Errors: 0
-# 
+#
 # ✅ Migration completed successfully!
 ```
 
@@ -113,7 +116,7 @@ Run SQL queries to verify migration success:
 
 ```sql
 -- 1. Check all subscriptions were created
-SELECT 
+SELECT
   os.id,
   os.organization_id,
   os.tier,
@@ -125,21 +128,21 @@ FROM organization_subscriptions os
 ORDER BY os.created_at DESC;
 
 -- 2. Verify seat allocations match seats_used
-SELECT 
+SELECT
   os.organization_id,
   os.seat_count,
   os.seats_used,
   COUNT(sa.id) as actual_seats_allocated
 FROM organization_subscriptions os
-LEFT JOIN seat_allocations sa 
-  ON sa.subscription_id = os.id 
+LEFT JOIN seat_allocations sa
+  ON sa.subscription_id = os.id
   AND sa.status = 'active'
 GROUP BY os.id
 HAVING COUNT(sa.id) != os.seats_used;
 -- Should return 0 rows (no discrepancies)
 
 -- 3. Check for users without entitlements
-SELECT 
+SELECT
   p.id,
   p.email,
   p.subscription_tier as legacy_tier,
@@ -147,12 +150,12 @@ SELECT
 FROM profiles p
 LEFT JOIN seat_allocations sa ON sa.user_id = p.id AND sa.status = 'active'
 LEFT JOIN organization_subscriptions os ON os.id = sa.subscription_id
-WHERE p.subscription_tier IS NOT NULL 
+WHERE p.subscription_tier IS NOT NULL
   AND os.tier IS NULL;
 -- Should return 0 rows (all migrated)
 
 -- 4. Verify organization migrations
-SELECT 
+SELECT
   o.id,
   o.name,
   o.subscription_tier as legacy_tier,
@@ -161,7 +164,7 @@ SELECT
   os.seat_count as new_seat_count
 FROM organizations o
 LEFT JOIN organization_subscriptions os ON os.organization_id = o.id
-WHERE o.subscription_tier IS NOT NULL 
+WHERE o.subscription_tier IS NOT NULL
   AND os.tier IS NULL;
 -- Should return 0 rows (all migrated)
 ```
@@ -231,10 +234,10 @@ If only specific records need reverting:
 
 ```sql
 -- Rollback specific organization subscription
-DELETE FROM seat_allocations 
+DELETE FROM seat_allocations
 WHERE subscription_id = 'subscription-uuid';
 
-DELETE FROM organization_subscriptions 
+DELETE FROM organization_subscriptions
 WHERE id = 'subscription-uuid';
 
 -- Verify legacy data still intact
@@ -255,7 +258,7 @@ async function getUserEntitlements(userId: string) {
   } catch (error) {
     console.error('New system error, falling back:', error)
   }
-  
+
   // Fallback to legacy
   return await fetchLegacySubscription(userId)
 }
@@ -268,6 +271,7 @@ async function getUserEntitlements(userId: string) {
 **Cause**: `.env.local` not configured or variables not loaded
 
 **Solution**:
+
 ```bash
 # Create .env.local from template
 cp .env.example .env.local
@@ -281,11 +285,12 @@ cp .env.example .env.local
 **Cause**: Migration was run multiple times
 
 **Solution**:
+
 ```sql
 -- Check for duplicates
-SELECT organization_id, COUNT(*) 
-FROM organization_subscriptions 
-GROUP BY organization_id 
+SELECT organization_id, COUNT(*)
+FROM organization_subscriptions
+GROUP BY organization_id
 HAVING COUNT(*) > 1;
 
 -- Clean up duplicates (keep most recent)
@@ -293,7 +298,7 @@ DELETE FROM organization_subscriptions os1
 WHERE os1.id NOT IN (
   SELECT id FROM (
     SELECT id, ROW_NUMBER() OVER (
-      PARTITION BY organization_id 
+      PARTITION BY organization_id
       ORDER BY created_at DESC
     ) as rn
     FROM organization_subscriptions
@@ -306,6 +311,7 @@ WHERE os1.id NOT IN (
 **Cause**: Concurrent modifications during migration
 
 **Solution**:
+
 ```sql
 -- Recalculate seats_used for all subscriptions
 UPDATE organization_subscriptions os
@@ -319,8 +325,8 @@ SET seats_used = (
 -- Verify fix
 SELECT * FROM organization_subscriptions
 WHERE seats_used != (
-  SELECT COUNT(*) FROM seat_allocations 
-  WHERE subscription_id = organization_subscriptions.id 
+  SELECT COUNT(*) FROM seat_allocations
+  WHERE subscription_id = organization_subscriptions.id
   AND status = 'active'
 );
 -- Should return 0 rows
@@ -331,6 +337,7 @@ WHERE seats_used != (
 **Cause**: Large dataset, slow network, or database locks
 
 **Solution**:
+
 ```bash
 # Option A: Run with smaller batch sizes
 # Edit scripts/migrate-entitlements.ts, reduce batch size:

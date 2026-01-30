@@ -64,9 +64,7 @@ export default function TestCheckoutPage() {
     <div className="container mx-auto max-w-4xl px-4 py-12">
       <div className="mb-8">
         <h1 className="mb-2 text-3xl font-bold">Test Stripe Checkout</h1>
-        <p className="text-gray-600">
-          Test the complete Stripe → Webhook → Entitlements → UI flow
-        </p>
+        <p className="text-gray-600">Test the complete Stripe → Webhook → Entitlements → UI flow</p>
       </div>
 
       {/* Current Entitlements Status */}
@@ -104,8 +102,7 @@ export default function TestCheckoutPage() {
                   {entitlements.features.exportCapabilities ? '✅ Yes' : '❌ No'}
                 </li>
                 <li>
-                  Advanced Analytics:{' '}
-                  {entitlements.features.advancedAnalytics ? '✅ Yes' : '❌ No'}
+                  Advanced Analytics: {entitlements.features.advancedAnalytics ? '✅ Yes' : '❌ No'}
                 </li>
                 <li>
                   Max Courses:{' '}
@@ -145,7 +142,10 @@ export default function TestCheckoutPage() {
             </ul>
             <button
               onClick={() =>
-                handleCheckout('PROFESSIONAL', process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PROFESSIONAL!)
+                handleCheckout(
+                  'PROFESSIONAL',
+                  process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PROFESSIONAL!
+                )
               }
               disabled={loading || !process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PROFESSIONAL}
               className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-3 font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400"
