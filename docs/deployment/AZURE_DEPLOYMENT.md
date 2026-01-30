@@ -77,14 +77,18 @@ After Azure creates the resource, configure these secrets in your GitHub reposit
 #### NEXT_PUBLIC_SUPABASE_URL
 
 ```
-***REMOVED***
+https://your-project-ref.supabase.co
 ```
+
+_Get from: Supabase Dashboard → Project Settings → API → Project URL_
 
 #### NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 ```
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.***REMOVED***.w88Nix_a3IG1Iy3rVIkvC5Fa8Pe79mKtFY00cLtaiSM
+your-supabase-anon-key-from-project-settings
 ```
+
+_Get this from Supabase Dashboard → Project Settings → API → anon public key_
 
 #### NEXT_PUBLIC_APP_URL
 
@@ -97,8 +101,10 @@ _Replace with your actual Azure Static Web App URL after creation_
 #### SUPABASE_SERVICE_ROLE_KEY (Optional - for server-side operations)
 
 ```
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.***REMOVED***.iN8EyRCE9cu5x3mpeC-nDeocv26k6yYFEZi1WHNJeyI
+your-supabase-service-role-key-from-project-settings
 ```
+
+_Get this from Supabase Dashboard → Project Settings → API → .* key (Keep secret!)_
 
 ## Environment Variables in Azure Portal
 
@@ -110,7 +116,7 @@ Configure environment variables in Azure:
 
 | Name                            | Value                                      |
 | ------------------------------- | ------------------------------------------ |
-| `NEXT_PUBLIC_SUPABASE_URL`      | `***REMOVED***` |
+| `NEXT_PUBLIC_SUPABASE_URL`      | `https://your-project-ref.supabase.co` |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your anon key                              |
 | `NEXT_PUBLIC_APP_URL`           | Your Azure Static Web App URL              |
 | `NEXT_PUBLIC_APP_NAME`          | `ABR Insights`                             |

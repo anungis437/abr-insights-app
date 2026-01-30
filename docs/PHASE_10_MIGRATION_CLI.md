@@ -136,7 +136,7 @@ WHERE tablename IN (
 ### Issue: Project Not Linked
 
 ```bash
-supabase link --project-ref nuywgvbkgdvngrysqdul
+supabase link --project-ref YOUR-PROJECT-REF
 ```
 
 ### Issue: Authentication Failed
@@ -144,7 +144,7 @@ supabase link --project-ref nuywgvbkgdvngrysqdul
 Check your `.env.local` has correct credentials:
 
 ```
-NEXT_PUBLIC_SUPABASE_URL=***REMOVED***
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key>
 ```
 

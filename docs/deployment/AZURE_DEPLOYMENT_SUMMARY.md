@@ -54,8 +54,8 @@ The following environment variables have been set in Azure:
 
 | Variable                        | Value                                                 |
 | ------------------------------- | ----------------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`      | ***REMOVED***              |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | eyJhbGci... (JWT token)                               |
+| `NEXT_PUBLIC_SUPABASE_URL`      | https://your-project-ref.supabase.co              |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | your-supabase-anon-key (JWT token from Supabase)     |
 | `NEXT_PUBLIC_APP_URL`           | https://purple-ground-03d2b380f.3.azurestaticapps.net |
 | `NEXT_PUBLIC_APP_NAME`          | ABR Insights                                          |
 | `NEXT_PUBLIC_APP_VERSION`       | 2.0.0                                                 |
@@ -81,16 +81,20 @@ Add these secrets to your GitHub repository at:
 **Value:**
 
 ```
-***REMOVED***
+https://your-project-ref.supabase.co
 ```
+
+_Get from: Supabase Dashboard → Settings → API → Project URL_
 
 ### 3. NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 **Value:**
 
 ```
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.***REMOVED***.w88Nix_a3IG1Iy3rVIkvC5Fa8Pe79mKtFY00cLtaiSM
+your-supabase-anon-key
 ```
+
+_Get from: Supabase Dashboard → Project Settings → API → anon public key_
 
 ### 4. NEXT_PUBLIC_APP_URL
 

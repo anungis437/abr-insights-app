@@ -32,7 +32,7 @@ Open `create_tables.sql` and copy everything (Ctrl+A, Ctrl+C)
 
 ### Step 2: Paste in Supabase
 
-1. Go to: https://app.supabase.com/project/nuywgvbkgdvngrysqdul/sql/new
+1. Go to: https://app.supabase.com/project/YOUR-PROJECT-REF/sql/new
 2. Paste the SQL (Ctrl+V)
 3. Click **"Run"** button (bottom right)
 
@@ -77,7 +77,7 @@ After migration:
 **Still says tables missing?**
 
 - Refresh Supabase dashboard
-- Check you're in the correct project: nuywgvbkgdvngrysqdul
+- Check you're in the correct project: YOUR-PROJECT-REF
 - Try running the SQL again
 
 **Connection errors?**

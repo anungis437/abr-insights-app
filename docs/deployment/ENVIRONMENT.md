@@ -65,10 +65,10 @@ NEXT_PUBLIC_ENABLE_ANALYTICS=true
 ```bash
 # Supabase
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
 
 # Server-side only (never expose to client)
-SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
 SUPABASE_JWT_SECRET=your-jwt-secret
 
 # Database (optional, for direct connections)

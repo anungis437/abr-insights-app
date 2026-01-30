@@ -9,7 +9,7 @@ The **500 Internal Server Error** during login is because database migrations ha
 #### Option A: Using Supabase Dashboard (Recommended)
 
 1. Go to your Supabase dashboard: https://supabase.com/dashboard
-2. Select your project: `nuywgvbkgdvngrysqdul`
+2. Select your project: `YOUR-PROJECT-REF`
 3. Navigate to **SQL Editor**
 4. Run migrations in order:
 
@@ -37,7 +37,7 @@ The **500 Internal Server Error** during login is because database migrations ha
 
 ```powershell
 # Set environment variables first
-$env:NEXT_PUBLIC_SUPABASE_URL = "***REMOVED***"
+$env:NEXT_PUBLIC_SUPABASE_URL = "https://your-project-ref.supabase.co"
 $env:SUPABASE_SERVICE_ROLE_KEY = "your-service-role-key-here"
 
 # Run migration script
@@ -67,7 +67,7 @@ After applying migration `016_rbac_test_accounts.sql`, use these credentials:
 Verify your `.env.local` file has:
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=***REMOVED***
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 

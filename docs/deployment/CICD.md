@@ -432,7 +432,7 @@ NEXT_PUBLIC_SUPABASE_URL
 
 NEXT_PUBLIC_SUPABASE_ANON_KEY
   - Description: Public anonymous key for client-side
-  - Value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+  - Value: your-supabase-anon-key (from Supabase Project Settings → API)
 
 TEST_SUPABASE_URL
   - Description: Test/staging Supabase URL
@@ -440,7 +440,7 @@ TEST_SUPABASE_URL
 
 TEST_SUPABASE_ANON_KEY
   - Description: Test/staging anonymous key
-  - Value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+  - Value: your-test-supabase-anon-key (from test project settings)
 ```
 
 #### Site Configuration
