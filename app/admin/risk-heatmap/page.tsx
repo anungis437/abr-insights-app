@@ -178,7 +178,7 @@ export default function RiskHeatmapPage() {
             <div className="mt-4 h-2 bg-gray-200 rounded-full overflow-hidden">
               <div
                 className={`h-full ${getRiskColor(summary.overall_risk_level)}`}
-                style={{ width: `${summary.overall_risk_score}%` }}
+                style={{ ['--progress-width' as string]: `${summary.overall_risk_score}%` } as React.CSSProperties}
               />
             </div>
           </div>
@@ -380,7 +380,7 @@ export default function RiskHeatmapPage() {
                 <div className="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-blue-500"
-                    style={{ width: `${selectedDepartment.training_completion_rate * 100}%` }}
+                    style={{ ['--progress-width' as string]: `${selectedDepartment.training_completion_rate * 100}%` } as React.CSSProperties}
                   />
                 </div>
               </div>
@@ -395,7 +395,7 @@ export default function RiskHeatmapPage() {
                 <div className="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-green-500"
-                    style={{ width: `${selectedDepartment.avg_quiz_score}%` }}
+                    style={{ ['--progress-width' as string]: `${selectedDepartment.avg_quiz_score}%` } as React.CSSProperties}
                   />
                 </div>
               </div>
@@ -445,7 +445,7 @@ export default function RiskHeatmapPage() {
                           <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
                             <div
                               className={`h-full ${getRiskColor(factor.severity)}`}
-                              style={{ width: `${(factor.impact_score / 30) * 100}%` }}
+                              style={{ ['--progress-width' as string]: `${(factor.impact_score / 30) * 100}%` } as React.CSSProperties}
                             />
                           </div>
                         </div>
