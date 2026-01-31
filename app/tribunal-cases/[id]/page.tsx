@@ -20,6 +20,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { EvidenceBundleGenerator } from '@/components/cases/EvidenceBundleGenerator'
 
 // ============================================================================
 // TYPES
@@ -412,6 +413,14 @@ export default function TribunalCaseDetails() {
                     <div className="text-gray-900">{formatDate(tribunalCase.decision_date)}</div>
                   </div>
                 </div>
+              </div>
+
+              {/* Evidence Bundle Generator */}
+              <div className="rounded-lg bg-white p-6 shadow-md">
+                <EvidenceBundleGenerator
+                  caseId={tribunalCase.id}
+                  caseTitle={tribunalCase.title || tribunalCase.case_number || `Case ${tribunalCase.id.substring(0, 8)}`}
+                />
               </div>
 
               {/* Similar Cases */}

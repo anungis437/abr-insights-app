@@ -7,11 +7,7 @@ import {
   generateFileName,
   type CaseData,
 } from '@/lib/services/pdf-generator-server'
-// Audit logging for evidence bundle operations
-async function logBundleEvent(action: string, metadata: any) {
-  // TODO: Implement proper audit logging
-  console.log(`[AUDIT] ${action}`, metadata)
-}
+import { logDataModification, logDataAccess } from '@/lib/services/audit-logger'
 
 interface CreateBundleResult {
   success: boolean
@@ -58,6 +54,9 @@ export async function createEvidenceBundle(
         error: 'Case not found or access denied',
       }
     }
+
+    // Get organization ID for audit logging
+    const organizationId = caseData.organization_id || user.user_metadata?.organization_id || ''
 
     // 3. Get user profile for email
     const { data: profile } = await supabase
@@ -140,18 +139,23 @@ export async function createEvidenceBundle(
       }
     }
 
-    // 9. Log audit event
-    await logBundleEvent('evidence_bundle_created', {
-      resource_type: 'case',
-      resource_id: caseId,
-      user_id: user.id,
-      bundleId: bundleData.id,
-      fileName,
-      storagePath: uploadData.path,
-      checksum,
-      fileSize: pdfBuffer.length,
-      includeAttachments,
-    })
+    // 9. Log audit event for bundle creation
+    await logDataModification(
+      organizationId,
+      'create',
+      'evidence_bundle',
+      bundleData.id,
+      user.id,
+      'restricted', // Evidence bundles contain sensitive legal data
+      {
+        caseId,
+        fileName,
+        storagePath: uploadData.path,
+        checksum,
+        fileSize: pdfBuffer.length,
+        includeAttachments,
+      }
+    )
 
     // 10. Create signed URL (time-limited, trackable)
     const { data: urlData, error: urlError } = await supabase.storage
@@ -193,18 +197,33 @@ export async function trackBundleAccess(bundleId: string): Promise<void> {
     } = await supabase.auth.getUser()
     if (!user) return
 
+    // Get bundle data for organization ID
+    const { data: bundle } = await supabase
+      .from('evidence_bundle_pdfs')
+      .select('case_id, cases!inner(organization_id)')
+      .eq('id', bundleId)
+      .single()
+
+    if (!bundle) return
+
     // Increment access count
     await supabase.rpc('increment_bundle_pdf_access', {
       bundle_id: bundleId,
     })
 
-    // Log audit event
-    await logBundleEvent('evidence_bundle_accessed', {
-      resource_type: 'evidence_bundle',
-      resource_id: bundleId,
-      user_id: user.id,
-      timestamp: new Date().toISOString(),
-    })
+    // Log audit event for data access
+    const orgId = (bundle.cases as any)?.organization_id || ''
+    await logDataAccess(
+      orgId,
+      'evidence_bundle',
+      bundleId,
+      user.id,
+      'restricted', // Evidence bundles contain sensitive legal data
+      {
+        caseId: bundle.case_id,
+        timestamp: new Date().toISOString(),
+      }
+    )
   } catch (error) {
     console.error('Failed to track bundle access:', error)
     // Don't throw - tracking is non-critical
