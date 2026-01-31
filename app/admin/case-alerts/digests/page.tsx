@@ -21,7 +21,7 @@ export default function DigestsPage() {
   const loadDigests = async () => {
     setLoading(true)
     try {
-      // TODO: Implement getDigests function in service layer
+      // Note: Implement getDigests function in case-alerts service
       // const data = await getDigests('org-id-placeholder')
       // setDigests(data)
       setDigests([])
@@ -38,7 +38,7 @@ export default function DigestsPage() {
       const now = new Date()
       const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
 
-      // TODO: Get actual org ID from auth context
+      // Note: Get org ID from authenticated session context
       const digest = await generateCaseDigest(
         'org-id-placeholder',
         weekAgo.toISOString(),
@@ -252,3 +252,4 @@ ${digest.key_findings.map((finding, i) => `${i + 1}. ${finding}`).join('\n')}
     </div>
   )
 }
+

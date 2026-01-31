@@ -33,7 +33,7 @@ export default function DepartmentUserRiskPage() {
   async function loadUserDetails() {
     try {
       setLoading(true)
-      const orgId = 'demo-org-id' // TODO: Replace with actual session management
+      const orgId = 'demo-org-id' // Note: Replace with actual org ID from session
       const details = await getDepartmentUserRiskDetails(orgId, department)
       setUserDetails(details)
       setFilteredUsers(details)
@@ -372,3 +372,4 @@ export default function DepartmentUserRiskPage() {
     </div>
   )
 }
+

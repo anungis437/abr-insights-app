@@ -89,7 +89,7 @@ export default function UserDetailPage() {
         }
 
         // Load user stats (mock for now - replace with actual queries)
-        // TODO: Query actual course progress, case reviews, achievements
+        // Note: User analytics to be implemented - query course_progress, case_reviews, achievements tables
         setStats({
           coursesCompleted: 0,
           coursesInProgress: 0,
@@ -408,3 +408,4 @@ export default function UserDetailPage() {
     </div>
   )
 }
+

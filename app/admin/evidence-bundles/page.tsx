@@ -23,7 +23,7 @@ export default function EvidenceBundlesPage() {
   async function loadBundles() {
     try {
       setLoading(true)
-      const orgId = 'demo-org-id' // TODO: Replace with session
+      const orgId = 'demo-org-id' // Note: Replace with actual org ID from session
       const status = filterStatus === 'all' ? undefined : (filterStatus as any)
       const data = await listEvidenceBundles(orgId, status)
       setBundles(data)

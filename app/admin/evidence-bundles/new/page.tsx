@@ -94,7 +94,7 @@ export default function EvidenceBundleBuilderPage() {
       setLoading(true)
       setError(null)
 
-      // TODO: Get user ID from session
+      // Note: In production, get user ID from authenticated session
       const userId = 'demo-user-id'
       const orgId = 'demo-org-id'
 

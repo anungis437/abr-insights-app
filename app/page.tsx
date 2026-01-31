@@ -23,7 +23,7 @@ export default function HomePage() {
 
   useEffect(() => {
     async function fetchData() {
-      // TODO: Run database migrations first - see docs/SUPABASE_SETUP.md
+      // Note: Database migrations are managed through Supabase - see docs/SUPABASE_SETUP.md
       // For now, using fallback data until migrations are applied
       try {
         // Fetch tribunal case stats

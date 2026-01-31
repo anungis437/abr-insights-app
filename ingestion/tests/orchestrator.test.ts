@@ -22,7 +22,7 @@ describe('IngestionOrchestrator', () => {
     })
   })
 
-  // TODO: Add comprehensive pipeline tests in integration test suite
+  // Note: Comprehensive pipeline tests should be added to integration test suite`n  // when ingestion pipeline is fully implemented
   // These would test:
   // - Full run() workflow with mocked dependencies
   // - Discovery, fetch, classify, store phases

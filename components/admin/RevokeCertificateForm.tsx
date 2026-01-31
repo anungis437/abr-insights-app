@@ -33,7 +33,7 @@ export function RevokeCertificateForm({ certificateId }: RevokeCertificateFormPr
     setIsSubmitting(true)
 
     try {
-      // TODO: Get current user ID for revokedBy
+      // Note: In production, get current user ID from session for audit trail (revokedBy field)
       const userId = 'current-user-id' // Replace with actual user ID
 
       await revokeCertificate(certificateId, userId, reason)

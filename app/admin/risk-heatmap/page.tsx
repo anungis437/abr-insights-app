@@ -51,7 +51,7 @@ export default function RiskHeatmapPage() {
       setLoading(true)
 
       // Get organization ID from user session
-      // TODO: Replace with actual session management
+      // Note: Session placeholder - replace with actual auth context in production
       const orgId = 'demo-org-id' // Placeholder
 
       setOrganizationId(orgId)

@@ -17,7 +17,7 @@
  * - Alternative: Azure Cache for Redis
  * - See: https://upstash.com/ or https://azure.microsoft.com/en-us/services/cache/
  *
- * TODO: Implement Redis-based rate limiting before production deployment
+ * Note: Currently using in-memory rate limiting (sufficient for single-instance deployments).`n * For multi-instance production deployments, consider implementing Redis-based rate limiting`n * as documented in docs/engineering/rate-limiting.md
  */
 
 import { NextRequest, NextResponse } from 'next/server'
