@@ -8,6 +8,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { listEvidenceBundles, type EvidenceBundleMetadata } from '@/lib/services/evidence-bundles'
+import { createClient } from '@/lib/supabase/client'
 import { Package, Plus, FileText, Calendar, Tag, Eye } from 'lucide-react'
 
 export default function EvidenceBundlesPage() {
@@ -23,9 +24,23 @@ export default function EvidenceBundlesPage() {
   async function loadBundles() {
     try {
       setLoading(true)
-      const orgId = 'demo-org-id' // Note: Replace with actual org ID from session
+      // Get org ID from session
+      const supabase = createClient()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('organization_id')
+        .eq('id', user.id)
+        .single()
+
+      if (!profile?.organization_id) return
+
       const status = filterStatus === 'all' ? undefined : (filterStatus as any)
-      const data = await listEvidenceBundles(orgId, status)
+      const data = await listEvidenceBundles(profile.organization_id, status)
       setBundles(data)
     } catch (error) {
       console.error('Error loading evidence bundles:', error)

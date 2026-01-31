@@ -12,6 +12,7 @@
  */
 
 import { createClient } from '@/lib/supabase/client'
+import { logger } from '@/lib/utils/logger'
 
 // ============================================================================
 // TYPES
@@ -181,7 +182,7 @@ class CourseWorkflowService {
     })
 
     if (error) {
-      console.error('Error submitting course for review:', error)
+      logger.error('Error submitting course for review:', error)
       return { success: false, message: error.message }
     }
 
@@ -205,7 +206,7 @@ class CourseWorkflowService {
     })
 
     if (error) {
-      console.error('Error approving course:', error)
+      logger.error('Error approving course:', error)
       return { success: false, message: error.message }
     }
 
@@ -229,7 +230,7 @@ class CourseWorkflowService {
     })
 
     if (error) {
-      console.error('Error rejecting course:', error)
+      logger.error('Error rejecting course:', error)
       return { success: false, message: error.message }
     }
 
@@ -251,7 +252,7 @@ class CourseWorkflowService {
     })
 
     if (error) {
-      console.error('Error publishing course:', error)
+      logger.error('Error publishing course:', error)
       return { success: false, message: error.message }
     }
 
@@ -269,7 +270,7 @@ class CourseWorkflowService {
     })
 
     if (error) {
-      console.error('Error fetching workflow history:', error)
+      logger.error('Error fetching workflow history:', error)
       return []
     }
 
@@ -324,7 +325,7 @@ class CourseWorkflowService {
       .single()
 
     if (error) {
-      console.error('Error creating version:', error)
+      logger.error('Error creating version:', error)
       return null
     }
 
@@ -347,7 +348,7 @@ class CourseWorkflowService {
       .order('created_at', { ascending: false })
 
     if (error) {
-      console.error('Error fetching versions:', error)
+      logger.error('Error fetching versions:', error)
       return []
     }
 
@@ -367,7 +368,7 @@ class CourseWorkflowService {
       .single()
 
     if (error) {
-      console.error('Error fetching version:', error)
+      logger.error('Error fetching version:', error)
       return null
     }
 
@@ -403,7 +404,7 @@ class CourseWorkflowService {
       .single()
 
     if (error) {
-      console.error('Error creating review:', error)
+      logger.error('Error creating review:', error)
       return null
     }
 
@@ -437,7 +438,7 @@ class CourseWorkflowService {
       .single()
 
     if (error) {
-      console.error('Error completing review:', error)
+      logger.error('Error completing review:', error)
       return null
     }
 
@@ -457,7 +458,7 @@ class CourseWorkflowService {
       .order('assigned_at', { ascending: false })
 
     if (error) {
-      console.error('Error fetching reviews:', error)
+      logger.error('Error fetching reviews:', error)
       return []
     }
 
@@ -489,7 +490,7 @@ class CourseWorkflowService {
       .order('due_date', { ascending: true, nullsFirst: false })
 
     if (error) {
-      console.error('Error fetching pending reviews:', error)
+      logger.error('Error fetching pending reviews:', error)
       return []
     }
 
@@ -536,7 +537,7 @@ class CourseWorkflowService {
         .single()
 
       if (error) {
-        console.error('Error updating checklist:', error)
+        logger.error('Error updating checklist:', error)
         return null
       }
 
@@ -550,7 +551,7 @@ class CourseWorkflowService {
         .single()
 
       if (error) {
-        console.error('Error creating checklist:', error)
+        logger.error('Error creating checklist:', error)
         return null
       }
 
@@ -574,7 +575,7 @@ class CourseWorkflowService {
 
     if (error && error.code !== 'PGRST116') {
       // PGRST116 = no rows returned
-      console.error('Error fetching checklist:', error)
+      logger.error('Error fetching checklist:', error)
       return null
     }
 
@@ -594,7 +595,7 @@ class CourseWorkflowService {
     const { data, error } = await supabase.from('courses_pending_review').select('*')
 
     if (error) {
-      console.error('Error fetching pending courses:', error)
+      logger.error('Error fetching pending courses:', error)
       return []
     }
 
@@ -616,7 +617,7 @@ class CourseWorkflowService {
     const { data, error } = await query.order('updated_at', { ascending: false })
 
     if (error) {
-      console.error('Error fetching workflow summary:', error)
+      logger.error('Error fetching workflow summary:', error)
       return []
     }
 
@@ -657,7 +658,7 @@ class CourseWorkflowService {
       .order('updated_at', { ascending: false })
 
     if (error) {
-      console.error('Error fetching courses by status:', error)
+      logger.error('Error fetching courses by status:', error)
       return []
     }
 

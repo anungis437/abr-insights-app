@@ -3,6 +3,11 @@ import { createClient } from '@/lib/supabase/server'
 import { stripe, STRIPE_PRICES, getOrCreateStripeCustomer } from '@/lib/stripe'
 
 export async function POST(request: NextRequest) {
+  // P0 Security: Block in production
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  }
+
   try {
     const supabase = await createClient()
 

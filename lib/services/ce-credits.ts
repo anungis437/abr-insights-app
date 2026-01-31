@@ -9,6 +9,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
 
 // ============================================================================
 // TYPES
@@ -117,13 +118,13 @@ export async function getUserCEDashboard(userId: string): Promise<CEDashboardDat
     })
 
     if (error) {
-      console.error('Error fetching CE dashboard:', error)
+      logger.error('Error fetching CE dashboard:', error)
       return null
     }
 
     return data as CEDashboardData
   } catch (error) {
-    console.error('Error in getUserCEDashboard:', error)
+    logger.error('Error in getUserCEDashboard:', error)
     return null
   }
 }
@@ -146,13 +147,13 @@ export async function getCECreditHistory(
     })
 
     if (error) {
-      console.error('Error fetching CE credit history:', error)
+      logger.error('Error fetching CE credit history:', error)
       return []
     }
 
     return data as CECreditHistory[]
   } catch (error) {
-    console.error('Error in getCECreditHistory:', error)
+    logger.error('Error in getCECreditHistory:', error)
     return []
   }
 }
@@ -177,13 +178,13 @@ export async function calculateCERequirements(
     })
 
     if (error) {
-      console.error('Error calculating CE requirements:', error)
+      logger.error('Error calculating CE requirements:', error)
       return null
     }
 
     return data as CERequirements
   } catch (error) {
-    console.error('Error in calculateCERequirements:', error)
+    logger.error('Error in calculateCERequirements:', error)
     return null
   }
 }
@@ -207,13 +208,13 @@ export async function getCECreditSummaryByBody(userId: string) {
       .order('credit_category')
 
     if (error) {
-      console.error('Error fetching CE summary:', error)
+      logger.error('Error fetching CE summary:', error)
       return []
     }
 
     return data
   } catch (error) {
-    console.error('Error in getCECreditSummaryByBody:', error)
+    logger.error('Error in getCECreditSummaryByBody:', error)
     return []
   }
 }
@@ -237,13 +238,13 @@ export async function getActiveCECredits(userId: string, regulatoryBody?: string
     })
 
     if (error) {
-      console.error('Error fetching active CE credits:', error)
+      logger.error('Error fetching active CE credits:', error)
       return []
     }
 
     return data
   } catch (error) {
-    console.error('Error in getActiveCECredits:', error)
+    logger.error('Error in getActiveCECredits:', error)
     return []
   }
 }
@@ -262,13 +263,13 @@ export async function getCERenewalAlerts(userId: string) {
       .order('earliest_expiry')
 
     if (error) {
-      console.error('Error fetching renewal alerts:', error)
+      logger.error('Error fetching renewal alerts:', error)
       return []
     }
 
     return data
   } catch (error) {
-    console.error('Error in getCERenewalAlerts:', error)
+    logger.error('Error in getCERenewalAlerts:', error)
     return []
   }
 }
@@ -312,13 +313,13 @@ export async function getExpiringCertificates(userId: string, daysAhead: number 
       .order('expiry_date')
 
     if (error) {
-      console.error('Error fetching expiring certificates:', error)
+      logger.error('Error fetching expiring certificates:', error)
       return []
     }
 
     return data
   } catch (error) {
-    console.error('Error in getExpiringCertificates:', error)
+    logger.error('Error in getExpiringCertificates:', error)
     return []
   }
 }
@@ -343,7 +344,7 @@ export async function getUserRegulatoryBodies(userId: string): Promise<string[]>
       .order('regulatory_body')
 
     if (error) {
-      console.error('Error fetching regulatory bodies:', error)
+      logger.error('Error fetching regulatory bodies:', error)
       return []
     }
 
@@ -351,7 +352,7 @@ export async function getUserRegulatoryBodies(userId: string): Promise<string[]>
     const bodies = [...new Set(data.map((d) => d.regulatory_body).filter(Boolean))]
     return bodies as string[]
   } catch (error) {
-    console.error('Error in getUserRegulatoryBodies:', error)
+    logger.error('Error in getUserRegulatoryBodies:', error)
     return []
   }
 }

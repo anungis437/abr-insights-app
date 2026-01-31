@@ -8,6 +8,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useFeatureAccess } from '@/hooks/use-entitlements'
+import { createClient } from '@/lib/supabase/client'
 import {
   getDepartmentRiskScores,
   getOrganizationRiskSummary,
@@ -51,9 +52,21 @@ export default function RiskHeatmapPage() {
       setLoading(true)
 
       // Get organization ID from user session
-      // Note: Session placeholder - replace with actual auth context in production
-      const orgId = 'demo-org-id' // Placeholder
+      const supabase = createClient()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (!user) return
 
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('organization_id')
+        .eq('id', user.id)
+        .single()
+
+      if (!profile?.organization_id) return
+
+      const orgId = profile.organization_id
       setOrganizationId(orgId)
 
       const [summaryData, scoresData] = await Promise.all([

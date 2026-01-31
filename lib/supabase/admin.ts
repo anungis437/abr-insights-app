@@ -1,3 +1,5 @@
+import 'server-only'
+
 /**
  * Supabase Admin Client
  * For server-side operations that require bypassing RLS

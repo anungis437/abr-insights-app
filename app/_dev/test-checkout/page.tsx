@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { STRIPE_PRICES } from '@/lib/stripe'
@@ -15,6 +15,18 @@ export default function TestCheckoutPage() {
   const { entitlements, loading: loadingEntitlements } = useEntitlements()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // P0 Security: Block in production
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'production') {
+      router.replace('/404')
+    }
+  }, [router])
+
+  // Early return while redirecting
+  if (process.env.NODE_ENV === 'production') {
+    return null
+  }
 
   const handleCheckout = async (tier: string, priceId: string) => {
     try {

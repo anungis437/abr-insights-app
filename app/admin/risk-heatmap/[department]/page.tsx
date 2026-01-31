@@ -7,6 +7,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 import { getDepartmentUserRiskDetails, type UserRiskDetail } from '@/lib/services/risk-analytics'
 import { ArrowLeft, AlertTriangle, CheckCircle, Clock, XCircle, Download } from 'lucide-react'
 
@@ -33,8 +34,22 @@ export default function DepartmentUserRiskPage() {
   async function loadUserDetails() {
     try {
       setLoading(true)
-      const orgId = 'demo-org-id' // Note: Replace with actual org ID from session
-      const details = await getDepartmentUserRiskDetails(orgId, department)
+      // Get org ID from session
+      const supabase = createClient()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('organization_id')
+        .eq('id', user.id)
+        .single()
+
+      if (!profile?.organization_id) return
+
+      const details = await getDepartmentUserRiskDetails(profile.organization_id, department)
       setUserDetails(details)
       setFilteredUsers(details)
     } catch (error) {
