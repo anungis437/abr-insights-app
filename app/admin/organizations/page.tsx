@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/utils/production-logger'
+
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -47,7 +49,7 @@ export default function AdminOrganizationsPage() {
       if (error) throw error
       setOrganizations(data || [])
     } catch (error) {
-      console.error('Error loading organizations:', error)
+      logger.error('Error loading organizations:', { error: error, context: 'AdminOrganizationsPage' })
     } finally {
       setLoading(false)
     }

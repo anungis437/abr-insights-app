@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/utils/production-logger'
+
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -61,7 +63,7 @@ export default function SSOProvidersPage() {
       const orgProviders = await getOrgSSOProviders(profile.organizations.id)
       setProviders(orgProviders)
     } catch (error) {
-      console.error('Failed to load data:', error)
+      logger.error('Failed to load data:', { error: error, context: 'SSOProvidersPage' })
     } finally {
       setIsLoading(false)
     }
@@ -76,7 +78,7 @@ export default function SSOProvidersPage() {
       await updateSSOProviderStatus(providerId, status)
       await checkAuthAndLoadData()
     } catch (error) {
-      console.error('Failed to update status:', error)
+      logger.error('Failed to update status:', { error: error, context: 'SSOProvidersPage' })
     }
   }
 
@@ -86,7 +88,7 @@ export default function SSOProvidersPage() {
       await setDefaultSSOProvider(user.profile.organizations.id, providerId)
       await checkAuthAndLoadData()
     } catch (error) {
-      console.error('Failed to set default:', error)
+      logger.error('Failed to set default:', { error: error, context: 'SSOProvidersPage' })
     }
   }
 
@@ -97,7 +99,7 @@ export default function SSOProvidersPage() {
       await deleteSSOProvider(providerId)
       await checkAuthAndLoadData()
     } catch (error) {
-      console.error('Failed to delete provider:', error)
+      logger.error('Failed to delete provider:', { error: error, context: 'SSOProvidersPage' })
     }
   }
 

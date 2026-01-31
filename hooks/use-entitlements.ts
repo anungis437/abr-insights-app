@@ -1,4 +1,6 @@
 /**
+
+import { logger } from '@/lib/utils/production-logger'
  * useEntitlements Hook
  * Client-side hook for accessing user entitlements from canonical source
  *
@@ -52,7 +54,7 @@ export function useEntitlements(): UseEntitlementsReturn {
       setError(null)
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to fetch entitlements'))
-      console.error('Error fetching entitlements:', err)
+      logger.error('Error fetching entitlements:', { error: err, context: 'useEntitlements' })
     } finally {
       setLoading(false)
     }

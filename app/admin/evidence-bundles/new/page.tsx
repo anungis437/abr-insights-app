@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/utils/production-logger'
+
 /**
  * Evidence Bundle Builder
  * Create comprehensive compliance evidence packages
@@ -132,7 +134,7 @@ export default function EvidenceBundleBuilderPage() {
       setStep(2)
     } catch (err) {
       setError('Failed to create evidence bundle')
-      console.error(err)
+      logger.error('An error occurred', { error: err, context: 'EvidenceBundleBuilderPage' })
     } finally {
       setLoading(false)
     }
@@ -176,7 +178,7 @@ export default function EvidenceBundleBuilderPage() {
       setStep(3)
     } catch (err) {
       setError('Failed to add components')
-      console.error(err)
+      logger.error('An error occurred', { error: err, context: 'EvidenceBundleBuilderPage' })
     } finally {
       setLoading(false)
     }
@@ -191,7 +193,7 @@ export default function EvidenceBundleBuilderPage() {
       setNewMapping({})
     } catch (err) {
       setError('Failed to add policy mapping')
-      console.error(err)
+      logger.error('An error occurred', { error: err, context: 'EvidenceBundleBuilderPage' })
     }
   }
 
@@ -211,7 +213,7 @@ export default function EvidenceBundleBuilderPage() {
       router.push(`/admin/evidence-bundles/${bundleId}`)
     } catch (err) {
       setError('Failed to finalize bundle')
-      console.error(err)
+      logger.error('An error occurred', { error: err, context: 'EvidenceBundleBuilderPage' })
     } finally {
       setLoading(false)
     }

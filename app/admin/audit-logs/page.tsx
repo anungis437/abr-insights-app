@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/utils/production-logger'
+
 /**
  * Audit Logs Admin Page - UPDATED WITH REAL DB INTEGRATION
  * Route: /admin/audit-logs
@@ -162,7 +164,7 @@ export default function AuditLogsPage() {
         setAnomalies(anomaliesData as unknown as Anomaly[])
       }
     } catch (error) {
-      console.error('Error loading audit logs:', error)
+      logger.error('Error loading audit logs:', { error: error, context: 'AuditLogsPage' })
     } finally {
       setLoading(false)
     }
@@ -209,7 +211,7 @@ export default function AuditLogsPage() {
 
       alert('Export created successfully. Check compliance reports for download.')
     } catch (error) {
-      console.error('Error exporting logs:', error)
+      logger.error('Error exporting logs:', { error: error, context: 'AuditLogsPage' })
       alert('Failed to export logs')
     } finally {
       setExporting(false)

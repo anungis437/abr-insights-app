@@ -25,6 +25,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { RateLimitConfig } from './rateLimit'
+import { withRateLimit } from './rateLimit' // Fallback to in-memory limiter
 import { logger } from '@/lib/utils/production-logger'
 
 // Lazy-loaded Redis client
@@ -71,8 +72,8 @@ async function getRedisClient() {
   }
 
   // No Redis configured
-  logger.warn('Redis not configured - rate limiting disabled', {
-    hint: 'Set UPSTASH_REDIS_REST_URL or REDIS_URL in .env.local',
+  logger.warn('Redis not configured - falling back to in-memory rate limiting', {
+    hint: 'Set UPSTASH_REDIS_REST_URL or REDIS_URL in .env.local for production',
   })
   return null
 }
@@ -116,10 +117,9 @@ async function checkRateLimit(
 ): Promise<{ allowed: boolean; remaining: number; resetAt: number }> {
   const client = await getRedisClient()
 
-  // Fallback to allowing request if Redis is not available
+  // This should not be reached if withRedisRateLimit checks for client first
   if (!client) {
-    logger.warn('Rate limiting bypassed - Redis not available', { key })
-    return { allowed: true, remaining: config.requests, resetAt: Date.now() + config.window * 1000 }
+    throw new Error('Redis client not available')
   }
 
   const now = Date.now()
@@ -176,18 +176,29 @@ async function checkRateLimit(
     }
   } catch (error) {
     logger.error('Redis rate limit check failed', { error, key })
-    // Fail open - allow the request if Redis is down
-    return { allowed: true, remaining: config.requests, resetAt: now + config.window * 1000 }
+    // Re-throw to trigger fallback in wrapper function
+    throw error
   }
 }
 
 /**
- * Redis-based rate limiting middleware (production-ready)
+ * Redis-based rate limiting middleware with in-memory fallback
+ * Falls back to in-memory rate limiting if Redis is not configured or unavailable
  */
 export function withRedisRateLimit<
   T extends (...args: any[]) => Promise<NextResponse> | NextResponse,
 >(handler: T, config: RateLimitConfig): (...args: any[]) => Promise<NextResponse> {
   return async (request: NextRequest, ...args: any[]) => {
+    const client = await getRedisClient()
+    
+    // Fallback to in-memory rate limiting if Redis not available
+    if (!client) {
+      logger.warn('Using in-memory rate limiting fallback', {
+        hint: 'Configure Redis for production deployments',
+      })
+      return withRateLimit(config, handler)(request, ...args)
+    }
+
     try {
       const key = getRateLimitKey(config, request, args[0])
       const result = await checkRateLimit(key, config)
@@ -216,21 +227,36 @@ export function withRedisRateLimit<
 
       return response
     } catch (error) {
-      logger.error('Rate limiting error', { error })
-      // Fail open - allow the request if rate limiting fails
-      return Promise.resolve(handler(request, ...args))
+      logger.error('Redis rate limiting failed, falling back to in-memory', { error })
+      // Fallback to in-memory rate limiting on error
+      return withRateLimit(config, handler)(request, ...args)
     }
   }
 }
 
 /**
- * Apply multiple rate limits in sequence (e.g., per-user AND per-org)
+ * Apply multiple rate limits in sequence with in-memory fallback
  * ALL limits must pass for the request to proceed
  */
 export function withMultipleRedisRateLimits<
   T extends (...args: any[]) => Promise<NextResponse> | NextResponse,
 >(handler: T, configs: RateLimitConfig[]): (...args: any[]) => Promise<NextResponse> {
   return async (request: NextRequest, ...args: any[]) => {
+    const client = await getRedisClient()
+    
+    // Fallback to in-memory for multiple configs (apply all)
+    if (!client) {
+      logger.warn('Using in-memory rate limiting fallback for multiple limits', {
+        hint: 'Configure Redis for production deployments',
+      })
+      // Apply all rate limits sequentially using in-memory fallback
+      let wrappedHandler: any = handler
+      for (const config of configs.reverse()) {
+        wrappedHandler = withRateLimit(config, wrappedHandler)
+      }
+      return wrappedHandler(request, ...args)
+    }
+
     try {
       const results = await Promise.all(
         configs.map((config) => {
@@ -277,9 +303,13 @@ export function withMultipleRedisRateLimits<
 
       return response
     } catch (error) {
-      logger.error('Multiple rate limiting error', { error })
-      // Fail open - allow the request if rate limiting fails
-      return Promise.resolve(handler(request, ...args))
+      logger.error('Multiple Redis rate limiting failed, falling back to in-memory', { error })
+      // Fallback to in-memory rate limiting
+      let wrappedHandler: any = handler
+      for (const config of configs.reverse()) {
+        wrappedHandler = withRateLimit(config, wrappedHandler)
+      }
+      return wrappedHandler(request, ...args)
     }
   }
 }

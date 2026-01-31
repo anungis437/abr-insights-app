@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/utils/production-logger'
+
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Badge } from '@/components/ui/badge'
@@ -50,7 +52,7 @@ export default function IngestionReviewPage() {
       const { data, error } = await query
 
       if (error) {
-        console.error('Error loading cases:', error)
+        logger.error('Error loading cases:', { error: error, context: 'IngestionReviewPage' })
         return
       }
 
@@ -74,7 +76,7 @@ export default function IngestionReviewPage() {
         .single()
 
       if (fetchError || !rawCase) {
-        console.error('Error fetching case:', fetchError)
+        logger.error('Error fetching case:', { error: fetchError, context: 'IngestionReviewPage' })
         return
       }
 
@@ -104,7 +106,7 @@ export default function IngestionReviewPage() {
       })
 
       if (insertError) {
-        console.error('Error inserting case into production:', insertError)
+        logger.error('Error inserting case into production:', { error: insertError, context: 'IngestionReviewPage' })
         return
       }
 
@@ -115,14 +117,14 @@ export default function IngestionReviewPage() {
         .eq('id', caseId)
 
       if (updateError) {
-        console.error('Error approving case:', updateError)
+        logger.error('Error approving case:', { error: updateError, context: 'IngestionReviewPage' })
         return
       }
 
       await loadCases()
       setSelectedCase(null)
     } catch (err) {
-      console.error('Error in approveCase:', err)
+      logger.error('Error in approveCase:', { error: err, context: 'IngestionReviewPage' })
     }
   }
 
@@ -133,7 +135,7 @@ export default function IngestionReviewPage() {
       .eq('id', caseId)
 
     if (error) {
-      console.error('Error rejecting case:', error)
+      logger.error('Error rejecting case:', { error: error, context: 'IngestionReviewPage' })
       return
     }
 

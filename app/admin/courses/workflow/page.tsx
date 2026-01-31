@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/utils/production-logger'
+
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -106,7 +108,7 @@ export default function CourseWorkflowPage() {
         archived: statusCounts.archived || 0,
       })
     } catch (error) {
-      console.error('Failed to load courses:', error)
+      logger.error('Failed to load courses:', { error: error, context: 'CourseWorkflowPage' })
     }
   }
 
@@ -178,7 +180,7 @@ export default function CourseWorkflowPage() {
       setSelectedCourses(new Set())
       await loadCourses()
     } catch (error) {
-      console.error('Bulk approve failed:', error)
+      logger.error('Bulk approve failed:', { error: error, context: 'CourseWorkflowPage' })
       alert('Failed to approve some courses. Check console for details.')
     }
   }
@@ -207,7 +209,7 @@ export default function CourseWorkflowPage() {
       setSelectedCourses(new Set())
       await loadCourses()
     } catch (error) {
-      console.error('Bulk archive failed:', error)
+      logger.error('Bulk archive failed:', { error: error, context: 'CourseWorkflowPage' })
       alert('Failed to archive courses')
     }
   }

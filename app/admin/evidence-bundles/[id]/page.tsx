@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/utils/production-logger'
+
 /**
  * Evidence Bundle Detail View
  * Display bundle contents, timeline, and export options
@@ -35,7 +37,7 @@ export default function EvidenceBundleDetailPage() {
       const data = await getEvidenceBundle(bundleId)
       setBundle(data)
     } catch (error) {
-      console.error('Error loading evidence bundle:', error)
+      logger.error('Error loading evidence bundle:', { error: error, context: 'EvidenceBundleDetailPage' })
     } finally {
       setLoading(false)
     }
@@ -58,7 +60,7 @@ export default function EvidenceBundleDetailPage() {
       a.click()
       URL.revokeObjectURL(url)
     } catch (error) {
-      console.error('Error exporting bundle:', error)
+      logger.error('Error exporting bundle:', { error: error, context: 'EvidenceBundleDetailPage' })
     } finally {
       setExporting(false)
     }

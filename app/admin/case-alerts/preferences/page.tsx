@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/utils/production-logger'
+
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth/AuthContext'
@@ -58,7 +60,7 @@ export default function AlertPreferencesPage() {
         setNotificationGrouping(prefs.notification_grouping)
       }
     } catch (error) {
-      console.error('Failed to load preferences:', error)
+      logger.error('Failed to load preferences:', { error: error, context: 'AlertPreferencesPage' })
     } finally {
       setLoading(false)
     }
@@ -82,7 +84,7 @@ export default function AlertPreferencesPage() {
       alert('Preferences saved successfully!')
       router.push('/admin/case-alerts')
     } catch (error) {
-      console.error('Failed to save preferences:', error)
+      logger.error('Failed to save preferences:', { error: error, context: 'AlertPreferencesPage' })
       alert('Failed to save preferences. Please try again.')
     } finally {
       setSaving(false)

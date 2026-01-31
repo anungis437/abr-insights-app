@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/utils/production-logger'
+
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -90,7 +92,7 @@ export default function AdminAnalyticsPage() {
 
       await loadAnalyticsData()
     } catch (error) {
-      console.error('Error checking auth:', error)
+      logger.error('Error checking auth:', { error: error, context: 'AdminAnalyticsPage' })
       router.push('/dashboard')
     } finally {
       setIsLoading(false)
@@ -242,7 +244,7 @@ export default function AdminAnalyticsPage() {
         recentActivity: [],
       })
     } catch (error) {
-      console.error('Error loading analytics:', error)
+      logger.error('Error loading analytics:', { error: error, context: 'AdminAnalyticsPage' })
     }
   }
 

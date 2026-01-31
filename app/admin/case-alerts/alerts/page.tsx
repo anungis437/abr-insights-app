@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/utils/production-logger'
+
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth/AuthContext'
@@ -43,7 +45,7 @@ export default function AlertsPage() {
       const data = await getCaseAlerts(user.id, filter === 'unread', 100)
       setAlerts(data)
     } catch (error) {
-      console.error('Failed to load alerts:', error)
+      logger.error('Failed to load alerts:', { error: error, context: 'AlertsPage' })
     } finally {
       setLoading(false)
     }
@@ -54,7 +56,7 @@ export default function AlertsPage() {
       await markAlertRead(alertId)
       loadAlerts()
     } catch (error) {
-      console.error('Failed to mark alert as read:', error)
+      logger.error('Failed to mark alert as read:', { error: error, context: 'AlertsPage' })
     }
   }
 
@@ -65,7 +67,7 @@ export default function AlertsPage() {
       await markAllAlertsRead(user.id)
       loadAlerts()
     } catch (error) {
-      console.error('Failed to mark all as read:', error)
+      logger.error('Failed to mark all as read:', { error: error, context: 'AlertsPage' })
     }
   }
 

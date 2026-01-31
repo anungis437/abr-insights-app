@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/utils/production-logger'
+
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -90,7 +92,7 @@ export default function SSOSessionsPage() {
       const providerAttempts = attemptsData.filter((a) => a.sso_provider_id === providerId)
       setLoginAttempts(providerAttempts.slice(0, 20))
     } catch (error) {
-      console.error('Failed to load data:', error)
+      logger.error('Failed to load data:', { error: error, context: 'SSOSessionsPage' })
     } finally {
       setIsLoading(false)
     }
@@ -109,7 +111,7 @@ export default function SSOSessionsPage() {
       await revokeSession(sessionId)
       await loadData()
     } catch (error) {
-      console.error('Failed to revoke session:', error)
+      logger.error('Failed to revoke session:', { error: error, context: 'SSOSessionsPage' })
       alert('Failed to revoke session')
     }
   }

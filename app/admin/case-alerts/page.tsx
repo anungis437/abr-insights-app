@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/utils/production-logger'
+
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -53,7 +55,7 @@ export default function CaseAlertsPage() {
       const unread = alerts.filter((a) => !a.read).length
       setUnreadCount(unread)
     } catch (error) {
-      console.error('Failed to load data:', error)
+      logger.error('Failed to load data:', { error: error, context: 'CaseAlertsPage' })
     } finally {
       setLoading(false)
     }
@@ -64,7 +66,7 @@ export default function CaseAlertsPage() {
       await updateSavedSearch(searchId, { alert_enabled: !currentValue })
       loadData()
     } catch (error) {
-      console.error('Failed to toggle alerts:', error)
+      logger.error('Failed to toggle alerts:', { error: error, context: 'CaseAlertsPage' })
     }
   }
 
@@ -77,7 +79,7 @@ export default function CaseAlertsPage() {
       await deleteSavedSearch(searchId)
       loadData()
     } catch (error) {
-      console.error('Failed to delete search:', error)
+      logger.error('Failed to delete search:', { error: error, context: 'CaseAlertsPage' })
     }
   }
 

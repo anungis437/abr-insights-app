@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/utils/production-logger'
+
 /**
  * Department User Risk Drill-Down
  * Shows individual user compliance status within a department
@@ -53,7 +55,7 @@ export default function DepartmentUserRiskPage() {
       setUserDetails(details)
       setFilteredUsers(details)
     } catch (error) {
-      console.error('Error loading user details:', error)
+      logger.error('Error loading user details:', { error: error, context: 'DepartmentUserRiskPage' })
     } finally {
       setLoading(false)
     }

@@ -178,6 +178,56 @@ export async function requireAnyPermission(
 }
 
 /**
+ * Check if user has an admin role (admin, super_admin, org_admin) via RBAC
+ * Uses the proper RBAC tables (user_roles / roles) instead of profiles.role
+ * 
+ * @returns boolean - true if user has any admin role
+ */
+export async function hasAdminRole(
+  userId: string,
+  organizationId?: string
+): Promise<boolean> {
+  const supabase = await createClient()
+
+  // Query user_roles joined with roles to check for admin-level roles
+  const query = supabase
+    .from('user_roles')
+    .select('roles!inner(slug, level)')
+    .eq('user_id', userId)
+
+  // If organization context provided, filter by org
+  if (organizationId) {
+    query.eq('organization_id', organizationId)
+  }
+
+  const { data: userRoles, error } = await query
+
+  if (error) {
+    console.error('Failed to check admin role:', error)
+    return false
+  }
+
+  // Check if user has any admin-level role (level >= 50)
+  // super_admin (60), admin (50), org_admin (50)
+  return userRoles?.some((ur: any) => ur.roles.level >= 50) ?? false
+}
+
+/**
+ * Require user to have an admin role via RBAC
+ * @throws {PermissionError} If user is not an admin
+ */
+export async function requireAdminRole(
+  userId: string,
+  organizationId?: string
+): Promise<void> {
+  const isAdmin = await hasAdminRole(userId, organizationId)
+  
+  if (!isAdmin) {
+    throw new PermissionError('Admin role required')
+  }
+}
+
+/**
  * Check if user has all specified permissions (AND logic)
  * @throws {PermissionError} If user lacks any permission
  */

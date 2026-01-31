@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/utils/production-logger'
+
 /**
  * Admin Dashboard
  * Route: /admin
@@ -147,7 +149,7 @@ export default function AdminDashboard() {
           completionRate,
         })
       } catch (error) {
-        console.error('Error loading stats:', error)
+        logger.error('Error loading stats:', { error: error, context: 'AdminDashboard' })
       }
 
       // Load recent activity
@@ -175,7 +177,7 @@ export default function AdminDashboard() {
 
         setRecentActivity(activities)
       } catch (error) {
-        console.error('Error loading recent activity:', error)
+        logger.error('Error loading recent activity:', { error: error, context: 'AdminDashboard' })
       }
     }
 

@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/utils/production-logger'
+
 /**
  * Permissions Management Admin Page
  * Route: /admin/permissions
@@ -119,7 +121,7 @@ export default function PermissionsPage() {
         await loadHierarchy()
       }
     } catch (error) {
-      console.error('Error loading data:', error)
+      logger.error('Error loading data:', { error: error, context: 'PermissionsPage' })
     } finally {
       setLoading(false)
     }
@@ -136,7 +138,7 @@ export default function PermissionsPage() {
       const { data: permsData, error: permsError } = await permsQuery.order('name')
 
       if (permsError) {
-        console.warn('[Permissions] Error fetching permissions:', permsError)
+        logger.warn('[Permissions] Error fetching permissions:', { permsError, context: 'PermissionsPage' })
         setPermissions([])
       } else {
         setPermissions(permsData || [])
@@ -156,7 +158,7 @@ export default function PermissionsPage() {
         .limit(100)
 
       if (resPermsError) {
-        console.warn('[Permissions] Error fetching resource permissions:', resPermsError)
+        logger.warn('[Permissions] Error fetching resource permissions:', { resPermsError, context: 'PermissionsPage' })
         setResourcePermissions([])
         return
       }
@@ -172,7 +174,7 @@ export default function PermissionsPage() {
 
       setResourcePermissions(flattenedPerms || [])
     } catch (error) {
-      console.error('[Permissions] Error loading permissions:', error)
+      logger.error('[Permissions] Error loading permissions:', { error: error, context: 'PermissionsPage' })
       setPermissions([])
       setResourcePermissions([])
     }
@@ -249,7 +251,7 @@ export default function PermissionsPage() {
 
       await loadOverrides()
     } catch (error) {
-      console.error('Error approving override:', error)
+      logger.error('Error approving override:', { error: error, context: 'PermissionsPage' })
       alert('Failed to approve override')
     }
   }
@@ -274,7 +276,7 @@ export default function PermissionsPage() {
 
       await loadOverrides()
     } catch (error) {
-      console.error('Error rejecting override:', error)
+      logger.error('Error rejecting override:', { error: error, context: 'PermissionsPage' })
       alert('Failed to reject override')
     }
   }
@@ -289,7 +291,7 @@ export default function PermissionsPage() {
 
       await loadPermissions()
     } catch (error) {
-      console.error('Error deleting permission:', error)
+      logger.error('Error deleting permission:', { error: error, context: 'PermissionsPage' })
       alert('Failed to delete permission')
     }
   }

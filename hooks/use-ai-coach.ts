@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/utils/production-logger'
+
 import { useState, useCallback, useEffect } from 'react'
 import { useAuth } from '@/lib/auth/AuthContext'
 
@@ -61,7 +63,7 @@ export function useAICoach() {
           avgProgress: 0,
         })
       } catch (err) {
-        console.error('Failed to load stats:', err)
+        logger.error('Failed to load stats:', { error: err, context: 'useAICoach' })
       }
     }
 
@@ -96,7 +98,7 @@ export function useAICoach() {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An error occurred'
       setError(errorMessage)
-      console.error('Coach analysis error:', err)
+      logger.error('Coach analysis error:', { error: err, context: 'useAICoach' })
     } finally {
       setIsAnalyzing(false)
     }
@@ -137,7 +139,7 @@ export function useAICoach() {
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'An error occurred'
         setError(errorMessage)
-        console.error('Coach guidance error:', err)
+        logger.error('Coach guidance error:', { error: err, context: 'useAICoach' })
       } finally {
         setIsAnalyzing(false)
       }
@@ -169,7 +171,7 @@ export function useAICoach() {
           })
         }
       } catch (err) {
-        console.error('Feedback error:', err)
+        logger.error('Feedback error:', { error: err, context: 'useAICoach' })
       }
     },
     [currentSession]

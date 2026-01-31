@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/utils/production-logger'
+
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
@@ -26,7 +28,7 @@ export default function DigestsPage() {
       // setDigests(data)
       setDigests([])
     } catch (error) {
-      console.error('Failed to load digests:', error)
+      logger.error('Failed to load digests:', { error: error, context: 'DigestsPage' })
     } finally {
       setLoading(false)
     }
@@ -48,7 +50,7 @@ export default function DigestsPage() {
       alert('Digest generated successfully!')
       loadDigests()
     } catch (error) {
-      console.error('Failed to generate digest:', error)
+      logger.error('Failed to generate digest:', { error: error, context: 'DigestsPage' })
       alert('Failed to generate digest. Please try again.')
     } finally {
       setGenerating(false)

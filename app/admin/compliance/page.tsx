@@ -1,5 +1,7 @@
 ﻿'use client'
 
+import { logger } from '@/lib/utils/production-logger'
+
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -102,7 +104,7 @@ export default function CompliancePage() {
 
       await loadData()
     } catch (error) {
-      console.error('Error checking auth:', error)
+      logger.error('Error checking auth:', { error: error, context: 'CompliancePage' })
       router.push('/dashboard')
     }
   }, [router])
@@ -165,7 +167,7 @@ export default function CompliancePage() {
         setAnomalies(anomaliesData as unknown as Anomaly[])
       }
     } catch (error) {
-      console.error('Error loading compliance data:', error)
+      logger.error('Error loading compliance data:', { error: error, context: 'CompliancePage' })
     } finally {
       setLoading(false)
     }
@@ -209,7 +211,7 @@ export default function CompliancePage() {
       await loadData()
       alert('Report generated successfully')
     } catch (error) {
-      console.error('Error generating report:', error)
+      logger.error('Error generating report:', { error: error, context: 'CompliancePage' })
       alert('Failed to generate report')
     } finally {
       setGenerating(false)
@@ -236,7 +238,7 @@ export default function CompliancePage() {
       if (error) throw error
       await loadData()
     } catch (error) {
-      console.error('Error approving export:', error)
+      logger.error('Error approving export:', { error: error, context: 'CompliancePage' })
       alert('Failed to approve export')
     } finally {
       setApprovingExport(null)
@@ -254,7 +256,7 @@ export default function CompliancePage() {
       if (error) throw error
       await loadData()
     } catch (error) {
-      console.error('Error rejecting export:', error)
+      logger.error('Error rejecting export:', { error: error, context: 'CompliancePage' })
       alert('Failed to reject export')
     } finally {
       setApprovingExport(null)

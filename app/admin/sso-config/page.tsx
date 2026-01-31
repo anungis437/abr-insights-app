@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/utils/production-logger'
+
 /**
  * SSO Configuration Admin Page
  * Route: /admin/sso-config
@@ -16,7 +18,6 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { logger } from '@/lib/utils/logger'
 import {
   Shield,
   Plus,
@@ -116,7 +117,7 @@ export default function SSOConfigPage() {
       } = await supabase.auth.getUser()
 
       if (userError) {
-        console.error('Error getting user:', userError)
+        logger.error('Error getting user:', { error: userError, context: 'SSOConfigPage' })
         throw userError
       }
 
@@ -135,7 +136,7 @@ export default function SSOConfigPage() {
         .single()
 
       if (profileError) {
-        console.error('Error loading profile:', profileError)
+        logger.error('Error loading profile:', { error: profileError, context: 'SSOConfigPage' })
       } else {
         logger.debug('User profile loaded', { profile })
       }
@@ -174,7 +175,7 @@ export default function SSOConfigPage() {
 
       if (ssoError) {
         // Log the full error object to see its structure
-        console.error('Error loading SSO providers (full object):', ssoError)
+        logger.error('Error loading SSO providers (full object):', { error: ssoError, context: 'SSOConfigPage' })
         console.error(
           'Error loading SSO providers (stringified):',
           JSON.stringify(ssoError, null, 2)
@@ -329,7 +330,7 @@ export default function SSOConfigPage() {
       setSelectedProvider(null)
       resetForm()
     } catch (error) {
-      console.error('Error saving provider:', error)
+      logger.error('Error saving provider:', { error: error, context: 'SSOConfigPage' })
       alert('Failed to save SSO provider')
     }
   }
@@ -344,7 +345,7 @@ export default function SSOConfigPage() {
 
       await loadData()
     } catch (error) {
-      console.error('Error deleting provider:', error)
+      logger.error('Error deleting provider:', { error: error, context: 'SSOConfigPage' })
       alert('Failed to delete SSO provider')
     }
   }
@@ -364,7 +365,7 @@ export default function SSOConfigPage() {
 
       setTimeout(() => setTestingProvider(null), 2000)
     } catch (error) {
-      console.error('Error testing provider:', error)
+      logger.error('Error testing provider:', { error: error, context: 'SSOConfigPage' })
       alert('Failed to initiate test')
       setTestingProvider(null)
     }

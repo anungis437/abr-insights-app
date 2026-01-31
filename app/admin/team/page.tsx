@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/utils/production-logger'
+
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -77,7 +79,7 @@ export default function TeamManagementPage() {
       // Refresh member list
       await loadOrganizationData()
     } catch (err: any) {
-      console.error('Failed to remove member:', err)
+      logger.error('Failed to remove member:', { error: err, context: 'TeamManagementPage' })
       setError('Failed to remove member: ' + (err.message || 'Unknown error'))
     }
   }
@@ -132,7 +134,7 @@ export default function TeamManagementPage() {
       // Refresh member list
       await loadOrganizationData()
     } catch (err: any) {
-      console.error('Failed to invite member:', err)
+      logger.error('Failed to invite member:', { error: err, context: 'TeamManagementPage' })
       setError('Failed to invite member: ' + (err.message || 'Unknown error'))
     } finally {
       setInviteLoading(false)
@@ -172,7 +174,7 @@ export default function TeamManagementPage() {
         setProgress([])
       }
     } catch (err) {
-      console.error('Error loading organization data:', err)
+      logger.error('Error loading organization data:', { error: err, context: 'TeamManagementPage' })
     }
   }
 
@@ -202,7 +204,7 @@ export default function TeamManagementPage() {
 
         setIsLoading(false)
       } catch (err) {
-        console.error('Error loading user and organization:', err)
+        logger.error('Error loading user and organization:', { error: err, context: 'TeamManagementPage' })
         setIsLoading(false)
       }
     }

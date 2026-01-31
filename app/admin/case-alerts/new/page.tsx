@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/utils/production-logger'
+
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth/AuthContext'
@@ -148,7 +150,7 @@ export default function NewSavedSearchPage() {
 
       router.push('/admin/case-alerts')
     } catch (error) {
-      console.error('Failed to create saved search:', error)
+      logger.error('Failed to create saved search:', { error: error, context: 'NewSavedSearchPage' })
       alert('Failed to create saved search. Please try again.')
     } finally {
       setLoading(false)

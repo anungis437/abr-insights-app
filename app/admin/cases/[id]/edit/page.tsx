@@ -1,5 +1,6 @@
 'use client'
 
+import { logger } from '@/lib/utils/production-logger'
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
@@ -163,7 +164,7 @@ export default function EditCasePage() {
         pdf_url: caseData.pdf_url || '',
       })
     } catch (err) {
-      console.error('Error loading case:', err)
+      logger.error('Error loading case:', { error: err, context: 'EditCasePage' })
       setError('Failed to load case')
     } finally {
       setIsLoading(false)
@@ -231,7 +232,7 @@ export default function EditCasePage() {
 
       router.push('/admin/cases')
     } catch (err) {
-      console.error('Error updating case:', err)
+      logger.error('Error updating case:', { error: err, context: 'EditCasePage' })
       setError('Failed to update case. Please try again.')
       setIsSaving(false)
     }

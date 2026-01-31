@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/utils/production-logger'
+
 /**
  * Evidence Bundles List
  * View and manage all evidence bundles for the organization
@@ -43,7 +45,7 @@ export default function EvidenceBundlesPage() {
       const data = await listEvidenceBundles(profile.organization_id, status)
       setBundles(data)
     } catch (error) {
-      console.error('Error loading evidence bundles:', error)
+      logger.error('Error loading evidence bundles:', { error: error, context: 'EvidenceBundlesPage' })
     } finally {
       setLoading(false)
     }

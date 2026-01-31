@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/utils/production-logger'
+
 /**
  * Risk Heatmap Dashboard
  * Visualizes organizational compliance risk by department/location
@@ -77,7 +79,7 @@ export default function RiskHeatmapPage() {
       setSummary(summaryData)
       setDepartmentScores(scoresData)
     } catch (error) {
-      console.error('Error loading risk data:', error)
+      logger.error('Error loading risk data:', { error: error, context: 'RiskHeatmapPage' })
     } finally {
       setLoading(false)
     }

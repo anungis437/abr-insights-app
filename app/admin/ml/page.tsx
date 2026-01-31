@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/utils/production-logger'
+
 /**
  * Admin ML Management Page
  *
@@ -105,7 +107,7 @@ export default function AdminMLPage() {
         setEmbeddingJobs(data.jobs)
       }
     } catch (err) {
-      console.error('Failed to load embedding jobs:', err)
+      logger.error('Failed to load embedding jobs:', { error: err, context: 'AdminMLPage' })
     }
   }
 
@@ -117,7 +119,7 @@ export default function AdminMLPage() {
         setCoverageStats(data.stats)
       }
     } catch (err) {
-      console.error('Failed to load coverage stats:', err)
+      logger.error('Failed to load coverage stats:', { error: err, context: 'AdminMLPage' })
     }
   }
 
@@ -147,7 +149,7 @@ export default function AdminMLPage() {
       }
     } catch (err) {
       setError('An error occurred while generating embeddings')
-      console.error(err)
+      logger.error('An error occurred', { error: err, context: 'AdminMLPage' })
     } finally {
       setLoading(false)
     }
@@ -191,7 +193,7 @@ export default function AdminMLPage() {
       }
     } catch (err) {
       setError('An error occurred during search')
-      console.error(err)
+      logger.error('An error occurred', { error: err, context: 'AdminMLPage' })
     } finally {
       setLoading(false)
     }
@@ -209,7 +211,7 @@ export default function AdminMLPage() {
         setPredictionStats(data.stats)
       }
     } catch (err) {
-      console.error('Failed to load prediction stats:', err)
+      logger.error('Failed to load prediction stats:', { error: err, context: 'AdminMLPage' })
     }
   }
 
@@ -221,7 +223,7 @@ export default function AdminMLPage() {
         setModelPerformance(data.performance)
       }
     } catch (err) {
-      console.error('Failed to load model performance:', err)
+      logger.error('Failed to load model performance:', { error: err, context: 'AdminMLPage' })
     }
   }
 

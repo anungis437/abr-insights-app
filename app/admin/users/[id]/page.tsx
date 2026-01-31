@@ -1,5 +1,6 @@
 'use client'
 
+import { logger } from '@/lib/utils/production-logger'
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -97,7 +98,7 @@ export default function UserDetailPage() {
           achievements: 0,
         })
       } catch (error) {
-        console.error('Error loading user:', error)
+        logger.error('Error loading user:', { error: error, context: 'UserDetailPage' })
       } finally {
         setLoading(false)
       }

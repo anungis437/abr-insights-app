@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/utils/production-logger'
+
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -80,7 +82,7 @@ export default function ManageUserPermissionsPage() {
       if (allPermsError) throw allPermsError
       setAllPermissions(allPerms || [])
     } catch (error) {
-      console.error('Error loading permissions:', error)
+      logger.error('Error loading permissions:', { error: error, context: 'ManageUserPermissionsPage' })
     } finally {
       setLoading(false)
     }
@@ -100,7 +102,7 @@ export default function ManageUserPermissionsPage() {
     })
 
     if (error) {
-      console.error('Error assigning permission:', error)
+      logger.error('Error assigning permission:', { error: error, context: 'ManageUserPermissionsPage' })
       alert('Failed to assign permission')
     } else {
       setShowAssignDialog(false)
@@ -117,7 +119,7 @@ export default function ManageUserPermissionsPage() {
     const { error } = await supabase.from('user_permissions').delete().eq('id', permissionId)
 
     if (error) {
-      console.error('Error revoking permission:', error)
+      logger.error('Error revoking permission:', { error: error, context: 'ManageUserPermissionsPage' })
       alert('Failed to revoke permission')
     } else {
       loadData()

@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/utils/production-logger'
+
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -148,7 +150,7 @@ export default function AIModelManagementPage() {
         setAutomationConfigs(configsData)
       }
     } catch (error) {
-      console.error('Error fetching data:', error)
+      logger.error('Error fetching data:', { error: error, context: 'AIModelManagementPage' })
     }
   }
 

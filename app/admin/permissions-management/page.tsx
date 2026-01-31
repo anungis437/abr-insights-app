@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/utils/production-logger'
+
 import { useState } from 'react'
 import Link from 'next/link'
 import { Shield, ArrowLeft, Save, RefreshCw } from 'lucide-react'
@@ -49,7 +51,7 @@ export default function PermissionsManagementPage() {
       // Clear message after 3 seconds
       setTimeout(() => setMessage(null), 3000)
     } catch (error) {
-      console.error('Error toggling permission:', error)
+      logger.error('Error toggling permission:', { error: error, context: 'PermissionsManagementPage' })
       setMessage({
         type: 'error',
         text: error instanceof Error ? error.message : 'Failed to update permission',

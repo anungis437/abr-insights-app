@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/utils/production-logger'
+
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -54,7 +56,7 @@ export default function OrganizationSettingsPage() {
         setDomain(data.domain || '')
         setStatus(data.settings?.status || 'active')
       } catch (error) {
-        console.error('Error loading organization:', error)
+        logger.error('Error loading organization:', { error: error, context: 'OrganizationSettingsPage' })
         setMessage({ type: 'error', text: 'Failed to load organization' })
       } finally {
         setLoading(false)
@@ -101,7 +103,7 @@ export default function OrganizationSettingsPage() {
 
       if (data) setOrganization(data)
     } catch (error) {
-      console.error('Error updating organization:', error)
+      logger.error('Error updating organization:', { error: error, context: 'OrganizationSettingsPage' })
       setMessage({ type: 'error', text: 'Failed to update organization' })
     } finally {
       setSaving(false)

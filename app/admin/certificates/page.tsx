@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Award, Download, Eye, Search, Filter } from 'lucide-react'
+import { logger } from '@/lib/utils/production-logger'
 
 export const metadata: Metadata = {
   title: 'Certificate Management | Admin | ABR Insights',
@@ -49,7 +50,7 @@ async function getCertificates() {
     .limit(100)
 
   if (error) {
-    console.error('Error fetching certificates:', error)
+    logger.error('Error fetching certificates:', { error: error, context: 'metadata' })
     return []
   }
 

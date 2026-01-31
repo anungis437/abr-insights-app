@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/utils/production-logger'
+
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth/AuthContext'
 import { createClient } from '@/lib/supabase/client'
@@ -103,7 +105,7 @@ export function useSubscription() {
         })
       } catch (err) {
         setError(err instanceof Error ? err : new Error('Failed to fetch subscription'))
-        console.error('Error fetching subscription:', err)
+        logger.error('Error fetching subscription:', { error: err, context: 'useSubscription' })
       } finally {
         setLoading(false)
       }
@@ -155,7 +157,7 @@ export function useSubscription() {
 
       return data
     } catch (err) {
-      console.error('Error creating checkout session:', err)
+      logger.error('Error creating checkout session:', { error: err, context: 'useSubscription' })
       throw err
     }
   }
@@ -180,7 +182,7 @@ export function useSubscription() {
 
       return data
     } catch (err) {
-      console.error('Error opening customer portal:', err)
+      logger.error('Error opening customer portal:', { error: err, context: 'useSubscription' })
       throw err
     }
   }

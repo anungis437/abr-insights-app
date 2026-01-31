@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { hasAdminRole } from '@/lib/auth/serverAuth'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -14,10 +15,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     redirect('/auth/login?redirect=/admin')
   }
 
-  // Fetch user profile with role and organization
+  // Fetch user's organization context
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('role, organization_id')
+    .select('organization_id')
     .eq('id', user.id)
     .single()
 
@@ -25,9 +26,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     redirect('/auth/login?redirect=/admin')
   }
 
-  // P0 Security: Require admin or super_admin role
-  const allowedRoles = ['admin', 'super_admin', 'org_admin']
-  if (!allowedRoles.includes(profile.role)) {
+  // P0 Security: Check admin role via RBAC tables (user_roles / roles)
+  // This matches the backend authorization model used by DB-side functions
+  const isAdmin = await hasAdminRole(user.id, profile.organization_id)
+  
+  if (!isAdmin) {
     redirect('/dashboard?error=unauthorized')
   }
 
