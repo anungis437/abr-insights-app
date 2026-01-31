@@ -5,20 +5,11 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { requireAnyPermission } from '@/lib/auth/permissions'
 import { withRateLimit } from '@/lib/security/rateLimit'
 import { PAYMENT_RATE_LIMITS } from '@/lib/security/rateLimitPresets'
 import { logger } from '@/lib/utils/production-logger'
 
 async function portalHandler(req: NextRequest) {
-  // Check permissions - users need subscription.view to access portal
-  const permissionError = await requireAnyPermission([
-    'subscription.view',
-    'subscription.manage',
-    'admin.manage',
-  ])
-  if (permissionError) return permissionError
-
   try {
     // Lazy load Stripe to avoid build-time initialization
     const { stripe } = await import('@/lib/stripe')
@@ -35,20 +26,40 @@ async function portalHandler(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get user's Stripe customer ID
+    // Get user's profile with organization
     const { data: profile } = await supabase
       .from('profiles')
-      .select('stripe_customer_id')
+      .select('organization_id, stripe_customer_id')
       .eq('id', user.id)
       .single()
 
-    if (!profile?.stripe_customer_id) {
+    let customerId: string | null = null
+
+    // Priority 1: Check for org subscription (canonical path)
+    if (profile?.organization_id) {
+      const { data: orgSubscription } = await supabase
+        .from('organization_subscriptions')
+        .select('stripe_customer_id')
+        .eq('organization_id', profile.organization_id)
+        .single()
+
+      if (orgSubscription?.stripe_customer_id) {
+        customerId = orgSubscription.stripe_customer_id
+      }
+    }
+
+    // Priority 2: Fallback to individual subscription (legacy path)
+    if (!customerId && profile?.stripe_customer_id) {
+      customerId = profile.stripe_customer_id
+    }
+
+    if (!customerId) {
       return NextResponse.json({ error: 'No active subscription' }, { status: 400 })
     }
 
     // Create portal session
     const session = await stripe.billingPortal.sessions.create({
-      customer: profile.stripe_customer_id,
+      customer: customerId,
       return_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
     })
 

@@ -136,6 +136,28 @@ export default function PricingPage() {
               seatCount={seatCount}
             />
 
+            {/* Business Plus Tier */}
+            <PricingCard
+              name="Business Plus"
+              price="$129"
+              billing={`per user/month × ${seatCount}`}
+              description="Enhanced features for enterprise-ready organizations"
+              features={[
+                { text: 'Everything in Business', included: true },
+                { text: 'Team management (up to 500 users)', included: true },
+                { text: 'Advanced SSO & security', included: true },
+                { text: 'Custom integrations', included: true },
+                { text: 'Dedicated success manager', included: true },
+                { text: 'Custom reporting', included: true },
+                { text: 'SLA guarantee', included: true },
+                { text: 'Advanced API access', included: true },
+              ]}
+              ctaText="Upgrade to Business Plus"
+              tier="BUSINESS_PLUS"
+              popular={false}
+              seatCount={seatCount}
+            />
+
             {/* Enterprise Tier */}
             <PricingCard
               name="Enterprise"
