@@ -16,6 +16,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { guardedRoute, GuardedContext } from '@/lib/api/guard'
 import { createClient } from '@/lib/supabase/server'
 import { withRateLimit, RateLimitPresets } from '@/lib/security/rateLimit'
+import { logger } from '@/lib/utils/production-logger'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -83,7 +84,13 @@ async function generateEmbeddingsHandler(request: NextRequest, context: GuardedC
         created_at: new Date().toISOString(),
       })
     } catch (err) {
-      console.error('Failed to log embedding generation:', err)
+      logger.warn('Failed to log embedding generation', {
+        error: err instanceof Error ? err.message : String(err),
+        userId: context.user!.id,
+        organizationId: context.organizationId!,
+        type,
+        embeddingType,
+      })
     }
 
     return NextResponse.json({
@@ -92,7 +99,10 @@ async function generateEmbeddingsHandler(request: NextRequest, context: GuardedC
       job: jobProgress,
     })
   } catch (error) {
-    console.error('Error generating embeddings:', error)
+    logger.error('Embedding generation failed', error as Error, {
+      userId: context.user?.id,
+      organizationId: context.organizationId,
+    })
     return NextResponse.json(
       {
         error: 'Failed to generate embeddings',
@@ -126,7 +136,9 @@ async function getEmbeddingStatusHandler(request: NextRequest, context: GuardedC
       job: status,
     })
   } catch (error) {
-    console.error('Error getting embedding job status:', error)
+    logger.error('Failed to get embedding job status', error as Error, {
+      jobId: request.nextUrl.searchParams.get('jobId'),
+    })
     return NextResponse.json(
       {
         error: 'Failed to get job status',

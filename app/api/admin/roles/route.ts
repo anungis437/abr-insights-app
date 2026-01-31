@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { requireAnyPermission } from '@/lib/auth/permissions'
+import { logger } from '@/lib/utils/production-logger'
 
 // GET /api/admin/roles - List all roles
 export async function GET(request: NextRequest) {
@@ -25,7 +26,7 @@ export async function GET(request: NextRequest) {
       .order('level', { ascending: true })
 
     if (error) {
-      console.error('Error fetching roles:', error)
+      logger.error('Failed to fetch roles', error as Error)
       return NextResponse.json({ error: 'Failed to fetch roles' }, { status: 500 })
     }
 
@@ -50,7 +51,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ roles })
   } catch (error) {
-    console.error('Roles API error:', error)
+    logger.error('Roles API request failed', error as Error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -91,7 +92,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      console.error('Error creating role:', error)
+      logger.error('Failed to create role', error as Error, { name, slug, level })
       return NextResponse.json(
         {
           error: error.message || 'Failed to create role',
@@ -102,7 +103,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ role }, { status: 201 })
   } catch (error) {
-    console.error('Roles API error:', error)
+    logger.error('Role creation API request failed', error as Error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

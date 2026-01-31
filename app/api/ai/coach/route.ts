@@ -7,6 +7,7 @@ import {
   verifyCitations,
   logAIInteraction,
 } from '@/lib/services/ai-verification'
+import { logger } from '@/lib/utils/production-logger'
 
 /**
  * AI Coach API Endpoint
@@ -185,7 +186,11 @@ Provide specific, actionable advice tailored to their learning context.`
         human_reviewed: false,
       })
     } catch (err) {
-      console.error('Failed to log AI interaction:', err)
+      logger.warn('Failed to log AI interaction', {
+        error: err instanceof Error ? err.message : String(err),
+        userId: context.user!.id,
+        organizationId: context.organizationId!,
+      })
     }
 
     // Also log to legacy ai_usage_logs for cost tracking
@@ -202,7 +207,12 @@ Provide specific, actionable advice tailored to their learning context.`
         created_at: new Date().toISOString(),
       })
     } catch (err) {
-      console.error('Failed to log AI usage:', err)
+      logger.warn('Failed to log AI usage', {
+        error: err instanceof Error ? err.message : String(err),
+        userId: context.user!.id,
+        organizationId: context.organizationId!,
+        endpoint: 'coach',
+      })
     }
 
     // Generate recommendations based on stats
@@ -217,7 +227,11 @@ Provide specific, actionable advice tailored to their learning context.`
         safe: verification.safe,
         flags,
         citations: citations.length,
-        verifiedSources: verifiedSources.length,
+    logger.error('AI Coach API request failed', error as Error, {
+      userId: context.user?.id,
+      organizationId: context.organizationId,
+      sessionType,
+    }h,
         unverifiedSources: unverifiedSources.length,
       },
     })

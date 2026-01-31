@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { requireAnyPermission } from '@/lib/auth/permissions'
+import { logger } from '@/lib/utils/production-logger'
 
 // GET /api/admin/permissions - List all permissions
 export async function GET(request: NextRequest) {
@@ -38,7 +39,7 @@ export async function GET(request: NextRequest) {
     const { data: permissions, error } = await query
 
     if (error) {
-      console.error('Error fetching permissions:', error)
+      logger.error('Failed to fetch permissions', error as Error, { resource, category })
       return NextResponse.json({ error: 'Failed to fetch permissions' }, { status: 500 })
     }
 
@@ -58,7 +59,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ permissions: filteredPermissions })
   } catch (error) {
-    console.error('Permissions API error:', error)
+    logger.error('Permissions API request failed', error as Error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -100,7 +101,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      console.error('Error creating permission:', error)
+      logger.error('Failed to create permission', error as Error, { name, slug, resource, action })
       return NextResponse.json(
         {
           error: error.message || 'Failed to create permission',
@@ -111,7 +112,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ permission }, { status: 201 })
   } catch (error) {
-    console.error('Permissions API error:', error)
+    logger.error('Permission creation API request failed', error as Error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
