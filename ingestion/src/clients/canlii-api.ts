@@ -19,6 +19,15 @@ import { ENV } from '../config'
 // ============================================================================
 
 /**
+ * Simple in-memory cache for API responses
+ */
+interface CacheEntry<T> {
+  data: T
+  timestamp: number
+  ttl: number // Time to live in milliseconds
+}
+
+/**
  * CanLII database metadata (case or legislation)
  */
 export interface CanLIIDatabase {
@@ -106,6 +115,10 @@ export class CanLIIApiClient {
   private readonly language: 'en' | 'fr' = 'en'
   private requestCount = 0
   private lastRequestTime = 0
+  
+  // Simple in-memory cache
+  private cache: Map<string, CacheEntry<any>> = new Map()
+  private readonly defaultCacheTTL = 5 * 60 * 1000 // 5 minutes
 
   constructor(apiKey?: string, baseUrl?: string) {
     this.apiKey = apiKey || ENV.CANLII_API_KEY
@@ -280,6 +293,14 @@ export class CanLIIApiClient {
         throw new Error('databaseId and caseId are required')
       }
 
+      // Check cache first
+      const cacheKey = `metadata:${databaseId}:${caseId}`
+      const cached = this.getFromCache<CanLIICaseMetadata>(cacheKey)
+      if (cached) {
+        logger.debug('CanLII metadata cache hit', { databaseId, caseId })
+        return cached
+      }
+
       logger.info('Fetching CanLII case metadata', { databaseId, caseId })
 
       const response = await this.call<CanLIICaseMetadataResponse>(
@@ -298,6 +319,9 @@ export class CanLIIApiClient {
         keywords: response.keywords,
         concatenatedId: response.concatenatedId,
       }
+
+      // Cache metadata for 1 hour
+      this.setCache(cacheKey, metadata, 60 * 60 * 1000)
 
       logger.info('CanLII case metadata fetched', { databaseId, caseId })
 
@@ -357,6 +381,48 @@ export class CanLIIApiClient {
   // =========================================================================
   // PRIVATE METHODS
   // =========================================================================
+
+  /**
+   * Get value from cache if not expired
+   */
+  private getFromCache<T>(key: string): T | null {
+    const entry = this.cache.get(key)
+    if (!entry) return null
+    
+    const now = Date.now()
+    if (now - entry.timestamp > entry.ttl) {
+      // Expired
+      this.cache.delete(key)
+      return null
+    }
+    
+    return entry.data as T
+  }
+
+  /**
+   * Set value in cache with TTL
+   */
+  private setCache<T>(key: string, data: T, ttl?: number): void {
+    this.cache.set(key, {
+      data,
+      timestamp: Date.now(),
+      ttl: ttl || this.defaultCacheTTL,
+    })
+    
+    // Prevent unbounded cache growth
+    if (this.cache.size > 1000) {
+      const firstKey = this.cache.keys().next().value
+      if (firstKey) this.cache.delete(firstKey)
+    }
+  }
+
+  /**
+   * Clear all cache entries
+   */
+  clearCache(): void {
+    this.cache.clear()
+    logger.info('CanLII API cache cleared')
+  }
 
   /**
    * Internal method to make authenticated API calls

@@ -144,7 +144,8 @@ export class CanLIIRestApiScraper {
 
   /**
    * Fetch full content for a decision URL via REST API
-   * Falls back to web scraping for full text if needed
+   * In metadata-only mode, returns only API metadata (compliant with CanLII)
+   * In full-text mode, falls back to web scraping for full text
    * @param url Decision page URL
    * @returns Extracted decision content
    */
@@ -159,12 +160,25 @@ export class CanLIIRestApiScraper {
       }
 
       const caseId = caseIdMatch[1]
+      
+      // Rate limit API calls
+      await this.rateLimiter.acquire()
 
       // Fetch metadata via API
       const metadata = await this.client.getCaseMetadata(this.databaseId, caseId)
 
-      // Get full text from CanLII web (API doesn't return full content)
-      const fullText = await this.fetchFullTextFromWeb(url)
+      // Get full text only if explicitly configured
+      const fetchMode = process.env.CANLII_FETCH_MODE || 'metadata-only'
+      let fullText = ''
+      
+      if (fetchMode === 'full-text') {
+        logger.warn('Fetching full text via web scraping (not API-compliant)', { caseId })
+        fullText = await this.fetchFullTextFromWeb(url)
+      } else {
+        // Metadata-only mode: use title + available summary/keywords
+        logger.info('Using metadata-only mode (CanLII compliant)', { caseId })
+        fullText = this.buildTextFromMetadata(metadata)
+      }
 
       const content: DecisionContent = {
         url,
@@ -184,6 +198,7 @@ export class CanLIIRestApiScraper {
       logger.debug('Decision content fetched via REST API', {
         caseId,
         contentLength: fullText.length,
+        mode: fetchMode,
       })
 
       return content
@@ -199,6 +214,39 @@ export class CanLIIRestApiScraper {
   // =========================================================================
   // PRIVATE METHODS
   // =========================================================================
+
+  /**
+   * Build searchable text from metadata only (compliant approach)
+   * Uses title, keywords, and other metadata fields
+   */
+  private buildTextFromMetadata(metadata: CanLIICaseMetadata): string {
+    const parts: string[] = []
+    
+    // Add title (most important)
+    if (metadata.title) {
+      parts.push(metadata.title)
+    }
+    
+    // Add citation if available
+    if (metadata.citation) {
+      parts.push(metadata.citation)
+    }
+    
+    // Add docket number
+    if (metadata.docketNumber) {
+      parts.push(`Docket: ${metadata.docketNumber}`)
+    }
+    
+    // Add keywords if available (note: keywords is a string, not array)
+    if (metadata.keywords) {
+      parts.push(`Keywords: ${metadata.keywords}`)
+    }
+    
+    // Note: This is metadata-only content
+    parts.push('[Metadata-only content - Full text not included per CanLII compliance]')
+    
+    return parts.join('\n\n')
+  }
 
   /**
    * Convert CanLII case reference to our decision link format

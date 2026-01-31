@@ -26,6 +26,11 @@ export const ENV = {
   CANLII_API_KEY: process.env.CANLII_API_KEY || '',
   CANLII_API_BASE_URL: 'https://api.canlii.org/v1',
   CANLII_API_ENABLED: process.env.CANLII_API_ENABLED === 'true',
+  
+  // CanLII Compliance Mode
+  // 'metadata-only': Only use API metadata (compliant, no full-text scraping)
+  // 'full-text': Include web scraping for full text (requires caution)
+  CANLII_FETCH_MODE: (process.env.CANLII_FETCH_MODE as 'metadata-only' | 'full-text') || 'metadata-only',
 
   // Pipeline
   PIPELINE_VERSION: process.env.npm_package_version || '1.0.0',
@@ -73,6 +78,8 @@ export const SOURCE_CONFIGS = {
     sourceSystem: 'canlii_hrto' as const,
     baseUrl: 'https://www.canlii.org',
     listingUrl: 'https://www.canlii.org/en/on/onhrt/',
+    databaseId: 'onhrt', // CanLII REST API database ID
+    apiMode: undefined, // Auto-select based on availability
     selectors: {
       listingResults: '.result-title a',
       resultDate: '.date',
@@ -94,6 +101,8 @@ export const SOURCE_CONFIGS = {
     sourceSystem: 'canlii_chrt' as const,
     baseUrl: 'https://www.canlii.org',
     listingUrl: 'https://www.canlii.org/en/ca/chrt/',
+    databaseId: 'chrt', // CanLII REST API database ID
+    apiMode: undefined, // Auto-select based on availability
     selectors: {
       listingResults: '.result-title a',
       resultDate: '.date',
@@ -116,6 +125,8 @@ export const SOURCE_CONFIGS = {
     sourceSystem: 'canlii_bchrt' as const,
     baseUrl: 'https://www.canlii.org',
     listingUrl: 'https://www.canlii.org/en/bc/bchrt/',
+    databaseId: 'bchrt', // CanLII REST API database ID
+    apiMode: undefined, // Auto-select based on availability
     selectors: {
       listingResults: '.result-title a',
       resultDate: '.date',
@@ -138,6 +149,8 @@ export const SOURCE_CONFIGS = {
     sourceSystem: 'canlii_abhr' as const,
     baseUrl: 'https://www.canlii.org',
     listingUrl: 'https://www.canlii.org/en/ab/abhrc/',
+    databaseId: 'abhrc', // CanLII REST API database ID
+    apiMode: undefined, // Auto-select based on availability
     selectors: {
       listingResults: '.result-title a',
       resultDate: '.date',
@@ -160,6 +173,8 @@ export const SOURCE_CONFIGS = {
     sourceSystem: 'canlii_skhr' as const,
     baseUrl: 'https://www.canlii.org',
     listingUrl: 'https://www.canlii.org/en/sk/skhrc/',
+    databaseId: 'skhrc', // CanLII REST API database ID
+    apiMode: undefined, // Auto-select based on availability
     selectors: {
       listingResults: '.result-title a',
       resultDate: '.date',
@@ -182,6 +197,8 @@ export const SOURCE_CONFIGS = {
     sourceSystem: 'canlii_mbhr' as const,
     baseUrl: 'https://www.canlii.org',
     listingUrl: 'https://www.canlii.org/en/mb/mbhrc/',
+    databaseId: 'mbhrc', // CanLII REST API database ID
+    apiMode: undefined, // Auto-select based on availability
     selectors: {
       listingResults: '.result-title a',
       resultDate: '.date',
@@ -204,6 +221,8 @@ export const SOURCE_CONFIGS = {
     sourceSystem: 'canlii_qctdp' as const,
     baseUrl: 'https://www.canlii.org',
     listingUrl: 'https://www.canlii.org/en/qc/qctdp/',
+    databaseId: 'qctdp', // CanLII REST API database ID
+    apiMode: undefined, // Auto-select based on availability
     selectors: {
       listingResults: '.result-title a',
       resultDate: '.date',
@@ -226,6 +245,8 @@ export const SOURCE_CONFIGS = {
     sourceSystem: 'canlii_nshr' as const,
     baseUrl: 'https://www.canlii.org',
     listingUrl: 'https://www.canlii.org/en/ns/nshrc/',
+    databaseId: 'nshrc', // CanLII REST API database ID
+    apiMode: undefined, // Auto-select based on availability
     selectors: {
       listingResults: '.result-title a',
       resultDate: '.date',
@@ -248,6 +269,8 @@ export const SOURCE_CONFIGS = {
     sourceSystem: 'canlii_nbhr' as const,
     baseUrl: 'https://www.canlii.org',
     listingUrl: 'https://www.canlii.org/en/nb/nbhrc/',
+    databaseId: 'nbhrc', // CanLII REST API database ID
+    apiMode: undefined, // Auto-select based on availability
     selectors: {
       listingResults: '.result-title a',
       resultDate: '.date',

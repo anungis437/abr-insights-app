@@ -33,7 +33,7 @@ import type {
   PipelineContext,
 } from '../types'
 import { ENV } from '../config'
-import { CanLIIScraper } from '../scrapers/canlii'
+import { createScraper } from '../scrapers/factory'
 import { CombinedClassifier } from '../classifiers/combined'
 import { createError, getErrorMessage, ProgressBar } from '../utils'
 import { createClient } from '@supabase/supabase-js'
@@ -82,14 +82,14 @@ interface OrchestrationResult {
 
 export class IngestionOrchestrator {
   private supabase: SupabaseClient
-  private scraper: CanLIIScraper | null = null
+  private scraper: any = null
   private classifier: CombinedClassifier
   private jobId: string | null = null
   private startTime: number = 0
 
   constructor(supabaseClient?: SupabaseClient) {
     this.supabase = supabaseClient || createClient(ENV.SUPABASE_URL, ENV.SUPABASE_SERVICE_ROLE_KEY)
-    // Scraper will be initialized in run() with proper source config
+    // Scraper will be initialized in run() with proper source config via factory
     this.classifier = new CombinedClassifier()
   }
 
@@ -115,8 +115,8 @@ export class IngestionOrchestrator {
     const errors: Array<{ stage: ErrorStage; message: string; url?: string }> = []
 
     try {
-      // Step 0: Initialize scraper with source-specific config
-      this.scraper = new CanLIIScraper(sourceSystem)
+      // Step 0: Initialize scraper with source-specific config using factory
+      this.scraper = await createScraper(sourceSystem, sourceConfig)
 
       // Step 1: Initialize job
       if (!options.dryRun) {
