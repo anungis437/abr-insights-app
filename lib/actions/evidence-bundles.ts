@@ -8,6 +8,7 @@ import {
   type CaseData,
 } from '@/lib/services/pdf-generator-server'
 import { logDataModification, logDataAccess } from '@/lib/services/audit-logger'
+import { logger } from '@/lib/utils/production-logger'
 
 interface CreateBundleResult {
   success: boolean
@@ -103,7 +104,11 @@ export async function createEvidenceBundle(
       })
 
     if (uploadError) {
-      console.error('Storage upload error:', uploadError)
+      logger.error('Evidence bundle storage upload failed', uploadError, {
+        caseId,
+        fileName,
+        userId: user.id,
+      })
       return {
         success: false,
         error: `Failed to upload: ${uploadError.message}`,
@@ -130,7 +135,12 @@ export async function createEvidenceBundle(
       .single()
 
     if (bundleError) {
-      console.error('Database insert error:', bundleError)
+      logger.error('Evidence bundle database insert failed', bundleError, {
+        caseId,
+        fileName,
+        storagePath: uploadData.path,
+        userId: user.id,
+      })
       // Try to clean up uploaded file
       await supabase.storage.from('evidence-bundle-pdfs').remove([uploadData.path])
       return {
@@ -177,7 +187,10 @@ export async function createEvidenceBundle(
       bundleId: bundleData.id,
     }
   } catch (error: any) {
-    console.error('Evidence bundle creation error:', error)
+    logger.error('Evidence bundle creation failed', error, {
+      caseId,
+      includeAttachments,
+    })
     return {
       success: false,
       error: error.message || 'An unexpected error occurred',
@@ -225,7 +238,7 @@ export async function trackBundleAccess(bundleId: string): Promise<void> {
       }
     )
   } catch (error) {
-    console.error('Failed to track bundle access:', error)
+    logger.warn('Failed to track bundle access', { bundleId, error })
     // Don't throw - tracking is non-critical
   }
 }
@@ -244,13 +257,13 @@ export async function getEvidenceBundles(caseId: string) {
       .order('created_at', { ascending: false })
 
     if (error) {
-      console.error('Failed to fetch bundles:', error)
+      logger.error('Failed to fetch evidence bundles', error, { caseId })
       return []
     }
 
     return data || []
   } catch (error) {
-    console.error('Error fetching evidence bundles:', error)
+    logger.error('Error fetching evidence bundles', error as Error, { caseId })
     return []
   }
 }
