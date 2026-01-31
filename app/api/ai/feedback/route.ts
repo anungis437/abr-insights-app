@@ -6,6 +6,7 @@ import {
   createClassificationFeedback,
   updateClassificationFeedback,
 } from '@/lib/ai/training-service'
+import { logger } from '@/lib/utils/production-logger'
 
 /**
  * AI Feedback API - Manage classification feedback for AI training
@@ -27,7 +28,7 @@ async function getFeedbackHandler(request: NextRequest, context: GuardedContext)
 
     return NextResponse.json(feedback)
   } catch (error) {
-    console.error('Error fetching feedback:', error)
+    logger.error('Failed to fetch AI feedback', error as Error)
     return NextResponse.json({ error: 'Failed to fetch feedback' }, { status: 500 })
   }
 }
@@ -44,7 +45,9 @@ async function createFeedbackHandler(request: NextRequest, context: GuardedConte
 
     return NextResponse.json(feedback, { status: 201 })
   } catch (error) {
-    console.error('Error creating feedback:', error)
+    logger.error('Failed to create AI feedback', error as Error, {
+      userId: context.user!.id,
+    })
     return NextResponse.json({ error: 'Failed to create feedback' }, { status: 500 })
   }
 }
@@ -63,7 +66,9 @@ async function updateFeedbackHandler(request: NextRequest, context: GuardedConte
 
     return NextResponse.json(feedback)
   } catch (error) {
-    console.error('Error updating feedback:', error)
+    logger.error('Failed to update AI feedback', error as Error, {
+      userId: context.user!.id,
+    })
     return NextResponse.json({ error: 'Failed to update feedback' }, { status: 500 })
   }
 }

@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { withRateLimit } from '@/lib/security/rateLimit'
 import { PAYMENT_RATE_LIMITS } from '@/lib/security/rateLimitPresets'
+import { logger } from '@/lib/utils/production-logger'
 import { z } from 'zod'
 
 const checkoutSchema = z.object({
@@ -115,7 +116,7 @@ async function checkoutHandler(req: NextRequest) {
 
     return NextResponse.json({ sessionId: session.id, url: session.url })
   } catch (error) {
-    console.error('Error creating checkout session:', error)
+    logger.error('Stripe checkout session creation failed', error as Error)
     return NextResponse.json({ error: 'Failed to create checkout session' }, { status: 500 })
   }
 }

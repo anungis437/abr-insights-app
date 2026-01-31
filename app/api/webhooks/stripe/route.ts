@@ -110,13 +110,13 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const userId = session.metadata?.supabase_user_id
   const orgId = session.metadata?.organization_id
   const tier = session.metadata?.tier || 'PROFESSIONAL'
-  cologger.error('Checkout completed without user ID', new Error('Missing supabase_user_id'), {
+  const seatCount = parseInt(session.metadata?.seat_count || '1', 10)
+
+  if (!userId) {
+    logger.error('Checkout completed without user ID', new Error('Missing supabase_user_id'), {
       sessionId: session.id,
       organizationId: orgId,
     })
-
-  if (!userId) {
-    console.error('No supabase_user_id in checkout session metadata')
     return
   }
 

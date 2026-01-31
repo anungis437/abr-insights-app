@@ -8,6 +8,7 @@ import { createClient } from '@/lib/supabase/server'
 import { requireAnyPermission } from '@/lib/auth/permissions'
 import { withRateLimit } from '@/lib/security/rateLimit'
 import { PAYMENT_RATE_LIMITS } from '@/lib/security/rateLimitPresets'
+import { logger } from '@/lib/utils/production-logger'
 
 async function portalHandler(req: NextRequest) {
   // Check permissions - users need subscription.view to access portal
@@ -53,7 +54,7 @@ async function portalHandler(req: NextRequest) {
 
     return NextResponse.json({ url: session.url })
   } catch (error) {
-    console.error('Error creating portal session:', error)
+    logger.error('Stripe portal session creation failed', error as Error)
     return NextResponse.json({ error: 'Failed to create portal session' }, { status: 500 })
   }
 }

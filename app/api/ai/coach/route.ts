@@ -227,16 +227,15 @@ Provide specific, actionable advice tailored to their learning context.`
         safe: verification.safe,
         flags,
         citations: citations.length,
-    logger.error('AI Coach API request failed', error as Error, {
-      userId: context.user?.id,
-      organizationId: context.organizationId,
-      sessionType,
-    }h,
+        verifiedSources: verifiedSources.length,
         unverifiedSources: unverifiedSources.length,
       },
     })
   } catch (error) {
-    console.error('AI Coach API error:', error)
+    logger.error('AI Coach API request failed', error as Error, {
+      userId: context.user?.id,
+      organizationId: context.organizationId,
+    })
     return NextResponse.json(
       {
         error: 'Failed to generate coaching session',

@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import { withRateLimit, RateLimitPresets } from '@/lib/security/rateLimit'
 import { sendNewsletterWelcome, type NewsletterData } from '@/lib/email/service'
+import { logger } from '@/lib/utils/production-logger'
 
 // Newsletter subscription validation schema
 const newsletterSchema = z.object({
@@ -49,7 +50,9 @@ export const POST = withRateLimit(RateLimitPresets.newsletter, async (request: N
     })
 
     if (error) {
-      console.error('Newsletter subscription error:', error)
+      logger.error('Newsletter subscription database error', error as Error, {
+        email: validatedData.email,
+      })
       throw new Error('Failed to subscribe')
     }
 
@@ -57,7 +60,10 @@ export const POST = withRateLimit(RateLimitPresets.newsletter, async (request: N
     const emailResult = await sendNewsletterWelcome(validatedData as NewsletterData)
 
     if (!emailResult.success) {
-      console.error('Failed to send welcome email:', emailResult.error)
+      logger.warn('Newsletter welcome email failed', {
+        error: emailResult.error,
+        email: validatedData.email,
+      })
       // Continue anyway - subscription was successful
     }
 
@@ -69,7 +75,7 @@ export const POST = withRateLimit(RateLimitPresets.newsletter, async (request: N
       { status: 201 }
     )
   } catch (error) {
-    console.error('Newsletter API error:', error)
+    logger.error('Newsletter subscription request failed', error as Error)
 
     // Handle validation errors
     if (error instanceof z.ZodError) {

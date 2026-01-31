@@ -7,6 +7,7 @@ import {
   verifyCitations,
   logAIInteraction,
 } from '@/lib/services/ai-verification'
+import { logger } from '@/lib/utils/production-logger'
 
 /**
  * AI Chat API Endpoint
@@ -34,7 +35,10 @@ async function chatHandler(request: NextRequest, context: GuardedContext) {
     const apiVersion = process.env.AZURE_OPENAI_API_VERSION || '2024-02-15-preview'
 
     if (!endpoint || !apiKey) {
-      console.error('Azure OpenAI credentials not configured')
+      logger.error('Azure OpenAI misconfigured', new Error('Missing credentials'), {
+        hasEndpoint: !!endpoint,
+        hasApiKey: !!apiKey,
+      })
       return NextResponse.json({ error: 'AI service not configured' }, { status: 500 })
     }
 
@@ -98,7 +102,10 @@ Respond in a helpful, conversational tone with actionable insights.`
 
     if (!response.ok) {
       const errorText = await response.text()
-      console.error('Azure OpenAI API error:', errorText)
+      logger.error('Azure OpenAI API request failed', new Error(errorText), {
+        status: response.status,
+        userId: context.user?.id,
+      })
       throw new Error(`Azure OpenAI API returned ${response.status}`)
     }
 
@@ -136,7 +143,10 @@ Respond in a helpful, conversational tone with actionable insights.`
       })
     } catch (err) {
       // Log error but don't fail the request
-      console.error('Failed to log AI interaction:', err)
+      logger.warn('Failed to log AI interaction', {
+        error: err instanceof Error ? err.message : String(err),
+        userId: context.user!.id,
+      })
     }
 
     // Also log to legacy ai_usage_logs for cost tracking
@@ -152,7 +162,10 @@ Respond in a helpful, conversational tone with actionable insights.`
         created_at: new Date().toISOString(),
       })
     } catch (err) {
-      console.error('Failed to log AI usage:', err)
+      logger.warn('Failed to log AI usage', {
+        error: err instanceof Error ? err.message : String(err),
+        userId: context.user!.id,
+      })
     }
 
     return NextResponse.json({
@@ -167,7 +180,10 @@ Respond in a helpful, conversational tone with actionable insights.`
       },
     })
   } catch (error: any) {
-    console.error('AI chat error:', error)
+    logger.error('AI chat request failed', error as Error, {
+      userId: context.user?.id,
+      organizationId: context.organizationId,
+    })
     return NextResponse.json(
       {
         error: error.message || 'Failed to process AI request',
