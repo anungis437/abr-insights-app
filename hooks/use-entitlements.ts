@@ -1,6 +1,7 @@
-/**
+﻿'use client'
 
 import { logger } from '@/lib/utils/production-logger'
+/**
  * useEntitlements Hook
  * Client-side hook for accessing user entitlements from canonical source
  *
@@ -8,8 +9,6 @@ import { logger } from '@/lib/utils/production-logger'
  * Use this instead of checking profiles.subscription_tier directly.
  *
  * @see lib/services/entitlements.ts
- */
-
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'

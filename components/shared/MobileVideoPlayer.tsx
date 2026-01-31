@@ -15,7 +15,6 @@ import {
   Settings,
   Download,
 } from 'lucide-react'
-import { logger } from '@/lib/utils/logger'
 import { useOnlineStatus } from '@/lib/hooks/usePWA'
 
 interface MobileVideoPlayerProps {
