@@ -1,9 +1,8 @@
-import { createClient } from '@supabase/supabase-js'
+import { config } from 'dotenv'
+import { resolve } from 'path'
+import { Client } from 'pg'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+config({ path: resolve(process.cwd(), '.env.local') })
 
 const tables = [
   'cases',
@@ -23,33 +22,37 @@ const tables = [
 ]
 
 async function checkTables() {
-  console.log('🔍 Checking database tables...\n')
+  const client = new Client({
+    connectionString: process.env.DATABASE_URL,
+  })
 
-  const exists: string[] = []
-  const missing: string[] = []
+  try {
+    await client.connect()
+    console.log('🔍 Checking database tables...\n')
 
-  for (const t of tables) {
-    try {
-      const { data, error, count } = await supabase
-        .from(t)
-        .select('*', { count: 'exact', head: true })
+    const result = await client.query(`
+      SELECT tablename 
+      FROM pg_tables 
+      WHERE schemaname = 'public' 
+      ORDER BY tablename;
+    `)
 
-      if (error) {
-        console.log(`❌ ${t.padEnd(25)} - NOT FOUND: ${error.message.substring(0, 60)}`)
-        missing.push(t)
-      } else {
-        console.log(`✅ ${t.padEnd(25)} - Exists (${count ?? 0} rows)`)
-        exists.push(t)
-      }
-    } catch (e: any) {
-      console.log(`❌ ${t.padEnd(25)} - ERROR: ${e.message.substring(0, 60)}`)
-      missing.push(t)
+    console.log('📋 Existing tables:')
+    result.rows.forEach(r => {
+      console.log(`  ✅ ${r.tablename}`)
+    })
+
+    console.log(`\n📊 Total: ${result.rows.length} tables`)
+
+    // Check if cases table exists
+    const casesExists = result.rows.some((r: any) => r.tablename === 'cases')
+    if (!casesExists) {
+      console.log('\n⚠️  WARNING: "cases" table not found')
+      console.log('   Evidence bundles migration requires "cases" table')
     }
-  }
 
-  console.log(`\n📊 Summary: ${exists.length} exist, ${missing.length} missing`)
-  if (missing.length > 0) {
-    console.log('\n🔨 Missing tables:', missing.join(', '))
+  } finally {
+    await client.end()
   }
 }
 

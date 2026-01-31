@@ -55,7 +55,7 @@ export function SubscriptionBadge() {
     },
   }
 
-  const config = badgeConfig[tier] || badgeConfig.free
+  const config = badgeConfig[tier as keyof typeof badgeConfig] || badgeConfig.free
   const Icon = config.icon
 
   return (
@@ -107,8 +107,8 @@ export function SubscriptionStatus() {
   }
 
   const tier = entitlements.tier || 'FREE'
-  const isActive = entitlements.subscription_status === 'active'
-  const hasStripeCustomer = !!entitlements.stripe_customer_id
+  const isActive = entitlements.status === 'active'
+  const hasStripeCustomer = entitlements.tier !== 'FREE'
 
   const statusConfig = {
     active: {
@@ -148,8 +148,8 @@ export function SubscriptionStatus() {
     },
   }
 
-  const status = entitlements.subscription_status || 'active'
-  const config = statusConfig[status] || statusConfig.active
+  const status = entitlements.status || 'active'
+  const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.active
   const StatusIcon = config.icon
 
   return (
@@ -167,9 +167,9 @@ export function SubscriptionStatus() {
           <div className="text-2xl font-bold text-gray-900">
             {tier.charAt(0).toUpperCase() + tier.slice(1).toLowerCase().replace('_', ' ')}
           </div>
-          {entitlements.current_period_end && isActive && (
+          {entitlements.gracePeriodEndsAt && !isActive && (
             <p className="mt-1 text-sm text-gray-500">
-              Renews {new Date(entitlements.current_period_end).toLocaleDateString()}
+              Grace period ends {new Date(entitlements.gracePeriodEndsAt).toLocaleDateString()}
             </p>
           )}
         </div>

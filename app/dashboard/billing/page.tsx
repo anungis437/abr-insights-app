@@ -260,7 +260,7 @@ export default function BillingPage() {
               <p className="text-gray-600 mb-4">
                 Free tier is for individual use only
               </p>
-              <Button onClick={() => router.push('/pricing')} size="sm">
+              <Button onClick={() => router.push('/pricing')} variant="outline">
                 Upgrade for Team Access
               </Button>
             </div>
@@ -277,7 +277,7 @@ export default function BillingPage() {
             <div>
               <p className="font-medium">AI Assistant</p>
               <p className="text-sm text-gray-600">
-                {entitlements?.features?.ai_assistant
+                {entitlements?.features?.aiAssistantAccess
                   ? 'Unlimited access'
                   : 'Not available'}
               </p>
@@ -288,7 +288,7 @@ export default function BillingPage() {
             <div>
               <p className="font-medium">AI Coach</p>
               <p className="text-sm text-gray-600">
-                {entitlements?.features?.ai_coach
+                {entitlements?.features?.aiCoachAccess
                   ? 'Unlimited access'
                   : 'Not available'}
               </p>
@@ -299,8 +299,7 @@ export default function BillingPage() {
             <div>
               <p className="font-medium">Export Features</p>
               <p className="text-sm text-gray-600">
-                {entitlements?.features?.export_pdf ||
-                entitlements?.features?.export_csv
+                {entitlements?.features?.exportCapabilities
                   ? 'Available'
                   : 'Not available'}
               </p>
