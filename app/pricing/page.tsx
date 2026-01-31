@@ -1,14 +1,17 @@
 'use client'
 
-import { Check, X } from 'lucide-react'
+import { useState } from 'react'
+import { Users } from 'lucide-react'
 import { useEntitlements } from '@/hooks/use-entitlements'
+import { PricingCard } from '@/components/shared/PricingCard'
 
 export default function PricingPage() {
   const { entitlements, loading } = useEntitlements()
   const currentTier = entitlements?.tier?.toUpperCase() || 'FREE'
+  const [seatCount, setSeatCount] = useState(1)
+
   return (
     <div className="min-h-screen bg-white">
-      {' '}
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary-600 to-secondary-600 py-20 text-white">
         <div className="container-custom">
@@ -29,6 +32,7 @@ export default function PricingPage() {
           <div className="absolute bottom-1/3 left-1/3 h-96 w-96 rounded-full bg-yellow-300 blur-3xl" />
         </div>
       </section>
+
       {/* Pricing Cards */}
       <section className="py-20">
         <div className="container-custom">
@@ -44,7 +48,29 @@ export default function PricingPage() {
             </div>
           )}
 
-          <div className="grid gap-8 lg:grid-cols-3">
+          {/* Seat Selection for Team Plans */}
+          <div className="mb-12 flex items-center justify-center gap-4">
+            <Users className="h-5 w-5 text-gray-600" />
+            <label htmlFor="seats" className="text-sm font-medium text-gray-700">
+              Team size:
+            </label>
+            <select
+              id="seats"
+              value={seatCount}
+              onChange={(e) => setSeatCount(Number(e.target.value))}
+              className="rounded-lg border-gray-300 px-4 py-2 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+            >
+              <option value={1}>1 user</option>
+              <option value={5}>5 users</option>
+              <option value={10}>10 users</option>
+              <option value={25}>25 users</option>
+              <option value={50}>50 users</option>
+              <option value={100}>100 users</option>
+            </select>
+            <span className="text-sm text-gray-500">(Enterprise: contact for 100+ seats)</span>
+          </div>
+
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
             {/* Free Tier */}
             <PricingCard
               name="Free"
@@ -62,16 +88,15 @@ export default function PricingPage() {
                 { text: 'Team management', included: false },
               ]}
               ctaText="Get Started"
-              ctaHref="/auth/signup?plan=free"
+              tier="FREE"
               popular={false}
-              isCurrent={currentTier === 'FREE'}
             />
 
             {/* Professional Tier */}
             <PricingCard
               name="Professional"
               price="$49"
-              billing="per user/month"
+              billing={`per user/month × ${seatCount}`}
               description="Comprehensive tools for HR professionals and diversity leaders"
               features={[
                 { text: 'Access to all 50+ courses', included: true },
@@ -81,34 +106,56 @@ export default function PricingPage() {
                 { text: 'Priority email support', included: true },
                 { text: 'Downloadable resources', included: true },
                 { text: 'Customizable learning paths', included: true },
-                { text: 'Team management (up to 25 users)', included: false },
+                { text: 'Team management (up to 25 users)', included: true },
               ]}
               ctaText="Start Free Trial"
-              ctaHref="/auth/signup?plan=professional"
+              tier="PROFESSIONAL"
               popular={true}
-              isCurrent={currentTier === 'PROFESSIONAL'}
+              seatCount={seatCount}
+            />
+
+            {/* Business Tier */}
+            <PricingCard
+              name="Business"
+              price="$89"
+              billing={`per user/month × ${seatCount}`}
+              description="Advanced features for growing organizations"
+              features={[
+                { text: 'Everything in Professional', included: true },
+                { text: 'Team management (up to 100 users)', included: true },
+                { text: 'Advanced analytics & reporting', included: true },
+                { text: 'Custom learning paths', included: true },
+                { text: 'API access (basic)', included: true },
+                { text: 'Priority support', included: true },
+                { text: 'Quarterly business reviews', included: true },
+                { text: 'Data exports', included: true },
+              ]}
+              ctaText="Upgrade to Business"
+              tier="BUSINESS"
+              popular={false}
+              seatCount={seatCount}
             />
 
             {/* Enterprise Tier */}
             <PricingCard
               name="Enterprise"
-              price="$199"
-              billing="per user/month"
+              price="Custom"
+              billing="contact sales"
               description="Advanced features for large organizations committed to systemic change"
               features={[
-                { text: 'Everything in Professional', included: true },
+                { text: 'Everything in Business', included: true },
                 { text: 'Unlimited team members', included: true },
                 { text: 'Custom branded portal', included: true },
                 { text: 'Advanced analytics & reporting', included: true },
-                { text: 'API access', included: true },
+                { text: 'Full API access', included: true },
                 { text: 'Dedicated account manager', included: true },
                 { text: 'Custom course development', included: true },
-                { text: 'SLA & priority support', included: true },
+                { text: 'SLA & 24/7 support', included: true },
               ]}
               ctaText="Contact Sales"
-              ctaHref="/contact?plan=enterprise"
+              tier="ENTERPRISE"
               popular={false}
-              isCurrent={currentTier === 'ENTERPRISE'}
+              contactSales={true}
             />
           </div>
 
@@ -124,6 +171,7 @@ export default function PricingPage() {
           </div>
         </div>
       </section>
+
       {/* FAQ Section */}
       <section className="relative bg-gray-50 py-20">
         <div className="container-custom">
@@ -135,6 +183,10 @@ export default function PricingPage() {
             <FAQItem
               question="Can I switch plans at any time?"
               answer="Yes! You can upgrade or downgrade your plan at any time. Changes take effect immediately, and we'll prorate any differences in your billing."
+            />
+            <FAQItem
+              question="How does seat-based pricing work?"
+              answer="You purchase a number of seats for your organization, and can assign them to team members. You can add or remove seats at any time, and billing adjusts for the next cycle."
             />
             <FAQItem
               question="What happens when my free trial ends?"
@@ -152,10 +204,6 @@ export default function PricingPage() {
               question="What payment methods do you accept?"
               answer="We accept all major credit cards (Visa, Mastercard, American Express) and can set up invoicing for Enterprise customers."
             />
-            <FAQItem
-              question="How does per-user pricing work?"
-              answer="You only pay for active users. Add or remove team members at any time, and your billing will adjust automatically for the next billing cycle."
-            />
           </div>
         </div>
 
@@ -165,6 +213,7 @@ export default function PricingPage() {
           <div className="absolute bottom-1/4 right-1/3 h-80 w-80 rounded-full bg-secondary-600 blur-3xl" />
         </div>
       </section>
+
       {/* CTA Section */}
       <section className="bg-gradient-to-br from-primary-600 to-secondary-600 py-20 text-white">
         <div className="container-custom">
@@ -189,95 +238,12 @@ export default function PricingPage() {
             </div>
           </div>
         </div>
-      </section>{' '}
+      </section>
     </div>
   )
 }
 
 // Supporting Components
-interface PricingCardProps {
-  name: string
-  price: string
-  billing: string
-  description: string
-  features: { text: string; included: boolean }[]
-  ctaText: string
-  ctaHref: string
-  popular: boolean
-  isCurrent?: boolean
-}
-
-function PricingCard({
-  name,
-  price,
-  billing,
-  description,
-  features,
-  ctaText,
-  ctaHref,
-  popular,
-  isCurrent = false,
-}: PricingCardProps) {
-  return (
-    <div
-      className={`card relative ${popular ? 'border-2 border-primary-500 shadow-xl' : ''} ${
-        isCurrent ? 'ring-2 ring-green-500' : ''
-      }`}
-    >
-      {popular && (
-        <div className="absolute -top-4 left-1/2 -translate-x-1/2 transform">
-          <span className="rounded-full bg-primary-500 px-4 py-1 text-sm font-semibold text-white">
-            Most Popular
-          </span>
-        </div>
-      )}
-
-      {isCurrent && (
-        <div className="absolute -top-4 right-4">
-          <span className="rounded-full bg-green-500 px-4 py-1 text-sm font-semibold text-white">
-            Current Plan
-          </span>
-        </div>
-      )}
-
-      <div className="mb-6">
-        <h3 className="mb-2 text-2xl font-bold text-gray-900">{name}</h3>
-        <div className="mb-3">
-          <span className="text-5xl font-bold text-gray-900">{price}</span>
-          <span className="ml-2 text-gray-600">/ {billing}</span>
-        </div>
-        <p className="text-gray-600">{description}</p>
-      </div>
-
-      <a
-        href={ctaHref}
-        className={`mb-6 block w-full rounded-lg py-3 text-center font-semibold transition-all ${
-          popular
-            ? 'bg-primary-600 text-white hover:bg-primary-700'
-            : 'border-2 border-primary-600 text-primary-600 hover:bg-primary-50'
-        }`}
-      >
-        {ctaText}
-      </a>
-
-      <div className="space-y-3">
-        {features.map((feature, index) => (
-          <div key={index} className="flex items-start gap-3">
-            {feature.included ? (
-              <Check className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600" />
-            ) : (
-              <X className="mt-0.5 h-5 w-5 flex-shrink-0 text-gray-400" />
-            )}
-            <span className={feature.included ? 'text-gray-700' : 'text-gray-400'}>
-              {feature.text}
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
 function FAQItem({ question, answer }: { question: string; answer: string }) {
   return (
     <div className="rounded-lg bg-white p-6 shadow-sm">

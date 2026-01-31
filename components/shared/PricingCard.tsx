@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 
 interface PricingCardProps {
+  seatCount?: number
   name: string
   price: string
   billing: string
