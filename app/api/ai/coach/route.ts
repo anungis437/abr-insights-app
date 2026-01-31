@@ -8,6 +8,7 @@ import {
   logAIInteraction,
 } from '@/lib/services/ai-verification'
 import { logger } from '@/lib/utils/production-logger'
+import { checkAIQuota } from '@/lib/services/ai-quotas'
 
 /**
  * AI Coach API Endpoint
@@ -18,6 +19,7 @@ import { logger } from '@/lib/utils/production-logger'
  * - Authentication: Required (withAuth)
  * - Organization Context: Required (withOrg)
  * - Permission: 'ai.coach.use' or 'admin.ai.manage'
+ * - AI Usage Quotas: Per-user daily + per-org monthly limits
  */
 
 async function coachHandler(request: NextRequest, context: GuardedContext) {
@@ -27,6 +29,29 @@ async function coachHandler(request: NextRequest, context: GuardedContext) {
     // Validate required fields
     if (!sessionType) {
       return NextResponse.json({ error: 'Session type is required' }, { status: 400 })
+    }
+
+    // Check AI usage quotas (cost control)
+    const quotaCheck = await checkAIQuota(context.user!.id, context.organizationId!, 'coach')
+    if (!quotaCheck.allowed) {
+      logger.warn('AI quota exceeded', {
+        userId: context.user!.id,
+        organizationId: context.organizationId,
+        reason: quotaCheck.reason,
+      })
+      return NextResponse.json(
+        {
+          error: quotaCheck.reason,
+          quotaExceeded: true,
+          usage: {
+            userDaily: quotaCheck.userTokensUsed,
+            userLimit: quotaCheck.userDailyLimit,
+            orgMonthly: quotaCheck.orgTokensUsed,
+            orgLimit: quotaCheck.orgMonthlyLimit,
+          },
+        },
+        { status: 429 }
+      )
     }
 
     // Get Azure OpenAI configuration

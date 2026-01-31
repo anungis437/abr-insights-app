@@ -4,6 +4,11 @@
  * Centralized logging with different levels and structured output.
  * Integrates with monitoring services in production.
  *
+ * Features:
+ * - Correlation ID injection for request tracing
+ * - Structured JSON logging in production
+ * - Human-readable logging in development
+ *
  * Usage:
  *   logger.info('User logged in', { userId: '123' })
  *   logger.error('Payment failed', { error: err, orderId: 'ord_123' })
@@ -20,6 +25,7 @@ interface LogEntry {
   level: LogLevel
   message: string
   timestamp: string
+  correlationId?: string
   context?: LogContext
   stack?: string
 }
@@ -29,13 +35,26 @@ class ProductionLogger {
   private isProduction = process.env.NODE_ENV === 'production'
 
   /**
+   * Get correlation ID from AsyncLocalStorage or request headers
+   * This enables distributed tracing across async operations
+   */
+  private getCorrelationId(): string | undefined {
+    // In API routes, this will be set by middleware
+    if (typeof globalThis !== 'undefined' && (globalThis as any).__correlationId) {
+      return (globalThis as any).__correlationId
+    }
+    return undefined
+  }
+
+  /**
    * Format log entry for output
    */
   private formatLog(entry: LogEntry): string {
     if (this.isDevelopment) {
       // Human-readable format for development
+      const correlationStr = entry.correlationId ? `[${entry.correlationId}] ` : ''
       const contextStr = entry.context ? ` ${JSON.stringify(entry.context)}` : ''
-      return `[${entry.level.toUpperCase()}] ${entry.message}${contextStr}`
+      return `[${entry.level.toUpperCase()}] ${correlationStr}${entry.message}${contextStr}`
     }
 
     // JSON format for production (easy parsing by monitoring tools)
@@ -50,6 +69,7 @@ class ProductionLogger {
       level,
       message,
       timestamp: new Date().toISOString(),
+      correlationId: this.getCorrelationId(),
       context: context || undefined,
       stack: error?.stack,
     }

@@ -1,12 +1,18 @@
 /**
  * Get Stripe Customer Portal URL
  * Allows users to manage their subscription
+ *
+ * Protected by:
+ * - Authentication: Required
+ * - CSRF: Required (prevents unauthorized subscription changes)
+ * - Rate Limiting: Applied
  */
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { withRateLimit } from '@/lib/security/rateLimit'
 import { PAYMENT_RATE_LIMITS } from '@/lib/security/rateLimitPresets'
+import { validateCSRFToken } from '@/lib/security/csrf'
 import { logger } from '@/lib/utils/production-logger'
 
 async function portalHandler(req: NextRequest) {
@@ -24,6 +30,16 @@ async function portalHandler(req: NextRequest) {
 
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Validate CSRF token (P1 security - prevent unauthorized subscription management)
+    const csrfValid = await validateCSRFToken(req, user.id)
+    if (!csrfValid) {
+      logger.warn('CSRF validation failed for portal', { userId: user.id })
+      return NextResponse.json(
+        { error: 'Invalid security token. Please refresh and try again.' },
+        { status: 403 }
+      )
     }
 
     // Get user's profile with organization

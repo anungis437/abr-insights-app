@@ -17,12 +17,36 @@ import { guardedRoute, GuardedContext } from '@/lib/api/guard'
 import { createClient } from '@/lib/supabase/server'
 import { withRateLimit, RateLimitPresets } from '@/lib/security/rateLimit'
 import { logger } from '@/lib/utils/production-logger'
+import { checkAIQuota } from '@/lib/services/ai-quotas'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300 // 5 minutes for batch operations
 
 async function generateEmbeddingsHandler(request: NextRequest, context: GuardedContext) {
+  // Check AI usage quotas (cost control for embedding generation)
+  const quotaCheck = await checkAIQuota(context.user!.id, context.organizationId!, 'embeddings')
+  if (!quotaCheck.allowed) {
+    logger.warn('AI quota exceeded', {
+      userId: context.user!.id,
+      organizationId: context.organizationId,
+      reason: quotaCheck.reason,
+    })
+    return NextResponse.json(
+      {
+        error: quotaCheck.reason,
+        quotaExceeded: true,
+        usage: {
+          userDaily: quotaCheck.userTokensUsed,
+          userLimit: quotaCheck.userDailyLimit,
+          orgMonthly: quotaCheck.orgTokensUsed,
+          orgLimit: quotaCheck.orgMonthlyLimit,
+        },
+      },
+      { status: 429 }
+    )
+  }
+
   // Lazy load to avoid build-time initialization
   const { generateAllCaseEmbeddings, generateAllCourseEmbeddings } = await import(
     '@/lib/services/embedding-service'

@@ -1,7 +1,9 @@
 // API route for role permissions management
+// CSRF protected for write operations (P1 security)
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { requireAnyPermission } from '@/lib/auth/permissions'
+import { validateCSRFToken } from '@/lib/security/csrf'
 import { logger } from '@/lib/utils/production-logger'
 
 // GET /api/admin/roles - List all roles
@@ -64,6 +66,24 @@ export async function POST(request: NextRequest) {
 
   try {
     const supabase = await createClient()
+
+    // Get user for CSRF validation
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Validate CSRF token (P1 security - prevent unauthorized role creation)
+    const csrfValid = await validateCSRFToken(request, user.id)
+    if (!csrfValid) {
+      logger.warn('CSRF validation failed for role creation', { userId: user.id })
+      return NextResponse.json(
+        { error: 'Invalid security token. Please refresh and try again.' },
+        { status: 403 }
+      )
+    }
 
     const body = await request.json()
     const { name, slug, description, level, is_system } = body

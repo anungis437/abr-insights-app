@@ -7,6 +7,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 import {
   createEvidenceBundle,
   addComponentToBundle,
@@ -94,9 +95,29 @@ export default function EvidenceBundleBuilderPage() {
       setLoading(true)
       setError(null)
 
-      // Note: In production, get user ID from authenticated session
-      const userId = 'demo-user-id'
-      const orgId = 'demo-org-id'
+      // Get user/org IDs from session
+      const supabase = createClient()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (!user) {
+        setError('Not authenticated')
+        return
+      }
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('organization_id')
+        .eq('id', user.id)
+        .single()
+
+      if (!profile?.organization_id) {
+        setError('No organization found')
+        return
+      }
+
+      const userId = user.id
+      const orgId = profile.organization_id
 
       const bundle = await createEvidenceBundle(
         orgId,
@@ -131,9 +152,25 @@ export default function EvidenceBundleBuilderPage() {
       // Generate suggested policy mappings if tribunal case included
       const tribunalCases = selectedComponents.filter((c) => c.type === 'tribunal_case')
       if (tribunalCases.length > 0) {
-        const orgId = 'demo-org-id'
-        const suggestions = await generatePolicyMappings(orgId, tribunalCases[0].id)
-        setPolicyMappings(suggestions)
+        const supabase = createClient()
+        const {
+          data: { user },
+        } = await supabase.auth.getUser()
+        if (user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('organization_id')
+            .eq('id', user.id)
+            .single()
+
+          if (profile?.organization_id) {
+            const suggestions = await generatePolicyMappings(
+              profile.organization_id,
+              tribunalCases[0].id
+            )
+            setPolicyMappings(suggestions)
+          }
+        }
       }
 
       setStep(3)

@@ -58,7 +58,7 @@ export default function PricingPage() {
               id="seats"
               value={seatCount}
               onChange={(e) => setSeatCount(Number(e.target.value))}
-              className="rounded-lg border-gray-300 px-4 py-2 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+              className="rounded-lg border border-gray-300 px-4 py-2 shadow-sm focus:border-primary-500 focus:ring-primary-500"
             >
               <option value={1}>1 user</option>
               <option value={5}>5 users</option>
@@ -91,7 +91,6 @@ export default function PricingPage() {
               tier="FREE"
               popular={false}
             />
-
             {/* Professional Tier */}
             <PricingCard
               name="Professional"
@@ -253,7 +252,7 @@ export default function PricingPage() {
               </a>
               <a
                 href="/auth/signup"
-                className="btn-secondary border-white text-white hover:bg-white/10"
+                className="btn-secondary border border-white text-white hover:bg-white/10"
               >
                 Start Free Trial
               </a>
