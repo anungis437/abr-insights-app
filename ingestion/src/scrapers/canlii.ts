@@ -303,11 +303,12 @@ export class CanLIIScraper {
    */
   private buildListingUrl(page: number): string {
     if (page === 1) {
-      return this.config.listingUrl
+      return this.config.listingUrl || ''
     }
 
     // CanLII uses ?page=N for pagination
-    const url = new URL(this.config.listingUrl)
+    const baseUrl = this.config.listingUrl || ''
+    const url = new URL(baseUrl)
     url.searchParams.set('page', page.toString())
     return url.toString()
   }

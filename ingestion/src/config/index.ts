@@ -22,6 +22,11 @@ export const ENV = {
   AZURE_OPENAI_DEPLOYMENT: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-4o',
   AZURE_OPENAI_API_VERSION: process.env.AZURE_OPENAI_API_VERSION || '2024-02-15-preview',
 
+  // CanLII REST API
+  CANLII_API_KEY: process.env.CANLII_API_KEY || '',
+  CANLII_API_BASE_URL: 'https://api.canlii.org/v1',
+  CANLII_API_ENABLED: process.env.CANLII_API_ENABLED === 'true',
+
   // Pipeline
   PIPELINE_VERSION: process.env.npm_package_version || '1.0.0',
   NODE_ENV: process.env.NODE_ENV || 'development',

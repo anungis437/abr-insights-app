@@ -53,12 +53,14 @@ export type SourceSystem =
   | 'canlii_nuhr' // CanLII - Nunavut Human Rights
 
 /**
- * Configuration for a scraping source
+ * Configuration for a scraping or API source
  */
 export interface SourceConfig {
   sourceSystem: SourceSystem
   baseUrl: string
-  listingUrl: string
+  listingUrl?: string // Web scraping only
+  databaseId?: string // CanLII REST API only
+  apiMode?: 'rest' | 'scrape' // Default: 'scrape' for backwards compatibility
   maxPages?: number
   maxCasesPerPage?: number
   startDate?: Date
