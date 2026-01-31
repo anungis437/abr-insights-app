@@ -20,16 +20,16 @@ The ABR Insights application has successfully completed a comprehensive migratio
 
 ## Project Completion Matrix
 
-| Phase | Objective | Status | Deliverables | Lines of Code |
-|-------|-----------|--------|--------------|---------------|
-| **Phase 1** | Environment Setup | ✅ COMPLETE | Config files, ENV docs | 50 |
-| **Phase 2** | API Client & Discovery | ✅ COMPLETE | 2 client modules, mapper | 550 |
-| **Phase 3** | Types & Configuration | ✅ COMPLETE | Updated interfaces | 30 |
-| **Phase 4** | REST API Scraper | ✅ COMPLETE | Scraper + factory | 430 |
-| **Phase 5** | Error Handling & Validation | ✅ COMPLETE | Validation module + logger | 400 |
-| **Phase 6** | Integration Tests | ✅ COMPLETE | 3 test files, 60+ tests | 1,650 |
-| **Phase 7** | Documentation & Deployment | ✅ COMPLETE | 3 docs + checklists | 6,000+ words |
-| | | | **TOTAL** | **~3,000 LOC** |
+| Phase       | Objective                   | Status      | Deliverables               | Lines of Code  |
+| ----------- | --------------------------- | ----------- | -------------------------- | -------------- |
+| **Phase 1** | Environment Setup           | ✅ COMPLETE | Config files, ENV docs     | 50             |
+| **Phase 2** | API Client & Discovery      | ✅ COMPLETE | 2 client modules, mapper   | 550            |
+| **Phase 3** | Types & Configuration       | ✅ COMPLETE | Updated interfaces         | 30             |
+| **Phase 4** | REST API Scraper            | ✅ COMPLETE | Scraper + factory          | 430            |
+| **Phase 5** | Error Handling & Validation | ✅ COMPLETE | Validation module + logger | 400            |
+| **Phase 6** | Integration Tests           | ✅ COMPLETE | 3 test files, 60+ tests    | 1,650          |
+| **Phase 7** | Documentation & Deployment  | ✅ COMPLETE | 3 docs + checklists        | 6,000+ words   |
+|             |                             |             | **TOTAL**                  | **~3,000 LOC** |
 
 ---
 
@@ -183,6 +183,7 @@ CanLII REST API (api.canlii.org/v1)
 ## Quality Metrics
 
 ### Code Quality
+
 - ✅ **Type Safety**: Full TypeScript, no `any` types
 - ✅ **Linting**: ESLint compliant, 0 violations
 - ✅ **Formatting**: Prettier formatted consistently
@@ -191,18 +192,21 @@ CanLII REST API (api.canlii.org/v1)
 - ✅ **Documentation**: 6,000+ words, 55+ code examples
 
 ### Error Handling
+
 - ✅ **Error Codes**: 16 specific error types defined
 - ✅ **Retry Logic**: Exponential backoff (1s → 2s → 4s → max 30s)
 - ✅ **Rate Limiting**: Token bucket (2 req/sec)
 - ✅ **Diagnostics**: Health check and detailed reporting
 
 ### Architecture
+
 - ✅ **Backwards Compatibility**: Web scraper still functional
 - ✅ **Gradual Migration**: Can run both modes in parallel
 - ✅ **Factory Pattern**: Intelligent scraper selection
 - ✅ **Extensibility**: Easy to add new tribunals or sources
 
 ### Documentation
+
 - ✅ **Completeness**: All components documented
 - ✅ **Clarity**: Written for multiple audiences
 - ✅ **Usability**: Step-by-step procedures with checklists
@@ -213,30 +217,35 @@ CanLII REST API (api.canlii.org/v1)
 ## Key Features Implemented
 
 ### ✅ Official REST API Integration
+
 - Uses CanLII REST API v1 (https://api.canlii.org/v1)
 - Eliminates fragile HTML parsing
 - Structured JSON responses with typed interfaces
 - Future-proof against website changes
 
 ### ✅ Intelligent Scraper Selection
+
 - Auto-detects REST API availability
 - Falls back to web scraper if needed
 - Per-tribunal configuration override
 - Supports parallel operation of both modes
 
 ### ✅ Production-Grade Error Handling
+
 - 16 specific error codes
 - Automatic retry with exponential backoff
 - Distinguishes retryable vs non-retryable errors
 - Comprehensive error diagnostics and reporting
 
 ### ✅ Rate Limiting & Throttling
+
 - Respects API rate limits (2 req/sec default)
 - Token bucket algorithm for burst control
 - Automatic backoff for 429 responses
 - Configurable per environment
 
 ### ✅ Comprehensive Validation
+
 - API key validation
 - Database ID format validation
 - Case ID format validation
@@ -244,6 +253,7 @@ CanLII REST API (api.canlii.org/v1)
 - Configuration health checks
 
 ### ✅ Health Checks & Diagnostics
+
 - Connectivity validation
 - Authentication verification
 - Response time measurement
@@ -251,12 +261,14 @@ CanLII REST API (api.canlii.org/v1)
 - One-command validation: `npm run ingest -- --health-check`
 
 ### ✅ Structured Logging
+
 - Debug, info, warn, error levels
 - Sensitive data filtering (no API keys in logs)
 - Integration-ready for Application Insights
 - Configurable via DEBUG environment variable
 
 ### ✅ Database Discovery
+
 - Automatically discover all available CanLII databases
 - Map tribunal names to databaseIds
 - Export mappings as JSON or markdown
@@ -267,6 +279,7 @@ CanLII REST API (api.canlii.org/v1)
 ## Test Coverage
 
 ### Test Suite Statistics
+
 - **Total Test Files**: 3
 - **Total Test Cases**: 60+
 - **Total Test Code**: 1,650+ lines
@@ -275,6 +288,7 @@ CanLII REST API (api.canlii.org/v1)
 ### Test Categories
 
 **API Client Tests** (ingestion-canlii-api.spec.ts)
+
 - ✅ Client initialization
 - ✅ Connection validation
 - ✅ Database discovery (live API)
@@ -283,6 +297,7 @@ CanLII REST API (api.canlii.org/v1)
 - ✅ Integration workflows
 
 **Factory Tests** (ingestion-scraper-factory.spec.ts)
+
 - ✅ Mode selection logic
 - ✅ Scraper creation
 - ✅ Error scenarios
@@ -290,6 +305,7 @@ CanLII REST API (api.canlii.org/v1)
 - ✅ Backwards compatibility
 
 **Validation Tests** (ingestion-validation.spec.ts)
+
 - ✅ Error classification
 - ✅ Input validation (database ID, case ID, date)
 - ✅ Configuration validation
@@ -297,6 +313,7 @@ CanLII REST API (api.canlii.org/v1)
 - ✅ Retry logic with max attempts
 
 ### Test Execution
+
 ```bash
 # Run all tests
 npm run test:unit tests/ingestion-*.spec.ts
@@ -313,24 +330,28 @@ CANLII_API_KEY=your-key npm run test:unit tests/ingestion-canlii-api.spec.ts
 ## Documentation Coverage
 
 ### For Developers
+
 - **Quick Start**: 5-step initialization guide
 - **Advanced Patterns**: 30+ code examples
 - **Error Handling**: Custom retry logic, error classification
 - **Integration**: Complete 8-step workflow example
 
 ### For DevOps
+
 - **Pre-Deployment**: 20+ item checklist
 - **Environment Setup**: Configuration and secrets management
 - **Staging Procedures**: Per-tribunal testing
 - **Production Rollout**: Phased migration (30 min per tribunal)
 
 ### For QA
+
 - **Testing Procedures**: What to test and how
 - **Data Validation**: Comparison with legacy scraper
 - **Performance Benchmarks**: Expected response times
 - **Error Scenarios**: How to test and verify
 
 ### For Support
+
 - **Troubleshooting**: 10+ common issues with solutions
 - **Monitoring**: Health checks and metric interpretation
 - **Escalation**: When to contact CanLII support
@@ -342,23 +363,24 @@ CANLII_API_KEY=your-key npm run test:unit tests/ingestion-canlii-api.spec.ts
 
 ### Supported Tribunals (13 Canadian Jurisdictions)
 
-| Tribunal | Database ID | Jurisdiction |
-|----------|-------------|--------------|
-| Ontario Human Rights Tribunal | `onhrt` | Ontario |
-| Canadian Human Rights Tribunal | `chrt` | Federal |
-| British Columbia Human Rights Tribunal | `bchrt` | BC |
-| Alberta Human Rights Commission | `ab` | Alberta |
-| Saskatchewan Human Rights Commission | `sk` | Saskatchewan |
-| Manitoba Human Rights Commission | `mb` | Manitoba |
-| Quebec Tribunal des droits de la personne | `qctdp` | Quebec |
-| New Brunswick Human Rights Commission | `nb` | New Brunswick |
-| Nova Scotia Human Rights Commission | `ns` | Nova Scotia |
-| PEI Human Rights Commission | `pei` | PEI |
-| Newfoundland & Labrador Human Rights Commission | `nl` | Newfoundland |
-| Yukon Human Rights Commission | `yt` | Yukon |
-| Northwest Territories Human Rights Commission | `nt` | Northwest Territories |
+| Tribunal                                        | Database ID | Jurisdiction          |
+| ----------------------------------------------- | ----------- | --------------------- |
+| Ontario Human Rights Tribunal                   | `onhrt`     | Ontario               |
+| Canadian Human Rights Tribunal                  | `chrt`      | Federal               |
+| British Columbia Human Rights Tribunal          | `bchrt`     | BC                    |
+| Alberta Human Rights Commission                 | `ab`        | Alberta               |
+| Saskatchewan Human Rights Commission            | `sk`        | Saskatchewan          |
+| Manitoba Human Rights Commission                | `mb`        | Manitoba              |
+| Quebec Tribunal des droits de la personne       | `qctdp`     | Quebec                |
+| New Brunswick Human Rights Commission           | `nb`        | New Brunswick         |
+| Nova Scotia Human Rights Commission             | `ns`        | Nova Scotia           |
+| PEI Human Rights Commission                     | `pei`       | PEI                   |
+| Newfoundland & Labrador Human Rights Commission | `nl`        | Newfoundland          |
+| Yukon Human Rights Commission                   | `yt`        | Yukon                 |
+| Northwest Territories Human Rights Commission   | `nt`        | Northwest Territories |
 
 ### Discovering Databases
+
 ```bash
 CANLII_API_KEY=your-key node -e "
 const { runDatabaseDiscovery } = require('./ingestion/src/clients/canlii-database-mapper');
@@ -371,17 +393,20 @@ runDatabaseDiscovery().then(mappings => console.table(mappings));
 ## Performance Characteristics
 
 ### API Response Times
+
 - Database discovery: ~200-300ms
 - Case discovery (100 cases): ~150-250ms
 - Metadata retrieval: ~100-200ms
 - Citation discovery: ~150-250ms
 
 ### Rate Limiting
+
 - Conservative limit: 2 requests/second (500ms minimum between requests)
 - Automatic retry on 429: Exponential backoff
 - Token bucket algorithm for burst control
 
 ### Typical Ingestion Performance
+
 - Single tribunal (1,000 cases): 5-10 minutes
 - All 13 tribunals (10,000+ cases): 1-2 hours
 - Memory usage: <500MB
@@ -392,17 +417,20 @@ runDatabaseDiscovery().then(mappings => console.table(mappings));
 ## Migration Path
 
 ### Immediate (Week 1)
+
 1. ✅ Request CanLII API key
 2. ✅ Set up environment variables
 3. ✅ Run health check to verify
 
 ### Pre-Production (Week 2)
+
 1. ✅ Deploy code changes (all modules)
 2. ✅ Run full test suite locally
 3. ✅ Deploy to staging environment
 4. ✅ Test with one tribunal
 
 ### Staging (Week 3)
+
 1. ✅ Test first tribunal end-to-end
 2. ✅ Validate data quality
 3. ✅ Performance testing
@@ -410,12 +438,14 @@ runDatabaseDiscovery().then(mappings => console.table(mappings));
 5. ✅ Rollback testing
 
 ### Production Rollout (Weeks 4-7)
+
 1. ✅ Deploy to production (1 tribunal per week)
 2. ✅ Monitor for 24 hours before next
 3. ✅ Disable legacy web scraper per tribunal
 4. ✅ 4 weeks total for 13 tribunals
 
 ### Completion (Week 8+)
+
 1. ✅ All tribunals migrated
 2. ✅ Legacy system decommissioned
 3. ✅ Operations procedures documented
@@ -426,18 +456,21 @@ runDatabaseDiscovery().then(mappings => console.table(mappings));
 ## Support & Escalation
 
 ### First-Line Troubleshooting
+
 - ✅ Run health check: `npm run ingest -- --health-check`
 - ✅ Check logs with debug enabled: `DEBUG=canlii:* npm run ingest`
 - ✅ Review troubleshooting guide in documentation
 - ✅ Run diagnostic report: `generateDiagnosticReport(client)`
 
 ### Escalation Path
+
 1. Support team (documentation, known issues)
 2. Development team (code issues, API questions)
 3. DevOps team (environment, deployment issues)
 4. CanLII support (https://www.canlii.org/en/info/feedback)
 
 ### Contact Information
+
 - **Internal**: GitHub Issues in `abr-insights-app` repository
 - **CanLII Support**: Feedback form on CanLII website
 - **Documentation**: All docs in `docs/` and root directories
@@ -447,6 +480,7 @@ runDatabaseDiscovery().then(mappings => console.table(mappings));
 ## Success Criteria - ALL MET ✅
 
 ### Technical
+
 - ✅ Official REST API integration complete
 - ✅ All code reviewed and approved
 - ✅ Tests passing (60+ tests, 1,650+ lines)
@@ -458,6 +492,7 @@ runDatabaseDiscovery().then(mappings => console.table(mappings));
 - ✅ Error handling comprehensive (16 error codes)
 
 ### Operational
+
 - ✅ Environment setup documented
 - ✅ Configuration guide provided
 - ✅ Health check implemented
@@ -467,6 +502,7 @@ runDatabaseDiscovery().then(mappings => console.table(mappings));
 - ✅ Runbooks created
 
 ### Documentation
+
 - ✅ Migration guide (2,500 words)
 - ✅ Code examples (55+ copy-paste examples)
 - ✅ Deployment checklist (120+ items)
@@ -475,6 +511,7 @@ runDatabaseDiscovery().then(mappings => console.table(mappings));
 - ✅ Training materials
 
 ### Deployment
+
 - ✅ Pre-deployment checklist
 - ✅ Staging procedures
 - ✅ Production rollout plan
@@ -487,6 +524,7 @@ runDatabaseDiscovery().then(mappings => console.table(mappings));
 ## Lessons Learned
 
 ### What Went Well ✅
+
 1. **Comprehensive Planning**: Detailed audit identified all gaps upfront
 2. **Factory Pattern**: Enables smooth transition without breaking existing systems
 3. **Error Handling**: 16 error codes provide clarity on failure modes
@@ -494,6 +532,7 @@ runDatabaseDiscovery().then(mappings => console.table(mappings));
 5. **Documentation**: Clear guides for multiple audiences
 
 ### Future Improvements 🚀
+
 1. **Caching Layer**: Add Redis for frequently accessed metadata
 2. **Batch Operations**: Optimize for large-scale discovery
 3. **Legislation Support**: Extend to handle legislation databases
@@ -520,18 +559,21 @@ The CanLII REST API integration represents a **major architectural improvement**
 ## Next Steps
 
 ### Immediate (This Week)
+
 1. [ ] Team review of documentation and code
 2. [ ] Request CanLII API key (if not done)
 3. [ ] Local environment setup and testing
 4. [ ] Schedule team training session
 
 ### Next Week
+
 1. [ ] Deploy to staging environment
 2. [ ] Test first tribunal (HRTO - onhrt)
 3. [ ] Validate data quality
 4. [ ] Brief support team
 
 ### Following Weeks
+
 1. [ ] Gradual production rollout (1 tribunal per week)
 2. [ ] Monitor metrics and logs
 3. [ ] Update documentation with lessons learned
@@ -542,16 +584,19 @@ The CanLII REST API integration represents a **major architectural improvement**
 ## Files Summary
 
 ### Code Files (11 total, ~3,000 LOC)
+
 - 6 new modules (1,997 LOC)
 - 4 modified files
 - 1 new logger utility
 
 ### Test Files (3 total, 1,650+ LOC)
+
 - CanLII API tests (500+ lines)
 - Factory tests (450+ lines)
 - Validation tests (700+ lines)
 
 ### Documentation Files (7 total, 6,000+ words)
+
 - Migration guide (2,500 words)
 - Code examples (1,500 words)
 - Deployment checklist (2,000 words)
@@ -561,20 +606,20 @@ The CanLII REST API integration represents a **major architectural improvement**
 
 ## Project Statistics
 
-| Metric | Value |
-|--------|-------|
-| Total Lines of Code | ~3,000 |
-| Code Files Created | 6 |
-| Code Files Modified | 4 |
-| Test Files Created | 3 |
-| Test Cases | 60+ |
-| Documentation Files | 7 |
-| Documentation Words | 6,000+ |
-| Code Examples | 55+ |
-| Error Codes Defined | 16 |
-| Supported Tribunals | 13 |
+| Metric                    | Value     |
+| ------------------------- | --------- |
+| Total Lines of Code       | ~3,000    |
+| Code Files Created        | 6         |
+| Code Files Modified       | 4         |
+| Test Files Created        | 3         |
+| Test Cases                | 60+       |
+| Documentation Files       | 7         |
+| Documentation Words       | 6,000+    |
+| Code Examples             | 55+       |
+| Error Codes Defined       | 16        |
+| Supported Tribunals       | 13        |
 | Estimated Time to Rollout | 3-5 weeks |
-| Production Readiness | ✅ 100% |
+| Production Readiness      | ✅ 100%   |
 
 ---
 

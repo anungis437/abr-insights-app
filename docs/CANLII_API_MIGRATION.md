@@ -32,13 +32,14 @@ User Request
 ### Key Components
 
 #### 1. CanLIIApiClient (`ingestion/src/clients/canlii-api.ts`)
+
 **Official REST API interface**
 
 ```typescript
 const client = new CanLIIApiClient(apiKey)
 
 // Validate connection
-await client.validateConnection()  // => true/false
+await client.validateConnection() // => true/false
 
 // Get all available databases
 const databases = await client.getCaseDatabases()
@@ -58,6 +59,7 @@ const citing = await client.getCitingCases('onhrt', 'case-123')
 ```
 
 #### 2. CanLIIDatabaseMapper (`ingestion/src/clients/canlii-database-mapper.ts`)
+
 **Discover and map tribunal databases**
 
 ```typescript
@@ -76,6 +78,7 @@ const json = mapper.toJSON()
 ```
 
 #### 3. Factory Pattern (`ingestion/src/scrapers/factory.ts`)
+
 **Intelligent scraper selection**
 
 ```typescript
@@ -91,6 +94,7 @@ const scraper = await createScraperWithMode(config, 'rest')
 ```
 
 #### 4. REST API Scraper (`ingestion/src/scrapers/canlii-rest-api.ts`)
+
 **Implements ScraperInstance interface**
 
 ```typescript
@@ -106,6 +110,7 @@ const content = await scraper.fetchDecisionContent(url)
 ```
 
 #### 5. Validation & Error Handling (`ingestion/src/validation/canlii-validation.ts`)
+
 **Production-grade error management**
 
 ```typescript
@@ -114,9 +119,9 @@ const result = validateApiConfiguration()
 // => { valid: boolean, errors: string[], warnings: string[] }
 
 // Validate inputs
-validateDatabaseId('onhrt')  // => true
-validateCaseId('2024canlii123')  // => true
-validateDecisionDate('2024-01-15')  // => true
+validateDatabaseId('onhrt') // => true
+validateCaseId('2024canlii123') // => true
+validateDecisionDate('2024-01-15') // => true
 
 // Health check with diagnostics
 const health = await performHealthCheck(apiClient)
@@ -125,8 +130,8 @@ const health = await performHealthCheck(apiClient)
 // Retry with exponential backoff
 const result = await retryWithBackoff(
   async () => await apiClient.getCaseDatabases(),
-  maxAttempts = 3,
-  baseDelayMs = 1000
+  (maxAttempts = 3),
+  (baseDelayMs = 1000)
 )
 ```
 
@@ -176,7 +181,7 @@ const config: SourceConfig = {
   name: 'Ontario Human Rights Tribunal (REST API)',
   type: 'canlii',
   apiMode: 'rest',
-  databaseId: 'onhrt',  // From database discovery
+  databaseId: 'onhrt', // From database discovery
   enabled: true,
 }
 
@@ -186,14 +191,14 @@ const legacyConfig: SourceConfig = {
   type: 'canlii',
   apiMode: 'scrape',
   listingUrl: 'https://www.canlii.org/en/on/onhr/',
-  enabled: false,  // Disable after migration
+  enabled: false, // Disable after migration
 }
 
 // Auto-select based on availability
 const autoConfig: SourceConfig = {
   name: 'HRTO (Auto)',
   type: 'canlii',
-  databaseId: 'onhrt',  // Will use REST if key available, else scraper
+  databaseId: 'onhrt', // Will use REST if key available, else scraper
   enabled: true,
 }
 ```
@@ -217,23 +222,23 @@ runDatabaseDiscovery(process.env.CANLII_API_KEY).then(mappings => {
 
 ### Known Database IDs
 
-| Tribunal | Database ID | Jurisdiction |
-|----------|-------------|--------------|
-| Ontario Human Rights Tribunal | `onhrt` | Ontario |
-| Canadian Human Rights Tribunal | `chrt` | Federal |
-| British Columbia Human Rights Tribunal | `bchrt` | British Columbia |
-| Alberta Human Rights Commission | `ab` | Alberta |
-| Saskatchewan Human Rights Commission | `sk` | Saskatchewan |
-| Manitoba Human Rights Commission | `mb` | Manitoba |
-| Quebec Tribunal des droits de la personne | `qctdp` | Quebec |
-| New Brunswick Human Rights Commission | `nb` | New Brunswick |
-| Nova Scotia Human Rights Commission | `ns` | Nova Scotia |
-| Prince Edward Island Human Rights Commission | `pei` | Prince Edward Island |
-| Newfoundland & Labrador Human Rights Commission | `nl` | Newfoundland |
-| Yukon Human Rights Commission | `yt` | Yukon |
-| Northwest Territories Human Rights Commission | `nt` | Northwest Territories |
-| Supreme Court of Canada | `csc-scc` | Federal |
-| Federal Court | `fca-caf` | Federal |
+| Tribunal                                        | Database ID | Jurisdiction          |
+| ----------------------------------------------- | ----------- | --------------------- |
+| Ontario Human Rights Tribunal                   | `onhrt`     | Ontario               |
+| Canadian Human Rights Tribunal                  | `chrt`      | Federal               |
+| British Columbia Human Rights Tribunal          | `bchrt`     | British Columbia      |
+| Alberta Human Rights Commission                 | `ab`        | Alberta               |
+| Saskatchewan Human Rights Commission            | `sk`        | Saskatchewan          |
+| Manitoba Human Rights Commission                | `mb`        | Manitoba              |
+| Quebec Tribunal des droits de la personne       | `qctdp`     | Quebec                |
+| New Brunswick Human Rights Commission           | `nb`        | New Brunswick         |
+| Nova Scotia Human Rights Commission             | `ns`        | Nova Scotia           |
+| Prince Edward Island Human Rights Commission    | `pei`       | Prince Edward Island  |
+| Newfoundland & Labrador Human Rights Commission | `nl`        | Newfoundland          |
+| Yukon Human Rights Commission                   | `yt`        | Yukon                 |
+| Northwest Territories Human Rights Commission   | `nt`        | Northwest Territories |
+| Supreme Court of Canada                         | `csc-scc`   | Federal               |
+| Federal Court                                   | `fca-caf`   | Federal               |
 
 ---
 
@@ -286,8 +291,8 @@ import { retryWithBackoff } from './ingestion/src/validation/canlii-validation'
 // Automatic retry with exponential backoff
 const databases = await retryWithBackoff(
   async () => apiClient.getCaseDatabases(),
-  maxAttempts = 3,
-  baseDelayMs = 1000
+  (maxAttempts = 3),
+  (baseDelayMs = 1000)
 )
 
 // Custom error handling
@@ -301,7 +306,7 @@ try {
   } else if (error.retryable) {
     console.log(`Temporary error, will retry automatically`)
   } else {
-    throw error  // Non-retryable error
+    throw error // Non-retryable error
   }
 }
 ```
@@ -310,12 +315,9 @@ try {
 
 ```typescript
 // Fetch all cases (handles pagination automatically)
-async function* discoverAllCases(
-  scraper: ScraperInstance,
-  pageSize = 100
-) {
+async function* discoverAllCases(scraper: ScraperInstance, pageSize = 100) {
   let offset = 0
-  const maxCases = 50000  // Safety limit
+  const maxCases = 50000 // Safety limit
 
   while (offset < maxCases) {
     const page = await scraper.discoverDecisions(pageSize, offset)
@@ -352,10 +354,7 @@ console.log(configMap)
 
 // Save to file
 const fs = require('fs')
-fs.writeFileSync(
-  'canlii-database-mapping.json',
-  JSON.stringify(configMap, null, 2)
-)
+fs.writeFileSync('canlii-database-mapping.json', JSON.stringify(configMap, null, 2))
 ```
 
 ---
@@ -371,11 +370,13 @@ fs.writeFileSync(
 ### Phase 2: Test (30 minutes)
 
 1. Run health check:
+
    ```bash
    CANLII_API_KEY=your-key npm run test:unit -- tests/ingestion-canlii-api.spec.ts
    ```
 
 2. Run database discovery:
+
    ```bash
    CANLII_API_KEY=your-key node scripts/discover-canlii-databases.mjs
    ```
@@ -398,6 +399,7 @@ fs.writeFileSync(
 For each tribunal:
 
 1. Update source configuration:
+
    ```typescript
    {
      apiMode: 'rest',
@@ -438,6 +440,7 @@ CANLII_API_KEY=your-key npm run ingest -- --health-check
 ### Common Issues
 
 #### Issue: "Invalid API Key"
+
 ```
 Solution:
 1. Verify key format (should be alphanumeric)
@@ -446,6 +449,7 @@ Solution:
 ```
 
 #### Issue: "Rate Limited (429)"
+
 ```
 Solution:
 1. Built-in retry logic should handle automatically
@@ -455,6 +459,7 @@ Solution:
 ```
 
 #### Issue: "Database Not Found (404)"
+
 ```
 Solution:
 1. Verify database ID is correct (use discovery tool)
@@ -463,6 +468,7 @@ Solution:
 ```
 
 #### Issue: "Connection Timeout"
+
 ```
 Solution:
 1. Check network connectivity
@@ -480,6 +486,7 @@ DEBUG=canlii:* npm run ingest -- --discover-cases onhrt
 ```
 
 Log levels:
+
 - `DEBUG`: Detailed request/response information
 - `INFO`: General progress (cases discovered, etc.)
 - `WARN`: Potential issues (rate limit warnings)
@@ -504,17 +511,20 @@ Log levels:
 ## Performance Considerations
 
 ### Rate Limiting
+
 - Conservative 2 requests/second (500ms minimum between requests)
 - Automatic retry with exponential backoff (1s, 2s, 4s max)
 - Token bucket algorithm for burst control
 
 ### Pagination
+
 - Default page size: 100 cases
 - Maximum page size: 10,000 cases
 - Offset-based pagination (not cursor-based)
 - Recommended: 1,000-2,000 cases per request for balance
 
 ### Caching
+
 - Cache API responses for 24 hours
 - Cache database mappings for 7 days
 - Invalidate cache if configuration changes
@@ -522,6 +532,7 @@ Log levels:
 ### Optimization Tips
 
 1. **Batch Requests**
+
    ```typescript
    // Instead of requesting 1 case at a time
    const cases = await apiClient.discoverCases('onhrt', 0, 1000)
@@ -529,6 +540,7 @@ Log levels:
    ```
 
 2. **Use Selective Fields**
+
    ```typescript
    // Only fetch what you need
    const metadata = await apiClient.getCaseMetadata(db, caseId)
@@ -552,12 +564,14 @@ Log levels:
 ### API Key Protection
 
 ✅ **DO:**
+
 - Store API key in `.env.local` (never commit)
 - Use environment variables in production
 - Rotate keys annually
 - Monitor usage in CanLII dashboard
 
 ❌ **DON'T:**
+
 - Commit API key to git repository
 - Share key via email or chat
 - Use same key across environments
@@ -618,16 +632,19 @@ CanLII REST API not working?
 ## Support & Resources
 
 ### Documentation
+
 - [CanLII REST API Documentation](https://api.canlii.org/docs)
 - [CanLII Website](https://www.canlii.org)
 - [API Response Examples](./CANLII_API_RESPONSE_EXAMPLES.md)
 
 ### Troubleshooting
+
 - Run `npm run ingest -- --health-check` for diagnostics
 - Check logs: `tail -f logs/ingestion.log | grep CANLII`
 - Review error codes: `grep ERROR_CODES ingestion/src/validation/canlii-validation.ts`
 
 ### Support Channels
+
 - CanLII Feedback: https://www.canlii.org/en/info/feedback
 - GitHub Issues: Report bugs or request features
 - Email: support@canlii.org (for API support)
@@ -639,6 +656,7 @@ CanLII REST API not working?
 If migration causes issues:
 
 1. **Immediate Rollback**
+
    ```typescript
    // Switch back to web scraper
    apiMode: 'scrape',  // Instead of 'rest'
@@ -646,12 +664,14 @@ If migration causes issues:
    ```
 
 2. **Partial Rollback**
+
    ```typescript
    // Keep REST API for some tribunals
    // Use web scraper for problematic tribunals
    ```
 
 3. **Gradual Rollback**
+
    ```typescript
    // Test both scrapers in parallel
    // Compare result quality
@@ -667,11 +687,11 @@ If migration causes issues:
 
 ## Version History
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0 | 2024-01-15 | Initial migration guide |
-| 1.1 | 2024-01-22 | Added troubleshooting section |
-| 1.2 | 2024-02-01 | Added performance optimization tips |
+| Version | Date       | Changes                             |
+| ------- | ---------- | ----------------------------------- |
+| 1.0     | 2024-01-15 | Initial migration guide             |
+| 1.1     | 2024-01-22 | Added troubleshooting section       |
+| 1.2     | 2024-02-01 | Added performance optimization tips |
 
 ---
 

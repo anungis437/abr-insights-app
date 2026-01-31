@@ -74,10 +74,7 @@ export class CanLIIRestApiScraper {
    * @param startOffset Starting offset (0 = most recent)
    * @returns Array of decision links with metadata
    */
-  async discoverDecisions(
-    maxCases: number = 50,
-    startOffset: number = 0
-  ): Promise<DecisionLink[]> {
+  async discoverDecisions(maxCases: number = 50, startOffset: number = 0): Promise<DecisionLink[]> {
     try {
       if (!this.databaseId) {
         throw new Error(`Database ID not configured for ${this.sourceSystem}`)
@@ -104,11 +101,7 @@ export class CanLIIRestApiScraper {
 
           logger.debug(`Fetching page: offset=${currentOffset}, count=${count}`)
 
-          const cases = await this.client.discoverCases(
-            this.databaseId,
-            currentOffset,
-            count
-          )
+          const cases = await this.client.discoverCases(this.databaseId, currentOffset, count)
 
           if (!cases || cases.length === 0) {
             logger.info('No more decisions available', { lastOffset: currentOffset })
@@ -141,7 +134,10 @@ export class CanLIIRestApiScraper {
       logger.info(`✅ Discovery complete: ${decisions.length} decisions found`)
       return decisions
     } catch (error) {
-      logger.error('Failed to discover decisions via REST API', { error, sourceSystem: this.sourceSystem })
+      logger.error('Failed to discover decisions via REST API', {
+        error,
+        sourceSystem: this.sourceSystem,
+      })
       throw error
     }
   }
@@ -235,7 +231,9 @@ export class CanLIIRestApiScraper {
       // Extract text from HTML
       // This is a basic extraction; adjust selector based on CanLII page structure
       const html = response.data
-      const textMatch = html.match(/<div[^>]*class="[^"]*document-content[^"]*"[^>]*>(.*?)<\/div>/is)
+      const textMatch = html.match(
+        /<div[^>]*class="[^"]*document-content[^"]*"[^>]*>(.*?)<\/div>/is
+      )
 
       if (textMatch) {
         const text = textMatch[1]

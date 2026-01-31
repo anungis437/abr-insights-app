@@ -35,17 +35,17 @@ console.log('✅ CanLII API connection valid')
 const databases = await client.getCaseDatabases()
 
 console.log(`Found ${databases.length} databases:`)
-databases.forEach(db => {
+databases.forEach((db) => {
   console.log(`  - ${db.databaseId}: ${db.name}`)
 })
 
 // Filter to human rights tribunals
-const hrTribunals = databases.filter(db =>
-  db.jurisdiction && db.jurisdiction.toLowerCase().includes('human rights')
+const hrTribunals = databases.filter(
+  (db) => db.jurisdiction && db.jurisdiction.toLowerCase().includes('human rights')
 )
 
 console.log(`\nHuman Rights Tribunals (${hrTribunals.length}):`)
-hrTribunals.forEach(db => {
+hrTribunals.forEach((db) => {
   console.log(`  - ${db.databaseId}: ${db.name}`)
 })
 ```
@@ -57,7 +57,7 @@ hrTribunals.forEach(db => {
 const cases = await client.discoverCases('onhrt', 0, 100)
 
 console.log(`Discovered ${cases.length} cases from HRTO:`)
-cases.forEach(caseRef => {
+cases.forEach((caseRef) => {
   console.log(`  ${caseRef.caseId}: ${caseRef.title}`)
 })
 ```
@@ -69,10 +69,7 @@ cases.forEach(caseRef => {
 const firstCase = cases[0]
 
 if (firstCase) {
-  const metadata = await client.getCaseMetadata(
-    firstCase.databaseId,
-    firstCase.caseId
-  )
+  const metadata = await client.getCaseMetadata(firstCase.databaseId, firstCase.caseId)
 
   console.log('\nCase Details:')
   console.log(`  Title: ${metadata.title}`)
@@ -90,7 +87,7 @@ if (firstCase) {
 const citingCases = await client.getCitingCases('onhrt', firstCase.caseId)
 
 console.log(`\nCases citing ${firstCase.caseId} (${citingCases.length}):`)
-citingCases.slice(0, 5).forEach(cite => {
+citingCases.slice(0, 5).forEach((cite) => {
   console.log(`  - ${cite.caseId}: ${cite.title}`)
 })
 ```
@@ -102,11 +99,7 @@ citingCases.slice(0, 5).forEach(cite => {
 ### Pagination Example
 
 ```typescript
-async function* discoverAllCases(
-  databaseId: string,
-  pageSize = 100,
-  maxCases = 50000
-) {
+async function* discoverAllCases(databaseId: string, pageSize = 100, maxCases = 50000) {
   let offset = 0
 
   while (offset < maxCases) {
@@ -126,13 +119,11 @@ async function* discoverAllCases(
       offset += cases.length
 
       // Respect rate limiting
-      await new Promise(resolve => setTimeout(resolve, 500))
+      await new Promise((resolve) => setTimeout(resolve, 500))
     } catch (error) {
       if (error.code === 'RATE_LIMITED') {
         console.warn(`Rate limited, waiting ${error.details.retryAfter}s...`)
-        await new Promise(resolve =>
-          setTimeout(resolve, error.details.retryAfter * 1000)
-        )
+        await new Promise((resolve) => setTimeout(resolve, error.details.retryAfter * 1000))
         continue
       }
       throw error
@@ -152,7 +143,11 @@ console.log(`Total: ${allCases.length} cases discovered`)
 ### Error Handling Example
 
 ```typescript
-import { retryWithBackoff, CanLIIError, ERROR_CODES } from '@/ingestion/src/validation/canlii-validation'
+import {
+  retryWithBackoff,
+  CanLIIError,
+  ERROR_CODES,
+} from '@/ingestion/src/validation/canlii-validation'
 
 // Retry with automatic backoff
 async function fetchWithRetry(databaseId: string, caseId: string) {
@@ -161,8 +156,8 @@ async function fetchWithRetry(databaseId: string, caseId: string) {
       const metadata = await client.getCaseMetadata(databaseId, caseId)
       return metadata
     },
-    maxAttempts = 3,
-    baseDelayMs = 1000
+    (maxAttempts = 3),
+    (baseDelayMs = 1000)
   )
 }
 
@@ -264,7 +259,7 @@ const mappings = await mapper.discoverAllDatabases()
 
 console.log('Database Mappings:')
 console.table(
-  mappings.map(m => ({
+  mappings.map((m) => ({
     sourceId: m.sourceId,
     databaseId: m.databaseId,
     tribunalName: m.tribunalName,
@@ -291,7 +286,10 @@ writeFileSync('canlii-databases.md', markdown)
 ### Health Check and Diagnostics
 
 ```typescript
-import { performHealthCheck, generateDiagnosticReport } from '@/ingestion/src/validation/canlii-validation'
+import {
+  performHealthCheck,
+  generateDiagnosticReport,
+} from '@/ingestion/src/validation/canlii-validation'
 
 // Run comprehensive health check
 const health = await performHealthCheck(client)
@@ -326,12 +324,12 @@ import {
 const config = validateApiConfiguration()
 if (!config.valid) {
   console.error('Configuration errors:')
-  config.errors.forEach(error => console.error(`  - ${error}`))
+  config.errors.forEach((error) => console.error(`  - ${error}`))
 }
 
 if (config.warnings.length > 0) {
   console.warn('Configuration warnings:')
-  config.warnings.forEach(warning => console.warn(`  - ${warning}`))
+  config.warnings.forEach((warning) => console.warn(`  - ${warning}`))
 }
 
 // Validate individual inputs
@@ -385,7 +383,7 @@ async function integrateCanLII() {
   console.log('🔎 Discovering cases...')
   const cases = await retryWithBackoff(
     async () => await client.discoverCases('onhrt', 0, 100),
-    maxAttempts = 3
+    (maxAttempts = 3)
   )
   console.log(`✅ Discovered ${cases.length} cases\n`)
 
@@ -398,10 +396,7 @@ async function integrateCanLII() {
 
   // 6. Get citing cases
   console.log('🔗 Finding citing cases...')
-  const citations = await client.getCitingCases(
-    cases[0].databaseId,
-    cases[0].caseId
-  )
+  const citations = await client.getCitingCases(cases[0].databaseId, cases[0].caseId)
   console.log(`✅ Found ${citations.length} citing cases\n`)
 
   // 7. Generate report
@@ -417,7 +412,7 @@ async function integrateCanLII() {
 }
 
 // Run integration
-integrateCanLII().catch(error => {
+integrateCanLII().catch((error) => {
   console.error('❌ Integration failed:', error.message)
   process.exit(1)
 })
@@ -514,6 +509,7 @@ async function benchmarkAPI() {
 ### Common Issues
 
 **Issue: "Invalid API key"**
+
 ```typescript
 // Check if key is set and valid
 const client = new CanLIIApiClient(process.env.CANLII_API_KEY)
@@ -524,20 +520,22 @@ if (!isValid) {
 ```
 
 **Issue: "Rate Limited"**
+
 ```typescript
 // Built-in rate limiting should prevent this
 // But if it happens, use retryWithBackoff
 const result = await retryWithBackoff(
   async () => await client.getCaseDatabases(),
-  maxAttempts = 5 // Increase max attempts
+  (maxAttempts = 5) // Increase max attempts
 )
 ```
 
 **Issue: "Database Not Found"**
+
 ```typescript
 // First, discover available databases
 const databases = await client.getCaseDatabases()
-const dbIds = databases.map(db => db.databaseId)
+const dbIds = databases.map((db) => db.databaseId)
 console.log('Available databases:', dbIds)
 
 // Then use correct database ID

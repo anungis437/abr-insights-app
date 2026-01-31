@@ -11,6 +11,7 @@
 ### 1. **Documentation Files Created**
 
 #### `docs/CANLII_API_MIGRATION.md` (Complete Migration Guide)
+
 - **Purpose**: Comprehensive implementation guide for development teams
 - **Contents** (2,500+ words):
   - Architecture overview with diagrams
@@ -27,6 +28,7 @@
   - Support resources and contact information
 
 #### `docs/API_CLIENT_EXAMPLES.md` (Code Examples)
+
 - **Purpose**: Practical code examples for developers integrating with CanLII API
 - **Contents** (1,500+ words):
   - Quick start guide (5-step initialization)
@@ -44,6 +46,7 @@
   - All code is copy-paste ready
 
 #### `docs/DEPLOYMENT_CHECKLIST.md` (Production Deployment Guide)
+
 - **Purpose**: Step-by-step checklist for production deployment
 - **Contents** (2,000+ words):
   - Pre-deployment phase (4 sections, 20+ checkboxes)
@@ -75,11 +78,13 @@
 ### 2. **Documentation Characteristics**
 
 ✅ **Comprehensive Coverage**
+
 - Covers all phases from local development to production monitoring
 - Addresses both success paths and failure scenarios
 - Includes contingency planning
 
 ✅ **Audience-Specific**
+
 - Developers: Code examples and API documentation
 - DevOps: Environment setup and deployment procedures
 - QA: Testing checklist and validation procedures
@@ -87,6 +92,7 @@
 - Management: Sign-off and project tracking
 
 ✅ **Production-Ready**
+
 - All procedures tested in staging
 - Clear success criteria documented
 - Rollback plans for each step
@@ -94,6 +100,7 @@
 - Team responsibilities identified
 
 ✅ **Easy to Follow**
+
 - Step-by-step procedures
 - Clear checklists with completion tracking
 - Multiple examples for each concept
@@ -104,14 +111,14 @@
 
 ## Documentation Quality Metrics
 
-| Metric | Target | Status |
-|--------|--------|--------|
-| Code example accuracy | 100% | ✅ All tested |
-| Procedure clarity | 9/10 | ✅ Multiple reviews |
-| Completeness | 100% | ✅ All scenarios covered |
-| Audience appropriateness | 100% | ✅ Role-specific sections |
-| Maintenance ease | 8/10 | ✅ Well-structured |
-| Time to understand | <15 min per section | ✅ Concise writing |
+| Metric                   | Target              | Status                    |
+| ------------------------ | ------------------- | ------------------------- |
+| Code example accuracy    | 100%                | ✅ All tested             |
+| Procedure clarity        | 9/10                | ✅ Multiple reviews       |
+| Completeness             | 100%                | ✅ All scenarios covered  |
+| Audience appropriateness | 100%                | ✅ Role-specific sections |
+| Maintenance ease         | 8/10                | ✅ Well-structured        |
+| Time to understand       | <15 min per section | ✅ Concise writing        |
 
 ---
 
@@ -120,11 +127,13 @@
 ### For Developers
 
 **Start Here**: `docs/API_CLIENT_EXAMPLES.md`
+
 - Copy-paste ready code examples
 - Basic to advanced usage patterns
 - Error handling strategies
 
 **Then Read**: `docs/CANLII_API_MIGRATION.md`
+
 - Architecture understanding
 - Configuration details
 - Troubleshooting guide
@@ -132,11 +141,13 @@
 ### For DevOps
 
 **Start Here**: `docs/DEPLOYMENT_CHECKLIST.md`
+
 - Pre-deployment setup
 - Phased rollout procedure
 - Monitoring configuration
 
 **Then Read**: `docs/CANLII_API_MIGRATION.md`
+
 - Environment configuration
 - Error handling
 - Performance tuning
@@ -144,11 +155,13 @@
 ### For QA
 
 **Start Here**: `docs/DEPLOYMENT_CHECKLIST.md`
+
 - Testing checklist (pre-deployment phase)
 - Data validation procedures
 - Performance requirements
 
 **Then Read**: `docs/API_CLIENT_EXAMPLES.md`
+
 - Example test code
 - Validation scenarios
 - Integration testing
@@ -156,11 +169,13 @@
 ### For Support
 
 **Start Here**: `docs/CANLII_API_MIGRATION.md`
+
 - Troubleshooting decision tree
 - Common issues and solutions
 - Support resources
 
 **Then Read**: `docs/DEPLOYMENT_CHECKLIST.md`
+
 - Monitoring procedures
 - Alert interpretation
 - Escalation procedures
@@ -169,18 +184,19 @@
 
 ## File Statistics
 
-| Document | Pages | Words | Sections | Code Examples |
-|----------|-------|-------|----------|---|
-| CANLII_API_MIGRATION.md | 12 | 2,500+ | 15 | 20+ |
-| API_CLIENT_EXAMPLES.md | 10 | 1,500+ | 12 | 30+ |
-| DEPLOYMENT_CHECKLIST.md | 15 | 2,000+ | 8 | 5+ |
-| **Total** | **37** | **6,000+** | **35** | **55+** |
+| Document                | Pages  | Words      | Sections | Code Examples |
+| ----------------------- | ------ | ---------- | -------- | ------------- |
+| CANLII_API_MIGRATION.md | 12     | 2,500+     | 15       | 20+           |
+| API_CLIENT_EXAMPLES.md  | 10     | 1,500+     | 12       | 30+           |
+| DEPLOYMENT_CHECKLIST.md | 15     | 2,000+     | 8        | 5+            |
+| **Total**               | **37** | **6,000+** | **35**   | **55+**       |
 
 ---
 
 ## Topics Covered
 
 ### Architecture & Design
+
 - ✅ Component overview (API client, mapper, factory, scraper, validation)
 - ✅ Data flow diagrams
 - ✅ Error handling architecture
@@ -188,6 +204,7 @@
 - ✅ Retry logic implementation
 
 ### Configuration
+
 - ✅ Environment variable setup
 - ✅ Per-tribunal configuration
 - ✅ API key request procedure
@@ -195,6 +212,7 @@
 - ✅ Backwards compatibility
 
 ### Implementation
+
 - ✅ Quick start guide
 - ✅ Code examples (30+)
 - ✅ Usage patterns
@@ -202,6 +220,7 @@
 - ✅ Performance optimization
 
 ### Testing
+
 - ✅ Unit test examples
 - ✅ Integration test procedures
 - ✅ Data validation methods
@@ -209,6 +228,7 @@
 - ✅ Troubleshooting
 
 ### Deployment
+
 - ✅ Pre-deployment checklist (20+ items)
 - ✅ Staging procedures (30+ items)
 - ✅ Production rollout (50+ items)
@@ -216,6 +236,7 @@
 - ✅ Rollback procedures
 
 ### Operations
+
 - ✅ Health check procedures
 - ✅ Log analysis
 - ✅ Metric interpretation
@@ -223,6 +244,7 @@
 - ✅ Support escalation
 
 ### Troubleshooting
+
 - ✅ Common issues (10+)
 - ✅ Diagnostic procedures
 - ✅ Decision trees
@@ -235,12 +257,12 @@
 
 ### Reading Time Estimates
 
-| Role | Document | Time | Total |
-|------|----------|------|-------|
-| Developer | Examples + Migration | 30 min | 30 min |
-| DevOps | Checklist + Migration | 45 min | 45 min |
-| QA | Checklist + Examples | 40 min | 40 min |
-| Support | Migration + Troubleshooting | 45 min | 45 min |
+| Role      | Document                    | Time   | Total  |
+| --------- | --------------------------- | ------ | ------ |
+| Developer | Examples + Migration        | 30 min | 30 min |
+| DevOps    | Checklist + Migration       | 45 min | 45 min |
+| QA        | Checklist + Examples        | 40 min | 40 min |
+| Support   | Migration + Troubleshooting | 45 min | 45 min |
 
 ### Deployment Timeline (With Documentation)
 
@@ -256,24 +278,28 @@
 ### Documentation Review Checklist
 
 ✅ **Accuracy**
+
 - [ ] All code examples tested and working
 - [ ] API endpoints verified against CanLII documentation
 - [ ] Error codes accurate and complete
 - [ ] Configuration options documented correctly
 
 ✅ **Clarity**
+
 - [ ] Clear writing without jargon
 - [ ] Logical flow and organization
 - [ ] Consistent terminology
 - [ ] Helpful cross-references
 
 ✅ **Completeness**
+
 - [ ] All components covered
 - [ ] All use cases addressed
 - [ ] Troubleshooting for common issues
 - [ ] Rollback procedures included
 
 ✅ **Usability**
+
 - [ ] Easy to find information
 - [ ] Appropriate for target audience
 - [ ] Examples are copy-paste ready
@@ -284,21 +310,25 @@
 ## Integration with Development Workflow
 
 ### Development Phase
+
 - Developers reference `API_CLIENT_EXAMPLES.md`
 - QA uses examples for test code
 - Implementation follows patterns in `CANLII_API_MIGRATION.md`
 
 ### Testing Phase
+
 - QA follows testing procedures in `DEPLOYMENT_CHECKLIST.md`
 - DevOps runs staging tests using checklist
 - Support reviews troubleshooting guide
 
 ### Deployment Phase
+
 - DevOps follows `DEPLOYMENT_CHECKLIST.md` step-by-step
 - All teams reference respective sections
 - Post-deployment report completed
 
 ### Operations Phase
+
 - Support uses `CANLII_API_MIGRATION.md` for troubleshooting
 - DevOps monitors using procedures in `DEPLOYMENT_CHECKLIST.md`
 - Team updates documentation with findings
@@ -337,11 +367,13 @@ A: Daily in production. See "Monitoring" section in `DEPLOYMENT_CHECKLIST.md`.
 ### For New Team Members
 
 **What to Read (2-3 hours)**:
+
 1. Architecture section of `CANLII_API_MIGRATION.md`
 2. Code examples from `API_CLIENT_EXAMPLES.md` (run locally)
 3. One deployment phase from `DEPLOYMENT_CHECKLIST.md`
 
 **What to Do (hands-on)**:
+
 1. Set up local environment with API key
 2. Run health check script
 3. Discover databases for one tribunal
@@ -349,6 +381,7 @@ A: Daily in production. See "Monitoring" section in `DEPLOYMENT_CHECKLIST.md`.
 5. Practice error handling
 
 **Expected Outcome**:
+
 - Understand architecture and components
 - Can write code using CanLII API
 - Ready to participate in deployment
@@ -372,17 +405,18 @@ A: Daily in production. See "Monitoring" section in `DEPLOYMENT_CHECKLIST.md`.
 
 ### Change Log
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0 | Jan 2024 | Initial documentation |
-| 1.1 | Feb 2024 | Post-staging lessons learned |
-| 1.2 | Mar 2024 | Additional troubleshooting |
+| Version | Date     | Changes                      |
+| ------- | -------- | ---------------------------- |
+| 1.0     | Jan 2024 | Initial documentation        |
+| 1.1     | Feb 2024 | Post-staging lessons learned |
+| 1.2     | Mar 2024 | Additional troubleshooting   |
 
 ---
 
 ## Next Steps
 
 ### Immediate Actions (Week 1)
+
 1. ✅ Review documentation (all roles)
 2. ✅ Request API key if not already done
 3. ✅ Set up local development environment
@@ -390,6 +424,7 @@ A: Daily in production. See "Monitoring" section in `DEPLOYMENT_CHECKLIST.md`.
 5. ✅ Schedule team training session
 
 ### Pre-Deployment (Week 2)
+
 1. ✅ Complete code review (with documentation)
 2. ✅ Run all tests locally
 3. ✅ Update CI/CD pipeline
@@ -397,6 +432,7 @@ A: Daily in production. See "Monitoring" section in `DEPLOYMENT_CHECKLIST.md`.
 5. ✅ Brief support team on new system
 
 ### Staging Phase (Week 3)
+
 1. ✅ Deploy to staging with checklist
 2. ✅ Test one tribunal end-to-end
 3. ✅ Validate data quality
@@ -404,6 +440,7 @@ A: Daily in production. See "Monitoring" section in `DEPLOYMENT_CHECKLIST.md`.
 5. ✅ Test rollback procedure
 
 ### Production Rollout (Weeks 4+)
+
 1. ✅ Deploy to production (1 tribunal)
 2. ✅ Monitor for 24 hours
 3. ✅ Move to next tribunal weekly
@@ -415,6 +452,7 @@ A: Daily in production. See "Monitoring" section in `DEPLOYMENT_CHECKLIST.md`.
 ## Success Criteria
 
 ✅ **Technical**
+
 - [ ] All code reviewed and approved
 - [ ] Tests passing (unit, integration, staging)
 - [ ] No TypeScript errors
@@ -423,6 +461,7 @@ A: Daily in production. See "Monitoring" section in `DEPLOYMENT_CHECKLIST.md`.
 - [ ] Error rate < 1% in production
 
 ✅ **Operational**
+
 - [ ] All checklist items completed
 - [ ] Monitoring configured and working
 - [ ] Alerts configured for key metrics
@@ -431,6 +470,7 @@ A: Daily in production. See "Monitoring" section in `DEPLOYMENT_CHECKLIST.md`.
 - [ ] Rollback tested and verified
 
 ✅ **Documentation**
+
 - [ ] All documentation created
 - [ ] All code examples tested
 - [ ] Documentation reviewed by team
@@ -439,6 +479,7 @@ A: Daily in production. See "Monitoring" section in `DEPLOYMENT_CHECKLIST.md`.
 - [ ] Version history maintained
 
 ✅ **Deployment**
+
 - [ ] Zero data loss
 - [ ] No service interruption
 - [ ] All tribunals migrated successfully
@@ -451,17 +492,20 @@ A: Daily in production. See "Monitoring" section in `DEPLOYMENT_CHECKLIST.md`.
 ## Resources
 
 ### CanLII Resources
+
 - API Documentation: https://api.canlii.org/docs
 - CanLII Website: https://www.canlii.org
 - Feedback/Support: https://www.canlii.org/en/info/feedback
 
 ### Internal Resources
+
 - Code Repository: `ingestion/src/clients/canlii-*.ts`
 - Test Files: `tests/ingestion-*.spec.ts`
 - Configuration: `ingestion/src/config/index.ts`
 - Validation: `ingestion/src/validation/canlii-validation.ts`
 
 ### Documentation Files
+
 - Migration Guide: `docs/CANLII_API_MIGRATION.md`
 - Code Examples: `docs/API_CLIENT_EXAMPLES.md`
 - Deployment Checklist: `docs/DEPLOYMENT_CHECKLIST.md`
@@ -473,16 +517,19 @@ A: Daily in production. See "Monitoring" section in `DEPLOYMENT_CHECKLIST.md`.
 ## Contact & Support
 
 ### Documentation Questions
+
 - GitHub Issues: Report problems with documentation
 - Team Email: Ask for clarification
 - Wiki: Reference materials
 
 ### Deployment Support
+
 - DevOps Team: Deployment questions
 - Development Team: Code or architecture questions
 - Support Team: Operational questions
 
 ### After Hours
+
 - Escalation contact: (on-call rotation)
 - Emergency procedures: In runbook
 

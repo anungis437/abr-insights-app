@@ -3,6 +3,7 @@
 ## Pre-Deployment Phase
 
 ### Environment Setup (15 minutes)
+
 - [ ] Request CanLII API key from https://www.canlii.org/en/info/feedback
 - [ ] Receive API key confirmation email
 - [ ] Verify key format (alphanumeric string, typically 32+ characters)
@@ -11,6 +12,7 @@
 - [ ] Document API key rotation schedule (annually)
 
 ### Code Review (30 minutes)
+
 - [ ] All new code reviewed and approved
   - [ ] `ingestion/src/clients/canlii-api.ts` (300 lines)
   - [ ] `ingestion/src/clients/canlii-database-mapper.ts` (250 lines)
@@ -24,6 +26,7 @@
 - [ ] Logging statements follow conventions
 
 ### Testing (1 hour)
+
 - [ ] Unit tests pass locally
   ```bash
   npm run test:unit tests/ingestion-*.spec.ts
@@ -50,6 +53,7 @@
   ```
 
 ### Configuration (30 minutes)
+
 - [ ] Review `.env.example` updates
 - [ ] Verify all required ENV variables documented
   - [ ] `CANLII_API_KEY`
@@ -63,6 +67,7 @@
   - [ ] No breaking changes to existing APIs
 
 ### Documentation (30 minutes)
+
 - [ ] Migration guide created: `docs/CANLII_API_MIGRATION.md`
 - [ ] API examples documented: `docs/API_CLIENT_EXAMPLES.md`
 - [ ] Database mappings created: `docs/CANLII_DATABASE_IDS.md`
@@ -75,6 +80,7 @@
 ## Staging Deployment (1-2 hours)
 
 ### Environment Setup
+
 - [ ] Add `CANLII_API_KEY` to staging environment
 - [ ] Set `CANLII_API_ENABLED=true` in staging
 - [ ] Set other ENV variables in staging
@@ -84,6 +90,7 @@
   ```
 
 ### Single Tribunal Test
+
 - [ ] Select one tribunal for initial test (e.g., HRTO - `onhrt`)
 - [ ] Configure source to use REST API mode
   ```typescript
@@ -104,6 +111,7 @@
   - [ ] API rate limiting working
 
 ### Data Validation
+
 - [ ] Check database for new cases
   ```sql
   SELECT COUNT(*) FROM decisions WHERE source = 'canlii_api'
@@ -119,6 +127,7 @@
   - [ ] No duplicate entries
 
 ### Performance Testing
+
 - [ ] Measure ingestion time
   ```bash
   time npm run ingest -- onhrt --source-type canlii
@@ -135,6 +144,7 @@
   - [ ] Requests properly throttled
 
 ### Error Handling
+
 - [ ] Test error scenarios
   - [ ] Network interruption (disconnect internet during ingestion)
   - [ ] Invalid database ID
@@ -150,6 +160,7 @@
   - [ ] Helpful debugging information
 
 ### Monitoring Setup
+
 - [ ] Application Insights configured
   - [ ] API requests tracked
   - [ ] Error rates monitored
@@ -167,6 +178,7 @@
   - [ ] Case discovery progress
 
 ### Rollback Testing
+
 - [ ] Verify rollback procedure works
   - [ ] Can switch back to web scraper
   - [ ] Web scraper still functions
@@ -183,6 +195,7 @@
 ## Production Deployment
 
 ### Pre-Production Checklist
+
 - [ ] All staging tests passed
 - [ ] Team approval obtained
 - [ ] Stakeholders notified of deployment
@@ -195,9 +208,10 @@
 
 For each tribunal, complete the following steps:
 
-#### Tribunal: _____________ (Database ID: _______)
+#### Tribunal: **\*\***\_**\*\*** (Database ID: **\_\_\_**)
 
 **Step 1: Initial Deployment (30 min)**
+
 - [ ] Deploy code to production
   - [ ] All new modules deployed
   - [ ] Configuration files updated
@@ -213,6 +227,7 @@ For each tribunal, complete the following steps:
 - [ ] Expected: ✅ All checks pass
 
 **Step 2: Initial Data Sync (1-2 hours)**
+
 - [ ] Run first ingestion
   ```bash
   npm run ingest -- {tribunal} --source-type canlii
@@ -229,6 +244,7 @@ For each tribunal, complete the following steps:
 - [ ] Expected: ✅ Cases ingested successfully
 
 **Step 3: 24-Hour Monitoring (Daily for 7 days)**
+
 - [ ] Check logs for errors
   - [ ] No unexpected failures
   - [ ] Rate limiting working
@@ -244,6 +260,7 @@ For each tribunal, complete the following steps:
 - [ ] Expected: ✅ System stable
 
 **Step 4: Disable Legacy Scraper (If Successful)**
+
 - [ ] Verify REST API working well for 24+ hours
 - [ ] Update configuration
   ```typescript
@@ -258,36 +275,40 @@ For each tribunal, complete the following steps:
 - [ ] Expected: ✅ Using only REST API
 
 **Step 5: Move to Next Tribunal**
+
 - [ ] Mark tribunal as migrated
 - [ ] Document any issues encountered
 - [ ] Repeat for next tribunal
 
 ### Parallel Tribunal Schedule
 
-| Tribunal | Database ID | Week | Status |
-|----------|-------------|------|--------|
-| HRTO | onhrt | 1 | ⬜ Pending |
-| CHRT | chrt | 1 | ⬜ Pending |
-| BCHRT | bchrt | 2 | ⬜ Pending |
-| ABHR | ab | 2 | ⬜ Pending |
-| SKHR | sk | 3 | ⬜ Pending |
-| MBHR | mb | 3 | ⬜ Pending |
+| Tribunal | Database ID | Week | Status     |
+| -------- | ----------- | ---- | ---------- |
+| HRTO     | onhrt       | 1    | ⬜ Pending |
+| CHRT     | chrt        | 1    | ⬜ Pending |
+| BCHRT    | bchrt       | 2    | ⬜ Pending |
+| ABHR     | ab          | 2    | ⬜ Pending |
+| SKHR     | sk          | 3    | ⬜ Pending |
+| MBHR     | mb          | 3    | ⬜ Pending |
 
 ### Production Monitoring (Ongoing)
 
 **Daily Checks:**
+
 - [ ] API error rate < 1%
 - [ ] API response times normal
 - [ ] No alerts triggered
 - [ ] Database growth as expected
 
 **Weekly Checks:**
+
 - [ ] Performance metrics reviewed
 - [ ] Error logs analyzed
 - [ ] Data quality spot check
 - [ ] User feedback reviewed
 
 **Monthly Checks:**
+
 - [ ] Full data integrity audit
 - [ ] Performance trending analysis
 - [ ] Cost analysis (API calls vs data value)
@@ -298,6 +319,7 @@ For each tribunal, complete the following steps:
 ## Post-Deployment Phase
 
 ### Verification (1 hour)
+
 - [ ] All tribunals migrated successfully
 - [ ] Web scraper disabled (if not needed as fallback)
 - [ ] No errors in production logs
@@ -305,12 +327,14 @@ For each tribunal, complete the following steps:
 - [ ] Users report no issues
 
 ### Cleanup
+
 - [ ] Remove legacy scraper code (optional, keep as fallback)
 - [ ] Archive old scraping scripts
 - [ ] Remove deprecated configuration options
 - [ ] Update CI/CD pipeline (remove scraper tests if not kept)
 
 ### Documentation
+
 - [ ] Update README with REST API information
 - [ ] Archive old scraping documentation
 - [ ] Create final migration report
@@ -318,12 +342,14 @@ For each tribunal, complete the following steps:
 - [ ] Update troubleshooting guide
 
 ### Communication
+
 - [ ] Notify stakeholders of completion
 - [ ] Thank team for migration effort
 - [ ] Share migration report with stakeholders
 - [ ] Plan celebration/recognition event
 
 ### Knowledge Transfer
+
 - [ ] Train support team on new system
   - [ ] Health check procedure
   - [ ] Common errors and solutions
@@ -341,11 +367,13 @@ For each tribunal, complete the following steps:
 ### Immediate Rollback (If Critical Issue)
 
 1. **Stop Ingestion**
+
    ```bash
    kill $(pgrep -f "npm run ingest")
    ```
 
 2. **Switch to Web Scraper**
+
    ```typescript
    // Update configuration
    apiMode: 'scrape',
@@ -353,6 +381,7 @@ For each tribunal, complete the following steps:
    ```
 
 3. **Restart Ingestion**
+
    ```bash
    npm run ingest -- {tribunal}
    ```
@@ -369,6 +398,7 @@ For each tribunal, complete the following steps:
    - Verify data quality issues
 
 2. **Revert Configuration**
+
    ```typescript
    apiMode: 'scrape',  // Switch to web scraper
    ```
@@ -391,11 +421,13 @@ For each tribunal, complete the following steps:
 ### Complete Rollback (If Unfixable Issues)
 
 1. **Disable REST API**
+
    ```
    CANLII_API_ENABLED=false
    ```
 
 2. **Use Web Scraper for All Tribunals**
+
    ```typescript
    apiMode: 'scrape',  // All configurations
    ```
@@ -415,11 +447,11 @@ For each tribunal, complete the following steps:
 
 ### Deployment Team
 
-- [ ] Product Manager: _________________ Date: _______
-- [ ] Engineering Lead: _________________ Date: _______
-- [ ] QA Lead: _________________ Date: _______
-- [ ] DevOps Lead: _________________ Date: _______
-- [ ] Support Lead: _________________ Date: _______
+- [ ] Product Manager: **\*\*\*\***\_**\*\*\*\*** Date: **\_\_\_**
+- [ ] Engineering Lead: **\*\*\*\***\_**\*\*\*\*** Date: **\_\_\_**
+- [ ] QA Lead: **\*\*\*\***\_**\*\*\*\*** Date: **\_\_\_**
+- [ ] DevOps Lead: **\*\*\*\***\_**\*\*\*\*** Date: **\_\_\_**
+- [ ] Support Lead: **\*\*\*\***\_**\*\*\*\*** Date: **\_\_\_**
 
 ### Go-Live Approval
 
@@ -431,36 +463,40 @@ For each tribunal, complete the following steps:
 
 **Ready for Go-Live**: ☐ YES ☐ NO
 
-**Deployment Date**: _____________  
-**Deployment Time**: _____________  
-**Expected Duration**: 2-4 hours  
+**Deployment Date**: **\*\***\_**\*\***  
+**Deployment Time**: **\*\***\_**\*\***  
+**Expected Duration**: 2-4 hours
 
 ---
 
 ## Post-Deployment Report
 
 ### Deployment Summary
-- **Date**: _____________
-- **Duration**: _____________
+
+- **Date**: **\*\***\_**\*\***
+- **Duration**: **\*\***\_**\*\***
 - **Status**: ✅ SUCCESS / ❌ FAILED / ⚠️ PARTIAL
-- **Tribunals Migrated**: _____________
-- **Issues Encountered**: _____________
+- **Tribunals Migrated**: **\*\***\_**\*\***
+- **Issues Encountered**: **\*\***\_**\*\***
 
 ### Metrics
-- **Total Cases Discovered**: _____________
-- **Average Response Time**: _____________
-- **Error Rate**: _____________
-- **Success Rate**: _____________
+
+- **Total Cases Discovered**: **\*\***\_**\*\***
+- **Average Response Time**: **\*\***\_**\*\***
+- **Error Rate**: **\*\***\_**\*\***
+- **Success Rate**: **\*\***\_**\*\***
 
 ### Lessons Learned
-1. _____________
-2. _____________
-3. _____________
+
+1. ***
+2. ***
+3. ***
 
 ### Recommendations
-1. _____________
-2. _____________
-3. _____________
+
+1. ***
+2. ***
+3. ***
 
 ---
 

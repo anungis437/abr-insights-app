@@ -10,25 +10,27 @@
 
 Your application currently uses **web scraping** via Cheerio/Axios to extract tribunal cases from CanLII's HTML pages. While functional, this approach has significant limitations compared to the official **CanLII REST API**. This audit identifies all gaps and provides a migration path.
 
-| Category | Current | Required | Gap |
-|---|---|---|---|
-| **API Integration** | ❌ None | ✅ REST API v1 | Full implementation needed |
-| **Authentication** | ❌ None | ✅ API Key | Missing |
-| **Database IDs** | ⚠️ URLs only | ✅ Proper IDs | Mapping required |
-| **Data Format** | ⚠️ HTML parsing | ✅ JSON | Already consuming JSON in DB, just need API source |
-| **Rate Limiting** | ✅ Basic (2s delay) | ✅ API-aware | Needs adjustment |
-| **Error Handling** | ⚠️ Generic | ⚠️ API-specific | Needs API error codes |
-| **Environment Setup** | ⚠️ Partial | ✅ Full | Missing CANLII_API_KEY |
+| Category              | Current             | Required        | Gap                                                |
+| --------------------- | ------------------- | --------------- | -------------------------------------------------- |
+| **API Integration**   | ❌ None             | ✅ REST API v1  | Full implementation needed                         |
+| **Authentication**    | ❌ None             | ✅ API Key      | Missing                                            |
+| **Database IDs**      | ⚠️ URLs only        | ✅ Proper IDs   | Mapping required                                   |
+| **Data Format**       | ⚠️ HTML parsing     | ✅ JSON         | Already consuming JSON in DB, just need API source |
+| **Rate Limiting**     | ✅ Basic (2s delay) | ✅ API-aware    | Needs adjustment                                   |
+| **Error Handling**    | ⚠️ Generic          | ⚠️ API-specific | Needs API error codes                              |
+| **Environment Setup** | ⚠️ Partial          | ✅ Full         | Missing CANLII_API_KEY                             |
 
 ---
 
 ## 1. CURRENT IMPLEMENTATION ANALYSIS
 
 ### 1.1 Scraper Architecture
+
 **File:** [ingestion/src/scrapers/canlii.ts](ingestion/src/scrapers/canlii.ts)  
 **Lines:** 538 total
 
 **Current Flow:**
+
 ```
 HTML Page → Cheerio Parse → Extract via CSS Selectors → DecisionContent Object
      ↓
@@ -36,6 +38,7 @@ Stored in Supabase
 ```
 
 **Key Components:**
+
 - `CanLIIScraper` class - Main scraper engine
 - HTTP Client: Axios with custom headers
 - Rate Limiting: 0.5 req/sec (1 request every 2 seconds)
@@ -43,31 +46,35 @@ Stored in Supabase
 - No API key - Uses User-Agent spoofing
 
 ### 1.2 Current Source Configuration
+
 **File:** [ingestion/src/config/index.ts](ingestion/src/config/index.ts) (Lines 54-235+)
 
 **Configured Sources (13 total):**
+
 ```typescript
 // Web scraping URLs (NOT API endpoints)
-canlii_hrto:  'https://www.canlii.org/en/on/onhrt/'
-canlii_chrt:  'https://www.canlii.org/en/ca/chrt/'
+canlii_hrto: 'https://www.canlii.org/en/on/onhrt/'
+canlii_chrt: 'https://www.canlii.org/en/ca/chrt/'
 canlii_bchrt: 'https://www.canlii.org/en/bc/bchrt/'
-canlii_abhr:  'https://www.canlii.org/en/ab/abhrc/'
-canlii_skhr:  'https://www.canlii.org/en/sk/skhr/'
-canlii_mbhr:  'https://www.canlii.org/en/mb/mbhr/'
+canlii_abhr: 'https://www.canlii.org/en/ab/abhrc/'
+canlii_skhr: 'https://www.canlii.org/en/sk/skhr/'
+canlii_mbhr: 'https://www.canlii.org/en/mb/mbhr/'
 canlii_qctdp: 'https://www.canlii.org/en/qc/qctdp/'
-canlii_nbhr:  'https://www.canlii.org/en/nb/nbhrc/'
-canlii_nshr:  'https://www.canlii.org/en/ns/nshrc/'
+canlii_nbhr: 'https://www.canlii.org/en/nb/nbhrc/'
+canlii_nshr: 'https://www.canlii.org/en/ns/nshrc/'
 canlii_peihr: 'https://www.canlii.org/en/pe/pehrc/'
-canlii_nlhr:  'https://www.canlii.org/en/nl/nlhrc/'
-canlii_ythr:  'https://www.canlii.org/en/yt/ythr/'
-canlii_nthr:  'https://www.canlii.org/en/nt/nthr/'
+canlii_nlhr: 'https://www.canlii.org/en/nl/nlhrc/'
+canlii_ythr: 'https://www.canlii.org/en/yt/ythr/'
+canlii_nthr: 'https://www.canlii.org/en/nt/nthr/'
 ```
 
 ### 1.3 Data Type Definitions
+
 **File:** [ingestion/src/types/index.ts](ingestion/src/types/index.ts) (Lines 1-80+)
 
 **Current Data Model:**
-- `SourceSystem` - 26 types (13 canlii_*, 13 *_direct placeholders)
+
+- `SourceSystem` - 26 types (13 canlii\__, 13 _\_direct placeholders)
 - `SourceConfig` - HTML selector-based configuration
 - `DecisionLink` - Link metadata from listing pages
 - `DecisionContent` - Full case content extracted from HTML
@@ -75,6 +82,7 @@ canlii_nthr:  'https://www.canlii.org/en/nt/nthr/'
 **Missing:** API-specific types (databaseId, caseId, offset-based pagination)
 
 ### 1.4 Environment Configuration
+
 **File:** [ingestion/src/config/index.ts](ingestion/src/config/index.ts) (Lines 14-26)
 
 ```typescript
@@ -94,6 +102,7 @@ export const ENV = {
 ## 2. CANLII REST API REQUIREMENTS
 
 ### 2.1 API Overview
+
 - **Base URL:** `https://api.canlii.org/v1/`
 - **Protocol:** HTTPS only (no HTTP)
 - **Format:** JSON responses
@@ -104,9 +113,11 @@ export const ENV = {
 ### 2.2 Required API Endpoints
 
 #### A. Case Browse - List Cases
+
 ```
 GET https://api.canlii.org/v1/caseBrowse/{language}/{databaseId}/?offset={offset}&resultCount={resultCount}&api_key={key}
 ```
+
 - **Parameters:**
   - `language`: "en" or "fr"
   - `databaseId`: e.g., "onhrt" (NOT URL path)
@@ -116,34 +127,43 @@ GET https://api.canlii.org/v1/caseBrowse/{language}/{databaseId}/?offset={offset
 - **Response:** Array of cases with citation, title, caseId
 
 #### B. Case Browse - Get Metadata
+
 ```
 GET https://api.canlii.org/v1/caseBrowse/{language}/{databaseId}/{caseId}/?api_key={key}
 ```
+
 - **Returns:** Full metadata (title, citation, keywords, docketNumber, decisionDate, etc.)
 - **Note:** Does NOT return full text content (need to use CanLII web URL)
 
 #### C. Case Browse - List Databases
+
 ```
 GET https://api.canlii.org/v1/caseBrowse/{language}/?api_key={key}
 ```
+
 - **Returns:** All available databases with databaseId, jurisdiction, name
 
 #### D. Case Citator (Bonus)
+
 ```
 GET https://api.canlii.org/v1/caseCitator/{language}/{databaseId}/{caseId}/{metadataType}/?api_key={key}
 ```
+
 - **metadataType:** citedCases, citingCases, citedLegislations
 - **Returns:** Citation relationships
 
 #### E. Legislation Browse (Future Enhancement)
+
 ```
 GET https://api.canlii.org/v1/legislationBrowse/{language}/{databaseId}/?api_key={key}
 ```
+
 - Can also ingest relevant legislation/regulations
 
 ### 2.3 Database ID Mapping
 
 **Known mappings (from CanLII API docs):**
+
 ```
 HRTO Cases:     Need to verify actual databaseId (may be "onhrt" or similar)
 CHRT Cases:     "csc-scc" or "chrt" (need verification)
@@ -152,6 +172,7 @@ Provincial HRCs: Need to verify for each province
 ```
 
 **Gap:** We have URLs but not official CanLII database IDs. Requires:
+
 1. Call `GET /caseBrowse/en/?api_key={key}` to list all databases
 2. Match tribunal names to databaseIds
 3. Update configuration
@@ -163,12 +184,14 @@ Provincial HRCs: Need to verify for each province
 ### 3.1 CRITICAL GAPS (Must Fix)
 
 #### Gap 1: API Key Not Configured ⛔
+
 - **Current State:** No `CANLII_API_KEY` environment variable
 - **Required:** API key from CanLII feedback form
 - **Effort:** 5 min (apply for key, add to .env)
 - **Blocking:** YES
 
 **Action:**
+
 1. Send feedback to CanLII: https://www.canlii.org/en/feedback/feedback.html
 2. Request API key for "ABR Insights - Educational Research"
 3. Add to `.env.local`:
@@ -181,6 +204,7 @@ Provincial HRCs: Need to verify for each province
    ```
 
 #### Gap 2: Database ID Mapping Missing ⛔
+
 - **Current State:** Config has URLs only
 - **Required:** Actual CanLII databaseIds
 - **Example Mismatch:**
@@ -189,6 +213,7 @@ Provincial HRCs: Need to verify for each province
 - **Effort:** 30 min (call API, verify all 13 sources)
 
 **Action:**
+
 ```bash
 # Once you have API key:
 curl "https://api.canlii.org/v1/caseBrowse/en/?api_key={KEY}" | jq '.caseDatabases[]'
@@ -201,6 +226,7 @@ curl "https://api.canlii.org/v1/caseBrowse/en/?api_key={KEY}" | jq '.caseDatabas
 ```
 
 #### Gap 3: API-Specific Types Missing ⛔
+
 - **Current State:** Types use HTML selectors and listing URLs
 - **Required:** New types for offset-based pagination, databaseId, caseId
 - **Files to Update:**
@@ -211,6 +237,7 @@ curl "https://api.canlii.org/v1/caseBrowse/en/?api_key={KEY}" | jq '.caseDatabas
 ### 3.2 MAJOR GAPS (Important)
 
 #### Gap 4: Scraper Implementation ⚠️
+
 - **Current State:** Cheerio HTML parser
 - **Required:** Axios calls to REST endpoints
 - **File:** [ingestion/src/scrapers/canlii.ts](ingestion/src/scrapers/canlii.ts)
@@ -222,12 +249,14 @@ curl "https://api.canlii.org/v1/caseBrowse/en/?api_key={KEY}" | jq '.caseDatabas
 - **Effort:** 2-3 hours
 
 #### Gap 5: Pagination Strategy ⚠️
+
 - **Current State:** Page-based (page 1, 2, 3...)
 - **API Uses:** Offset-based (offset=0, resultCount=100; offset=100, resultCount=100...)
 - **Max:** 10,000 per request, so max offset ~1M records
 - **Effort:** 1 hour
 
 #### Gap 6: Error Handling ⚠️
+
 - **Current State:** Generic HTTP errors
 - **API Returns:** Specific error codes (need to handle)
 - **10MB Payload Limit:** Rare but needs Range request handling
@@ -236,16 +265,19 @@ curl "https://api.canlii.org/v1/caseBrowse/en/?api_key={KEY}" | jq '.caseDatabas
 ### 3.3 MINOR GAPS (Nice to Have)
 
 #### Gap 7: Environment Setup ℹ️
+
 - **File:** [.env.example](.env.example)
 - **Missing:** CANLII_API_KEY documentation
 - **Effort:** 10 min
 
 #### Gap 8: CLI Documentation ℹ️
+
 - **File:** [ingestion/src/cli.ts](ingestion/src/cli.ts)
 - **Current Help:** No mention of API mode vs scraping mode
 - **Effort:** 15 min
 
 #### Gap 9: Rate Limiting Adjustment ℹ️
+
 - **Current:** 0.5 req/sec (2s minimum)
 - **API:** Unknown limits (likely higher than scraping)
 - **Recommendation:** Increase to 2-5 req/sec for API
@@ -256,6 +288,7 @@ curl "https://api.canlii.org/v1/caseBrowse/en/?api_key={KEY}" | jq '.caseDatabas
 ## 4. IMPACT ANALYSIS
 
 ### 4.1 What Breaks in Production (Scraping Mode)
+
 ```
 ⚠️ FRAGILITY RISKS:
 - CanLII website redesign → CSS selectors break
@@ -265,6 +298,7 @@ curl "https://api.canlii.org/v1/caseBrowse/en/?api_key={KEY}" | jq '.caseDatabas
 ```
 
 ### 4.2 What Improves with API
+
 ```
 ✅ RELIABILITY:
 - Official, documented endpoints
@@ -291,23 +325,27 @@ curl "https://api.canlii.org/v1/caseBrowse/en/?api_key={KEY}" | jq '.caseDatabas
 ## 5. IMPLEMENTATION ROADMAP
 
 ### Phase 1: Setup (15 min) ⏱️
+
 - [ ] Request CANLII API key
 - [ ] Add `CANLII_API_KEY` to `.env.local` and `.env.example`
 - [ ] Update [ingestion/src/config/index.ts](ingestion/src/config/index.ts) to load key
 
 ### Phase 2: Discovery & Mapping (1 hour) ⏱️
+
 - [ ] Call `/caseBrowse/en/?api_key={key}` to list all databases
 - [ ] Map tribunal names to databaseIds
 - [ ] Document mapping (create DATABASE_ID_MAPPING.md)
 - [ ] Update source configuration with databaseIds
 
 ### Phase 3: Types & Config (1.5 hours) ⏱️
+
 - [ ] Create API-specific types (CanLIICase, CanLIIDatabase, etc.)
 - [ ] Add databaseId field to SourceConfig
 - [ ] Support both offset-based and page-based pagination configs
 - [ ] Add API endpoint URL to config
 
 ### Phase 4: Scraper Refactor (2-3 hours) ⏱️
+
 - [ ] Create `CanLIIApiScraper` class (new file or refactor existing)
 - [ ] Implement `discoverDecisions()` using `/caseBrowse/{db}`
 - [ ] Implement `fetchDecisionContent()` using `/caseBrowse/{db}/{caseId}`
@@ -315,18 +353,21 @@ curl "https://api.canlii.org/v1/caseBrowse/en/?api_key={KEY}" | jq '.caseDatabas
 - [ ] Handle 10MB payload limit with Range requests
 
 ### Phase 5: Error Handling (1 hour) ⏱️
+
 - [ ] Add API-specific error codes
 - [ ] Handle rate limiting (429)
 - [ ] Handle authentication errors (401/403)
 - [ ] Handle payload too large (413)
 
 ### Phase 6: Testing & Migration (2 hours) ⏱️
+
 - [ ] Create API integration tests
 - [ ] Test all 13 tribunal sources
 - [ ] Compare API results vs scraping results
 - [ ] Validate data quality
 
 ### Phase 7: Deployment (30 min) ⏱️
+
 - [ ] Update CI/CD to include `CANLII_API_KEY`
 - [ ] Document migration in CANLII_API_MIGRATION.md
 - [ ] Deploy to production with feature flag (if desired)
@@ -339,30 +380,34 @@ curl "https://api.canlii.org/v1/caseBrowse/en/?api_key={KEY}" | jq '.caseDatabas
 ## 6. DECISION MATRIX
 
 ### Option A: Keep Web Scraping (Current)
-| Pro | Con |
-|---|---|
-| No API key needed | Fragile to DOM changes |
-| Works today | High failure risk |
-| No changes required | Not production-grade |
-| | Violates implicit ToS |
+
+| Pro                 | Con                    |
+| ------------------- | ---------------------- |
+| No API key needed   | Fragile to DOM changes |
+| Works today         | High failure risk      |
+| No changes required | Not production-grade   |
+|                     | Violates implicit ToS  |
 
 ### Option B: Migrate to REST API (Recommended)
-| Pro | Con |
-|---|---|
-| Official, licensed | Requires API key |
-| Production-grade | 8-10 hours work |
-| Structured data | Need to verify databaseIds |
-| Better error handling | None significant |
-| Faster performance | |
+
+| Pro                   | Con                        |
+| --------------------- | -------------------------- |
+| Official, licensed    | Requires API key           |
+| Production-grade      | 8-10 hours work            |
+| Structured data       | Need to verify databaseIds |
+| Better error handling | None significant           |
+| Faster performance    |                            |
 
 ### Option C: Hybrid (Phase Transition)
-| Pro | Con |
-|---|---|
-| Low risk transition | Complex code management |
-| Can test in parallel | Higher maintenance |
-| Easy rollback | Temporary technical debt |
+
+| Pro                  | Con                      |
+| -------------------- | ------------------------ |
+| Low risk transition  | Complex code management  |
+| Can test in parallel | Higher maintenance       |
+| Easy rollback        | Temporary technical debt |
 
 **Recommendation:** **Option B - Full Migration to REST API**
+
 - Cost: 8-10 hours (1-2 days)
 - Benefit: Production-ready, licensed, official support
 - Risk: Low (well-documented API)
@@ -384,31 +429,28 @@ Before implementing, verify:
 ## 8. FILES TO MODIFY
 
 **Core Implementation:**
+
 1. [ingestion/src/config/index.ts](ingestion/src/config/index.ts) - Add API key, update SOURCE_CONFIGS
 2. [ingestion/src/types/index.ts](ingestion/src/types/index.ts) - Add API-specific types
 3. [ingestion/src/scrapers/canlii.ts](ingestion/src/scrapers/canlii.ts) - Refactor to use REST API
 
-**Configuration:**
-4. [.env.example](.env.example) - Add CANLII_API_KEY
+**Configuration:** 4. [.env.example](.env.example) - Add CANLII_API_KEY
 
-**Documentation:**
-5. [ingestion/src/cli.ts](ingestion/src/cli.ts) - Update help text
+**Documentation:** 5. [ingestion/src/cli.ts](ingestion/src/cli.ts) - Update help text
 
-**New Files:**
-6. `DATABASE_ID_MAPPING.md` - CanLII database ID reference
-7. `CANLII_API_MIGRATION.md` - Implementation guide (post-audit)
+**New Files:** 6. `DATABASE_ID_MAPPING.md` - CanLII database ID reference 7. `CANLII_API_MIGRATION.md` - Implementation guide (post-audit)
 
 ---
 
 ## 9. RISK ASSESSMENT
 
-| Risk | Likelihood | Impact | Mitigation |
-|---|---|---|---|
-| API key denied | Low | High | Use official channels, explain educational use |
-| Database ID mismatch | Low | Medium | Verify all IDs via API before migration |
-| Rate limits unknown | Medium | Low | Start conservative (2 req/sec), monitor |
-| 10MB payload cases rare | Low | Low | Add Range request support |
-| Breaking API changes | Very Low | Medium | API stable for 7+ years, v1 versions |
+| Risk                    | Likelihood | Impact | Mitigation                                     |
+| ----------------------- | ---------- | ------ | ---------------------------------------------- |
+| API key denied          | Low        | High   | Use official channels, explain educational use |
+| Database ID mismatch    | Low        | Medium | Verify all IDs via API before migration        |
+| Rate limits unknown     | Medium     | Low    | Start conservative (2 req/sec), monitor        |
+| 10MB payload cases rare | Low        | Low    | Add Range request support                      |
+| Breaking API changes    | Very Low   | Medium | API stable for 7+ years, v1 versions           |
 
 **Overall Risk:** ✅ **LOW** - Well-documented, stable API with clear migration path
 

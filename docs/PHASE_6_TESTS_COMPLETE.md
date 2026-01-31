@@ -5,94 +5,83 @@
 Created three comprehensive test files for CanLII REST API integration:
 
 ### 1. **`tests/ingestion-canlii-api.spec.ts`** (500+ lines)
+
 - **CanLIIApiClient Tests**: API client functionality validation
   - ✅ Client initialization
   - ✅ Connection validation
   - ✅ Database discovery
   - ✅ Case discovery with pagination
   - ✅ Error handling for invalid parameters
-  
 - **CanLIIDatabaseMapper Tests**: Tribunal discovery and mapping
   - ✅ Database discovery from API
   - ✅ Markdown export generation
   - ✅ JSON mapping export
-  
 - **Validation Tests**: Input and configuration validation
   - ✅ Database ID validation (format, length, characters)
   - ✅ Case ID validation (format, length, characters)
   - ✅ Decision date validation (ISO 8601, Date objects, null/undefined)
-  
 - **Error Handling Tests**: Error classification and retry logic
   - ✅ Error creation with structured properties
   - ✅ Retryable error identification
   - ✅ Exponential backoff calculation
   - ✅ Retry logic with max attempts
-  
 - **Error Codes Tests**: Verify all error codes are defined
   - ✅ All 16 error codes present
   - ✅ No duplicate error codes
-  
 - **Integration Scenarios**:
   - ✅ Complete discovery workflow (config → databases → cases)
   - ✅ Graceful handling of empty result sets
 
 ### 2. **`tests/ingestion-scraper-factory.spec.ts`** (450+ lines)
+
 - **Mode Selection Logic**:
   - ✅ REST API mode selection (explicit config)
   - ✅ Web scraper mode selection (explicit config)
   - ✅ Auto-selection based on environment variables
   - ✅ Config priority over environment
   - ✅ Fallback when REST API unavailable
-  
 - **Scraper Creation**:
   - ✅ Create REST API scraper in REST mode
   - ✅ Create web scraper in scrape mode
   - ✅ Error handling for invalid configurations
-  
 - **Error Scenarios**:
   - ✅ Missing API key handling
   - ✅ Missing database ID for REST mode
   - ✅ Missing listing URL for web scraper
-  
 - **Gradual Migration Support**:
   - ✅ Mixed modes (per-tribunal configuration)
   - ✅ Configuration override for testing
-  
 - **Backwards Compatibility**:
   - ✅ Legacy web scraper config support
   - ✅ New REST API config support
 
 ### 3. **`tests/ingestion-validation.spec.ts`** (700+ lines)
+
 - **CanLIIError Class**:
   - ✅ Error creation with all properties
   - ✅ Proper error inheritance
   - ✅ Optional details handling
-  
 - **Configuration Validation**:
   - ✅ API configuration validation
   - ✅ Missing API key detection
   - ✅ URL format validation
-  
 - **Database ID Validation**:
   - ✅ Valid ID formats (onhrt, chrt, csc-scc, etc.)
   - ✅ Empty ID rejection
   - ✅ Length validation (2-20 chars)
   - ✅ Invalid character rejection
   - ✅ Hyphen support
-  
 - **Case ID Validation**:
   - ✅ Valid ID formats (2008scc9, 1999canlii1527, etc.)
   - ✅ Empty ID rejection
   - ✅ Length validation (3-50 chars)
   - ✅ Character validation
   - ✅ Hyphen support
-  
 - **Decision Date Validation**:
   - ✅ ISO 8601 string validation
   - ✅ Date object validation
   - ✅ Null/undefined support (optional fields)
   - ✅ Invalid format rejection
-  
 - **Error Classification**:
   - ✅ Timeout classification (retryable)
   - ✅ Rate limit classification (retryable)
@@ -101,14 +90,12 @@ Created three comprehensive test files for CanLII REST API integration:
   - ✅ Invalid config classification (non-retryable)
   - ✅ 404 Not Found classification (non-retryable)
   - ✅ Plain Error object handling
-  
 - **Exponential Backoff**:
   - ✅ Exponential growth calculation
   - ✅ Maximum delay enforcement
   - ✅ Jitter implementation (randomness)
   - ✅ Base delay respect
   - ✅ Edge case handling
-  
 - **Retry Logic**:
   - ✅ Success on first attempt
   - ✅ Retry on transient failure
@@ -117,7 +104,6 @@ Created three comprehensive test files for CanLII REST API integration:
   - ✅ Mixed error type handling
   - ✅ Max attempts parameter respect
   - ✅ Custom base delay support
-  
 - **Integration Scenarios**:
   - ✅ Complete parameter validation
   - ✅ Invalid combination rejection
@@ -127,15 +113,15 @@ Created three comprehensive test files for CanLII REST API integration:
 
 ## Test Coverage Matrix
 
-| Module | Test File | Coverage |
-|--------|-----------|----------|
-| `CanLIIApiClient` | ingestion-canlii-api.spec.ts | ✅ Complete |
-| `CanLIIDatabaseMapper` | ingestion-canlii-api.spec.ts | ✅ Complete |
-| `Validators` | ingestion-validation.spec.ts | ✅ Complete |
-| `Retry Logic` | ingestion-validation.spec.ts | ✅ Complete |
-| `Error Handling` | ingestion-validation.spec.ts | ✅ Complete |
-| `Factory Selection` | ingestion-scraper-factory.spec.ts | ✅ Complete |
-| `Scraper Creation` | ingestion-scraper-factory.spec.ts | ✅ Complete |
+| Module                 | Test File                         | Coverage    |
+| ---------------------- | --------------------------------- | ----------- |
+| `CanLIIApiClient`      | ingestion-canlii-api.spec.ts      | ✅ Complete |
+| `CanLIIDatabaseMapper` | ingestion-canlii-api.spec.ts      | ✅ Complete |
+| `Validators`           | ingestion-validation.spec.ts      | ✅ Complete |
+| `Retry Logic`          | ingestion-validation.spec.ts      | ✅ Complete |
+| `Error Handling`       | ingestion-validation.spec.ts      | ✅ Complete |
+| `Factory Selection`    | ingestion-scraper-factory.spec.ts | ✅ Complete |
+| `Scraper Creation`     | ingestion-scraper-factory.spec.ts | ✅ Complete |
 
 ---
 
@@ -174,6 +160,7 @@ CANLII_API_KEY=your-key npm run test:unit tests/ingestion-canlii-api.spec.ts
 ### Skip Conditions
 
 Tests are automatically skipped if:
+
 - `CANLII_API_KEY` environment variable is not set
 - Live API connectivity is not available
 - Tests are run in offline mode
@@ -182,14 +169,14 @@ Tests are automatically skipped if:
 
 ## Test Statistics
 
-| Metric | Count |
-|--------|-------|
-| Total Test Files | 3 |
-| Total Test Cases | 60+ |
+| Metric                   | Count  |
+| ------------------------ | ------ |
+| Total Test Files         | 3      |
+| Total Test Cases         | 60+    |
 | Total Lines of Test Code | 1,650+ |
-| Unit Tests | 45+ |
-| Integration Tests | 8+ |
-| Edge Case Tests | 7+ |
+| Unit Tests               | 45+    |
+| Integration Tests        | 8+     |
+| Edge Case Tests          | 7+     |
 
 ---
 
@@ -197,13 +184,13 @@ Tests are automatically skipped if:
 
 **Target**: ≥80% code coverage for new modules
 
-| Module | Target Coverage |
-|--------|-----------------|
-| canlii-api.ts | 85% |
-| canlii-database-mapper.ts | 80% |
-| canlii-rest-api.ts | 80% |
-| canlii-validation.ts | 90% |
-| factory.ts | 85% |
+| Module                    | Target Coverage |
+| ------------------------- | --------------- |
+| canlii-api.ts             | 85%             |
+| canlii-database-mapper.ts | 80%             |
+| canlii-rest-api.ts        | 80%             |
+| canlii-validation.ts      | 90%             |
+| factory.ts                | 85%             |
 
 ---
 
@@ -215,7 +202,7 @@ Tests are automatically skipped if:
 # Add to .github/workflows/test.yml
 - name: Run CanLII Tests
   run: npm run test:unit tests/ingestion-*.spec.ts -- --coverage
-  
+
 - name: Run Live API Tests
   if: secrets.CANLII_API_KEY != ''
   env:
@@ -228,12 +215,14 @@ Tests are automatically skipped if:
 ## Test Data & Fixtures
 
 ### Mock Data
+
 - Sample CanLII API responses (JSON fixtures)
 - Mock tribunal database objects
 - Sample case references and metadata
 - Error response samples
 
 ### Known Test Databases
+
 - `onhrt` - Ontario Human Rights Tribunal
 - `chrt` - Canadian Human Rights Tribunal
 - `csc-scc` - Supreme Court of Canada
@@ -338,7 +327,7 @@ it('should detect missing API key', () => {
 
   try {
     const result = validateApiConfiguration()
-    expect(result.errors.some(e => e.includes('API_KEY'))).toBe(true)
+    expect(result.errors.some((e) => e.includes('API_KEY'))).toBe(true)
   } finally {
     if (origApiKey) process.env.CANLII_API_KEY = origApiKey
   }

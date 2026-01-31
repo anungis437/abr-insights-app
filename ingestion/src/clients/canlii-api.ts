@@ -176,9 +176,7 @@ export class CanLIIApiClient {
 
       logger.info('Fetching CanLII case databases list')
 
-      const response = await this.call<CanLIIDatabaseBrowseResponse>(
-        `caseBrowse/${this.language}/`
-      )
+      const response = await this.call<CanLIIDatabaseBrowseResponse>(`caseBrowse/${this.language}/`)
 
       if (!response.caseDatabases || !Array.isArray(response.caseDatabases)) {
         throw new Error('Invalid response format: expected caseDatabases array')
@@ -237,7 +235,8 @@ export class CanLIIApiClient {
       if (filters) {
         if (filters.publishedBefore) params.append('publishedBefore', filters.publishedBefore)
         if (filters.publishedAfter) params.append('publishedAfter', filters.publishedAfter)
-        if (filters.decisionDateBefore) params.append('decisionDateBefore', filters.decisionDateBefore)
+        if (filters.decisionDateBefore)
+          params.append('decisionDateBefore', filters.decisionDateBefore)
         if (filters.decisionDateAfter) params.append('decisionDateAfter', filters.decisionDateAfter)
       }
 
@@ -450,7 +449,9 @@ export class CanLIIApiClient {
       if (status === 401 || status === 403) {
         logger.error('CanLII API authentication error', { status, message: data?.message })
       } else if (status === 429) {
-        logger.warn('CanLII API rate limited', { retryAfter: error.response?.headers['retry-after'] })
+        logger.warn('CanLII API rate limited', {
+          retryAfter: error.response?.headers['retry-after'],
+        })
       } else if (status === 500) {
         logger.error('CanLII API server error', { status, message: data?.message })
       }

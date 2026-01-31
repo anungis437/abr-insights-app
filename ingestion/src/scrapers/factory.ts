@@ -33,16 +33,22 @@ function selectScraperMode(sourceSystem: SourceSystem, config: SourceConfig): 'r
   // Explicit configuration takes precedence
   if (config.apiMode === 'rest') {
     if (!config.databaseId) {
-      logger.warn('REST API mode requested but databaseId not configured, falling back to scraping', {
-        sourceSystem,
-      })
+      logger.warn(
+        'REST API mode requested but databaseId not configured, falling back to scraping',
+        {
+          sourceSystem,
+        }
+      )
       return 'scrape'
     }
 
     if (!ENV.CANLII_API_KEY) {
-      logger.warn('REST API mode requested but CANLII_API_KEY not configured, falling back to scraping', {
-        sourceSystem,
-      })
+      logger.warn(
+        'REST API mode requested but CANLII_API_KEY not configured, falling back to scraping',
+        {
+          sourceSystem,
+        }
+      )
       return 'scrape'
     }
 

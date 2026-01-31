@@ -36,35 +36,71 @@ interface DatabaseMapping {
  */
 const EXPECTED_TRIBUNALS: Record<string, { pattern: RegExp; sourceId: string }> = {
   // Federal
-  'Canadian Human Rights Tribunal': { pattern: /canadian\s+human\s+rights\s+tribunal/i, sourceId: 'canlii_chrt' },
+  'Canadian Human Rights Tribunal': {
+    pattern: /canadian\s+human\s+rights\s+tribunal/i,
+    sourceId: 'canlii_chrt',
+  },
 
   // Ontario
-  'Human Rights Tribunal of Ontario': { pattern: /human\s+rights\s+tribunal\s+of\s+ontario|ontario\s+hrt/i, sourceId: 'canlii_hrto' },
+  'Human Rights Tribunal of Ontario': {
+    pattern: /human\s+rights\s+tribunal\s+of\s+ontario|ontario\s+hrt/i,
+    sourceId: 'canlii_hrto',
+  },
 
   // British Columbia
-  'BC Human Rights Tribunal': { pattern: /bc\s+human\s+rights|british\s+columbia\s+human/i, sourceId: 'canlii_bchrt' },
+  'BC Human Rights Tribunal': {
+    pattern: /bc\s+human\s+rights|british\s+columbia\s+human/i,
+    sourceId: 'canlii_bchrt',
+  },
 
   // Alberta
-  'Alberta Human Rights Commission': { pattern: /alberta\s+human\s+rights|alberta\s+hrc/i, sourceId: 'canlii_abhr' },
+  'Alberta Human Rights Commission': {
+    pattern: /alberta\s+human\s+rights|alberta\s+hrc/i,
+    sourceId: 'canlii_abhr',
+  },
 
   // Saskatchewan
-  'Saskatchewan Human Rights Commission': { pattern: /saskatchewan\s+human\s+rights|sask.*hrc/i, sourceId: 'canlii_skhr' },
+  'Saskatchewan Human Rights Commission': {
+    pattern: /saskatchewan\s+human\s+rights|sask.*hrc/i,
+    sourceId: 'canlii_skhr',
+  },
 
   // Manitoba
-  'Manitoba Human Rights Commission': { pattern: /manitoba\s+human\s+rights|manitoba\s+hrc/i, sourceId: 'canlii_mbhr' },
+  'Manitoba Human Rights Commission': {
+    pattern: /manitoba\s+human\s+rights|manitoba\s+hrc/i,
+    sourceId: 'canlii_mbhr',
+  },
 
   // Quebec
-  'Quebec Tribunal des droits de la personne': { pattern: /quebec|qc\s+tribunal|droits\s+de\s+la\s+personne/i, sourceId: 'canlii_qctdp' },
+  'Quebec Tribunal des droits de la personne': {
+    pattern: /quebec|qc\s+tribunal|droits\s+de\s+la\s+personne/i,
+    sourceId: 'canlii_qctdp',
+  },
 
   // Atlantic Provinces
-  'New Brunswick Human Rights': { pattern: /new\s+brunswick\s+human|nb\s+hrc/i, sourceId: 'canlii_nbhr' },
-  'Nova Scotia Human Rights': { pattern: /nova\s+scotia\s+human|ns\s+hrc/i, sourceId: 'canlii_nshr' },
-  'PEI Human Rights': { pattern: /pei\s+human|prince\s+edward\s+island|pe.*hrc/i, sourceId: 'canlii_peihr' },
-  'Newfoundland & Labrador Human Rights': { pattern: /newfoundland|labrador\s+human|nl.*hrc/i, sourceId: 'canlii_nlhr' },
+  'New Brunswick Human Rights': {
+    pattern: /new\s+brunswick\s+human|nb\s+hrc/i,
+    sourceId: 'canlii_nbhr',
+  },
+  'Nova Scotia Human Rights': {
+    pattern: /nova\s+scotia\s+human|ns\s+hrc/i,
+    sourceId: 'canlii_nshr',
+  },
+  'PEI Human Rights': {
+    pattern: /pei\s+human|prince\s+edward\s+island|pe.*hrc/i,
+    sourceId: 'canlii_peihr',
+  },
+  'Newfoundland & Labrador Human Rights': {
+    pattern: /newfoundland|labrador\s+human|nl.*hrc/i,
+    sourceId: 'canlii_nlhr',
+  },
 
   // Territories
   'Yukon Human Rights': { pattern: /yukon\s+human|yt.*hrc/i, sourceId: 'canlii_ythr' },
-  'Northwest Territories Human Rights': { pattern: /northwest\s+territories|nt.*hrc/i, sourceId: 'canlii_nthr' },
+  'Northwest Territories Human Rights': {
+    pattern: /northwest\s+territories|nt.*hrc/i,
+    sourceId: 'canlii_nthr',
+  },
   'Nunavut Human Rights': { pattern: /nunavut\s+human|nu.*hrc/i, sourceId: 'canlii_nuhr' },
 }
 
@@ -112,7 +148,9 @@ export class CanLIIDatabaseMapper {
       }
 
       // Log unmapped databases
-      const unmapped = databases.filter((db) => !mappings.find((m) => m.databaseId === db.databaseId))
+      const unmapped = databases.filter(
+        (db) => !mappings.find((m) => m.databaseId === db.databaseId)
+      )
       if (unmapped.length > 0) {
         logger.info(`${unmapped.length} databases not mapped:`, {
           names: unmapped.map((db) => `${db.name} (${db.databaseId})`),
@@ -233,9 +271,9 @@ export async function runDatabaseDiscovery(apiKey?: string): Promise<void> {
   console.table(
     mappings.map((m) => ({
       'Source ID': m.sourceId,
-      'Tribunal': m.tribunalName,
+      Tribunal: m.tribunalName,
       'Database ID': m.databaseId,
-      'Jurisdiction': m.jurisdiction,
+      Jurisdiction: m.jurisdiction,
     }))
   )
 
