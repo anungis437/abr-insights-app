@@ -46,13 +46,28 @@ export default function TeamManagementPage() {
     setSuccess(null)
 
     try {
-      // Remove member by setting their organization_id to null
-      const { error: updateError } = await supabase
+      // Get member's user ID
+      const { data: memberProfile } = await supabase
         .from('profiles')
-        .update({ organization_id: null })
+        .select('id')
         .eq('email', memberEmail)
+        .single()
 
-      if (updateError) throw updateError
+      if (!memberProfile) {
+        throw new Error('Member not found')
+      }
+
+      // ATOMIC SEAT RELEASE: Use database RPC with row-level locking
+      const { data: result, error: rpcError } = await supabase.rpc('remove_member_with_seat_release', {
+        p_user_id: memberProfile.id,
+        p_organization_id: organization.id,
+      })
+
+      if (rpcError) throw rpcError
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to remove member')
+      }
 
       setSuccess(`Successfully removed ${memberEmail} from the organization`)
 
@@ -78,17 +93,6 @@ export default function TeamManagementPage() {
         throw new Error('This user is already a member')
       }
 
-      // ENFORCE SEAT LIMITS: Check if organization has available seats
-      const currentMemberCount = members.length
-      const seatCheck = await checkSeatAvailability(organization.id, 1)
-
-      if (!seatCheck.allowed) {
-        throw new Error(
-          seatCheck.reason ||
-            `Your organization has reached its seat limit (${currentMemberCount} members). Please upgrade your plan to add more team members.`
-        )
-      }
-
       // Check if user exists
       const { data: existingProfile } = await supabase
         .from('profiles')
@@ -104,13 +108,19 @@ export default function TeamManagementPage() {
         throw new Error('This user is already part of another organization')
       }
 
-      // Add member (update profile.organization_id)
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ organization_id: organization.id })
-        .eq('email', inviteEmail)
+      // ATOMIC SEAT ENFORCEMENT: Use database RPC with row-level locking
+      // This prevents race conditions when multiple admins add members simultaneously
+      const { data: result, error: rpcError } = await supabase.rpc('add_member_with_seat_check', {
+        p_user_id: existingProfile.id,
+        p_organization_id: organization.id,
+      })
 
-      if (updateError) throw updateError
+      if (rpcError) throw rpcError
+
+      // Check RPC result
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to add member')
+      }
 
       setSuccess(`Successfully invited ${inviteEmail} to the organization`)
       setShowInvite(false)
