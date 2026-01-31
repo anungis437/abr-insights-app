@@ -12,7 +12,8 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { guardedRoute, GuardedContext } from '@/lib/api/guard'
-import { withRateLimit, RateLimitPresets } from '@/lib/security/rateLimit'
+import { withRedisRateLimit } from '@/lib/security/redisRateLimit'
+import { RateLimitPresets } from '@/lib/security/rateLimitPresets'
 import { checkAIQuota } from '@/lib/services/ai-quotas'
 import { logger } from '@/lib/utils/production-logger'
 
@@ -96,11 +97,11 @@ async function searchCasesHandler(request: NextRequest, context: GuardedContext)
   })
 }
 
-export const POST = withRateLimit(
-  RateLimitPresets.embeddingsSearch,
+export const POST = withRedisRateLimit(
   guardedRoute(searchCasesHandler, {
     requireAuth: true,
     requireOrg: true,
     anyPermissions: ['cases.search', 'embeddings.search'],
-  })
+  }),
+  RateLimitPresets.embeddingsSearch
 )

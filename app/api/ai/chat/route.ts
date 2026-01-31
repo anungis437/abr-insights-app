@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { guardedRoute, GuardedContext } from '@/lib/api/guard'
-import { withMultipleRateLimits, RateLimitPresets } from '@/lib/security/rateLimit'
+import { withMultipleRedisRateLimits } from '@/lib/security/redisRateLimit'
+import { RateLimitPresets } from '@/lib/security/rateLimitPresets'
 import {
   validateAIResponse,
   verifyCitations,
@@ -220,11 +221,11 @@ Respond in a helpful, conversational tone with actionable insights.`
 }
 
 // Apply route guards with rate limiting
-export const POST = withMultipleRateLimits(
-  [RateLimitPresets.aiChat, RateLimitPresets.aiChatOrg],
+export const POST = withMultipleRedisRateLimits(
   guardedRoute(chatHandler, {
     requireAuth: true,
     requireOrg: true,
     anyPermissions: ['ai.chat.use', 'admin.ai.manage'],
-  })
+  }),
+  [RateLimitPresets.aiChat, RateLimitPresets.aiChatOrg]
 )

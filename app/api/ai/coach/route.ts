@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { guardedRoute, GuardedContext } from '@/lib/api/guard'
 import { createClient } from '@/lib/supabase/server'
-import { withMultipleRateLimits, RateLimitPresets } from '@/lib/security/rateLimit'
+import { withMultipleRedisRateLimits } from '@/lib/security/redisRateLimit'
+import { RateLimitPresets } from '@/lib/security/rateLimitPresets'
 import {
   validateAIResponse,
   verifyCitations,
@@ -312,11 +313,11 @@ function generateRecommendations(stats: any, sessionType: string) {
 }
 
 // Apply route guards with rate limiting
-export const POST = withMultipleRateLimits(
-  [RateLimitPresets.aiCoach, RateLimitPresets.aiCoachOrg],
+export const POST = withMultipleRedisRateLimits(
   guardedRoute(coachHandler, {
     requireAuth: true,
     requireOrg: true,
     anyPermissions: ['ai.coach.use', 'admin.ai.manage'],
-  })
+  }),
+  [RateLimitPresets.aiCoach, RateLimitPresets.aiCoachOrg]
 )

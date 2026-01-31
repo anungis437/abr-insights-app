@@ -31,6 +31,8 @@ export interface RateLimitConfig {
   keyType: 'ip' | 'user' | 'org' | 'custom'
   /** Custom key generator (if keyType is 'custom') */
   keyGenerator?: (request: NextRequest, context?: any) => string
+  /** Custom error message (optional) */
+  message?: string
 }
 
 interface TokenBucket {

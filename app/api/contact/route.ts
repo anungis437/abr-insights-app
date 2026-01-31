@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { withRateLimit, RateLimitPresets } from '@/lib/security/rateLimit'
+import { withRedisRateLimit } from '@/lib/security/redisRateLimit'
+import { RateLimitPresets } from '@/lib/security/rateLimitPresets'
 import {
   sendContactFormNotification,
   sendContactFormConfirmation,
@@ -16,7 +17,7 @@ const contactSchema = z.object({
   message: z.string().min(10, 'Message must be at least 10 characters').max(5000),
 })
 
-export const POST = withRateLimit(RateLimitPresets.contactForm, async (request: NextRequest) => {
+export const POST = withRedisRateLimit(async (request: NextRequest) => {
   try {
     // Parse request body
     const body = await request.json()
@@ -72,7 +73,7 @@ export const POST = withRateLimit(RateLimitPresets.contactForm, async (request: 
       { status: 500 }
     )
   }
-})
+}, RateLimitPresets.contactForm)
 
 // Handle OPTIONS request for CORS
 export async function OPTIONS() {

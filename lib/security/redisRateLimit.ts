@@ -184,21 +184,21 @@ async function checkRateLimit(
 /**
  * Redis-based rate limiting middleware (production-ready)
  */
-export function withRedisRateLimit<T extends (...args: any[]) => Promise<NextResponse>>(
+export function withRedisRateLimit<T extends (...args: any[]) => Promise<NextResponse> | NextResponse>(
   handler: T,
   config: RateLimitConfig
-): T {
-  return (async (request: NextRequest, ...args: any[]) => {
+): (...args: any[]) => Promise<NextResponse> {
+  return async (request: NextRequest, ...args: any[]) => {
     try {
       const key = getRateLimitKey(config, request, args[0])
       const result = await checkRateLimit(key, config)
 
       // Add rate limit headers
       const response = result.allowed
-        ? await handler(request, ...args)
+        ? await Promise.resolve(handler(request, ...args))
         : NextResponse.json(
             {
-              error: 'Rate limit exceeded',
+              error: config.message || 'Rate limit exceeded',
               retryAfter: Math.ceil((result.resetAt - Date.now()) / 1000),
             },
             { status: 429 }
@@ -216,9 +216,68 @@ export function withRedisRateLimit<T extends (...args: any[]) => Promise<NextRes
     } catch (error) {
       logger.error('Rate limiting error', { error })
       // Fail open - allow the request if rate limiting fails
-      return handler(request, ...args)
+      return Promise.resolve(handler(request, ...args))
     }
-  }) as T
+  }
+}
+
+/**
+ * Apply multiple rate limits in sequence (e.g., per-user AND per-org)
+ * ALL limits must pass for the request to proceed
+ */
+export function withMultipleRedisRateLimits<T extends (...args: any[]) => Promise<NextResponse> | NextResponse>(
+  handler: T,
+  configs: RateLimitConfig[]
+): (...args: any[]) => Promise<NextResponse> {
+  return async (request: NextRequest, ...args: any[]) => {
+    try {
+      const results = await Promise.all(
+        configs.map(config => {
+          const key = getRateLimitKey(config, request, args[0])
+          return checkRateLimit(key, config).then(result => ({ config, result }))
+        })
+      )
+
+      // Find the most restrictive limit (first one that's not allowed)
+      const blocked = results.find(({ result }) => !result.allowed)
+
+      // All limits passed - execute handler
+      if (!blocked) {
+        const response = await Promise.resolve(handler(request, ...args))
+        
+        // Add headers from the most restrictive limit
+        const mostRestrictive = results.reduce((prev, curr) => 
+          curr.result.remaining < prev.result.remaining ? curr : prev
+        )
+        
+        response.headers.set('X-RateLimit-Limit', mostRestrictive.config.requests.toString())
+        response.headers.set('X-RateLimit-Remaining', mostRestrictive.result.remaining.toString())
+        response.headers.set('X-RateLimit-Reset', mostRestrictive.result.resetAt.toString())
+        
+        return response
+      }
+
+      // One or more limits exceeded
+      const response = NextResponse.json(
+        {
+          error: blocked.config.message || 'Rate limit exceeded',
+          retryAfter: Math.ceil((blocked.result.resetAt - Date.now()) / 1000),
+        },
+        { status: 429 }
+      )
+
+      response.headers.set('X-RateLimit-Limit', blocked.config.requests.toString())
+      response.headers.set('X-RateLimit-Remaining', '0')
+      response.headers.set('X-RateLimit-Reset', blocked.result.resetAt.toString())
+      response.headers.set('Retry-After', Math.ceil((blocked.result.resetAt - Date.now()) / 1000).toString())
+
+      return response
+    } catch (error) {
+      logger.error('Multiple rate limiting error', { error })
+      // Fail open - allow the request if rate limiting fails
+      return Promise.resolve(handler(request, ...args))
+    }
+  }
 }
 
 /**

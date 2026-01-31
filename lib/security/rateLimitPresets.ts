@@ -147,3 +147,38 @@ export const WEBHOOK_RATE_LIMITS = {
     keyType: 'ip',
   } as RateLimitConfig,
 }
+
+/**
+ * Unified rate limit presets (combines all categories)
+ * Use this for convenient access to all presets
+ */
+export const RateLimitPresets = {
+  // Public
+  contactForm: PUBLIC_RATE_LIMITS.contact,
+  newsletter: PUBLIC_RATE_LIMITS.newsletter,
+  badges: PUBLIC_RATE_LIMITS.badges,
+  
+  // User
+  aiChat: USER_RATE_LIMITS.aiChat,
+  aiCoach: USER_RATE_LIMITS.aiCoach,
+  evidenceBundle: USER_RATE_LIMITS.evidenceBundle,
+  embeddingsSearch: USER_RATE_LIMITS.search,
+  general: USER_RATE_LIMITS.general,
+  
+  // Organization
+  aiChatOrg: { ...USER_RATE_LIMITS.aiChat, keyType: 'org' as const },
+  aiCoachOrg: { ...USER_RATE_LIMITS.aiCoach, keyType: 'org' as const },
+  orgBatch: ORG_RATE_LIMITS.batch,
+  orgExports: ORG_RATE_LIMITS.exports,
+  orgIngestion: ORG_RATE_LIMITS.ingestion,
+  
+  // Payment
+  checkout: PAYMENT_RATE_LIMITS.checkout,
+  portal: PAYMENT_RATE_LIMITS.portal,
+  
+  // Admin
+  admin: ADMIN_RATE_LIMITS.admin,
+  
+  // Webhooks
+  webhook: WEBHOOK_RATE_LIMITS.stripe,
+}
