@@ -9,7 +9,7 @@ import { logger } from '@/lib/utils/production-logger'
  * Use this instead of checking profiles.subscription_tier directly.
  *
  * @see lib/services/entitlements.ts
-'use client'
+ */
 
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/lib/auth/AuthContext'
