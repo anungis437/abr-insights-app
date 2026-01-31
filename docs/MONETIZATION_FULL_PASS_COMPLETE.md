@@ -29,6 +29,7 @@ All gaps identified in the PARTIAL PASS assessment have been successfully resolv
 **File**: `app/api/stripe/portal/route.ts`
 
 **Solution**:
+
 ```typescript
 // Priority 1: Check for org subscription (canonical path)
 if (profile?.organization_id) {
@@ -62,6 +63,7 @@ if (!customerId && profile?.stripe_customer_id) {
 **Solution**: Removed permission gates entirely. Any authenticated user with an active subscription (org or individual) can access their billing portal.
 
 **Before**:
+
 ```typescript
 const permissionError = await requireAnyPermission([
   'subscription.view',
@@ -127,13 +129,14 @@ const seatCheck = await checkSeatAvailability(organization.id, 1)
 if (!seatCheck.allowed) {
   throw new Error(
     seatCheck.reason ||
-    `Your organization has reached its seat limit (${currentMemberCount} members). 
+      `Your organization has reached its seat limit (${currentMemberCount} members). 
      Please upgrade your plan to add more team members.`
   )
 }
 ```
 
 **Flow**:
+
 1. User attempts to invite member
 2. `checkSeatAvailability()` calls `enforceSeats()` primitive
 3. If seat limit reached, invite blocked with upgrade message
@@ -147,7 +150,8 @@ if (!seatCheck.allowed) {
 
 **Problem**: Concern about drift risk from legacy `hooks/use-subscription.ts` and `components/shared/SubscriptionStatus.tsx`.
 
-**Verification**: 
+**Verification**:
+
 - Grepped entire `app/` and `components/` directories for `useSubscription` imports
 - **Result**: ZERO imports found in production code
 - Files exist for backward compatibility but are NOT used in active UI
@@ -162,12 +166,14 @@ if (!seatCheck.allowed) {
 ### Marketing → Checkout → Provisioning → Enforcement
 
 #### 1. Marketing Funnel ✅
+
 - **Entry Point**: `/pricing`
 - **Seat Selection**: Dropdown (1-100+ users)
 - **Visible Tiers**: FREE, PROFESSIONAL, BUSINESS, BUSINESS_PLUS, ENTERPRISE
 - **CTA**: "Get Started" / "Upgrade" → canonical checkout
 
 #### 2. Checkout Session Creation ✅
+
 - **Endpoint**: `POST /api/stripe/checkout`
 - **Payload**: `{ tier, seat_count, organization_id, billing_email }`
 - **Response**: Stripe Checkout URL with metadata
@@ -175,6 +181,7 @@ if (!seatCheck.allowed) {
 - **Session Metadata**: `user_id`, `tier`, `organization_id`, `seat_count`
 
 #### 3. Webhook Processing ✅
+
 - **Endpoint**: `POST /api/webhooks/stripe`
 - **Event**: `checkout.session.completed`
 - **Actions**:
@@ -184,22 +191,26 @@ if (!seatCheck.allowed) {
   - Returns HTTP 200 (idempotent)
 
 #### 4. Database State ✅
+
 - **organization_subscriptions**: Canonical source of truth
 - **seat_allocations**: Tracks individual seats
 - **profiles**: Organization membership via `organization_id`
 
 #### 5. Entitlements API ✅
+
 - **Endpoint**: `GET /api/entitlements`
 - **Logic**: Reads org subscription → returns tier features
 - **Used By**: `useEntitlements()` hook (all production UI)
 
 #### 6. Billing Management ✅
+
 - **Page**: `/dashboard/billing`
 - **Portal**: `POST /api/stripe/portal` → Stripe customer portal
 - **Shows**: Current tier, seats used/available, status, period end
 - **Actions**: Upgrade, downgrade, cancel (via Stripe portal)
 
 #### 7. Seat Enforcement ✅
+
 - **Trigger**: Team member invite at `/admin/team`
 - **Check**: `checkSeatAvailability(orgId, 1)` → `enforceSeats()`
 - **Block**: If `seats_used >= seat_count`, show upgrade message
@@ -209,19 +220,20 @@ if (!seatCheck.allowed) {
 
 ## Complete Tier Model
 
-| Tier | Price | Seat Range | Sold On Pricing |
-|------|-------|------------|-----------------|
-| FREE | $0 | 1 | ✅ Yes |
-| PROFESSIONAL | $49/user/mo | 1-25 | ✅ Yes |
-| BUSINESS | $89/user/mo | 1-100 | ✅ Yes |
-| BUSINESS_PLUS | $129/user/mo | 1-500 | ✅ Yes (NEW) |
-| ENTERPRISE | Custom | Unlimited | ✅ Yes (contact sales) |
+| Tier          | Price        | Seat Range | Sold On Pricing        |
+| ------------- | ------------ | ---------- | ---------------------- |
+| FREE          | $0           | 1          | ✅ Yes                 |
+| PROFESSIONAL  | $49/user/mo  | 1-25       | ✅ Yes                 |
+| BUSINESS      | $89/user/mo  | 1-100      | ✅ Yes                 |
+| BUSINESS_PLUS | $129/user/mo | 1-500      | ✅ Yes (NEW)           |
+| ENTERPRISE    | Custom       | Unlimited  | ✅ Yes (contact sales) |
 
 ---
 
 ## Production Readiness Checklist
 
 ### Core Monetization ✅
+
 - [x] Pricing page drives canonical checkout
 - [x] All 5 tiers visible with seat selection
 - [x] Checkout endpoint accepts tier + seats + org
@@ -232,6 +244,7 @@ if (!seatCheck.allowed) {
 - [x] Portal accessible to all paying users
 
 ### Seat Management ✅
+
 - [x] Seat enforcement active in invite flow
 - [x] Seat limits enforced before member add
 - [x] Upgrade message shown when limit reached
@@ -239,6 +252,7 @@ if (!seatCheck.allowed) {
 - [x] Seats tracked in organization_subscriptions
 
 ### UI Alignment ✅
+
 - [x] All production UI uses useEntitlements()
 - [x] Legacy useSubscription() not imported
 - [x] Pricing cards show all tiers
@@ -246,6 +260,7 @@ if (!seatCheck.allowed) {
 - [x] No tier model drift
 
 ### Technical Quality ✅
+
 - [x] TypeScript compilation passing
 - [x] Rate limiting active on payment endpoints
 - [x] Production logger used for errors
@@ -257,6 +272,7 @@ if (!seatCheck.allowed) {
 ## Files Changed This Session
 
 ### Fixed Files
+
 1. **app/api/stripe/portal/route.ts**
    - Use org subscription customer_id (priority 1)
    - Fallback to profile customer_id (legacy)
@@ -272,6 +288,7 @@ if (!seatCheck.allowed) {
 ## Testing Checklist (Ready for Production)
 
 ### Pre-Launch
+
 - [x] All TypeScript errors resolved
 - [x] Pricing page displays all tiers
 - [x] Seat selection functional
@@ -279,6 +296,7 @@ if (!seatCheck.allowed) {
 - [x] Seat enforcement verified
 
 ### Launch Day (with test card)
+
 - [ ] Complete checkout flow (test mode)
 - [ ] Verify webhook fires successfully
 - [ ] Check database records created
@@ -287,6 +305,7 @@ if (!seatCheck.allowed) {
 - [ ] Verify seat enforcement blocks at limit
 
 ### Post-Launch Monitoring
+
 - [ ] Monitor checkout conversion rate
 - [ ] Track webhook processing success
 - [ ] Alert on seat enforcement errors
