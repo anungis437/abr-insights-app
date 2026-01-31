@@ -3,10 +3,19 @@
  */
 
 const { createClient } = require('@supabase/supabase-js')
-const supabase = createClient(
-  '***REMOVED***',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.***REMOVED***.iN8EyRCE9cu5x3mpeC-nDeocv26k6yYFEZi1WHNJeyI'
-)
+const dotenv = require('dotenv')
+
+dotenv.config({ path: '.env.local' })
+
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+  console.error('Missing credentials - set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY')
+  process.exit(1)
+}
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
 async function createModule(courseId, data) {
   const { data: module, error } = await supabase
