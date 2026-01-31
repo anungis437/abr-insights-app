@@ -5,6 +5,7 @@
  */
 
 import { createClient } from '@/lib/supabase/client'
+import { logger } from '@/lib/utils/logger'
 import type { LessonNote, CreateLessonNoteData, UpdateLessonNoteData } from '@/lib/types/courses'
 
 const supabase = createClient()

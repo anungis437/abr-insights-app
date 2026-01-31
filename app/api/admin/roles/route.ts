@@ -92,10 +92,15 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      logger.error('Failed to create role', error as Error, { name, slug, level })
+      logger.error('Failed to create role', error as Error, {
+        name,
+        slug,
+        level,
+        errorMessage: error.message,
+      })
       return NextResponse.json(
         {
-          error: error.message || 'Failed to create role',
+          error: 'Failed to create role',
         },
         { status: 500 }
       )

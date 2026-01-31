@@ -6,6 +6,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -183,13 +184,13 @@ export async function getUserSkillsDashboard(userId: string): Promise<SkillsDash
     const { data, error } = await supabase.rpc('get_user_skills_dashboard', { p_user_id: userId })
 
     if (error) {
-      console.error('Error fetching skills dashboard:', error)
+      logger.error('Error fetching skills dashboard:', error)
       return null
     }
 
     return data as SkillsDashboardData
   } catch (error) {
-    console.error('Unexpected error in getUserSkillsDashboard:', error)
+    logger.error('Unexpected error in getUserSkillsDashboard:', error)
     return null
   }
 }
@@ -212,13 +213,13 @@ export async function getSkillValidationHistory(
     })
 
     if (error) {
-      console.error('Error fetching validation history:', error)
+      logger.error('Error fetching validation history:', error)
       return []
     }
 
     return (data || []) as SkillValidation[]
   } catch (error) {
-    console.error('Unexpected error in getSkillValidationHistory:', error)
+    logger.error('Unexpected error in getSkillValidationHistory:', error)
     return []
   }
 }
@@ -239,13 +240,13 @@ export async function getRecommendedCourses(
     })
 
     if (error) {
-      console.error('Error fetching recommended courses:', error)
+      logger.error('Error fetching recommended courses:', error)
       return []
     }
 
     return (data || []) as RecommendedCourse[]
   } catch (error) {
-    console.error('Unexpected error in getRecommendedCourses:', error)
+    logger.error('Unexpected error in getRecommendedCourses:', error)
     return []
   }
 }
@@ -266,13 +267,13 @@ export async function validateSkillsFromQuiz(
     })
 
     if (error) {
-      console.error('Error validating skills from quiz:', error)
+      logger.error('Error validating skills from quiz:', error)
       return false
     }
 
     return true
   } catch (error) {
-    console.error('Unexpected error in validateSkillsFromQuiz:', error)
+    logger.error('Unexpected error in validateSkillsFromQuiz:', error)
     return false
   }
 }
@@ -305,13 +306,13 @@ export async function getSkills(category?: string, regulatoryBody?: string): Pro
     const { data, error } = await query
 
     if (error) {
-      console.error('Error fetching skills:', error)
+      logger.error('Error fetching skills:', error)
       return []
     }
 
     return (data || []) as Skill[]
   } catch (error) {
-    console.error('Unexpected error in getSkills:', error)
+    logger.error('Unexpected error in getSkills:', error)
     return []
   }
 }
@@ -334,13 +335,13 @@ export async function getSkill(idOrSlug: string): Promise<Skill | null> {
     }
 
     if (error) {
-      console.error('Error fetching skill:', error)
+      logger.error('Error fetching skill:', error)
       return null
     }
 
     return data as Skill
   } catch (error) {
-    console.error('Unexpected error in getSkill:', error)
+    logger.error('Unexpected error in getSkill:', error)
     return null
   }
 }
@@ -372,13 +373,13 @@ export async function getUserSkills(
     const { data, error } = await query
 
     if (error) {
-      console.error('Error fetching user skills:', error)
+      logger.error('Error fetching user skills:', error)
       return []
     }
 
     return (data || []) as UserSkillWithDetails[]
   } catch (error) {
-    console.error('Unexpected error in getUserSkills:', error)
+    logger.error('Unexpected error in getUserSkills:', error)
     return []
   }
 }
@@ -397,13 +398,13 @@ export async function getActiveValidatedSkills(userId: string): Promise<ActiveSk
       .order('proficiency_score', { ascending: false })
 
     if (error) {
-      console.error('Error fetching active validated skills:', error)
+      logger.error('Error fetching active validated skills:', error)
       return []
     }
 
     return (data || []) as ActiveSkill[]
   } catch (error) {
-    console.error('Unexpected error in getActiveValidatedSkills:', error)
+    logger.error('Unexpected error in getActiveValidatedSkills:', error)
     return []
   }
 }
@@ -426,13 +427,13 @@ export async function getExpiringSkills(
       .order('days_until_expiry', { ascending: true })
 
     if (error) {
-      console.error('Error fetching expiring skills:', error)
+      logger.error('Error fetching expiring skills:', error)
       return []
     }
 
     return (data || []) as ExpiringSkill[]
   } catch (error) {
-    console.error('Unexpected error in getExpiringSkills:', error)
+    logger.error('Unexpected error in getExpiringSkills:', error)
     return []
   }
 }
@@ -452,7 +453,7 @@ export async function getSkillCategories(): Promise<
       .eq('is_active', true)
 
     if (error) {
-      console.error('Error fetching skill categories:', error)
+      logger.error('Error fetching skill categories:', error)
       return []
     }
 
@@ -476,7 +477,7 @@ export async function getSkillCategories(): Promise<
 
     return categoryCounts.sort((a, b) => a.category.localeCompare(b.category))
   } catch (error) {
-    console.error('Unexpected error in getSkillCategories:', error)
+    logger.error('Unexpected error in getSkillCategories:', error)
     return []
   }
 }
@@ -563,7 +564,7 @@ export async function getSkillProgress(
       dependent_skills: dependentSkills,
     }
   } catch (error) {
-    console.error('Unexpected error in getSkillProgress:', error)
+    logger.error('Unexpected error in getSkillProgress:', error)
     return null
   }
 }

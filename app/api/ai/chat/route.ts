@@ -183,11 +183,11 @@ Respond in a helpful, conversational tone with actionable insights.`
     logger.error('AI chat request failed', error as Error, {
       userId: context.user?.id,
       organizationId: context.organizationId,
+      errorMessage: error.message,
     })
     return NextResponse.json(
       {
-        error: error.message || 'Failed to process AI request',
-        details: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+        error: 'Failed to process AI request',
       },
       { status: 500 }
     )

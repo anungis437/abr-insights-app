@@ -101,10 +101,16 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      logger.error('Failed to create permission', error as Error, { name, slug, resource, action })
+      logger.error('Failed to create permission', error as Error, {
+        name,
+        slug,
+        resource,
+        action,
+        errorMessage: error.message,
+      })
       return NextResponse.json(
         {
-          error: error.message || 'Failed to create permission',
+          error: 'Failed to create permission',
         },
         { status: 500 }
       )

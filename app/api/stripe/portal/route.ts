@@ -36,6 +36,8 @@ async function portalHandler(req: NextRequest) {
     let customerId: string | null = null
 
     // Priority 1: Check for org subscription (canonical path)
+    // Note: RLS allows org members to view their org's subscription (org_subscriptions_select policy)
+    // If this fails, user may not be an org member or subscription doesn't exist
     if (profile?.organization_id) {
       const { data: orgSubscription } = await supabase
         .from('organization_subscriptions')

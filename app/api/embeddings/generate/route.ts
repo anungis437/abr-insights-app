@@ -102,11 +102,11 @@ async function generateEmbeddingsHandler(request: NextRequest, context: GuardedC
     logger.error('Embedding generation failed', error as Error, {
       userId: context.user?.id,
       organizationId: context.organizationId,
+      errorMessage: error instanceof Error ? error.message : 'Unknown error',
     })
     return NextResponse.json(
       {
         error: 'Failed to generate embeddings',
-        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     )

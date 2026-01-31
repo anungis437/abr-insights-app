@@ -7,6 +7,7 @@
  */
 
 import { createClient } from '@/lib/supabase/client'
+import { logger } from '@/lib/utils/logger'
 import type { QuestionWithOptions } from './quiz-questions'
 import { getQuestion, getRandomQuestionsFromPool, shuffleArray } from './quiz-questions'
 
@@ -140,7 +141,7 @@ export async function createQuiz(input: Partial<Quiz>): Promise<Quiz | null> {
     }
     return data
   } catch (error) {
-    console.error('Error creating quiz:', error)
+    logger.error('Error creating quiz:', error)
     return null
   }
 }
@@ -157,7 +158,7 @@ export async function getQuiz(quizId: string): Promise<Quiz | null> {
     if (error) throw error
     return data
   } catch (error) {
-    console.error('Error fetching quiz:', error)
+    logger.error('Error fetching quiz:', error)
     return null
   }
 }
@@ -230,7 +231,7 @@ export async function getQuizForAttempt(
       user_attempts: attempts || [],
     }
   } catch (error) {
-    console.error('Error fetching quiz for attempt:', error)
+    logger.error('Error fetching quiz for attempt:', error)
     return null
   }
 }
@@ -257,7 +258,7 @@ export async function getQuizzes(filters: {
     if (error) throw error
     return data || []
   } catch (error) {
-    console.error('Error fetching quizzes:', error)
+    logger.error('Error fetching quizzes:', error)
     return []
   }
 }
@@ -288,7 +289,7 @@ export async function updateQuiz(quizId: string, updates: Partial<Quiz>): Promis
     }
     return data
   } catch (error) {
-    console.error('Error updating quiz:', error)
+    logger.error('Error updating quiz:', error)
     return null
   }
 }
@@ -313,7 +314,7 @@ export async function deleteQuiz(quizId: string): Promise<boolean> {
     }
     return true
   } catch (error) {
-    console.error('Error deleting quiz:', error)
+    logger.error('Error deleting quiz:', error)
     return false
   }
 }
@@ -352,7 +353,7 @@ export async function addQuestionToQuiz(input: {
     if (error) throw error
     return data
   } catch (error) {
-    console.error('Error adding question to quiz:', error)
+    logger.error('Error adding question to quiz:', error)
     return null
   }
 }
@@ -368,7 +369,7 @@ export async function removeQuestionFromQuiz(quizQuestionId: string): Promise<bo
     if (error) throw error
     return true
   } catch (error) {
-    console.error('Error removing question from quiz:', error)
+    logger.error('Error removing question from quiz:', error)
     return false
   }
 }
@@ -403,7 +404,7 @@ export async function startQuizAttempt(
     // Get quiz to check max_attempts
     const quiz = await getQuiz(quizId)
     if (quiz && quiz.max_attempts > 0 && nextAttemptNumber > quiz.max_attempts) {
-      console.error('Maximum attempts reached')
+      logger.error('Maximum attempts reached')
       return null
     }
 
@@ -424,7 +425,7 @@ export async function startQuizAttempt(
     if (error) throw error
     return data
   } catch (error) {
-    console.error('Error starting quiz attempt:', error)
+    logger.error('Error starting quiz attempt:', error)
     return null
   }
 }
@@ -470,7 +471,7 @@ export async function submitQuizResponse(input: {
     if (error) throw error
     return data
   } catch (error) {
-    console.error('Error submitting quiz response:', error)
+    logger.error('Error submitting quiz response:', error)
     return null
   }
 }
@@ -503,7 +504,7 @@ export async function submitQuizAttempt(attemptId: string): Promise<QuizAttempt 
     if (error) throw error
     return data
   } catch (error) {
-    console.error('Error submitting quiz attempt:', error)
+    logger.error('Error submitting quiz attempt:', error)
     return null
   }
 }
@@ -537,7 +538,7 @@ export async function getQuizAttempt(
       responses: responses || [],
     }
   } catch (error) {
-    console.error('Error fetching quiz attempt:', error)
+    logger.error('Error fetching quiz attempt:', error)
     return null
   }
 }
@@ -562,7 +563,7 @@ export async function getUserQuizAttempts(userId: string, quizId?: string): Prom
     if (error) throw error
     return data || []
   } catch (error) {
-    console.error('Error fetching user quiz attempts:', error)
+    logger.error('Error fetching user quiz attempts:', error)
     return []
   }
 }

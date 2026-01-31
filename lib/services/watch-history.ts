@@ -5,6 +5,7 @@
  */
 
 import { createClient } from '@/lib/supabase/client'
+import { logger } from '@/lib/utils/logger'
 import type {
   WatchHistory,
   CreateWatchHistoryData,

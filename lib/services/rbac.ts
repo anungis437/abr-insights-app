@@ -12,6 +12,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
 
 // Types for permission checking
 interface PermissionCheckResult {
@@ -72,7 +73,7 @@ export async function checkPermission(
     })
 
     if (error) {
-      console.error('[RBAC] Permission check error:', error)
+      logger.error('[RBAC] Permission check error:', error)
       return {
         granted: false,
         source: 'denied',
@@ -85,7 +86,7 @@ export async function checkPermission(
       source: data === true ? 'role' : 'denied',
     }
   } catch (error) {
-    console.error('[RBAC] Permission check exception:', error)
+    logger.error('[RBAC] Permission check exception:', error)
     return {
       granted: false,
       source: 'denied',
@@ -126,7 +127,7 @@ export async function getUserPermissions(
     })
 
     if (error) {
-      console.error('[RBAC] Get permissions error:', error)
+      logger.error('[RBAC] Get permissions error:', error)
       return []
     }
 
@@ -140,7 +141,7 @@ export async function getUserPermissions(
 
     return (data as UserPermission[]) || []
   } catch (error) {
-    console.error('[RBAC] Get permissions exception:', error)
+    logger.error('[RBAC] Get permissions exception:', error)
     return []
   }
 }
@@ -208,7 +209,7 @@ export async function assignPermission(
     })
 
     if (error) {
-      console.error('[RBAC] Assign permission error:', error)
+      logger.error('[RBAC] Assign permission error:', error)
       return {
         success: false,
         error: 'Failed to assign permission',
@@ -222,7 +223,7 @@ export async function assignPermission(
 
     return { success: true }
   } catch (error) {
-    console.error('[RBAC] Assign permission exception:', error)
+    logger.error('[RBAC] Assign permission exception:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -288,7 +289,7 @@ export async function revokePermission(
     const { error } = await query
 
     if (error) {
-      console.error('[RBAC] Revoke permission error:', error)
+      logger.error('[RBAC] Revoke permission error:', error)
       return {
         success: false,
         error: 'Failed to revoke permission',
@@ -302,7 +303,7 @@ export async function revokePermission(
 
     return { success: true }
   } catch (error) {
-    console.error('[RBAC] Revoke permission exception:', error)
+    logger.error('[RBAC] Revoke permission exception:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -370,7 +371,7 @@ export async function createPermissionOverride(
       .single()
 
     if (error) {
-      console.error('[RBAC] Create override error:', error)
+      logger.error('[RBAC] Create override error:', error)
       return {
         success: false,
         error: 'Failed to create permission override',
@@ -385,7 +386,7 @@ export async function createPermissionOverride(
       overrideId: override.id,
     }
   } catch (error) {
-    console.error('[RBAC] Create override exception:', error)
+    logger.error('[RBAC] Create override exception:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -427,7 +428,7 @@ export async function approvePermissionOverride(
       .single()
 
     if (error) {
-      console.error('[RBAC] Approve override error:', error)
+      logger.error('[RBAC] Approve override error:', error)
       return {
         success: false,
         error: 'Failed to approve permission override',
@@ -441,7 +442,7 @@ export async function approvePermissionOverride(
 
     return { success: true }
   } catch (error) {
-    console.error('[RBAC] Approve override exception:', error)
+    logger.error('[RBAC] Approve override exception:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -463,13 +464,13 @@ export async function getUserRolesWithInheritance(userId: string): Promise<strin
     })
 
     if (error) {
-      console.error('[RBAC] Get user roles error:', error)
+      logger.error('[RBAC] Get user roles error:', error)
       return []
     }
 
     return (data as string[]) || []
   } catch (error) {
-    console.error('[RBAC] Get user roles exception:', error)
+    logger.error('[RBAC] Get user roles exception:', error)
     return []
   }
 }

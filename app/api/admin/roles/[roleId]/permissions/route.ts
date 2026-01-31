@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { requireAnyPermission } from '@/lib/auth/permissions'
+import { logger } from '@/lib/utils/production-logger'
 
 // GET /api/admin/roles/[roleId]/permissions - Get permissions for a role
 export async function GET(request: NextRequest, { params }: { params: { roleId: string } }) {
@@ -91,10 +92,14 @@ export async function POST(request: NextRequest, { params }: { params: { roleId:
       .select()
 
     if (error) {
-      console.error('Error assigning permissions:', error)
+      logger.error('Failed to assign permissions', error as Error, {
+        roleId: params.roleId,
+        permissionIds,
+        errorMessage: error.message,
+      })
       return NextResponse.json(
         {
-          error: error.message || 'Failed to assign permissions',
+          error: 'Failed to assign permissions',
         },
         { status: 500 }
       )
@@ -143,10 +148,14 @@ export async function DELETE(request: NextRequest, { params }: { params: { roleI
       .eq('permission_id', permission_id)
 
     if (error) {
-      console.error('Error removing permission:', error)
+      logger.error('Failed to remove permission', error as Error, {
+        roleId,
+        permissionId: permission_id,
+        errorMessage: error.message,
+      })
       return NextResponse.json(
         {
-          error: error.message || 'Failed to remove permission',
+          error: 'Failed to remove permission',
         },
         { status: 500 }
       )
@@ -154,7 +163,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { roleI
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Role permissions API error:', error)
+    logger.error('Role permissions API error', error as Error, { roleId: params.roleId })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

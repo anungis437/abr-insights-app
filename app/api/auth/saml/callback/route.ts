@@ -184,14 +184,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.redirect(
-      new URL(
-        `/login?error=saml_error&details=${encodeURIComponent(
-          error instanceof Error ? error.message : 'Unknown error'
-        )}`,
-        request.url
-      )
-    )
+    return NextResponse.redirect(new URL(`/login?error=saml_error`, request.url))
   }
 }
 
