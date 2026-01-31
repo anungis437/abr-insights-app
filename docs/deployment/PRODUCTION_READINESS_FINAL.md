@@ -12,6 +12,7 @@ This document outlines the two remaining items that enterprise reviewers would f
 ## 1. Rate Limiting (SOLUTION READY) ✅
 
 ### Current State
+
 - **File**: `lib/security/rateLimit.ts`
 - **Implementation**: In-memory Map (development only)
 - **Issue**: Not production-safe for:
@@ -20,6 +21,7 @@ This document outlines the two remaining items that enterprise reviewers would f
   - ❌ Azure Static Web Apps (multi-node)
 
 ### Solution Created
+
 - **File**: `lib/security/redisRateLimit.ts` (218 lines)
 - **Features**:
   - ✅ Upstash Redis support (serverless HTTP API)
@@ -35,16 +37,19 @@ This document outlines the two remaining items that enterprise reviewers would f
 #### Option A: Upstash Redis (Recommended for Azure SWA)
 
 **Step 1**: Install Upstash SDK
+
 ```bash
 npm install @upstash/redis
 ```
 
 **Step 2**: Create Upstash account and database
+
 - Visit: https://upstash.com/
 - Create new Redis database
 - Copy REST URL and token
 
 **Step 3**: Add environment variables
+
 ```env
 # .env.local
 UPSTASH_REDIS_REST_URL=https://your-db.upstash.io
@@ -52,6 +57,7 @@ UPSTASH_REDIS_REST_TOKEN=your-token-here
 ```
 
 **Step 4**: Update API routes
+
 ```typescript
 // Before
 import { withRateLimit, RateLimitPresets } from '@/lib/security/rateLimit'
@@ -64,6 +70,7 @@ export const POST = withRedisRateLimit(handler, RateLimitPresets.aiChat)
 ```
 
 **Step 5**: Deploy
+
 ```bash
 # Add environment variables to Azure Static Web Apps
 az staticwebapp appsettings set \
@@ -76,11 +83,13 @@ az staticwebapp appsettings set \
 #### Option B: Azure Cache for Redis
 
 **Step 1**: Install Redis client
+
 ```bash
 npm install redis
 ```
 
 **Step 2**: Create Azure Cache
+
 ```bash
 az redis create \
   --name abr-insights-cache \
@@ -91,6 +100,7 @@ az redis create \
 ```
 
 **Step 3**: Get connection details
+
 ```bash
 az redis show \
   --name abr-insights-cache \
@@ -99,6 +109,7 @@ az redis show \
 ```
 
 **Step 4**: Add environment variables
+
 ```env
 REDIS_URL=redis://your-cache.redis.cache.windows.net:6380
 REDIS_PASSWORD=your-primary-key
@@ -108,12 +119,12 @@ REDIS_PASSWORD=your-primary-key
 
 ### Cost Comparison
 
-| Provider | Tier | Cost | Notes |
-|----------|------|------|-------|
-| **Upstash** | Free | $0 | 10,000 requests/day |
-| **Upstash** | Pay-as-you-go | $0.20/100k | Recommended for SWA |
-| **Azure Cache** | Basic C0 | $16.06/mo | 250 MB |
-| **Azure Cache** | Standard C1 | $62.78/mo | 1 GB, SLA |
+| Provider        | Tier          | Cost       | Notes               |
+| --------------- | ------------- | ---------- | ------------------- |
+| **Upstash**     | Free          | $0         | 10,000 requests/day |
+| **Upstash**     | Pay-as-you-go | $0.20/100k | Recommended for SWA |
+| **Azure Cache** | Basic C0      | $16.06/mo  | 250 MB              |
+| **Azure Cache** | Standard C1   | $62.78/mo  | 1 GB, SLA           |
 
 **Recommendation**: Start with Upstash free tier ($0/month)
 
@@ -131,20 +142,24 @@ REDIS_PASSWORD=your-primary-key
 ### Routes to Migrate
 
 **High Priority** (AI endpoints):
+
 - `app/api/ai/chat/route.ts`
 - `app/api/ai/coach/route.ts`
 - `app/api/embeddings/search-cases/route.ts`
 - `app/api/embeddings/search-courses/route.ts`
 
 **Medium Priority** (auth/webhooks):
+
 - `app/api/auth/*/route.ts`
 - `app/api/webhooks/stripe/route.ts`
 
 **Low Priority** (public):
+
 - `app/api/contact/route.ts`
 - `app/api/newsletter/route.ts`
 
 ### Documentation
+
 - ✅ Setup guide: `docs/deployment/REDIS_RATE_LIMITING_SETUP.md`
 - ✅ Implementation: `lib/security/redisRateLimit.ts`
 - ✅ Presets: `lib/security/rateLimitPresets.ts`
@@ -154,6 +169,7 @@ REDIS_PASSWORD=your-primary-key
 ## 2. Console Logging (READY TO EXECUTE) 🔄
 
 ### Current State
+
 - **Issue**: 100+ `console.log/error/warn` calls across codebase
 - **Risk**:
   - ❌ PII leakage in production logs
@@ -163,19 +179,20 @@ REDIS_PASSWORD=your-primary-key
   - ❌ No Application Insights integration
 
 ### Solution Available
+
 - **Logger**: `lib/utils/production-logger.ts` (already exists)
 - **Migration Guide**: `docs/development/LOGGING_MIGRATION_GUIDE.md`
 - **Automation Script**: `scripts/migrate-console-logs.ts`
 
 ### Scope
 
-| Location | Count | Priority |
-|----------|-------|----------|
-| **Admin pages** (`app/admin/**/*.tsx`) | 30+ | HIGH |
-| **App pages** (`app/*/page.tsx`) | 25+ | MEDIUM |
-| **Hooks** (`hooks/*.ts`) | 10+ | MEDIUM |
-| **Service worker** (`public/sw.js`) | 15+ | LOW |
-| **Scripts** (`scripts/*.ts`) | 10+ | SKIP |
+| Location                               | Count | Priority |
+| -------------------------------------- | ----- | -------- |
+| **Admin pages** (`app/admin/**/*.tsx`) | 30+   | HIGH     |
+| **App pages** (`app/*/page.tsx`)       | 25+   | MEDIUM   |
+| **Hooks** (`hooks/*.ts`)               | 10+   | MEDIUM   |
+| **Service worker** (`public/sw.js`)    | 15+   | LOW      |
+| **Scripts** (`scripts/*.ts`)           | 10+   | SKIP     |
 
 **Total**: ~100+ occurrences
 
@@ -190,58 +207,65 @@ console.warn('Rate limit approaching')
 // ✅ After
 import { logger } from '@/lib/utils/production-logger'
 
-logger.error('Failed to load data', { 
-  error, 
+logger.error('Failed to load data', {
+  error,
   context: 'DataLoader',
-  userId 
+  userId,
 })
 
-logger.info('User status updated', { 
-  userId, 
-  status, 
-  context: 'UserProfile' 
+logger.info('User status updated', {
+  userId,
+  status,
+  context: 'UserProfile',
 })
 
-logger.warn('Rate limit approaching', { 
-  remaining: 5, 
+logger.warn('Rate limit approaching', {
+  remaining: 5,
   limit: 100,
-  context: 'RateLimiter' 
+  context: 'RateLimiter',
 })
 ```
 
 ### Execution Steps
 
 **Step 1**: Dry run (preview changes)
+
 ```bash
 npx tsx scripts/migrate-console-logs.ts --dry-run
 ```
 
 **Step 2**: Migrate high-priority files (admin pages)
+
 ```bash
 npx tsx scripts/migrate-console-logs.ts --files="app/admin/**/*.tsx"
 ```
 
 **Step 3**: Review and adjust
+
 - Check for PII in log messages
 - Verify context names are accurate
 - Add relevant IDs (userId, courseId, etc.)
 
 **Step 4**: Migrate medium-priority files (hooks)
+
 ```bash
 npx tsx scripts/migrate-console-logs.ts --files="hooks/*.ts"
 ```
 
 **Step 5**: Migrate remaining files (app pages)
+
 ```bash
 npx tsx scripts/migrate-console-logs.ts --files="app/*/page.tsx"
 ```
 
 **Step 6**: Manual review (service worker)
+
 - Review `public/sw.js` logging
 - Keep essential offline diagnostics
 - Remove verbose output
 
 **Step 7**: Validate
+
 ```bash
 npm run type-check
 npm run lint
@@ -249,54 +273,61 @@ npm run format
 ```
 
 **Step 8**: Test
+
 - Run app in development (verify logs appear)
 - Check Application Insights (verify logs tracked)
 - Audit for PII leakage
 
 ### Timeline Estimate
 
-| Phase | Files | Time | Priority |
-|-------|-------|------|----------|
-| **Phase 1** | Admin pages (30+) | 2 hours | HIGH |
-| **Phase 2** | Hooks (10+) | 1 hour | MEDIUM |
-| **Phase 3** | App pages (25+) | 2 hours | MEDIUM |
-| **Phase 4** | Service worker (15+) | 1 hour | LOW |
-| **Testing** | All | 2 hours | - |
+| Phase       | Files                | Time    | Priority |
+| ----------- | -------------------- | ------- | -------- |
+| **Phase 1** | Admin pages (30+)    | 2 hours | HIGH     |
+| **Phase 2** | Hooks (10+)          | 1 hour  | MEDIUM   |
+| **Phase 3** | App pages (25+)      | 2 hours | MEDIUM   |
+| **Phase 4** | Service worker (15+) | 1 hour  | LOW      |
+| **Testing** | All                  | 2 hours | -        |
 
 **Total**: ~8 hours
 
 ### Benefits After Migration
 
-| Feature | Before | After |
-|---------|--------|-------|
-| **Structured Context** | ❌ String concat | ✅ JSON objects |
-| **Environment Filtering** | ❌ Always outputs | ✅ NODE_ENV aware |
-| **PII Protection** | ❌ Manual | ✅ Built-in |
-| **Application Insights** | ❌ Not integrated | ✅ Auto-tracked |
-| **Search/Filter** | ❌ Plain text | ✅ Structured queries |
-| **Log Levels** | ❌ Limited | ✅ info/warn/error/debug |
+| Feature                   | Before            | After                    |
+| ------------------------- | ----------------- | ------------------------ |
+| **Structured Context**    | ❌ String concat  | ✅ JSON objects          |
+| **Environment Filtering** | ❌ Always outputs | ✅ NODE_ENV aware        |
+| **PII Protection**        | ❌ Manual         | ✅ Built-in              |
+| **Application Insights**  | ❌ Not integrated | ✅ Auto-tracked          |
+| **Search/Filter**         | ❌ Plain text     | ✅ Structured queries    |
+| **Log Levels**            | ❌ Limited        | ✅ info/warn/error/debug |
 
 ### Post-Migration
 
 **Step 1**: Add ESLint rule (prevent future console usage)
+
 ```json
 // .eslintrc.json
 {
   "rules": {
-    "no-console": ["error", { 
-      "allow": ["warn", "error"] 
-    }]
+    "no-console": [
+      "error",
+      {
+        "allow": ["warn", "error"]
+      }
+    ]
   }
 }
 ```
 
 **Step 2**: Monitor in production
+
 - Track error rates by context
 - Alert on error spikes
 - Analyze user flows
 - Identify bottlenecks
 
 **Step 3**: Review quarterly
+
 - Audit logs for PII leakage
 - Optimize log verbosity
 - Update context fields
@@ -307,6 +338,7 @@ npm run format
 ## Enterprise Reviewer Checklist
 
 ### Rate Limiting ✅
+
 - [x] Redis-based solution created
 - [ ] Upstash or Azure Cache configured
 - [ ] Environment variables set
@@ -317,8 +349,9 @@ npm run format
 - [ ] Monitoring configured
 
 ### Console Logging 🔄
+
 - [ ] Migration script executed
-- [ ] All console.* calls replaced
+- [ ] All console.\* calls replaced
 - [ ] No PII in log messages
 - [ ] Structured context added
 - [ ] Application Insights verified
@@ -351,8 +384,8 @@ NODE_ENV=production
 ```json
 {
   "optionalDependencies": {
-    "@upstash/redis": "^1.34.3",  // For Upstash
-    "redis": "^4.7.0"              // For Azure Cache
+    "@upstash/redis": "^1.34.3", // For Upstash
+    "redis": "^4.7.0" // For Azure Cache
   }
 }
 ```
@@ -375,6 +408,7 @@ az staticwebapp appsettings set \
 ## Success Criteria
 
 ### Rate Limiting
+
 ✅ Redis client initialized successfully  
 ✅ Rate limits enforced across multiple instances  
 ✅ Rate limit headers present in responses  
@@ -383,7 +417,8 @@ az staticwebapp appsettings set \
 ✅ Monitoring alerts configured
 
 ### Console Logging
-✅ All console.* calls replaced with logger  
+
+✅ All console.\* calls replaced with logger  
 ✅ No PII detected in log messages  
 ✅ Structured context in all logs  
 ✅ Environment-based filtering working  
@@ -395,7 +430,9 @@ az staticwebapp appsettings set \
 ## Rollback Plan
 
 ### Rate Limiting
+
 If Redis implementation causes issues:
+
 ```typescript
 // Emergency rollback: use in-memory limiter
 import { withRateLimit } from '@/lib/security/rateLimit'
@@ -403,7 +440,9 @@ import { withRateLimit } from '@/lib/security/rateLimit'
 ```
 
 ### Console Logging
+
 If migration breaks functionality:
+
 ```bash
 # Revert specific files
 git checkout HEAD -- app/admin/ml/page.tsx
@@ -417,12 +456,14 @@ git revert <commit-hash>
 ## Timeline
 
 ### Week 1: Rate Limiting
+
 - **Day 1-2**: Configure Upstash Redis
 - **Day 3**: Migrate AI endpoints
 - **Day 4**: Migrate auth/webhook endpoints
 - **Day 5**: Testing and monitoring
 
 ### Week 2: Console Logging
+
 - **Day 1**: Migrate admin pages
 - **Day 2**: Migrate hooks
 - **Day 3**: Migrate app pages
@@ -430,6 +471,7 @@ git revert <commit-hash>
 - **Day 5**: Testing and validation
 
 ### Week 3: Production
+
 - **Day 1-2**: Staging deployment
 - **Day 3**: Production deployment
 - **Day 4-5**: Monitoring and optimization
@@ -449,6 +491,7 @@ git revert <commit-hash>
 ## Questions?
 
 Contact DevOps team or refer to:
+
 - Upstash Documentation: https://docs.upstash.com/
 - Azure Cache for Redis: https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/
 - Application Insights Logging: https://learn.microsoft.com/en-us/azure/azure-monitor/logs/

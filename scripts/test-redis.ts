@@ -27,47 +27,47 @@ async function testRedisConnection() {
   try {
     // Import Redis client
     const { Redis } = await import('@upstash/redis')
-    
+
     console.log('✅ @upstash/redis package loaded')
-    
+
     // Create client
     const redis = new Redis({
       url,
       token,
     })
-    
+
     console.log('✅ Redis client created')
     console.log()
-    
+
     // Test 1: Set a value
     console.log('Test 1: SET operation')
     await redis.set('test:connection', 'success', { ex: 60 })
     console.log('   ✅ SET test:connection = "success" (expires in 60s)')
-    
+
     // Test 2: Get the value
     console.log('\nTest 2: GET operation')
     const value = await redis.get('test:connection')
     console.log(`   ✅ GET test:connection = "${value}"`)
-    
+
     // Test 3: Rate limit simulation (Sorted Set)
     console.log('\nTest 3: Rate limit simulation (Sorted Set)')
     const now = Date.now()
     const key = 'ratelimit:test:user123'
-    
+
     await redis.zadd(key, { score: now, member: `${now}:req1` })
     await redis.zadd(key, { score: now + 1, member: `${now + 1}:req2` })
     await redis.expire(key, 60)
-    
+
     console.log(`   ✅ ZADD ${key} (2 requests)`)
-    
+
     const count = await redis.zcard(key)
     console.log(`   ✅ ZCARD ${key} = ${count}`)
-    
+
     // Test 4: Cleanup
     console.log('\nTest 4: Cleanup')
     await redis.del('test:connection', key)
     console.log('   ✅ Cleanup complete')
-    
+
     console.log('\n' + '='.repeat(60))
     console.log('✅ SUCCESS: Upstash Redis is working correctly!')
     console.log('='.repeat(60))
@@ -76,7 +76,6 @@ async function testRedisConnection() {
     console.log('   2. Test API endpoints and check rate limit headers')
     console.log('   3. Monitor usage at https://console.upstash.com/')
     console.log()
-    
   } catch (error) {
     console.error('\n❌ ERROR: Redis connection failed')
     console.error(error)

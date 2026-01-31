@@ -6,18 +6,19 @@ Successfully migrated **4 high-priority API endpoints** from in-memory to Redis-
 
 ### Migrated Endpoints
 
-| Endpoint | Rate Limit | Type | Priority |
-|----------|------------|------|----------|
-| `/api/ai/chat` | 20 req/min | User + Org | **CRITICAL** |
-| `/api/ai/coach` | 10 req/min | User + Org | **CRITICAL** |
-| `/api/embeddings/search-cases` | 30 req/min | User | **HIGH** |
-| `/api/contact` | 5 req/hour | IP | **HIGH** |
+| Endpoint                       | Rate Limit | Type       | Priority     |
+| ------------------------------ | ---------- | ---------- | ------------ |
+| `/api/ai/chat`                 | 20 req/min | User + Org | **CRITICAL** |
+| `/api/ai/coach`                | 10 req/min | User + Org | **CRITICAL** |
+| `/api/embeddings/search-cases` | 30 req/min | User       | **HIGH**     |
+| `/api/contact`                 | 5 req/hour | IP         | **HIGH**     |
 
 ### Implementation Details
 
 **Files Modified:**
+
 - ✅ `app/api/ai/chat/route.ts` - AI chat endpoint
-- ✅ `app/api/ai/coach/route.ts` - AI coaching endpoint  
+- ✅ `app/api/ai/coach/route.ts` - AI coaching endpoint
 - ✅ `app/api/embeddings/search-cases/route.ts` - Semantic search endpoint
 - ✅ `app/api/contact/route.ts` - Contact form endpoint
 - ✅ `lib/security/redisRateLimit.ts` - Added `withMultipleRedisRateLimits` function
@@ -26,6 +27,7 @@ Successfully migrated **4 high-priority API endpoints** from in-memory to Redis-
 - ✅ `.env.example` - Added Upstash Redis configuration
 
 **New Files:**
+
 - ✅ `REDIS_SETUP_QUICKSTART.md` - 5-minute setup guide
 
 ### Technical Improvements
@@ -65,6 +67,7 @@ npm run dev
 ```
 
 Visit http://localhost:3000 and test an API endpoint. Check response headers:
+
 - `X-RateLimit-Limit` - Maximum requests
 - `X-RateLimit-Remaining` - Requests left
 - `X-RateLimit-Reset` - Reset timestamp
@@ -118,16 +121,19 @@ az staticwebapp appsettings set \
 ## Cost Estimate
 
 ### Upstash Free Tier
+
 - **10,000 requests/day**
 - **$0/month**
 
 ### Typical Usage
+
 - 500 daily active users
 - 20 API requests per user per day
 - = 10,000 requests/day
 - = **$0/month** (stays within free tier)
 
 ### If You Exceed Free Tier
+
 - $0.20 per 100,000 requests
 - 1M requests/month = $2/month
 
@@ -136,14 +142,18 @@ az staticwebapp appsettings set \
 ## Monitoring
 
 ### Upstash Dashboard
+
 Visit https://console.upstash.com/ to monitor:
+
 - Total requests
 - Latency (p50, p99)
 - Memory usage
 - Error rates
 
 ### Rate Limit Headers
+
 Every API response includes:
+
 ```
 X-RateLimit-Limit: 20
 X-RateLimit-Remaining: 19
@@ -151,6 +161,7 @@ X-RateLimit-Reset: 1706745600000
 ```
 
 When limit exceeded (429 response):
+
 ```
 Retry-After: 45
 ```
@@ -180,17 +191,17 @@ The old in-memory limiter still works for development/testing.
 
 **Medium Priority** (24 remaining routes):
 
-| Route | Current Status | Priority |
-|-------|---------------|----------|
-| `/api/embeddings/search-courses` | In-memory | MEDIUM |
-| `/api/newsletter` | In-memory | MEDIUM |
-| `/api/ai/feedback` | In-memory | MEDIUM |
-| `/api/ai/training-jobs` | In-memory | MEDIUM |
-| `/api/ai/automation` | In-memory | MEDIUM |
-| `/api/embeddings/generate` | In-memory | MEDIUM |
-| `/api/stripe/checkout` | In-memory | MEDIUM |
-| `/api/stripe/portal` | In-memory | MEDIUM |
-| ...and 16 more | In-memory | LOW |
+| Route                            | Current Status | Priority |
+| -------------------------------- | -------------- | -------- |
+| `/api/embeddings/search-courses` | In-memory      | MEDIUM   |
+| `/api/newsletter`                | In-memory      | MEDIUM   |
+| `/api/ai/feedback`               | In-memory      | MEDIUM   |
+| `/api/ai/training-jobs`          | In-memory      | MEDIUM   |
+| `/api/ai/automation`             | In-memory      | MEDIUM   |
+| `/api/embeddings/generate`       | In-memory      | MEDIUM   |
+| `/api/stripe/checkout`           | In-memory      | MEDIUM   |
+| `/api/stripe/portal`             | In-memory      | MEDIUM   |
+| ...and 16 more                   | In-memory      | LOW      |
 
 **Recommendation**: Test the current 4 endpoints in production first, then migrate the remaining 24 routes in batches.
 
@@ -207,6 +218,7 @@ The old in-memory limiter still works for development/testing.
 ## Success Criteria
 
 **Before Production:**
+
 - [ ] Upstash account created
 - [ ] Environment variables set in Azure Static Web Apps
 - [ ] Tested locally with actual Redis
@@ -214,6 +226,7 @@ The old in-memory limiter still works for development/testing.
 - [ ] Verified fail-open behavior (disconnect Redis, requests still work)
 
 **After Production:**
+
 - [ ] Monitor Upstash dashboard for first 48 hours
 - [ ] Check error rates in Application Insights
 - [ ] Verify no 429 errors from legitimate users

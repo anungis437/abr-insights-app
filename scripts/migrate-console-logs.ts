@@ -2,12 +2,12 @@
 
 /**
  * Console Logging Migration Script
- * 
+ *
  * Automatically migrates console.log/error/warn calls to production logger.
- * 
+ *
  * Usage:
  *   npx tsx scripts/migrate-console-logs.ts [--dry-run] [--files=glob-pattern]
- * 
+ *
  * Examples:
  *   npx tsx scripts/migrate-console-logs.ts --dry-run
  *   npx tsx scripts/migrate-console-logs.ts --files="app/admin/**​/*.tsx"
@@ -20,7 +20,7 @@ import { glob } from 'glob'
 
 // Configuration
 const DRY_RUN = process.argv.includes('--dry-run')
-const FILES_ARG = process.argv.find(arg => arg.startsWith('--files='))
+const FILES_ARG = process.argv.find((arg) => arg.startsWith('--files='))
 const FILES_PATTERN = FILES_ARG?.split('=')[1]
 
 // Default files to migrate (high priority)
@@ -29,7 +29,7 @@ const DEFAULT_PATTERNS = [
   'app/admin/**/*.ts',
   'hooks/*.ts',
   'app/*/page.tsx',
-  'components/**/*.tsx'
+  'components/**/*.tsx',
 ]
 
 const SKIP_PATTERNS = [
@@ -37,7 +37,7 @@ const SKIP_PATTERNS = [
   'tests/**',
   '*.test.ts',
   '*.test.tsx',
-  'public/sw.js' // Service worker needs manual review
+  'public/sw.js', // Service worker needs manual review
 ]
 
 interface MigrationResult {
@@ -53,9 +53,7 @@ interface MigrationResult {
  * Check if file should be skipped
  */
 function shouldSkip(filePath: string): boolean {
-  return SKIP_PATTERNS.some(pattern => 
-    filePath.includes(pattern.replace('**', ''))
-  )
+  return SKIP_PATTERNS.some((pattern) => filePath.includes(pattern.replace('**', '')))
 }
 
 /**
@@ -106,7 +104,7 @@ function detectContext(filePath: string, content: string): string {
   const fileName = path.basename(filePath, path.extname(filePath))
   return fileName
     .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join('')
 }
 
@@ -126,22 +124,16 @@ function migrateConsoleError(content: string, context: string): [string, number]
   )
 
   // Pattern 2: console.error('message')
-  content = content.replace(
-    /console\.error\((["'`])([^"'`]+)\1\)/g,
-    (match, quote, message) => {
-      count++
-      return `logger.error(${quote}${message}${quote}, { context: '${context}' })`
-    }
-  )
+  content = content.replace(/console\.error\((["'`])([^"'`]+)\1\)/g, (match, quote, message) => {
+    count++
+    return `logger.error(${quote}${message}${quote}, { context: '${context}' })`
+  })
 
   // Pattern 3: console.error(error)
-  content = content.replace(
-    /console\.error\((\w+)\)/g,
-    (match, errorVar) => {
-      count++
-      return `logger.error('An error occurred', { error: ${errorVar}, context: '${context}' })`
-    }
-  )
+  content = content.replace(/console\.error\((\w+)\)/g, (match, errorVar) => {
+    count++
+    return `logger.error('An error occurred', { error: ${errorVar}, context: '${context}' })`
+  })
 
   return [content, count]
 }
@@ -167,7 +159,7 @@ function migrateConsoleLog(content: string, context: string): [string, number] {
           })
           .filter(Boolean)
           .join(', ')
-        
+
         return `logger.info(${quote}${message}${quote}, { ${contextObj}, context: '${context}' })`
       }
       return `logger.info(${quote}${message}${quote}, { context: '${context}' })`
@@ -210,10 +202,10 @@ function detectPII(content: string): string[] {
     /credit.?card/i,
     /token/i,
     /secret/i,
-    /api.?key/i
+    /api.?key/i,
   ]
 
-  piiPatterns.forEach(pattern => {
+  piiPatterns.forEach((pattern) => {
     if (pattern.test(content)) {
       warnings.push(`Possible PII detected: ${pattern.source}`)
     }
@@ -228,7 +220,7 @@ function detectPII(content: string): string[] {
 function migrateFile(filePath: string): MigrationResult {
   const content = fs.readFileSync(filePath, 'utf-8')
   const context = detectContext(filePath, content)
-  
+
   let newContent = content
   let totalReplaced = 0
   const warnings: string[] = []
@@ -266,7 +258,7 @@ function migrateFile(filePath: string): MigrationResult {
     consoleErrorCount: errorCount,
     consoleWarnCount: warnCount,
     totalReplaced,
-    warnings
+    warnings,
   }
 }
 
@@ -275,7 +267,7 @@ function migrateFile(filePath: string): MigrationResult {
  */
 async function main() {
   console.log('🔍 Console Logging Migration Script\n')
-  
+
   if (DRY_RUN) {
     console.log('⚠️  DRY RUN MODE - No files will be modified\n')
   }
@@ -285,9 +277,9 @@ async function main() {
   const files: string[] = []
 
   for (const pattern of patterns) {
-    const matches = await glob(pattern, { 
+    const matches = await glob(pattern, {
       cwd: process.cwd(),
-      ignore: SKIP_PATTERNS 
+      ignore: SKIP_PATTERNS,
     })
     files.push(...matches)
   }
@@ -315,10 +307,10 @@ async function main() {
       console.log(`   - console.log: ${result.consoleLogCount}`)
       console.log(`   - console.error: ${result.consoleErrorCount}`)
       console.log(`   - console.warn: ${result.consoleWarnCount}`)
-      
+
       if (result.warnings.length > 0) {
         console.log(`   ⚠️  Warnings:`)
-        result.warnings.forEach(warning => {
+        result.warnings.forEach((warning) => {
           console.log(`      - ${warning}`)
         })
       }
@@ -331,17 +323,17 @@ async function main() {
   console.log('📊 MIGRATION SUMMARY')
   console.log('='.repeat(60))
   console.log(`Total files checked: ${uniqueFiles.length}`)
-  console.log(`Total files modified: ${results.filter(r => r.totalReplaced > 0).length}`)
+  console.log(`Total files modified: ${results.filter((r) => r.totalReplaced > 0).length}`)
   console.log(`Total replacements: ${totalReplacements}`)
   console.log()
 
   // Warnings summary
-  const filesWithWarnings = results.filter(r => r.warnings.length > 0)
+  const filesWithWarnings = results.filter((r) => r.warnings.length > 0)
   if (filesWithWarnings.length > 0) {
     console.log('⚠️  FILES WITH WARNINGS:')
-    filesWithWarnings.forEach(result => {
+    filesWithWarnings.forEach((result) => {
       console.log(`   ${result.file}`)
-      result.warnings.forEach(warning => {
+      result.warnings.forEach((warning) => {
         console.log(`      - ${warning}`)
       })
     })

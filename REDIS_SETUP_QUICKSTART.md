@@ -39,6 +39,7 @@ npm run dev
 ```
 
 Visit any API endpoint (e.g., `/api/ai/chat`) and check the response headers:
+
 - `X-RateLimit-Limit` - Maximum requests allowed
 - `X-RateLimit-Remaining` - Requests remaining
 - `X-RateLimit-Reset` - When the limit resets
@@ -63,12 +64,14 @@ az staticwebapp appsettings set \
 ## What Changed?
 
 ### Before (Development Only)
+
 - ❌ In-memory rate limiting (not production-safe)
 - ❌ Breaks across multiple instances
 - ❌ Resets on serverless cold starts
 - ❌ Not shared across Azure Static Web Apps nodes
 
 ### After (Production-Ready)
+
 - ✅ Redis-based rate limiting (production-safe)
 - ✅ Works across multiple instances
 - ✅ Survives serverless cold starts
@@ -106,6 +109,7 @@ curl -I https://abrinsights.ca/api/ai/chat \
 ### Upstash Dashboard
 
 Visit https://console.upstash.com/ to see:
+
 - Total requests
 - Cache hit rate
 - Latency (p50, p99)
@@ -115,11 +119,11 @@ Visit https://console.upstash.com/ to see:
 
 ## Cost
 
-| Tier | Requests/Day | Cost |
-|------|--------------|------|
-| **Free** | 10,000 | $0 |
-| **Pay-as-you-go** | 100,000 | $0.20 |
-| **Pay-as-you-go** | 1,000,000 | $2.00 |
+| Tier              | Requests/Day | Cost  |
+| ----------------- | ------------ | ----- |
+| **Free**          | 10,000       | $0    |
+| **Pay-as-you-go** | 100,000      | $0.20 |
+| **Pay-as-you-go** | 1,000,000    | $2.00 |
 
 **Example**: With 500 daily active users × 20 requests/day = 10,000 requests/day = **$0/month**
 
@@ -128,16 +132,19 @@ Visit https://console.upstash.com/ to see:
 ## Troubleshooting
 
 ### "Rate limiting not working"
+
 - Check environment variables are set correctly
 - Restart your development server
 - Check Upstash dashboard for connection errors
 
 ### "429 Too Many Requests"
+
 - This is expected when limits are exceeded
 - Check `Retry-After` header for when to retry
 - Adjust limits in `lib/security/rateLimitPresets.ts` if needed
 
 ### "Redis connection failed"
+
 - The system will "fail open" and allow requests
 - Check logs for connection errors
 - Verify Upstash credentials are correct

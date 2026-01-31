@@ -7,7 +7,7 @@ import { updateSession } from '@/lib/supabase/middleware'
  * - Session management (Supabase)
  * - Request correlation IDs (observability)
  * - Route redirects
- * 
+ *
  * Note: Using crypto.randomUUID() from Web Crypto API (Edge Runtime compatible)
  */
 

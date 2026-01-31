@@ -3,6 +3,7 @@
 ## Production-Ready Rate Limiting
 
 The in-memory rate limiting (`lib/security/rateLimit.ts`) is **not production-safe** for:
+
 - ✗ Horizontal scaling (multiple instances)
 - ✗ Serverless deployments (cold starts reset state)
 - ✗ Azure Static Web Apps multi-node deployments
@@ -14,6 +15,7 @@ The in-memory rate limiting (`lib/security/rateLimit.ts`) is **not production-sa
 ## Option 1: Upstash Redis (Recommended for Serverless)
 
 ### Why Upstash?
+
 - ✅ HTTP-based API (no persistent connections)
 - ✅ Serverless-friendly (works with Azure Static Web Apps)
 - ✅ Global edge locations
@@ -23,24 +25,28 @@ The in-memory rate limiting (`lib/security/rateLimit.ts`) is **not production-sa
 ### Setup Steps
 
 1. **Create Upstash Account**
+
    ```bash
    # Visit https://upstash.com/
    # Sign up and create a new Redis database
    ```
 
 2. **Install Upstash SDK**
+
    ```bash
    npm install @upstash/redis
    ```
 
 3. **Add Environment Variables**
    Add to `.env.local`:
+
    ```env
    UPSTASH_REDIS_REST_URL=https://your-db-name.upstash.io
    UPSTASH_REDIS_REST_TOKEN=your-token-here
    ```
 
 4. **Update API Routes**
+
    ```typescript
    // Before (in-memory)
    import { withRateLimit, RateLimitPresets } from '@/lib/security/rateLimit'
@@ -68,6 +74,7 @@ The in-memory rate limiting (`lib/security/rateLimit.ts`) is **not production-sa
 ## Option 2: Azure Cache for Redis
 
 ### Why Azure Cache?
+
 - ✅ Native Azure integration
 - ✅ VNet support for security
 - ✅ High availability with clustering
@@ -76,6 +83,7 @@ The in-memory rate limiting (`lib/security/rateLimit.ts`) is **not production-sa
 ### Setup Steps
 
 1. **Create Azure Cache for Redis**
+
    ```bash
    az redis create \
      --name abr-insights-cache \
@@ -86,6 +94,7 @@ The in-memory rate limiting (`lib/security/rateLimit.ts`) is **not production-sa
    ```
 
 2. **Get Connection Info**
+
    ```bash
    az redis show \
      --name abr-insights-cache \
@@ -95,12 +104,14 @@ The in-memory rate limiting (`lib/security/rateLimit.ts`) is **not production-sa
    ```
 
 3. **Install Redis Client**
+
    ```bash
    npm install redis
    ```
 
 4. **Add Environment Variables**
    Add to `.env.local`:
+
    ```env
    REDIS_URL=redis://your-cache.redis.cache.windows.net:6380
    REDIS_PASSWORD=your-primary-key
@@ -113,6 +124,7 @@ The in-memory rate limiting (`lib/security/rateLimit.ts`) is **not production-sa
 ## Migration Path
 
 ### Phase 1: Add Redis (No Breaking Changes)
+
 ```typescript
 // Keep both in parallel during testing
 import { withRateLimit } from '@/lib/security/rateLimit' // Old
@@ -125,7 +137,9 @@ export const POST = process.env.UPSTASH_REDIS_REST_URL
 ```
 
 ### Phase 2: Gradual Rollout
+
 Migrate routes in order of importance:
+
 1. **AI endpoints** (highest cost)
    - `/api/ai/chat`
    - `/api/ai/coach`
@@ -140,6 +154,7 @@ Migrate routes in order of importance:
    - `/api/newsletter`
 
 ### Phase 3: Remove In-Memory
+
 Once Redis is stable, remove `withRateLimit` and use only `withRedisRateLimit`.
 
 ---
@@ -147,6 +162,7 @@ Once Redis is stable, remove `withRateLimit` and use only `withRedisRateLimit`.
 ## Monitoring
 
 ### Check Rate Limit Headers
+
 ```bash
 curl -I https://abrinsights.ca/api/ai/chat \
   -H "Authorization: Bearer YOUR_TOKEN"
@@ -158,11 +174,13 @@ curl -I https://abrinsights.ca/api/ai/chat \
 ```
 
 ### Redis Metrics (Upstash Dashboard)
+
 - Total requests
 - Cache hit rate
 - Latency (p50, p99)
 
 ### Azure Monitor (Azure Cache)
+
 - Connected clients
 - Operations per second
 - Memory usage
@@ -172,11 +190,13 @@ curl -I https://abrinsights.ca/api/ai/chat \
 ## Cost Estimation
 
 ### Upstash Redis
+
 - **Free tier**: 10,000 requests/day
 - **Pay-as-you-go**: $0.20 per 100,000 requests
 - **Example**: 1M requests/month = $2/month
 
 ### Azure Cache for Redis
+
 - **Basic C0**: $16.06/month (250 MB)
 - **Standard C1**: $62.78/month (1 GB, SLA)
 - **Premium P1**: $386.40/month (6 GB, clustering)
@@ -188,6 +208,7 @@ curl -I https://abrinsights.ca/api/ai/chat \
 ## Troubleshooting
 
 ### Redis Not Connecting
+
 ```typescript
 // Check logs
 import { logger } from '@/lib/utils/production-logger'
@@ -199,10 +220,12 @@ import { logger } from '@/lib/utils/production-logger'
 ```
 
 ### Rate Limiting Bypassed
+
 If Redis fails, the system **fails open** (allows requests) to prevent outages.
 Check logs for Redis connection errors.
 
 ### High Latency
+
 - **Upstash**: Check edge location (should be nearest to users)
 - **Azure Cache**: Ensure same region as Azure Static Web Apps
 
