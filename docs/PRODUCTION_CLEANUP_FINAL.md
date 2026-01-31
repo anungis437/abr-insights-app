@@ -16,53 +16,56 @@
   - Error stack trace capture
   - Integration-ready for Sentry/DataDog
 
-### 2. Critical API Routes Cleanup (Commit 49)
+### 2. Critical API Routes Cleanup (Commits 49-51)
 
-#### Stripe Webhooks (10 replacements)
-- ✅ `app/api/webhooks/stripe/route.ts`
+#### Payment Processing (Stripe)
+- ✅ `app/api/webhooks/stripe/route.ts` (10 replacements)
   - Signature verification errors
   - Checkout completion errors
   - Subscription update/cancel errors
   - User/org lookup failures
-  - All now include structured context (userId, orgId, customerId)
+- ✅ `app/api/stripe/checkout/route.ts` (1 replacement)
+- ✅ `app/api/stripe/portal/route.ts` (1 replacement)
 
-#### AI Coach API (4 replacements)
-- ✅ `app/api/ai/coach/route.ts`
-  - AI interaction logging failures → logger.warn
-  - Usage tracking failures → logger.warn
-  - Request failures → logger.error with session context
+#### AI Services
+- ✅ `app/api/ai/chat/route.ts` (6 replacements)
+  - Azure OpenAI configuration errors
+  - API request failures
+  - Interaction/usage logging failures
+- ✅ `app/api/ai/coach/route.ts` (4 replacements)
+- ✅ `app/api/ai/feedback/route.ts` (3 replacements)
 
-#### Embeddings API (4 replacements)
-- ✅ `app/api/embeddings/generate/route.ts`
-  - Generation logging failures → logger.warn
-  - Job processing errors → logger.error with job context
-  - Status lookup failures → logger.error
+#### Public APIs
+- ✅ `app/api/contact/route.ts` (3 replacements)
+- ✅ `app/api/newsletter/route.ts` (3 replacements)
 
-#### Admin RBAC APIs (10 replacements)
-- ✅ `app/api/admin/roles/route.ts` (5 statements)
-- ✅ `app/api/admin/permissions/route.ts` (5 statements)
-  - Fetch errors → logger.error with resource context
-  - Creation errors → logger.error with entity details
-  - API request failures → logger.error
+#### Admin RBAC APIs
+- ✅ `app/api/admin/roles/route.ts` (5 replacements)
+- ✅ `app/api/admin/permissions/route.ts` (5 replacements)
 
-### 3. Evidence Bundles (Commit 48)
+#### Core Features
+- ✅ `app/api/embeddings/generate/route.ts` (4 replacements)
 - ✅ `lib/actions/evidence-bundles.ts` (6 replacements)
-  - Storage upload errors → logger.error with file context
-  - Database errors → logger.error with operation tracking
-  - Access tracking → logger.warn (non-critical)
+
+**Total: 51+ console statements → structured logging**
 
 ## 📊 Console Statement Inventory
 
-### Cleaned (~28 statements)
+### Cleaned (~51 statements in 51 commits)
 - ✅ Stripe webhooks: 10
+- ✅ Stripe checkout/portal: 2
+- ✅ AI chat: 6
 - ✅ AI coach: 4
+- ✅ AI feedback: 3
 - ✅ Embeddings: 4
 - ✅ Admin roles/permissions: 10
 - ✅ Evidence bundles: 6
+- ✅ Contact form: 3
+- ✅ Newsletter: 3
 
-**Total Cleaned: ~28 console statements → structured logging**
+**Total Cleaned: ~51 console statements → structured logging**
 
-### Remaining (~150+ statements across 90+ files)
+### Remaining (~100+ statements across 80+ files)
 
 #### High Priority (Critical Paths)
 - 🔄 `app/api/ai/chat/route.ts` (6 statements) - AI chat interactions
