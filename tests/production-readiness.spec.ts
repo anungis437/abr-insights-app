@@ -92,9 +92,7 @@ test.describe('Production Readiness Smoke Tests', () => {
 
   test('Rate limiting headers present on successful requests', async ({ page }) => {
     // Make a request to a rate-limited endpoint
-    const response = await page.request.get(`${BASE_URL}/api/contact`, {
-      method: 'OPTIONS',
-    })
+    const response = await page.request.get(`${BASE_URL}/api/contact`)
 
     // Even on OPTIONS, headers should be present or 405 acceptable
     if (response.status() === 200 || response.status() === 204) {
