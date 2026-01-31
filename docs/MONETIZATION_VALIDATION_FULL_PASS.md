@@ -16,6 +16,7 @@ The entitlements/monetization system is now **fully aligned** with the world-cla
 ## What Was Already Aligned (✅)
 
 ### 1. Canonical Entitlements Model
+
 **File:** `lib/services/entitlements.ts`  
 **Status:** ✅ Plan-consistent
 
@@ -24,6 +25,7 @@ The entitlements/monetization system is now **fully aligned** with the world-cla
 - `app/api/entitlements/route.ts` + `hooks/use-entitlements.ts` provide canonical read path
 
 ### 2. Plan-Aligned Checkout Endpoint
+
 **File:** `app/api/stripe/checkout/route.ts`  
 **Status:** ✅ Correctly shaped
 
@@ -33,6 +35,7 @@ The entitlements/monetization system is now **fully aligned** with the world-cla
 - Creates Stripe checkout session with proper metadata
 
 ### 3. Webhook Support
+
 **File:** `app/api/webhooks/stripe/route.ts`  
 **Status:** ✅ Enterprise-grade
 
@@ -41,6 +44,7 @@ The entitlements/monetization system is now **fully aligned** with the world-cla
 - Calls seat/subscription primitives safely
 
 ### 4. Legacy Isolation
+
 **Files:** `app/api/_dev/...`  
 **Status:** ✅ Good hygiene
 
@@ -52,16 +56,18 @@ The entitlements/monetization system is now **fully aligned** with the world-cla
 ### PR-1: Make /pricing Plan-Aligned
 
 **Before (⚠️):**
+
 ```tsx
 // app/pricing/page.tsx - OLD
 <LocalPricingCard
-  ctaHref="/auth/signup?plan=professional"  // ❌ Signup link
+  ctaHref="/auth/signup?plan=professional" // ❌ Signup link
   // No seat selection
   // Only 3 tiers (missing Business tiers)
 />
 ```
 
 **After (✅):**
+
 ```tsx
 // app/pricing/page.tsx - NEW
 import { PricingCard } from '@/components/shared/PricingCard'
@@ -85,6 +91,7 @@ const [seatCount, setSeatCount] = useState(1)
 ```
 
 **Impact:**
+
 - Primary marketing route now executes canonical checkout
 - Seat selection visible and functional
 - Business tiers present (4-tier model complete)
@@ -95,6 +102,7 @@ const [seatCount, setSeatCount] = useState(1)
 
 **File:** `app/dashboard/billing/page.tsx`  
 **Features:**
+
 - Shows current tier, seats used/available, period end
 - Stripe portal integration via `/api/stripe/portal`
 - Subscription management (upgrade/downgrade/cancel)
@@ -102,10 +110,12 @@ const [seatCount, setSeatCount] = useState(1)
 ### PR-3: Legacy Subscription Model
 
 **Before (⚠️):**
+
 - Concern: `hooks/use-subscription.ts` and `components/shared/SubscriptionStatus.tsx` still present
 - Risk of UI drift (some components using legacy, some using canonical)
 
 **After (✅):**
+
 ```bash
 # Verified no imports of legacy hooks/components
 $ grep -r "useSubscription" app/ components/
@@ -116,6 +126,7 @@ $ grep -r "SubscriptionStatus" app/ components/
 ```
 
 **Analysis:**
+
 - Legacy hooks exist but **not used** in production UI
 - All active UI uses `useEntitlements()` hook
 - Safe to keep as fallback (no drift risk)
@@ -125,23 +136,24 @@ $ grep -r "SubscriptionStatus" app/ components/
 **Status:** ✅ Already wired into membership lifecycle
 
 **File:** `app/admin/team/page.tsx` (line 83)
+
 ```tsx
 const handleInviteMember = async () => {
   // ENFORCE SEAT LIMITS
   const seatCheck = await checkSeatAvailability(organization.id, 1)
-  
+
   if (!seatCheck.allowed) {
     throw new Error(
-      seatCheck.reason || 
-      `Your organization has reached its seat limit. Please upgrade your plan.`
+      seatCheck.reason || `Your organization has reached its seat limit. Please upgrade your plan.`
     )
   }
-  
+
   // Proceed with invite...
 }
 ```
 
 **File:** `app/admin/team/actions.ts`
+
 ```tsx
 export async function checkSeatAvailability(organizationId: string, requestedSeats: number) {
   const result = await enforceSeats(organizationId, requestedSeats)
@@ -150,6 +162,7 @@ export async function checkSeatAvailability(organizationId: string, requestedSea
 ```
 
 **File:** `lib/services/seat-management.ts` (line 414)
+
 ```tsx
 export async function enforceSeats(
   orgId: string,
@@ -189,6 +202,7 @@ export async function enforceSeats(
 ## What's Now Complete
 
 ### ✅ Canonical Data Flow
+
 ```
 Stripe Checkout
   ↓ (webhook)
@@ -200,16 +214,19 @@ All UI components
 ```
 
 ### ✅ Feature Gating
+
 - All UI uses `useEntitlements()` exclusively
 - No legacy profile tier reads in active code
 - Consistent behavior across application
 
 ### ✅ Seat Management
+
 - Purchase drives seat allocation
 - Enforcement active in invite flow
 - Clear error messaging with upgrade path
 
 ### ✅ Customer Journey
+
 - Marketing → Checkout → Webhook → DB → UI (complete)
 - No broken links or legacy funnels
 - Professional UX throughout
@@ -231,6 +248,7 @@ All UI components
 ## Testing Checklist
 
 ### ✅ Pricing Page
+
 - [x] Displays 4 tiers correctly
 - [x] Seat selector updates billing display
 - [x] Free tier shows $0, Professional shows $49 × seats
@@ -238,18 +256,21 @@ All UI components
 - [x] Enterprise shows "Contact Sales"
 
 ### ✅ Checkout Flow
+
 - [x] Clicking upgrade → authenticated check
 - [x] If not logged in → redirects to signup
 - [x] If logged in → calls `/api/stripe/checkout`
 - [x] Checkout session includes seat_count metadata
 
 ### ✅ Seat Enforcement
+
 - [x] Invite flow checks `enforceSeats()`
 - [x] Blocks when limit reached
 - [x] Shows upgrade prompt
 - [x] Allocates seat when available
 
 ### ✅ Billing Management
+
 - [x] `/dashboard/billing` shows subscription
 - [x] Displays seats used/available
 - [x] Stripe portal integration works
@@ -257,6 +278,7 @@ All UI components
 ## Production Readiness: 100% ✅
 
 ### What This Means
+
 - ✅ Marketing funnel drives proper checkout
 - ✅ Org/seat model fully implemented
 - ✅ Seat limits enforced end-to-end
@@ -264,13 +286,16 @@ All UI components
 - ✅ Ready for paying customers
 
 ### Remaining Optional Work
+
 None required for monetization. Optional enhancements:
+
 - Add Business+ tier UI differentiation
 - Annual billing discount UI
 - Non-profit discount workflow
 - Custom enterprise onboarding
 
 ### Next Steps
+
 1. **Deploy to production** - All monetization infrastructure complete
 2. **Set Stripe to live mode** - Update API keys
 3. **Test with real payment** - Validate end-to-end with test card
