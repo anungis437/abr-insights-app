@@ -1,13 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { useSubscription } from '@/hooks/use-subscription'
+import { useEntitlements } from '@/hooks/use-entitlements'
 import { Loader2, Crown, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 export function SubscriptionBadge() {
-  const { subscription, loading } = useSubscription()
+  const { entitlements, loading } = useEntitlements()
 
   if (loading) {
     return (
@@ -18,7 +18,9 @@ export function SubscriptionBadge() {
     )
   }
 
-  if (!subscription) return null
+  if (!entitlements) return null
+
+  const tier = entitlements.tier?.toLowerCase() || 'free'
 
   const badgeConfig = {
     free: {
@@ -33,6 +35,18 @@ export function SubscriptionBadge() {
       className: 'bg-gradient-to-r from-purple-100 to-blue-100 text-purple-700',
       iconColor: 'text-purple-600',
     },
+    business: {
+      icon: Crown,
+      text: 'Business',
+      className: 'bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-700',
+      iconColor: 'text-blue-600',
+    },
+    business_plus: {
+      icon: Crown,
+      text: 'Business+',
+      className: 'bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700',
+      iconColor: 'text-indigo-600',
+    },
     enterprise: {
       icon: Crown,
       text: 'Enterprise',
@@ -41,7 +55,7 @@ export function SubscriptionBadge() {
     },
   }
 
-  const config = badgeConfig[subscription.tier]
+  const config = badgeConfig[tier] || badgeConfig.free
   const Icon = config.icon
 
   return (
@@ -58,7 +72,7 @@ export function SubscriptionBadge() {
 }
 
 export function SubscriptionStatus() {
-  const { subscription, loading, openCustomerPortal } = useSubscription()
+  const { entitlements, loading } = useEntitlements()
   const [isLoading, setIsLoading] = useState(false)
 
   if (loading) {
@@ -69,12 +83,21 @@ export function SubscriptionStatus() {
     )
   }
 
-  if (!subscription) return null
+  if (!entitlements) return null
 
   const handleManage = async () => {
     try {
       setIsLoading(true)
-      await openCustomerPortal()
+      const response = await fetch('/api/stripe/portal', {
+        method: 'POST',
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to create portal session')
+      }
+
+      const { url } = await response.json()
+      window.location.href = url
     } catch (error) {
       console.error('Error opening portal:', error)
       alert('Failed to open billing portal. Please try again.')
@@ -82,6 +105,10 @@ export function SubscriptionStatus() {
       setIsLoading(false)
     }
   }
+
+  const tier = entitlements.tier || 'FREE'
+  const isActive = entitlements.subscription_status === 'active'
+  const hasStripeCustomer = !!entitlements.stripe_customer_id
 
   const statusConfig = {
     active: {
@@ -121,7 +148,8 @@ export function SubscriptionStatus() {
     },
   }
 
-  const config = statusConfig[subscription.status]
+  const status = entitlements.subscription_status || 'active'
+  const config = statusConfig[status] || statusConfig.active
   const StatusIcon = config.icon
 
   return (
@@ -137,17 +165,17 @@ export function SubscriptionStatus() {
 
         <div className="text-right">
           <div className="text-2xl font-bold text-gray-900">
-            {subscription.tier.charAt(0).toUpperCase() + subscription.tier.slice(1)}
+            {tier.charAt(0).toUpperCase() + tier.slice(1).toLowerCase().replace('_', ' ')}
           </div>
-          {subscription.currentPeriodEnd && subscription.isActive && (
+          {entitlements.current_period_end && isActive && (
             <p className="mt-1 text-sm text-gray-500">
-              Renews {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
+              Renews {new Date(entitlements.current_period_end).toLocaleDateString()}
             </p>
           )}
         </div>
       </div>
 
-      {subscription.stripeCustomerId && (
+      {hasStripeCustomer && (
         <div className="mt-4">
           <Button onClick={handleManage} disabled={isLoading} variant="outline" className="w-full">
             {isLoading ? (
