@@ -21,6 +21,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { createClient } from '@/lib/supabase/server'
+import { EvidenceBundleGenerator } from '@/components/cases/EvidenceBundleGenerator'
 
 // Force dynamic rendering - don't prerender at build time
 export const dynamic = 'force-dynamic'
@@ -430,6 +431,14 @@ export default async function CasePage({ params }: { params: Promise<{ id: strin
 
               {/* Sidebar */}
               <div className="lg:col-span-1">
+                {/* Evidence Bundle Generator */}
+                <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-6">
+                  <EvidenceBundleGenerator
+                    caseId={id}
+                    caseTitle={caseStudy.title}
+                  />
+                </div>
+
                 {/* Case Metadata */}
                 <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-6">
                   <h3 className="mb-4 font-semibold text-gray-900">Case Details</h3>
