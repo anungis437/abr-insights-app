@@ -1,20 +1,22 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
-import { randomUUID } from 'crypto'
 
 /**
- * Global Middleware
+ * Global Proxy/Middleware
  * Handles:
  * - Session management (Supabase)
  * - Request correlation IDs (observability)
  * - Route redirects
+ * 
+ * Note: Using crypto.randomUUID() from Web Crypto API (Edge Runtime compatible)
  */
 
-export async function middleware(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Generate correlation ID for request tracing (P0 observability)
-  const correlationId = request.headers.get('x-correlation-id') || randomUUID()
+  // Use Web Crypto API instead of Node.js crypto (Edge Runtime compatible)
+  const correlationId = request.headers.get('x-correlation-id') || crypto.randomUUID()
 
   // Redirect /team to pricing page (enterprise feature marketing)
   if (pathname === '/team' || pathname.startsWith('/team/')) {
