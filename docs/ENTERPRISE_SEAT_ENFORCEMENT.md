@@ -17,6 +17,7 @@ Implemented atomic, concurrency-safe seat allocation using database-level enforc
 ### Problem: Race Condition Vulnerability
 
 **Before (Application-Level Check)**:
+
 ```typescript
 // Admin A and Admin B both execute simultaneously:
 const check = await checkSeatAvailability(orgId, 1)  // Both see 9/10 seats
@@ -25,11 +26,12 @@ await supabase.from('profiles').update({...})       // Both succeed → 11/10 se
 ```
 
 **After (Database-Level Atomic Enforcement)**:
+
 ```typescript
 // Admin A and Admin B both execute simultaneously:
 const result = await supabase.rpc('add_member_with_seat_check', {
   p_user_id: userId,
-  p_organization_id: orgId
+  p_organization_id: orgId,
 })
 // RPC uses FOR UPDATE lock → Only ONE succeeds, other gets "Seat limit reached"
 ```
@@ -47,6 +49,7 @@ const result = await supabase.rpc('add_member_with_seat_check', {
 **Purpose**: Atomically add member with seat enforcement
 
 **Mechanism**:
+
 1. **Locks subscription row** using `FOR UPDATE` (blocks concurrent modifications)
 2. **Checks seat availability** under lock (guaranteed accurate count)
 3. **Updates profile** (adds member to org)
@@ -55,10 +58,12 @@ const result = await supabase.rpc('add_member_with_seat_check', {
 6. **Commits transaction** (releases lock)
 
 **Concurrency Protection**:
+
 - Thread 1 acquires lock → checks seats → adds member → commits
 - Thread 2 waits for lock → sees updated count → gets "Seat limit reached"
 
 **Code**:
+
 ```sql
 SELECT * FROM organization_subscriptions
 WHERE organization_id = p_organization_id
@@ -73,6 +78,7 @@ FOR UPDATE; -- Blocks until Thread 1 commits
 **Purpose**: Atomically remove member and release seat
 
 **Mechanism**:
+
 1. Locks subscription row
 2. Removes member from org
 3. Decrements seats_used
@@ -86,6 +92,7 @@ FOR UPDATE; -- Blocks until Thread 1 commits
 **File**: `app/admin/team/page.tsx`
 
 #### Invite Flow (Lines 78-104)
+
 ```typescript
 // BEFORE: Separate check + update (race condition possible)
 const seatCheck = await checkSeatAvailability(organization.id, 1)
@@ -101,6 +108,7 @@ if (!result.success) throw new Error(result.error)
 ```
 
 #### Remove Flow (Lines 42-69)
+
 ```typescript
 // BEFORE: Direct update (no seat tracking)
 await supabase.from('profiles').update({ organization_id: null })
@@ -119,11 +127,13 @@ const { data: result } = await supabase.rpc('remove_member_with_seat_release', {
 **File**: `scripts/apply-atomic-seat-migration.ts`
 
 **Usage**:
+
 ```bash
 npx tsx scripts/apply-atomic-seat-migration.ts
 ```
 
 **Actions**:
+
 - Connects to production database
 - Applies RPC function definitions
 - Verifies functions created successfully
@@ -136,10 +146,12 @@ npx tsx scripts/apply-atomic-seat-migration.ts
 ### Test Case 1: Simultaneous Member Addition (At Limit)
 
 **Setup**:
+
 - Organization: 10 seat limit, 9 members
 - Admin A and Admin B both invite different users simultaneously
 
 **Expected Behavior**:
+
 1. Both RPCs start at same time
 2. Admin A acquires lock first
 3. Admin A: seats_used = 9 → 10 (success)
@@ -152,10 +164,12 @@ npx tsx scripts/apply-atomic-seat-migration.ts
 ### Test Case 2: Simultaneous Member Addition (Under Limit)
 
 **Setup**:
+
 - Organization: 10 seat limit, 5 members
 - Admin A and Admin B both invite different users simultaneously
 
 **Expected Behavior**:
+
 1. Both RPCs start at same time
 2. Admin A acquires lock: 5 → 6 (success)
 3. Admin B acquires lock: 6 → 7 (success)
@@ -166,11 +180,13 @@ npx tsx scripts/apply-atomic-seat-migration.ts
 ### Test Case 3: Add + Remove Simultaneously
 
 **Setup**:
+
 - Organization: 10 seat limit, 10 members
 - Admin A removes member X
 - Admin B adds member Y (simultaneously)
 
 **Expected Behavior**:
+
 1. Both RPCs start
 2. One acquires lock first
 3. If remove first: 10 → 9, then 9 → 10 (both succeed)
@@ -185,6 +201,7 @@ npx tsx scripts/apply-atomic-seat-migration.ts
 ### Verified Entry Points
 
 ✅ **Primary Path**: `/admin/team` (invite/remove members)
+
 - Uses atomic RPC ✅
 - Concurrency-safe ✅
 
@@ -229,17 +246,20 @@ npx tsx scripts/apply-atomic-seat-migration.ts
 ### Deployment Steps
 
 1. **Apply database migration**:
+
    ```bash
    npx tsx scripts/apply-atomic-seat-migration.ts
    ```
 
 2. **Verify RPC functions**:
+
    ```sql
    SELECT routine_name FROM information_schema.routines
    WHERE routine_name IN ('add_member_with_seat_check', 'remove_member_with_seat_release');
    ```
 
 3. **Deploy application code**:
+
    ```bash
    git add -A
    git commit -m "feat(seat-enforcement): atomic concurrency-safe seat allocation"
@@ -254,6 +274,7 @@ npx tsx scripts/apply-atomic-seat-migration.ts
 ### Rollback Plan
 
 If issues occur:
+
 ```sql
 -- Drop RPC functions
 DROP FUNCTION IF EXISTS add_member_with_seat_check;
@@ -320,16 +341,16 @@ wait
 
 ## Comparison: Before vs After
 
-| Aspect | Before | After |
-|--------|--------|-------|
-| **Enforcement Level** | Application | Database |
-| **Concurrency Safety** | ❌ Race conditions possible | ✅ Row-level locks |
-| **Seat Count Accuracy** | ⚠️ Can over-allocate | ✅ Guaranteed accurate |
-| **Multiple Admins** | ⚠️ Can exceed limit | ✅ Only one succeeds |
-| **Transaction Atomicity** | ❌ Separate operations | ✅ Single transaction |
-| **Seat Release** | Manual tracking | ✅ Automatic |
-| **Entry Point Coverage** | One path | One path (verified) |
-| **Production Grade** | Good | ✅ Enterprise |
+| Aspect                    | Before                      | After                  |
+| ------------------------- | --------------------------- | ---------------------- |
+| **Enforcement Level**     | Application                 | Database               |
+| **Concurrency Safety**    | ❌ Race conditions possible | ✅ Row-level locks     |
+| **Seat Count Accuracy**   | ⚠️ Can over-allocate        | ✅ Guaranteed accurate |
+| **Multiple Admins**       | ⚠️ Can exceed limit         | ✅ Only one succeeds   |
+| **Transaction Atomicity** | ❌ Separate operations      | ✅ Single transaction  |
+| **Seat Release**          | Manual tracking             | ✅ Automatic           |
+| **Entry Point Coverage**  | One path                    | One path (verified)    |
+| **Production Grade**      | Good                        | ✅ Enterprise          |
 
 ---
 
@@ -356,6 +377,7 @@ wait
 ✅ **Seat enforcement is now enterprise-grade**
 
 **Achievements**:
+
 - ✅ Atomic database-level enforcement
 - ✅ Concurrency-safe row-level locking
 - ✅ Guaranteed seat count accuracy

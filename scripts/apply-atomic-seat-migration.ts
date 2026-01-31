@@ -1,15 +1,15 @@
 /**
  * Apply Atomic Seat Allocation Migration
- * 
+ *
  * This script creates PostgreSQL RPC functions that provide atomic,
  * concurrency-safe seat allocation and deallocation using row-level locking.
- * 
+ *
  * Benefits:
  * - Prevents race conditions when multiple admins add members simultaneously
  * - Guarantees seat limits are enforced even under high concurrency
  * - Atomically updates all related tables in a single transaction
  * - Uses FOR UPDATE locks to ensure consistency
- * 
+ *
  * Usage:
  *   npx tsx scripts/apply-atomic-seat-migration.ts
  */

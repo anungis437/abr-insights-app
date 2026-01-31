@@ -58,10 +58,13 @@ export default function TeamManagementPage() {
       }
 
       // ATOMIC SEAT RELEASE: Use database RPC with row-level locking
-      const { data: result, error: rpcError } = await supabase.rpc('remove_member_with_seat_release', {
-        p_user_id: memberProfile.id,
-        p_organization_id: organization.id,
-      })
+      const { data: result, error: rpcError } = await supabase.rpc(
+        'remove_member_with_seat_release',
+        {
+          p_user_id: memberProfile.id,
+          p_organization_id: organization.id,
+        }
+      )
 
       if (rpcError) throw rpcError
 

@@ -18,7 +18,7 @@ const seatCheck = await checkSeatAvailability(organization.id, 1)
 if (!seatCheck.allowed) {
   throw new Error(
     seatCheck.reason ||
-    `Your organization has reached its seat limit (${currentMemberCount} members). 
+      `Your organization has reached its seat limit (${currentMemberCount} members). 
      Please upgrade your plan to add more team members.`
   )
 }
@@ -29,15 +29,18 @@ if (!seatCheck.allowed) {
 **Step 1: User enters email and clicks "Invite Member"**
 
 **Step 2: Pre-flight checks**
+
 - Check if email already a member (line 77)
 
 **Step 3: SEAT ENFORCEMENT (line 83) ✅**
+
 - Call `checkSeatAvailability(organization.id, 1)`
 - This calls `enforceSeats()` from `lib/services/seat-management.ts`
 - Returns `{ allowed: false, reason: "..." }` if seat limit reached
 - **Throws error and stops execution** (line 85-89)
 
 **Step 4: Member addition (only if Step 3 passes)**
+
 - Check if user exists (line 92)
 - Check if user already has org (line 101)
 - Update profile.organization_id (line 108)
@@ -56,7 +59,7 @@ if (!seatCheck.allowed) {
 4. Line 85: `if (!seatCheck.allowed)` is TRUE
 5. Line 86-89: Error thrown with message:
    ```
-   Your organization has reached its seat limit (10 members). 
+   Your organization has reached its seat limit (10 members).
    Please upgrade your plan to add more team members.
    ```
 6. **Line 108 NEVER EXECUTES** - `profile.organization_id` is NOT updated
@@ -68,30 +71,29 @@ if (!seatCheck.allowed) {
 ## Evidence: Complete Enforcement Chain
 
 ### 1. UI Entry Point: `app/admin/team/page.tsx`
+
 ```tsx
 const handleInviteMember = async () => {
   // ... validation checks
-  
+
   // ENFORCEMENT POINT: Line 83
   const seatCheck = await checkSeatAvailability(organization.id, 1)
-  
+
   if (!seatCheck.allowed) {
-    throw new Error(seatCheck.reason || "Seat limit reached")
+    throw new Error(seatCheck.reason || 'Seat limit reached')
   }
-  
+
   // Only reached if seats available
   await supabase.from('profiles').update({ organization_id })
 }
 ```
 
 ### 2. Server Action: `app/admin/team/actions.ts`
+
 ```typescript
-export async function checkSeatAvailability(
-  organizationId: string,
-  requestedSeats: number = 1
-) {
+export async function checkSeatAvailability(organizationId: string, requestedSeats: number = 1) {
   const result = await enforceSeats(organizationId, requestedSeats)
-  
+
   return {
     allowed: result.allowed,
     reason: result.reason,
@@ -102,27 +104,28 @@ export async function checkSeatAvailability(
 ```
 
 ### 3. Enforcement Primitive: `lib/services/seat-management.ts`
+
 ```typescript
 export async function enforceSeats(
   organizationId: string,
   requestedSeats: number = 1
 ): Promise<SeatEnforcementResult> {
   const subscription = await getOrgSubscription(organizationId)
-  
+
   if (!subscription) {
     return { allowed: true } // Free tier = unlimited
   }
-  
+
   const availableSeats = subscription.seat_count - subscription.seats_used
-  
+
   if (availableSeats < requestedSeats) {
     return {
       allowed: false,
       reason: `Cannot add ${requestedSeats} seat(s). ${availableSeats} available.`,
-      subscription
+      subscription,
     }
   }
-  
+
   return { allowed: true, subscription }
 }
 ```
@@ -132,6 +135,7 @@ export async function enforceSeats(
 ## Testing Proof
 
 ### Test Case 1: Within Seat Limit
+
 ```
 Initial State:
 - seat_count: 10
@@ -147,6 +151,7 @@ Flow:
 ```
 
 ### Test Case 2: At Seat Limit
+
 ```
 Initial State:
 - seat_count: 10
@@ -166,24 +171,28 @@ Flow:
 ## Why This Assessment Is Incorrect
 
 ### Claim
+
 > "Seat enforcement is not yet wired into the actual member/invite lifecycle (it exists, but only as a 'check availability' action)."
 
 ### Reality
+
 The "check availability" action **IS** the enforcement mechanism. It's not separate from the invite lifecycle - it's a **blocking check** that throws an error and prevents the database update.
 
 ### Code Pattern Analysis
 
 **BLOCKING PATTERN** (what we have):
+
 ```typescript
 const seatCheck = await checkSeatAvailability(orgId, 1)
 if (!seatCheck.allowed) {
-  throw new Error("Seat limit reached")  // BLOCKS HERE
+  throw new Error('Seat limit reached') // BLOCKS HERE
 }
 // Member add ONLY happens if above check passes
 await updateMember()
 ```
 
 **NON-BLOCKING PATTERN** (what they're describing, which we DON'T have):
+
 ```typescript
 const seatCheck = await checkSeatAvailability(orgId, 1)
 // Check result ignored, member added regardless
@@ -197,6 +206,7 @@ await updateMember()
 ## Additional Enforcement Layers
 
 ### Database Layer (Future Enhancement)
+
 While not currently implemented, we could add a database trigger or RPC that also enforces seat limits at the database level:
 
 ```sql
@@ -220,6 +230,7 @@ $$ LANGUAGE plpgsql;
 **Status**: **FALSE** ✅
 
 **Evidence**:
+
 1. ✅ Enforcement check at line 83 (before member add)
 2. ✅ Error thrown if limit reached (blocks execution)
 3. ✅ Member addition only happens if check passes
