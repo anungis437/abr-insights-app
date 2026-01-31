@@ -9,7 +9,6 @@ import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 
 interface PricingCardProps {
-  seatCount?: number
   name: string
   price: string
   billing: string
@@ -19,6 +18,7 @@ interface PricingCardProps {
   tier: 'FREE' | 'PROFESSIONAL' | 'BUSINESS' | 'BUSINESS_PLUS' | 'ENTERPRISE'
   popular?: boolean
   contactSales?: boolean
+  seatCount?: number
 }
 
 export function PricingCard({
@@ -31,6 +31,7 @@ export function PricingCard({
   tier,
   popular = false,
   contactSales = false,
+  seatCount = 1,
 }: PricingCardProps) {
   const router = useRouter()
   const { user, profile } = useAuth()
@@ -50,14 +51,14 @@ export function PricingCard({
 
     try {
       setLoading(true)
-
+      
       // Call canonical checkout endpoint with org context
       const response = await fetch('/api/stripe/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           tier,
-          seat_count: 1, // Default to 1 seat for individual plans
+          seat_count: seatCount,
           organization_id: profile?.organization_id || undefined,
           billing_email: user.email,
         }),
