@@ -433,10 +433,7 @@ export default async function CasePage({ params }: { params: Promise<{ id: strin
               <div className="lg:col-span-1">
                 {/* Evidence Bundle Generator */}
                 <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-6">
-                  <EvidenceBundleGenerator
-                    caseId={id}
-                    caseTitle={caseStudy.title}
-                  />
+                  <EvidenceBundleGenerator caseId={id} caseTitle={caseStudy.title} />
                 </div>
 
                 {/* Case Metadata */}

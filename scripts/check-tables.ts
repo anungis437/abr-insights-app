@@ -38,7 +38,7 @@ async function checkTables() {
     `)
 
     console.log('📋 Existing tables:')
-    result.rows.forEach(r => {
+    result.rows.forEach((r) => {
       console.log(`  ✅ ${r.tablename}`)
     })
 
@@ -50,7 +50,6 @@ async function checkTables() {
       console.log('\n⚠️  WARNING: "cases" table not found')
       console.log('   Evidence bundles migration requires "cases" table')
     }
-
   } finally {
     await client.end()
   }

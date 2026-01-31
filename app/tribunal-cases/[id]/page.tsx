@@ -419,7 +419,11 @@ export default function TribunalCaseDetails() {
               <div className="rounded-lg bg-white p-6 shadow-md">
                 <EvidenceBundleGenerator
                   caseId={tribunalCase.id}
-                  caseTitle={tribunalCase.title || tribunalCase.case_number || `Case ${tribunalCase.id.substring(0, 8)}`}
+                  caseTitle={
+                    tribunalCase.title ||
+                    tribunalCase.case_number ||
+                    `Case ${tribunalCase.id.substring(0, 8)}`
+                  }
                 />
               </div>
 

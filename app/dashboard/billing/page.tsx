@@ -129,7 +129,7 @@ export default function BillingPage() {
 
       <div className="mb-8">
         <h1 className="text-3xl font-bold">Billing & Subscription</h1>
-        <p className="text-gray-600 mt-2">
+        <p className="mt-2 text-gray-600">
           Manage your subscription, billing information, and usage
         </p>
       </div>
@@ -137,14 +137,10 @@ export default function BillingPage() {
       <div className="grid gap-6 md:grid-cols-2">
         {/* Current Plan */}
         <Card className="p-6">
-          <div className="flex items-start justify-between mb-4">
+          <div className="mb-4 flex items-start justify-between">
             <div>
-              <h2 className="text-xl font-semibold mb-2">Current Plan</h2>
-              <Badge
-                variant={
-                  billingInfo?.status === 'active' ? 'default' : 'destructive'
-                }
-              >
+              <h2 className="mb-2 text-xl font-semibold">Current Plan</h2>
+              <Badge variant={billingInfo?.status === 'active' ? 'default' : 'destructive'}>
                 {tierName}
               </Badge>
             </div>
@@ -152,7 +148,7 @@ export default function BillingPage() {
           </div>
 
           {billingInfo && (
-            <div className="space-y-3 mt-4">
+            <div className="mt-4 space-y-3">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-600">Status</span>
                 <span className="flex items-center gap-2">
@@ -209,12 +205,10 @@ export default function BillingPage() {
 
         {/* Usage & Seats */}
         <Card className="p-6">
-          <div className="flex items-start justify-between mb-4">
+          <div className="mb-4 flex items-start justify-between">
             <div>
-              <h2 className="text-xl font-semibold mb-2">Team Usage</h2>
-              <p className="text-sm text-gray-600">
-                Current seat utilization
-              </p>
+              <h2 className="mb-2 text-xl font-semibold">Team Usage</h2>
+              <p className="text-sm text-gray-600">Current seat utilization</p>
             </div>
             <Users className="h-8 w-8 text-gray-400" />
           </div>
@@ -222,15 +216,15 @@ export default function BillingPage() {
           {billingInfo && !isFreeTier ? (
             <div className="space-y-4">
               <div>
-                <div className="flex justify-between text-sm mb-2">
+                <div className="mb-2 flex justify-between text-sm">
                   <span className="text-gray-600">Seats Used</span>
                   <span className="font-semibold">
                     {billingInfo.seatsUsed} / {billingInfo.seatCount}
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="h-2 w-full rounded-full bg-gray-200">
                   <div
-                    className="bg-blue-600 h-2 rounded-full transition-all"
+                    className="h-2 rounded-full bg-blue-600 transition-all"
                     style={{
                       width: `${(billingInfo.seatsUsed / billingInfo.seatCount) * 100}%`,
                     }}
@@ -239,10 +233,9 @@ export default function BillingPage() {
               </div>
 
               {billingInfo.seatsUsed >= billingInfo.seatCount && (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-3">
                   <p className="text-sm text-yellow-800">
-                    You've reached your seat limit. Upgrade to add more team
-                    members.
+                    You've reached your seat limit. Upgrade to add more team members.
                   </p>
                 </div>
               )}
@@ -256,10 +249,8 @@ export default function BillingPage() {
               </Button>
             </div>
           ) : (
-            <div className="text-center py-8">
-              <p className="text-gray-600 mb-4">
-                Free tier is for individual use only
-              </p>
+            <div className="py-8 text-center">
+              <p className="mb-4 text-gray-600">Free tier is for individual use only</p>
               <Button onClick={() => router.push('/pricing')} variant="outline">
                 Upgrade for Team Access
               </Button>
@@ -270,38 +261,32 @@ export default function BillingPage() {
 
       {/* Features Overview */}
       <Card className="mt-6 p-6">
-        <h2 className="text-xl font-semibold mb-4">Current Features</h2>
+        <h2 className="mb-4 text-xl font-semibold">Current Features</h2>
         <div className="grid gap-4 md:grid-cols-3">
           <div className="flex items-start gap-3">
-            <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
+            <CheckCircle className="mt-0.5 h-5 w-5 text-green-500" />
             <div>
               <p className="font-medium">AI Assistant</p>
               <p className="text-sm text-gray-600">
-                {entitlements?.features?.aiAssistantAccess
-                  ? 'Unlimited access'
-                  : 'Not available'}
+                {entitlements?.features?.aiAssistantAccess ? 'Unlimited access' : 'Not available'}
               </p>
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
+            <CheckCircle className="mt-0.5 h-5 w-5 text-green-500" />
             <div>
               <p className="font-medium">AI Coach</p>
               <p className="text-sm text-gray-600">
-                {entitlements?.features?.aiCoachAccess
-                  ? 'Unlimited access'
-                  : 'Not available'}
+                {entitlements?.features?.aiCoachAccess ? 'Unlimited access' : 'Not available'}
               </p>
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
+            <CheckCircle className="mt-0.5 h-5 w-5 text-green-500" />
             <div>
               <p className="font-medium">Export Features</p>
               <p className="text-sm text-gray-600">
-                {entitlements?.features?.exportCapabilities
-                  ? 'Available'
-                  : 'Not available'}
+                {entitlements?.features?.exportCapabilities ? 'Available' : 'Not available'}
               </p>
             </div>
           </div>
@@ -310,11 +295,10 @@ export default function BillingPage() {
 
       {/* Billing History Note */}
       {!isFreeTier && billingInfo?.stripeCustomerId && (
-        <Card className="mt-6 p-6 bg-gray-50">
+        <Card className="mt-6 bg-gray-50 p-6">
           <p className="text-sm text-gray-600">
-            <strong>Note:</strong> For detailed billing history, invoices, and
-            payment methods, click "Manage Subscription" above to access the
-            Stripe billing portal.
+            <strong>Note:</strong> For detailed billing history, invoices, and payment methods,
+            click "Manage Subscription" above to access the Stripe billing portal.
           </p>
         </Card>
       )}

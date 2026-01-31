@@ -1,9 +1,9 @@
 /**
  * Evidence Bundle Test Page
  * Demonstrates server-side PDF generation with compliance-grade storage
- * 
+ *
  * Access: /test-evidence-bundles
- * 
+ *
  * Features:
  * - Live demonstration of server-side PDF generation
  * - Compliance-grade storage with immutable files
@@ -44,12 +44,7 @@ export default async function TestEvidenceBundlesPage() {
             href="/dashboard"
             className="mb-4 inline-flex items-center text-sm text-gray-600 hover:text-gray-900"
           >
-            <svg
-              className="mr-2 h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -67,9 +62,7 @@ export default async function TestEvidenceBundlesPage() {
 
         {/* Architecture Overview */}
         <div className="mb-8 rounded-lg border border-teal-200 bg-teal-50 p-6">
-          <h2 className="mb-4 text-xl font-semibold text-teal-900">
-            🏗️ Server-Side Architecture
-          </h2>
+          <h2 className="mb-4 text-xl font-semibold text-teal-900">🏗️ Server-Side Architecture</h2>
           <div className="space-y-3 text-sm text-teal-800">
             <div className="flex gap-3">
               <div className="font-semibold">1. User Request →</div>
@@ -212,7 +205,7 @@ export default async function TestEvidenceBundlesPage() {
 
           <div className="rounded-lg border border-gray-200 bg-white p-6">
             <h3 className="mb-3 font-semibold text-gray-900">Files Created</h3>
-            <ul className="space-y-2 text-sm font-mono text-gray-700">
+            <ul className="space-y-2 font-mono text-sm text-gray-700">
               <li>• supabase/migrations/020_evidence_bundles_tracking.sql</li>
               <li>• lib/services/pdf-generator-server.ts</li>
               <li>• lib/actions/evidence-bundles.ts</li>

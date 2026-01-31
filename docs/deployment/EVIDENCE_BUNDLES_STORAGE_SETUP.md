@@ -1,9 +1,11 @@
 # Evidence Bundles Storage Setup
 
 ## Overview
+
 Evidence bundles require a dedicated Supabase Storage bucket for immutable, audit-ready file storage.
 
 ## Prerequisites
+
 - Supabase project configured
 - Admin access to Supabase Dashboard
 - Database migration `020_evidence_bundles_tracking.sql` applied ✅
@@ -31,9 +33,9 @@ CREATE POLICY "Users can download org evidence bundles"
 ON storage.objects
 FOR SELECT
 USING (
-  bucket_id = 'evidence-bundle-pdfs' 
+  bucket_id = 'evidence-bundle-pdfs'
   AND EXISTS (
-    SELECT 1 
+    SELECT 1
     FROM evidence_bundle_pdfs eb
     JOIN profiles p ON eb.case_id IN (
       SELECT id FROM tribunal_cases WHERE organization_id = p.organization_id
@@ -90,9 +92,7 @@ const { data: urlData, error: urlError } = await supabase.storage
   .createSignedUrl('test.pdf', 3600)
 
 // Test RLS (should only see org bundles)
-const { data: bundles } = await supabase
-  .from('evidence_bundle_pdfs')
-  .select('*')
+const { data: bundles } = await supabase.from('evidence_bundle_pdfs').select('*')
 ```
 
 ## File Naming Convention
@@ -104,6 +104,7 @@ evidence-bundle-{CASE_ID}-{TIMESTAMP}.pdf
 ```
 
 Example:
+
 ```
 evidence-bundle-550e8400-e29b-41d4-a716-446655440000-2024-01-15T10-30-45Z.pdf
 ```
@@ -111,14 +112,17 @@ evidence-bundle-550e8400-e29b-41d4-a716-446655440000-2024-01-15T10-30-45Z.pdf
 ## Retention Policy
 
 ### Short-term (0-90 days)
+
 - All bundles accessible via signed URLs
 - Access tracked in `evidence_bundles.accessed_count`
 
 ### Medium-term (90 days - 7 years)
+
 - Required for legal/compliance
 - Consider archival storage for cost optimization
 
 ### Long-term (7+ years)
+
 - Consult legal team for retention requirements
 - May require cold storage migration
 
@@ -127,16 +131,18 @@ evidence-bundle-550e8400-e29b-41d4-a716-446655440000-2024-01-15T10-30-45Z.pdf
 ### Key Metrics
 
 1. **Storage Usage**
+
    ```sql
-   SELECT 
+   SELECT
      COUNT(*) as total_bundles,
      SUM(file_size) / (1024 * 1024) as total_mb
    FROM evidence_bundle_pdfs;
    ```
 
 2. **Access Patterns**
+
    ```sql
-   SELECT 
+   SELECT
      file_name,
      accessed_count,
      last_accessed_at
@@ -147,7 +153,7 @@ evidence-bundle-550e8400-e29b-41d4-a716-446655440000-2024-01-15T10-30-45Z.pdf
 
 3. **Recent Generations**
    ```sql
-   SELECT 
+   SELECT
      eb.*,
      p.full_name as created_by_name
    FROM evidence_bundle_pdfs eb
@@ -161,36 +167,43 @@ evidence-bundle-550e8400-e29b-41d4-a716-446655440000-2024-01-15T10-30-45Z.pdf
 ### Upload Failures
 
 **Error**: "new row violates row-level security policy"
+
 - **Cause**: User not authenticated
 - **Fix**: Ensure `supabase.auth.getUser()` succeeds before upload
 
 **Error**: "Payload too large"
+
 - **Cause**: File exceeds 50 MB limit
 - **Fix**: Split into multiple bundles or increase bucket limit
 
 ### Download Failures
 
 **Error**: "Object not found"
+
 - **Cause**: Signed URL expired (>1 hour old)
 - **Fix**: Regenerate signed URL via `createEvidenceBundle()`
 
 **Error**: "Access denied"
+
 - **Cause**: User not in case's organization
 - **Fix**: Verify RLS policies and organization membership
 
 ## Security Considerations
 
 ### Immutability
+
 - Uploads use `upsert: false` to prevent overwrites
 - Storage paths are UNIQUE in database
 - Checksums verify file integrity
 
 ### Access Control
+
 - All downloads require signed URLs (time-limited)
 - Access tracking logged to audit trail
 - Organization-based isolation via RLS
 
 ### Compliance
+
 - Meets NIST SP 800-86 evidence handling requirements
 - Supports chain of custody via audit logs
 - Deterministic generation ensures reproducibility

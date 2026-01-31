@@ -15,7 +15,7 @@ async function setupStorageBucket() {
 
     // 1. Create storage bucket (if not exists)
     console.log('📦 Creating storage bucket: evidence-bundle-pdfs...')
-    
+
     const bucketExists = await client.query(`
       SELECT EXISTS (
         SELECT FROM storage.buckets 
@@ -127,7 +127,6 @@ async function setupStorageBucket() {
     console.log('  ✅ evidence-bundle-pdfs bucket created')
     console.log('  ✅ RLS policies configured')
     console.log('  ✅ Ready for PDF generation\n')
-
   } catch (error: any) {
     console.error('❌ Setup failed:', error.message)
     console.error(error)

@@ -45,7 +45,7 @@ Successfully migrated from client-side PDF generation to server-side architectur
 ✅ Organization-based access control (RLS)  
 ✅ Time-limited signed URLs (1-hour expiry)  
 ✅ NIST SP 800-86 compliant  
-✅ ISO/IEC 27037:2012 compliant  
+✅ ISO/IEC 27037:2012 compliant
 
 ---
 
@@ -99,25 +99,24 @@ import { createClient } from '@/lib/supabase/server'
 import { generatePDF } from '@/lib/services/pdf-generator-server'
 import { logAuditEvent } from '@/lib/services/audit-logger'
 
-export async function createEvidenceBundle(
-  caseId: string,
-  includeAttachments: boolean
-) {
+export async function createEvidenceBundle(caseId: string, includeAttachments: boolean) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
   if (!user) throw new Error('Unauthorized')
 
   // 1. Fetch data server-side (with RLS)
   const caseData = await getCaseWithEvidence(caseId)
-  
+
   // 2. Generate PDF server-side (deterministic)
   const pdfBuffer = await generatePDF(caseData, {
     timestamp: new Date().toISOString(),
     generatedBy: user.email,
     includeSignature: true,
   })
-  
+
   // 3. Upload to Supabase Storage (immutable)
   const fileName = `evidence-${caseId}-${Date.now()}.pdf`
   const { data: uploadData, error } = await supabase.storage
@@ -126,9 +125,9 @@ export async function createEvidenceBundle(
       contentType: 'application/pdf',
       cacheControl: '31536000', // 1 year (immutable)
     })
-  
+
   if (error) throw error
-  
+
   // 4. Log audit event
   await logAuditEvent({
     action: 'evidence_bundle_created',
@@ -141,7 +140,7 @@ export async function createEvidenceBundle(
       includeAttachments,
     },
   })
-  
+
   // 5. Create DB record for tracking
   await supabase.from('evidence_bundles').insert({
     case_id: caseId,
@@ -151,12 +150,12 @@ export async function createEvidenceBundle(
     file_size: pdfBuffer.length,
     checksum: calculateChecksum(pdfBuffer),
   })
-  
+
   // 6. Return signed URL (time-limited, trackable)
   const { data: urlData } = await supabase.storage
     .from('evidence-bundles')
     .createSignedUrl(uploadData.path, 3600) // 1 hour
-  
+
   return {
     url: urlData.signedUrl,
     fileName,
@@ -182,7 +181,7 @@ CREATE TABLE evidence_bundles (
   accessed_count INTEGER DEFAULT 0,
   last_accessed_at TIMESTAMPTZ,
   metadata JSONB,
-  
+
   -- Audit trail
   CONSTRAINT evidence_bundles_unique_path UNIQUE(storage_path)
 );
@@ -235,11 +234,13 @@ CREATE POLICY "Org members can read evidence bundles"
 
 #### 4. Server-Side PDF Generation
 
-**Dependencies:** 
+**Dependencies:**
+
 - `pdf-lib` (server-side PDF generation)
 - `@react-pdf/renderer` (alternative: React-based PDFs)
 
 **Key Features:**
+
 - Deterministic output (same input = same PDF)
 - Timestamping and digital signatures
 - Watermarking (e.g., "OFFICIAL COPY - DO NOT REDISTRIBUTE")
@@ -252,11 +253,11 @@ Every access to a signed URL should be logged:
 ```typescript
 export async function trackBundleAccess(bundleId: string) {
   const supabase = await createClient()
-  
+
   await supabase.rpc('increment_bundle_access', {
-    bundle_id: bundleId
+    bundle_id: bundleId,
   })
-  
+
   await logAuditEvent({
     action: 'evidence_bundle_accessed',
     resource_type: 'evidence_bundle',
@@ -289,13 +290,13 @@ export async function trackBundleAccess(bundleId: string) {
 ✅ **Storage Bucket** - `evidence-bundle-pdfs` (via CLI script)  
 ✅ **UI Component** - `components/cases/EvidenceBundleGenerator.tsx`  
 ✅ **Test Page** - `app/test-evidence-bundles/page.tsx`  
-✅ **Documentation** - `docs/deployment/EVIDENCE_BUNDLES_STORAGE_SETUP.md`  
+✅ **Documentation** - `docs/deployment/EVIDENCE_BUNDLES_STORAGE_SETUP.md`
 
 ### Migration Completed
 
 ~~Phase 1: Parallel Implementation~~  
 ~~Phase 2: Migration~~  
-~~Phase 3: Deprecation~~  
+~~Phase 3: Deprecation~~
 
 **Actual Approach:** Direct server-side implementation (no parallel phase needed)
 
@@ -322,6 +323,7 @@ export async function trackBundleAccess(bundleId: string) {
 **Current Priority:** Medium (not a blocker for MVP)
 
 **Triggers for High Priority:**
+
 - Customer requires compliance certification
 - Legal department flags evidence handling concerns
 - Procurement process requires audit trail documentation
@@ -330,17 +332,20 @@ export async function trackBundleAccess(bundleId: string) {
 ## Alternatives Considered
 
 ### 1. Hybrid Approach
+
 - Client-side generation for small bundles (<5 MB)
 - Server-side generation for large bundles (>5 MB)
 - **Pros**: Balances performance and compliance
 - **Cons**: Increased complexity, harder to maintain
 
 ### 2. Third-Party Service
+
 - Use service like DocRaptor, PDF.co, or Anvil
 - **Pros**: Fully managed, no infrastructure
 - **Cons**: Cost, vendor lock-in, data privacy concerns
 
 ### 3. Queue-Based Generation
+
 - User requests bundle → job queued → email sent when ready
 - **Pros**: Better for large bundles, no timeout issues
 - **Cons**: More complex architecture, delayed gratification

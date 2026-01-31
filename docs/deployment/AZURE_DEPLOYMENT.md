@@ -114,14 +114,14 @@ Configure environment variables in Azure:
 2. Click **Configuration** in left menu
 3. Add Application Settings:
 
-| Name                            | Value                                      |
-| ------------------------------- | ------------------------------------------ |
+| Name                            | Value                                  |
+| ------------------------------- | -------------------------------------- |
 | `NEXT_PUBLIC_SUPABASE_URL`      | `https://your-project-ref.supabase.co` |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your anon key                              |
-| `NEXT_PUBLIC_APP_URL`           | Your Azure Static Web App URL              |
-| `NEXT_PUBLIC_APP_NAME`          | `ABR Insights`                             |
-| `NEXT_PUBLIC_APP_VERSION`       | `2.0.0`                                    |
-| `NODE_ENV`                      | `production`                               |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your anon key                          |
+| `NEXT_PUBLIC_APP_URL`           | Your Azure Static Web App URL          |
+| `NEXT_PUBLIC_APP_NAME`          | `ABR Insights`                         |
+| `NEXT_PUBLIC_APP_VERSION`       | `2.0.0`                                |
+| `NODE_ENV`                      | `production`                           |
 
 ## Deployment Process
 

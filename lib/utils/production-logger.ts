@@ -1,9 +1,9 @@
 /**
  * Production Logger
- * 
+ *
  * Centralized logging with different levels and structured output.
  * Integrates with monitoring services in production.
- * 
+ *
  * Usage:
  *   logger.info('User logged in', { userId: '123' })
  *   logger.error('Payment failed', { error: err, orderId: 'ord_123' })

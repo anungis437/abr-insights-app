@@ -252,4 +252,3 @@ ${digest.key_findings.map((finding, i) => `${i + 1}. ${finding}`).join('\n')}
     </div>
   )
 }
-

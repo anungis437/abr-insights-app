@@ -44,7 +44,7 @@ async function applyMigration() {
         AND table_name = 'evidence_bundle_pdfs'
       );
     `)
-    
+
     if (verifyTable.rows[0].exists) {
       console.log('✅ evidence_bundle_pdfs table created')
     } else {
@@ -60,7 +60,7 @@ async function applyMigration() {
         AND p.proname = 'increment_bundle_pdf_access'
       );
     `)
-    
+
     if (verifyFunction.rows[0].exists) {
       console.log('✅ increment_bundle_pdf_access function created')
     } else {
@@ -73,7 +73,7 @@ async function applyMigration() {
       FROM pg_policies
       WHERE tablename = 'evidence_bundle_pdfs';
     `)
-    
+
     console.log(`✅ ${verifyPolicies.rows[0].policy_count} RLS policies created`)
 
     // Show table structure
@@ -84,16 +84,17 @@ async function applyMigration() {
       WHERE table_name = 'evidence_bundle_pdfs'
       ORDER BY ordinal_position;
     `)
-    
+
     columns.rows.forEach((col) => {
-      console.log(`  - ${col.column_name}: ${col.data_type} ${col.is_nullable === 'NO' ? 'NOT NULL' : ''}`)
+      console.log(
+        `  - ${col.column_name}: ${col.data_type} ${col.is_nullable === 'NO' ? 'NOT NULL' : ''}`
+      )
     })
 
     console.log('\n✅ Evidence bundles migration complete!')
     console.log('\n📝 Next steps:')
     console.log('  1. Configure Supabase Storage bucket: evidence-bundle-pdfs')
     console.log('  2. See docs/deployment/EVIDENCE_BUNDLES_STORAGE_SETUP.md for setup')
-
   } catch (error: any) {
     console.error('❌ Migration failed:', error.message)
     console.error(error)

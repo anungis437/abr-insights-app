@@ -3,7 +3,7 @@
 /**
  * Evidence Bundle PDF Generator Component
  * Demonstrates server-side PDF generation with compliance-grade storage
- * 
+ *
  * Usage: Add to tribunal case details page or admin interface
  * Example: <EvidenceBundleGenerator caseId={tribunalCase.id} caseTitle={tribunalCase.title} />
  */
@@ -96,9 +96,7 @@ export function EvidenceBundleGenerator({
             disabled={loading}
             variant={success ? 'outline' : 'default'}
             className={
-              success
-                ? 'border-green-500 text-green-600'
-                : 'bg-teal-600 hover:bg-teal-700'
+              success ? 'border-green-500 text-green-600' : 'bg-teal-600 hover:bg-teal-700'
             }
           >
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -127,9 +125,7 @@ export function EvidenceBundleGenerator({
 
       {/* Usage Note */}
       <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-        <h4 className="mb-2 text-sm font-semibold text-blue-900">
-          📘 Compliance-Grade Features
-        </h4>
+        <h4 className="mb-2 text-sm font-semibold text-blue-900">📘 Compliance-Grade Features</h4>
         <ul className="space-y-1 text-xs text-blue-800">
           <li>
             <strong>Immutable Storage:</strong> PDFs stored in Supabase Storage with unique paths
@@ -146,8 +142,7 @@ export function EvidenceBundleGenerator({
             (reproducible evidence)
           </li>
           <li>
-            <strong>Access Control:</strong> Organization-based RLS with signed URLs (1-hour
-            expiry)
+            <strong>Access Control:</strong> Organization-based RLS with signed URLs (1-hour expiry)
           </li>
         </ul>
       </div>
