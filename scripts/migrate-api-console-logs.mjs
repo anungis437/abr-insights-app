@@ -40,11 +40,11 @@ for (const file of files) {
     // Replace console.error calls
     const errorReplacements = modified.match(/console\.error\([^)]+\)/g)?.length || 0
     modified = modified.replace(/console\.error\(/g, 'logger.error(')
-    
+
     // Replace console.warn calls
     const warnReplacements = modified.match(/console\.warn\([^)]+\)/g)?.length || 0
     modified = modified.replace(/console\.warn\(/g, 'logger.warn(')
-    
+
     // Replace console.log calls (except in comments)
     const logReplacements = modified.match(/^\s*console\.log\(/gm)?.length || 0
     modified = modified.replace(/(\n\s*)console\.log\(/g, '$1logger.info(')

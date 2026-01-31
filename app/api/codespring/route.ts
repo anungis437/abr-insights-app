@@ -34,10 +34,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(response.data, { status: 200 })
   } catch (error) {
     logger.error('Codespring API error:', { error: error })
-    return NextResponse.json(
-      { error: sanitizeError(error) },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: sanitizeError(error) }, { status: 500 })
   }
 }
 

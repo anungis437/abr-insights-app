@@ -17,7 +17,10 @@ for (const file of files) {
   let hasChanges = false
 
   // Check if file returns raw error.message to clients
-  const hasErrorLeak = /(?:error|errorMessage|details).*:.*error\s*(?:instanceof Error \? error\.)?\.message/i.test(modified)
+  const hasErrorLeak =
+    /(?:error|errorMessage|details).*:.*error\s*(?:instanceof Error \? error\.)?\.message/i.test(
+      modified
+    )
 
   if (hasErrorLeak) {
     // Add sanitizeError import if not present
@@ -42,22 +45,22 @@ for (const file of files) {
       /errorMessage:\s*error\.message/g,
       "error: sanitizeError(error, 'Operation failed')"
     )
-    
+
     // Replace details: error.message patterns
     modified = modified.replace(
       /details:\s*error\s+instanceof\s+Error\s*\?\s*error\.message\s*:\s*['"]Unknown error['"]/g,
       "details: sanitizeError(error, 'An error occurred')"
     )
-    
+
     // Replace { error: error.message } patterns
     modified = modified.replace(
       /\{\s*error:\s*error\s+instanceof\s+Error\s*\?\s*error\.message\s*:\s*['"][^'"]+['"]\s*\}/g,
-      "{ error: sanitizeError(error) }"
+      '{ error: sanitizeError(error) }'
     )
 
     const afterCount = (modified.match(/errorMessage.*error\.message/g) || []).length
     const replacements = beforeCount - afterCount
-    
+
     if (replacements > 0 || hasChanges) {
       filesChanged++
       console.log(`✓ ${file}`)
