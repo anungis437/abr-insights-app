@@ -5,6 +5,8 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { withRateLimit } from '@/lib/security/rateLimit'
+import { PAYMENT_RATE_LIMITS } from '@/lib/security/rateLimitPresets'
 import { z } from 'zod'
 
 const checkoutSchema = z.object({
@@ -14,7 +16,7 @@ const checkoutSchema = z.object({
   billing_email: z.string().email().optional(),
 })
 
-export async function POST(req: NextRequest) {
+async function checkoutHandler(req: NextRequest) {
   try {
     // Lazy load Stripe to avoid build-time initialization
     const { stripe, getOrCreateStripeCustomer, STRIPE_PRICES } = await import('@/lib/stripe')
@@ -117,3 +119,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to create checkout session' }, { status: 500 })
   }
 }
+
+// Apply rate limiting - 10 checkout attempts per hour per user (prevents payment fraud)
+export const POST = withRateLimit(PAYMENT_RATE_LIMITS.checkout, checkoutHandler)

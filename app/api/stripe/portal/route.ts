@@ -6,8 +6,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { requireAnyPermission } from '@/lib/auth/permissions'
+import { withRateLimit } from '@/lib/security/rateLimit'
+import { PAYMENT_RATE_LIMITS } from '@/lib/security/rateLimitPresets'
 
-export async function POST(req: NextRequest) {
+async function portalHandler(req: NextRequest) {
   // Check permissions - users need subscription.view to access portal
   const permissionError = await requireAnyPermission([
     'subscription.view',
@@ -55,3 +57,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to create portal session' }, { status: 500 })
   }
 }
+
+// Apply rate limiting - 20 portal access requests per hour per user
+export const POST = withRateLimit(PAYMENT_RATE_LIMITS.portal, portalHandler)
