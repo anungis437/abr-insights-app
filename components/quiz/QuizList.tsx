@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 /**
  * QuizList Component
@@ -75,7 +77,7 @@ export function QuizList({ courseId, lessonId, userId }: QuizListProps) {
 
         setQuizzes(quizzesWithAttempts)
       } catch (error) {
-        console.error('Error fetching quizzes:', error)
+        logger.error('Error fetching quizzes:', { error: error, context: 'QuizList' })
       } finally {
         setLoading(false)
       }
@@ -230,7 +232,7 @@ function QuizCard({ quiz, userId }: { quiz: QuizWithAttempts; userId: string }) 
         {/* Last Attempt Info */}
         {quiz.last_attempt && (
           <div className="text-muted-foreground text-xs">
-            Last attempt: {new Date(quiz.last_attempt.started_at).toLocaleDateString()} •{' '}
+            Last attempt: {new Date(quiz.last_attempt.started_at).toLocaleDateString()} â€¢{' '}
             {quiz.last_attempt.score?.toFixed(1)}%
           </div>
         )}

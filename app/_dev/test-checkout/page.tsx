@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -65,7 +67,7 @@ export default function TestCheckoutPage() {
         throw new Error(stripeError.message)
       }
     } catch (err: any) {
-      console.error('Checkout error:', err)
+      logger.error('Checkout error:', { error: err, context: 'TestCheckoutPage' })
       setError(err.message || 'Failed to start checkout')
     } finally {
       setLoading(false)
@@ -76,7 +78,7 @@ export default function TestCheckoutPage() {
     <div className="container mx-auto max-w-4xl px-4 py-12">
       <div className="mb-8">
         <h1 className="mb-2 text-3xl font-bold">Test Stripe Checkout</h1>
-        <p className="text-gray-600">Test the complete Stripe → Webhook → Entitlements → UI flow</p>
+        <p className="text-gray-600">Test the complete Stripe â†’ Webhook â†’ Entitlements â†’ UI flow</p>
       </div>
 
       {/* Current Entitlements Status */}
@@ -106,15 +108,15 @@ export default function TestCheckoutPage() {
               <span className="font-medium">Features:</span>
               <ul className="ml-6 mt-2 space-y-1 text-sm">
                 <li>
-                  AI Assistant: {entitlements.features.aiAssistantAccess ? '✅ Yes' : '❌ No'}
+                  AI Assistant: {entitlements.features.aiAssistantAccess ? 'âœ… Yes' : 'âŒ No'}
                 </li>
-                <li>AI Coach: {entitlements.features.aiCoachAccess ? '✅ Yes' : '❌ No'}</li>
+                <li>AI Coach: {entitlements.features.aiCoachAccess ? 'âœ… Yes' : 'âŒ No'}</li>
                 <li>
                   Export Capabilities:{' '}
-                  {entitlements.features.exportCapabilities ? '✅ Yes' : '❌ No'}
+                  {entitlements.features.exportCapabilities ? 'âœ… Yes' : 'âŒ No'}
                 </li>
                 <li>
-                  Advanced Analytics: {entitlements.features.advancedAnalytics ? '✅ Yes' : '❌ No'}
+                  Advanced Analytics: {entitlements.features.advancedAnalytics ? 'âœ… Yes' : 'âŒ No'}
                 </li>
                 <li>
                   Max Courses:{' '}
@@ -146,11 +148,11 @@ export default function TestCheckoutPage() {
             <h3 className="mb-2 text-xl font-bold">Professional</h3>
             <p className="mb-4 text-3xl font-bold text-gray-900">$49/month</p>
             <ul className="mb-6 space-y-2 text-sm text-gray-600">
-              <li>✅ AI Assistant & Coach</li>
-              <li>✅ Advanced Analytics</li>
-              <li>✅ Export Capabilities</li>
-              <li>✅ 50 Courses Max</li>
-              <li>✅ 1 Seat</li>
+              <li>âœ… AI Assistant & Coach</li>
+              <li>âœ… Advanced Analytics</li>
+              <li>âœ… Export Capabilities</li>
+              <li>âœ… 50 Courses Max</li>
+              <li>âœ… 1 Seat</li>
             </ul>
             <button
               onClick={() =>
@@ -186,11 +188,11 @@ export default function TestCheckoutPage() {
             <h3 className="mb-2 text-xl font-bold">Enterprise</h3>
             <p className="mb-4 text-3xl font-bold text-gray-900">$199/month</p>
             <ul className="mb-6 space-y-2 text-sm text-gray-600">
-              <li>✅ Everything in Professional</li>
-              <li>✅ Custom Branding</li>
-              <li>✅ SSO Enabled</li>
-              <li>✅ Unlimited Courses</li>
-              <li>✅ Unlimited Seats</li>
+              <li>âœ… Everything in Professional</li>
+              <li>âœ… Custom Branding</li>
+              <li>âœ… SSO Enabled</li>
+              <li>âœ… Unlimited Courses</li>
+              <li>âœ… Unlimited Seats</li>
             </ul>
             <button
               onClick={() =>
@@ -256,25 +258,25 @@ export default function TestCheckoutPage() {
             href="/ai-assistant"
             className="rounded-lg border-2 border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100"
           >
-            Test AI Assistant →
+            Test AI Assistant â†’
           </Link>
           <Link
             href="/ai-coach"
             className="rounded-lg border-2 border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100"
           >
-            Test AI Coach →
+            Test AI Coach â†’
           </Link>
           <Link
             href="/admin/risk-heatmap"
             className="rounded-lg border-2 border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100"
           >
-            Test Export →
+            Test Export â†’
           </Link>
           <Link
             href="/pricing"
             className="rounded-lg border-2 border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100"
           >
-            View Pricing →
+            View Pricing â†’
           </Link>
         </div>
       </div>

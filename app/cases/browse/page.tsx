@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 /**
  * Cases Browser - Functional Case List
@@ -154,7 +156,7 @@ function CasesBrowserContent() {
       })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load cases')
-      console.error('Error fetching cases:', err)
+      logger.error('Error fetching cases:', { error: err, context: 'CasesBrowserPage' })
     } finally {
       setLoading(false)
     }
@@ -379,7 +381,7 @@ function CasesBrowserContent() {
               className="mt-4 flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800"
               aria-label="Toggle advanced filters"
             >
-              {showAdvancedFilters ? '▲ Hide' : '▼ Show'} Advanced Filters
+              {showAdvancedFilters ? 'â–² Hide' : 'â–¼ Show'} Advanced Filters
             </button>
 
             {/* Advanced Filters Panel */}

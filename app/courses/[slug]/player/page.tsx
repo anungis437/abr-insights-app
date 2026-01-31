@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/utils/production-logger'
+
 /**
  * Course Player Page - Dynamic Route
  * Replaces legacy CoursePlayer.jsx (425 lines)
@@ -208,7 +210,7 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
 
         setLoading(false)
       } catch (error) {
-        console.error('Error loading course:', error)
+        logger.error('Error loading course:', { error: error, context: 'CoursePlayerPage' })
         router.push('/training')
       }
     }
@@ -296,7 +298,7 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
         setShowQuiz(false)
       }
     } catch (error) {
-      console.error('Error completing lesson:', error)
+      logger.error('Error completing lesson:', { error: error, context: 'CoursePlayerPage' })
     }
   }
 

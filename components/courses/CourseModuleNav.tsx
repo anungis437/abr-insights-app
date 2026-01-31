@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { ChevronDown, ChevronRight, CheckCircle, Circle, Lock, PlayCircle } from 'lucide-react'
@@ -74,7 +76,7 @@ export function CourseModuleNav({
         }
       }
     } catch (err) {
-      console.error('Error loading modules:', err)
+      logger.error('Error loading modules:', { error: err, context: 'CourseModuleNav' })
       setError('Failed to load course modules')
     } finally {
       setLoading(false)

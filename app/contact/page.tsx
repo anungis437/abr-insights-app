@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 import { Mail, MapPin, Phone, Send } from 'lucide-react'
 import { useState } from 'react'
@@ -43,7 +45,7 @@ export default function ContactPage() {
         setSubmitted(false)
       }, 5000)
     } catch (err: any) {
-      console.error('Form submission error:', err)
+      logger.error('Form submission error:', { error: err, context: 'ContactPage' })
       setError(err.message || 'Failed to send message. Please try again.')
     } finally {
       setSubmitting(false)

@@ -148,14 +148,12 @@ export default function SSOConfigPage() {
         .order('name')
 
       if (orgsError) {
-        console.error('Error loading organizations:', {
-          message: orgsError.message,
-          details: orgsError.details,
-          hint: orgsError.hint,
-          code: orgsError.code,
+        logger.error('Error loading organizations', {
+          error: orgsError,
+          context: 'SSOConfigPage',
         })
       } else {
-        logger.debug('Organizations loaded', { count: orgs?.length || 0 })
+        logger.debug('Organizations loaded', { count: orgs?.length || 0, context: 'SSOConfigPage' })
       }
 
       setOrganizations(orgs || [])
@@ -174,24 +172,11 @@ export default function SSOConfigPage() {
         .order('created_at', { ascending: false })
 
       if (ssoError) {
-        // Log the full error object to see its structure
-        logger.error('Error loading SSO providers (full object):', { error: ssoError, context: 'SSOConfigPage' })
-        console.error(
-          'Error loading SSO providers (stringified):',
-          JSON.stringify(ssoError, null, 2)
-        )
-        console.error('Error loading SSO providers (structured):', {
-          message: ssoError.message,
-          details: ssoError.details,
-          hint: ssoError.hint,
-          code: ssoError.code,
-          statusCode: (ssoError as any).statusCode,
-          status: (ssoError as any).status,
+        // Log the full error object
+        logger.error('Error loading SSO providers', {
+          error: ssoError,
+          context: 'SSOConfigPage',
         })
-
-        // Log all enumerable properties
-        console.error('Error keys:', Object.keys(ssoError))
-        console.error('Error entries:', Object.entries(ssoError))
 
         // If it's a permission error, show helpful message
         if (
@@ -204,6 +189,7 @@ export default function SSOConfigPage() {
             {
               needsAdminRole: true,
               needsOrgAssignment: true,
+              context: 'SSOConfigPage',
             }
           )
         }
@@ -225,16 +211,9 @@ export default function SSOConfigPage() {
       setProviders(flattenedData || [])
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-      const errorDetails = (error as any)?.details
-      const errorCode = (error as any)?.code
-      const errorHint = (error as any)?.hint
-
-      console.error('Error loading data:', {
-        message: errorMessage,
-        code: errorCode,
-        details: errorDetails,
-        hint: errorHint,
-        timestamp: new Date().toISOString(),
+      logger.error('Error loading SSO config data', {
+        error,
+        context: 'SSOConfigPage',
       })
     } finally {
       setLoading(false)

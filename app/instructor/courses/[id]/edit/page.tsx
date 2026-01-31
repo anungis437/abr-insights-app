@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/utils/production-logger'
+
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
@@ -100,7 +102,7 @@ export default function InstructorCourseEditPage() {
       await loadWorkflowSummary()
       await loadVersions()
     } catch (error) {
-      console.error('Error in checkAuthAndLoadData:', error)
+      logger.error('Error in checkAuthAndLoadData:', { error: error, context: 'InstructorCourseEditPage' })
     } finally {
       setIsLoading(false)
     }
@@ -139,7 +141,7 @@ export default function InstructorCourseEditPage() {
         meta_description: data.meta_description || '',
       })
     } catch (error) {
-      console.error('Error loading course:', error)
+      logger.error('Error loading course:', { error: error, context: 'InstructorCourseEditPage' })
       setErrors({ general: 'Failed to load course data' })
     }
   }
@@ -151,7 +153,7 @@ export default function InstructorCourseEditPage() {
       if (error) throw error
       setCategories(data || [])
     } catch (error) {
-      console.error('Error loading categories:', error)
+      logger.error('Error loading categories:', { error: error, context: 'InstructorCourseEditPage' })
     }
   }
 
@@ -160,7 +162,7 @@ export default function InstructorCourseEditPage() {
       const summary = await courseWorkflowService.getWorkflowSummary(courseId)
       setWorkflowSummary(summary)
     } catch (error) {
-      console.error('Error loading workflow summary:', error)
+      logger.error('Error loading workflow summary:', { error: error, context: 'InstructorCourseEditPage' })
     }
   }
 
@@ -169,7 +171,7 @@ export default function InstructorCourseEditPage() {
       const versionData = await courseWorkflowService.getVersions(courseId)
       setVersions(versionData)
     } catch (error) {
-      console.error('Error loading versions:', error)
+      logger.error('Error loading versions:', { error: error, context: 'InstructorCourseEditPage' })
     }
   }
 
@@ -210,7 +212,7 @@ export default function InstructorCourseEditPage() {
       // Clear success message after 3 seconds
       setTimeout(() => setSuccessMessage(null), 3000)
     } catch (error) {
-      console.error('Error saving course:', error)
+      logger.error('Error saving course:', { error: error, context: 'InstructorCourseEditPage' })
       setErrors({ general: 'Failed to save course' })
     } finally {
       setIsSaving(false)
@@ -253,7 +255,7 @@ export default function InstructorCourseEditPage() {
         router.push('/instructor/dashboard?success=submitted')
       }, 2000)
     } catch (error) {
-      console.error('Error submitting for review:', error)
+      logger.error('Error submitting for review:', { error: error, context: 'InstructorCourseEditPage' })
       setErrors({ general: 'Failed to submit course for review' })
     } finally {
       setIsSaving(false)

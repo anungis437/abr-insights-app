@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 import React, { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
@@ -75,7 +77,7 @@ export default function PersonalizedDashboard({
         setCompletionPrediction(prediction)
       }
     } catch (error) {
-      console.error('[Personalization] Failed to load data:', error)
+      logger.error('[Personalization] Failed to load data:', { error: error, context: 'PersonalizedDashboard' })
     } finally {
       setIsLoading(false)
     }
@@ -310,7 +312,7 @@ export default function PersonalizedDashboard({
               />
             </div>
             <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-              {completionPrediction.remainingModules} modules remaining •{' '}
+              {completionPrediction.remainingModules} modules remaining â€¢{' '}
               {(completionPrediction.confidence * 100).toFixed(0)}% confidence
             </p>
           </div>

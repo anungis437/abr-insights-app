@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 import { useState, useEffect, useCallback } from 'react'
 import { CheckCircle2, Circle, AlertCircle, Info } from 'lucide-react'
@@ -78,7 +80,7 @@ const CHECKLIST_CATEGORIES: ChecklistCategory[] = [
       },
       {
         id: 'bilingual_fr_available',
-        label: 'Available in French (Disponible en français)',
+        label: 'Available in French (Disponible en franÃ§ais)',
         description: 'Complete French version of all course materials',
       },
     ],
@@ -196,7 +198,7 @@ export default function QualityChecklist({
       const data = await courseWorkflowService.getQualityChecklist(courseId)
       setChecklist(data)
     } catch (err) {
-      console.error('Failed to load quality checklist:', err)
+      logger.error('Failed to load quality checklist:', { error: err, context: 'QualityChecklist' })
       setError('Failed to load checklist')
     } finally {
       setLoading(false)
@@ -228,7 +230,7 @@ export default function QualityChecklist({
         onUpdate?.(result)
       }
     } catch (err) {
-      console.error('Failed to update checklist:', err)
+      logger.error('Failed to update checklist:', { error: err, context: 'QualityChecklist' })
       setError('Failed to save changes')
       // Revert on error
       setChecklist(checklist)

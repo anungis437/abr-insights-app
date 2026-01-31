@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
@@ -54,7 +56,7 @@ export default function InstructorDashboardPage() {
       )
       setAnalytics(analyticsData)
     } catch (error) {
-      console.error('Failed to load analytics:', error)
+      logger.error('Failed to load analytics:', { error: error, context: 'InstructorDashboardPage' })
     }
   }, [user, selectedPeriod])
 
@@ -72,7 +74,7 @@ export default function InstructorDashboardPage() {
       const coursesWithStats = await instructorsService.getInstructorCourses(profile.id)
       setCourses(coursesWithStats)
     } catch (error) {
-      console.error('Failed to load dashboard data:', error)
+      logger.error('Failed to load dashboard data:', { error: error, context: 'InstructorDashboardPage' })
     }
   }, [])
 
@@ -234,7 +236,7 @@ export default function InstructorDashboardPage() {
             </div>
             <div className="text-right">
               <div className="text-2xl font-bold text-gray-900">
-                {summary?.avg_course_rating ? summary.avg_course_rating.toFixed(1) : '—'}
+                {summary?.avg_course_rating ? summary.avg_course_rating.toFixed(1) : 'â€”'}
               </div>
               <div className="text-xs text-gray-500">Avg Rating</div>
             </div>

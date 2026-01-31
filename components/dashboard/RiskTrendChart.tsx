@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 /**
  * Risk Trend Chart Component
@@ -35,7 +37,7 @@ export default function RiskTrendChart({
       const data = await getRiskTrends(organizationId, department, days)
       setTrends(data)
     } catch (error) {
-      console.error('Error loading risk trends:', error)
+      logger.error('Error loading risk trends:', { error: error, context: 'RiskTrendChart' })
     } finally {
       setLoading(false)
     }

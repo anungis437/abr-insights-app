@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 import React, { useState, useEffect } from 'react'
 import { Download, Trash2, HardDrive, WifiOff, CheckCircle, Clock, AlertCircle } from 'lucide-react'
@@ -29,7 +31,7 @@ export default function OfflineCoursesPage() {
         await removeCourse(courseId)
         await checkCacheSize()
       } catch (error) {
-        console.error('Failed to remove course:', error)
+        logger.error('Failed to remove course:', { error: error, context: 'OfflineCoursesPage' })
         alert('Failed to remove course. Please try again.')
       } finally {
         setRemovingCourseId(null)
@@ -45,7 +47,7 @@ export default function OfflineCoursesPage() {
         setShowClearConfirm(false)
         alert('All offline content cleared successfully!')
       } catch (error) {
-        console.error('Failed to clear caches:', error)
+        logger.error('Failed to clear caches:', { error: error, context: 'OfflineCoursesPage' })
         alert('Failed to clear caches. Please try again.')
       }
     } else {
@@ -238,7 +240,7 @@ export default function OfflineCoursesPage() {
                           aria-label={`Remove ${course.title} from offline storage`}
                         >
                           {isRemoving ? (
-                            <div className="animate-spin">⏳</div>
+                            <div className="animate-spin">â³</div>
                           ) : (
                             <Trash2 size={20} />
                           )}
@@ -271,11 +273,11 @@ export default function OfflineCoursesPage() {
             <div>
               <h3 className="mb-2 font-semibold text-blue-900">About Offline Learning</h3>
               <ul className="space-y-2 text-sm text-blue-800">
-                <li>• Downloaded courses are stored on your device for offline access</li>
-                <li>• Your progress syncs automatically when you reconnect</li>
-                <li>• Quiz attempts taken offline will be submitted when back online</li>
-                <li>• Downloaded content may use significant storage space</li>
-                <li>• Courses update automatically when new content is available</li>
+                <li>â€¢ Downloaded courses are stored on your device for offline access</li>
+                <li>â€¢ Your progress syncs automatically when you reconnect</li>
+                <li>â€¢ Quiz attempts taken offline will be submitted when back online</li>
+                <li>â€¢ Downloaded content may use significant storage space</li>
+                <li>â€¢ Courses update automatically when new content is available</li>
               </ul>
             </div>
           </div>

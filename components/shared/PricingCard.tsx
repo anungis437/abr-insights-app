@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 import { useState } from 'react'
 import { Check, X, Loader2 } from 'lucide-react'
@@ -75,7 +77,7 @@ export function PricingCard({
         window.location.href = data.url
       }
     } catch (error) {
-      console.error('Error starting checkout:', error)
+      logger.error('Error starting checkout:', { error: error, context: 'PricingCard' })
       alert('Failed to start checkout. Please try again.')
     } finally {
       setLoading(false)

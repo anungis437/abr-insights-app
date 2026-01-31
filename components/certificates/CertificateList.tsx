@@ -1,10 +1,11 @@
+'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 /**
  * Certificate List Component
  *
  * Displays a list of user certificates with filtering and sorting
  */
-
-'use client'
 
 import React, { useState, useEffect } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
@@ -81,7 +82,7 @@ export default function CertificateList({
 
       setCertificates(filtered)
     } catch (error) {
-      console.error('Failed to load certificates:', error)
+      logger.error('Failed to load certificates:', { error: error, context: 'CertificateList' })
     } finally {
       setLoading(false)
     }

@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -86,7 +88,7 @@ export default function BillingPage() {
       const { url } = await response.json()
       window.location.href = url
     } catch (error) {
-      console.error('Failed to open billing portal:', error)
+      logger.error('Failed to open billing portal:', { error: error, context: 'BillingPage' })
       alert('Failed to open billing portal. Please try again.')
     } finally {
       setPortalLoading(false)

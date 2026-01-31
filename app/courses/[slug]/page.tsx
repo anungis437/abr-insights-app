@@ -1,5 +1,6 @@
 'use client'
 
+import { logger } from '@/lib/utils/production-logger'
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -52,7 +53,7 @@ export default function CourseDetailPage() {
           .single()
 
         if (courseError) {
-          console.error('Error fetching course:', courseError)
+          logger.error('Error fetching course:', { error: courseError, context: 'CourseDetailPage' })
           setError('Course not found')
           setLoading(false)
           return
@@ -73,7 +74,7 @@ export default function CourseDetailPage() {
           }
         }
       } catch (err) {
-        console.error('Unexpected error:', err)
+        logger.error('Unexpected error:', { error: err, context: 'CourseDetailPage' })
         setError('An error occurred while loading the course')
       } finally {
         setLoading(false)

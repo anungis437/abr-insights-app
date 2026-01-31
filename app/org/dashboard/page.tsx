@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -183,7 +185,7 @@ export default function OrgDashboardPage() {
       if (coursesError) throw coursesError
       setCourses(allCourses || [])
     } catch (err: any) {
-      console.error('Failed to load organization dashboard:', err)
+      logger.error('Failed to load organization dashboard:', { error: err, context: 'OrgDashboardPage' })
       setError(err.message || 'Failed to load dashboard data')
     } finally {
       setLoading(false)
@@ -393,7 +395,7 @@ export default function OrgDashboardPage() {
                           <div className="mb-2 flex justify-between text-sm">
                             <span className="text-gray-700">{course.name}</span>
                             <span className="font-semibold text-gray-900">
-                              {course.progress}% • {course.enrolled} enrolled
+                              {course.progress}% â€¢ {course.enrolled} enrolled
                             </span>
                           </div>
                           <Progress value={Number(course.progress)} className="h-2" />

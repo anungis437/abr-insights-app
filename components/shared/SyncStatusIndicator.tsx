@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { Cloud, CloudOff, CheckCircle, Clock, AlertTriangle, RefreshCw } from 'lucide-react'
@@ -76,7 +78,7 @@ export default function SyncStatusIndicator({
 
       setPendingItems(items)
     } catch (error) {
-      console.error('[SyncStatus] Failed to load pending items:', error)
+      logger.error('[SyncStatus] Failed to load pending items:', { error: error, context: 'SyncStatusIndicator' })
     }
   }, [])
 
@@ -99,7 +101,7 @@ export default function SyncStatusIndicator({
         }, 2000)
       }
     } catch (error) {
-      console.error('[SyncStatus] Sync failed:', error)
+      logger.error('[SyncStatus] Sync failed:', { error: error, context: 'SyncStatusIndicator' })
       setIsSyncing(false)
     }
   }, [isOnline, isSyncing, loadPendingItems])

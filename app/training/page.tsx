@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 import { useState, useEffect, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
@@ -81,7 +83,7 @@ export default function TrainingHubPage() {
         if (error) throw error
         setCourses(data || [])
       } catch (error) {
-        console.error('Error fetching courses:', error)
+        logger.error('Error fetching courses:', { error: error, context: 'TrainingHubPage' })
       } finally {
         setLoading(false)
       }
@@ -104,7 +106,7 @@ export default function TrainingHubPage() {
         if (error) throw error
         setUserProgress(data || [])
       } catch (error) {
-        console.error('Error fetching user progress:', error)
+        logger.error('Error fetching user progress:', { error: error, context: 'TrainingHubPage' })
       }
     }
 

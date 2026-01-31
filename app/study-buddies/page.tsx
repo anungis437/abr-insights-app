@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'edge'
@@ -76,7 +78,7 @@ export default function StudyBuddiesPage() {
       setPendingRequests(requestsData)
       setActiveBuddies(buddiesData)
     } catch (error) {
-      console.error('Error loading study buddy data:', error)
+      logger.error('Error loading study buddy data:', { error: error, context: 'dynamic' })
     } finally {
       setLoading(false)
     }
@@ -91,7 +93,7 @@ export default function StudyBuddiesPage() {
       const matchesData = await socialService.findStudyBuddyMatches(user.id)
       setMatches(matchesData as StudyBuddyMatch[])
     } catch (error) {
-      console.error('Error sending study buddy request:', error)
+      logger.error('Error sending study buddy request:', { error: error, context: 'dynamic' })
     }
   }
 
@@ -101,7 +103,7 @@ export default function StudyBuddiesPage() {
       // Refresh data
       if (user) await loadData(user.id)
     } catch (error) {
-      console.error('Error accepting request:', error)
+      logger.error('Error accepting request:', { error: error, context: 'dynamic' })
     }
   }
 
@@ -114,7 +116,7 @@ export default function StudyBuddiesPage() {
         setPendingRequests(requestsData)
       }
     } catch (error) {
-      console.error('Error declining request:', error)
+      logger.error('Error declining request:', { error: error, context: 'dynamic' })
     }
   }
 

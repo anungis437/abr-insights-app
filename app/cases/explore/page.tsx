@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 /**
  * Tribunal Cases Data Explorer
@@ -112,7 +114,7 @@ export default function DataExplorer() {
         if (error) throw error
         setCases(data || [])
       } catch (error) {
-        console.error('Error fetching cases:', error)
+        logger.error('Error fetching cases:', { error: error, context: 'DataExplorer' })
       } finally {
         setLoading(false)
       }
@@ -139,7 +141,7 @@ export default function DataExplorer() {
         if (error) throw error
         setSavedSearches(data || [])
       } catch (error) {
-        console.error('Error fetching saved searches:', error)
+        logger.error('Error fetching saved searches:', { error: error, context: 'DataExplorer' })
       }
     }
 
@@ -258,7 +260,7 @@ export default function DataExplorer() {
       setSearchName('')
       setShowSaveDialog(false)
     } catch (error) {
-      console.error('Error saving search:', error)
+      logger.error('Error saving search:', { error: error, context: 'DataExplorer' })
       alert('Failed to save search. Please try again.')
     }
   }
@@ -294,7 +296,7 @@ export default function DataExplorer() {
 
       setSavedSearches(savedSearches.filter((s) => s.id !== searchId))
     } catch (error) {
-      console.error('Error deleting search:', error)
+      logger.error('Error deleting search:', { error: error, context: 'DataExplorer' })
       alert('Failed to delete search. Please try again.')
     }
   }
@@ -316,7 +318,7 @@ export default function DataExplorer() {
         savedSearches.map((s) => (s.id === searchId ? { ...s, is_favorite: !s.is_favorite } : s))
       )
     } catch (error) {
-      console.error('Error toggling favorite:', error)
+      logger.error('Error toggling favorite:', { error: error, context: 'DataExplorer' })
     }
   }
 
@@ -532,7 +534,7 @@ export default function DataExplorer() {
                             onClick={() => handleToggleFavorite(search.id)}
                             className="text-gray-400 hover:text-yellow-500"
                           >
-                            {search.is_favorite ? '★' : '☆'}
+                            {search.is_favorite ? 'â˜…' : 'â˜†'}
                           </button>
                           <button
                             onClick={() => handleLoadSearch(search)}
@@ -544,7 +546,7 @@ export default function DataExplorer() {
                             onClick={() => handleDeleteSearch(search.id)}
                             className="text-gray-400 hover:text-red-600"
                           >
-                            ×
+                            Ã—
                           </button>
                         </div>
                       ))}

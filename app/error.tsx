@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 import { useEffect } from 'react'
 import Link from 'next/link'
@@ -16,7 +18,7 @@ export default function Error({
 }) {
   useEffect(() => {
     // Log error to error reporting service
-    console.error('Application error:', error)
+    logger.error('Application error:', { error: error, context: 'Error' })
   }, [error])
 
   return (

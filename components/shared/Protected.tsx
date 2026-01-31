@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 import { ReactNode } from 'react'
 import {
@@ -67,7 +69,7 @@ export function Protected({
   }
 
   if (error) {
-    console.error('[Protected] Permission check error:', error)
+    logger.error('[Protected] Permission check error:', { error: error, context: 'Protected' })
     return <>{fallback}</>
   }
 

@@ -1,3 +1,6 @@
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 /**
  * Example component demonstrating Codespring API integration
  *
@@ -5,7 +8,6 @@
  * Copy this code to your actual component files as needed
  */
 
-'use client'
 
 import { useState } from 'react'
 import {
@@ -15,15 +17,15 @@ import {
 } from '@/lib/hooks/use-codespring'
 
 export function CodespringExample() {
-  const [code, setCode] = useState('console.log("Hello, World!");')
+  const [code, setCode] = useState('logger.info(\'Hello, World!\', { context: \'CodespringExample\' });')
   const [language, setLanguage] = useState('javascript')
 
   const { analyzeCode, data, error, isLoading } = useCodespringAnalyze({
     onSuccess: (data) => {
-      console.log('Analysis complete:', data)
+      logger.info('Analysis complete:', { data, context: 'CodespringExample' })
     },
     onError: (error) => {
-      console.error('Analysis failed:', error)
+      logger.error('Analysis failed:', { error: error, context: 'CodespringExample' })
     },
   })
 
@@ -72,7 +74,7 @@ export function CodespringExample() {
           <div
             className={`rounded p-4 ${verify.isValid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
           >
-            {verify.isValid ? '✅ API key is valid' : '❌ API key is invalid'}
+            {verify.isValid ? 'âœ… API key is valid' : 'âŒ API key is invalid'}
             {verify.error && <div className="mt-1 text-sm">{verify.error}</div>}
           </div>
         )}

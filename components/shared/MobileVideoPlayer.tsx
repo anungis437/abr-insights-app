@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 import React, { useRef, useState, useEffect } from 'react'
 import {
@@ -214,7 +216,7 @@ export default function MobileVideoPlayer({
         setIsFullscreen(false)
       }
     } catch (error) {
-      console.error('Fullscreen toggle failed:', error)
+      logger.error('Fullscreen toggle failed:', { error: error, context: 'MobileVideoPlayer' })
     }
   }
 

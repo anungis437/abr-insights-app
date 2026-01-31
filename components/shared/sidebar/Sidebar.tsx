@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
@@ -31,7 +33,7 @@ export default function Sidebar({ items, role }: SidebarProps) {
       try {
         return new Set(JSON.parse(saved))
       } catch (e) {
-        console.error('Failed to parse collapsed state:', e)
+        logger.error('Failed to parse collapsed state:', { error: e, context: 'Sidebar' })
         return new Set()
       }
     }
@@ -191,7 +193,7 @@ export default function Sidebar({ items, role }: SidebarProps) {
 
           {/* Footer */}
           <div className="border-t border-gray-200 p-4">
-            <div className="text-xs text-gray-500">© 2026 ABR Insights</div>
+            <div className="text-xs text-gray-500">Â© 2026 ABR Insights</div>
           </div>
         </div>
       </aside>

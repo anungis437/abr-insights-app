@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 import { useState, useEffect } from 'react'
 import { Check, X, Info } from 'lucide-react'
@@ -58,7 +60,7 @@ export default function PermissionMatrix({
       })
       setRolePermissions(rolePermMap)
     } catch (error) {
-      console.error('Error loading permission matrix:', error)
+      logger.error('Error loading permission matrix:', { error: error, context: 'PermissionMatrix' })
     } finally {
       setLoading(false)
     }
@@ -88,7 +90,7 @@ export default function PermissionMatrix({
         return newMap
       })
     } catch (error) {
-      console.error('Error toggling permission:', error)
+      logger.error('Error toggling permission:', { error: error, context: 'PermissionMatrix' })
     } finally {
       setUpdatingCell(null)
     }

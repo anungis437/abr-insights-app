@@ -1,10 +1,11 @@
+'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 /**
  * NotesPanel Component
  * Phase 2 - Enhanced Learning Experience
  * Timestamped note-taking during lesson playback
  */
-
-'use client'
 
 import { useState, useEffect } from 'react'
 import { StickyNote, Plus, Trash2, Edit2, Download, Clock, Save, X } from 'lucide-react'
@@ -56,7 +57,7 @@ export default function NotesPanel({
       const data = await getLessonNotes(userId, lessonId)
       setNotes(data)
     } catch (error) {
-      console.error('Failed to load notes:', error)
+      logger.error('Failed to load notes:', { error: error, context: 'NotesPanel' })
     } finally {
       setIsLoading(false)
     }
@@ -77,7 +78,7 @@ export default function NotesPanel({
       setNotes([...notes, newNote].sort((a, b) => a.timestamp_seconds - b.timestamp_seconds))
       setNewNoteText('')
     } catch (error) {
-      console.error('Failed to create note:', error)
+      logger.error('Failed to create note:', { error: error, context: 'NotesPanel' })
     } finally {
       setIsSaving(false)
     }
@@ -96,7 +97,7 @@ export default function NotesPanel({
       setEditingNoteId(null)
       setEditingText('')
     } catch (error) {
-      console.error('Failed to update note:', error)
+      logger.error('Failed to update note:', { error: error, context: 'NotesPanel' })
     } finally {
       setIsSaving(false)
     }
@@ -109,7 +110,7 @@ export default function NotesPanel({
       await deleteLessonNote(noteId)
       setNotes(notes.filter((n) => n.id !== noteId))
     } catch (error) {
-      console.error('Failed to delete note:', error)
+      logger.error('Failed to delete note:', { error: error, context: 'NotesPanel' })
     }
   }
 
@@ -124,7 +125,7 @@ export default function NotesPanel({
       a.click()
       URL.revokeObjectURL(url)
     } catch (error) {
-      console.error('Failed to export notes:', error)
+      logger.error('Failed to export notes:', { error: error, context: 'NotesPanel' })
     }
   }
 

@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 /**
  * Evidence Bundle PDF Generator Component
@@ -58,7 +60,7 @@ export function EvidenceBundleGenerator({
         setTimeout(() => setSuccess(false), 5000)
       }
     } catch (err: any) {
-      console.error('Evidence bundle generation error:', err)
+      logger.error('Evidence bundle generation error:', { error: err, context: 'EvidenceBundleGenerator' })
       setError(err.message || 'An unexpected error occurred')
     } finally {
       setLoading(false)
@@ -79,10 +81,10 @@ export function EvidenceBundleGenerator({
               verification.
             </p>
             <ul className="mt-2 space-y-1 text-xs text-gray-500">
-              <li>• Server-side generation (deterministic)</li>
-              <li>• SHA-256 checksum verification</li>
-              <li>• Immutable Supabase Storage</li>
-              <li>• Complete audit trail</li>
+              <li>â€¢ Server-side generation (deterministic)</li>
+              <li>â€¢ SHA-256 checksum verification</li>
+              <li>â€¢ Immutable Supabase Storage</li>
+              <li>â€¢ Complete audit trail</li>
             </ul>
           </div>
         </div>
@@ -125,7 +127,7 @@ export function EvidenceBundleGenerator({
 
       {/* Usage Note */}
       <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-        <h4 className="mb-2 text-sm font-semibold text-blue-900">📘 Compliance-Grade Features</h4>
+        <h4 className="mb-2 text-sm font-semibold text-blue-900">ðŸ“˜ Compliance-Grade Features</h4>
         <ul className="space-y-1 text-xs text-blue-800">
           <li>
             <strong>Immutable Storage:</strong> PDFs stored in Supabase Storage with unique paths

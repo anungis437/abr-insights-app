@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 /**
  * AI Assistant Page
@@ -59,12 +61,12 @@ export default function AIAssistantPage() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: `👋 Hello! I'm your AI assistant for anti-Black racism education and case law analysis. I can help you with:
+      content: `ðŸ‘‹ Hello! I'm your AI assistant for anti-Black racism education and case law analysis. I can help you with:
 
-• **Case Law Queries**: Ask me about tribunal cases or legal precedents
-• **Learning Guidance**: Get personalized course recommendations
-• **Investigation Support**: Guidance on conducting bias-free investigations
-• **Policy Questions**: Help with developing anti-racist policies
+â€¢ **Case Law Queries**: Ask me about tribunal cases or legal precedents
+â€¢ **Learning Guidance**: Get personalized course recommendations
+â€¢ **Investigation Support**: Guidance on conducting bias-free investigations
+â€¢ **Policy Questions**: Help with developing anti-racist policies
 
 What would you like to explore today?`,
       timestamp: new Date(),
@@ -212,7 +214,7 @@ What would you like to explore today?`,
 
       setMessages((prev) => [...prev, assistantMessage])
     } catch (error) {
-      console.error('Error calling AI:', error)
+      logger.error('Error calling AI:', { error: error, context: 'AIAssistantPage' })
       const errorMessage: Message = {
         role: 'assistant',
         content:
@@ -384,7 +386,7 @@ What would you like to explore today?`,
                     </button>
                   </div>
                   <p className="mt-2 text-xs text-gray-500">
-                    Press Enter to send • Shift + Enter for new line
+                    Press Enter to send â€¢ Shift + Enter for new line
                   </p>
                 </div>
               </div>

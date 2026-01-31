@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 /**
  * Achievements Page
@@ -72,7 +74,7 @@ export default function AchievementsPage() {
       setUserAchievements(earned as any)
       setAllAchievements(all as any)
     } catch (error) {
-      console.error('Error loading achievements:', error)
+      logger.error('Error loading achievements:', { error: error, context: 'AchievementsPage' })
     } finally {
       setLoading(false)
     }
@@ -321,7 +323,7 @@ export default function AchievementsPage() {
                     <div className="flex-1">
                       <p className="font-semibold text-gray-900">{ua.achievement.name}</p>
                       <p className="text-sm text-gray-500">
-                        {new Date(ua.earned_at).toLocaleDateString()} • +{ua.points_awarded} pts
+                        {new Date(ua.earned_at).toLocaleDateString()} â€¢ +{ua.points_awarded} pts
                       </p>
                     </div>
                   </div>

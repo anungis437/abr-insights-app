@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 /**
  * Dashboard Page - Simplified Hero Metric Design
@@ -81,7 +83,7 @@ export default function DashboardPage() {
         achievementsEarned: achievements.length,
       })
     } catch (error) {
-      console.error('Error loading dashboard:', error)
+      logger.error('Error loading dashboard:', { error: error, context: 'DashboardPage' })
     } finally {
       setLoading(false)
     }
@@ -111,7 +113,7 @@ export default function DashboardPage() {
           {/* Simplified Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900">
-              Welcome back, {profile?.display_name || profile?.first_name || 'Learner'}! 👋
+              Welcome back, {profile?.display_name || profile?.first_name || 'Learner'}! ðŸ‘‹
             </h1>
             <p className="mt-2 text-gray-600">
               {stats.coursesEnrolled === 0

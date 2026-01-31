@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -46,7 +48,7 @@ export function RevokeCertificateForm({ certificateId }: RevokeCertificateFormPr
       // Refresh the page to show updated status
       router.refresh()
     } catch (error) {
-      console.error('Error revoking certificate:', error)
+      logger.error('Error revoking certificate:', { error: error, context: 'RevokeCertificateForm' })
       toast({
         title: 'Error',
         description: 'Failed to revoke certificate',

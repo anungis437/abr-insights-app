@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'edge'
@@ -100,7 +102,7 @@ export default function ProfilePage() {
         await loadGamificationData(profileData.id)
       }
     } catch (error) {
-      console.error('Error loading profile:', error)
+      logger.error('Error loading profile:', { error: error, context: 'dynamic' })
       setMessage({ type: 'error', text: 'Failed to load profile' })
     } finally {
       setLoading(false)
@@ -128,7 +130,7 @@ export default function ProfilePage() {
       // Silently handle gamification data errors - features may not be fully set up
       // Only log if there's actual error content
       if (error && typeof error === 'object' && Object.keys(error).length > 0) {
-        console.error('Error loading gamification data:', error)
+        logger.error('Error loading gamification data:', { error: error, context: 'dynamic' })
       }
     } finally {
       setLoadingGamification(false)
@@ -149,7 +151,7 @@ export default function ProfilePage() {
       setProfile(updated)
       setMessage({ type: 'success', text: 'Profile updated successfully!' })
     } catch (error) {
-      console.error('Error updating profile:', error)
+      logger.error('Error updating profile:', { error: error, context: 'dynamic' })
       setMessage({ type: 'error', text: 'Failed to update profile' })
     } finally {
       setSaving(false)
@@ -185,7 +187,7 @@ export default function ProfilePage() {
 
       setMessage({ type: 'success', text: 'Avatar updated successfully!' })
     } catch (error) {
-      console.error('Error uploading avatar:', error)
+      logger.error('Error uploading avatar:', { error: error, context: 'dynamic' })
       setMessage({ type: 'error', text: 'Failed to upload avatar' })
     } finally {
       setUploadingAvatar(false)
@@ -197,7 +199,7 @@ export default function ProfilePage() {
       const updated = await updateNotificationPreferences({ [key]: value })
       setProfile(updated)
     } catch (error) {
-      console.error('Error updating notifications:', error)
+      logger.error('Error updating notifications:', { error: error, context: 'dynamic' })
       setMessage({ type: 'error', text: 'Failed to update notification preferences' })
     }
   }
@@ -300,7 +302,7 @@ export default function ProfilePage() {
                   {(socialSummary?.followers_count || 0) + (socialSummary?.following_count || 0)}
                 </div>
                 <div className="text-sm opacity-90">
-                  {socialSummary?.followers_count || 0} followers ·{' '}
+                  {socialSummary?.followers_count || 0} followers Â·{' '}
                   {socialSummary?.following_count || 0} following
                 </div>
               </div>
@@ -514,7 +516,7 @@ export default function ProfilePage() {
                     className="input-field"
                   >
                     <option value="en">English</option>
-                    <option value="fr">Français</option>
+                    <option value="fr">FranÃ§ais</option>
                   </select>
                 </div>
 

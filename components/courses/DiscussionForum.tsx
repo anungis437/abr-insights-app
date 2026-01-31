@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 import React, { useState, useEffect } from 'react'
 import {
@@ -72,7 +74,7 @@ export function DiscussionForum({
           setDiscussions(filtered.map((d) => ({ ...d, showReplies: false })))
         }
       } catch (err) {
-        console.error('Error loading discussions:', err)
+        logger.error('Error loading discussions:', { error: err, context: 'DiscussionForum' })
         setError('Failed to load discussions')
       } finally {
         setLoading(false)
@@ -97,7 +99,7 @@ export function DiscussionForum({
         setDiscussions(filtered.map((d) => ({ ...d, showReplies: false })))
       }
     } catch (err) {
-      console.error('Error loading discussions:', err)
+      logger.error('Error loading discussions:', { error: err, context: 'DiscussionForum' })
       setError('Failed to load discussions')
     } finally {
       setLoading(false)
@@ -112,7 +114,7 @@ export function DiscussionForum({
         prev.map((d) => (d.id === discussionId ? { ...d, replies, showReplies: true } : d))
       )
     } catch (err) {
-      console.error('Error loading replies:', err)
+      logger.error('Error loading replies:', { error: err, context: 'DiscussionForum' })
     }
   }
 
@@ -155,7 +157,7 @@ export function DiscussionForum({
       // Reload discussions
       await loadDiscussions()
     } catch (err) {
-      console.error('Error creating post:', err)
+      logger.error('Error creating post:', { error: err, context: 'DiscussionForum' })
       alert('Failed to create post. Please try again.')
     } finally {
       setSubmitting(false)
@@ -177,7 +179,7 @@ export function DiscussionForum({
       // Reload replies for this discussion
       await loadReplies(parentId)
     } catch (err) {
-      console.error('Error posting reply:', err)
+      logger.error('Error posting reply:', { error: err, context: 'DiscussionForum' })
       alert('Failed to post reply. Please try again.')
     } finally {
       setSubmitting(false)
@@ -193,7 +195,7 @@ export function DiscussionForum({
       // Reload discussions to show updated status
       await loadDiscussions()
     } catch (err) {
-      console.error('Error marking as answered:', err)
+      logger.error('Error marking as answered:', { error: err, context: 'DiscussionForum' })
       alert('Failed to mark answer. Please try again.')
     }
   }

@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { logger } from '@/lib/utils/production-logger'
 import {
   Calendar,
   MapPin,
@@ -50,7 +51,7 @@ export async function generateStaticParams() {
       }))
     }
   } catch (error) {
-    console.error('Error fetching cases for generateStaticParams:', error)
+    logger.error('Error fetching cases for generateStaticParams:', { error: error, context: 'dynamic' })
   }
   
   // Fallback to sample cases if database fetch fails
@@ -75,7 +76,7 @@ async function getCaseStudy(id: string) {
       .single()
 
     if (error || !caseData) {
-      console.error('Error fetching case:', error)
+      logger.error('Error fetching case:', { error: error, context: 'dynamic' })
       return null
     }
 
@@ -121,7 +122,7 @@ async function getCaseStudy(id: string) {
       needsReview: caseData.needs_review,
     }
   } catch (error) {
-    console.error('Error in getCaseStudy:', error)
+    logger.error('Error in getCaseStudy:', { error: error, context: 'dynamic' })
     return null
   }
 }

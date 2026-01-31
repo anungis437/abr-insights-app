@@ -1,5 +1,7 @@
 'use client'
 
+import { logger } from '@/lib/utils/production-logger'
+
 /**
  * Tribunal Case Details Page
  * Migrated from: legacy/src/pages/CaseDetails.jsx
@@ -97,7 +99,7 @@ export default function TribunalCaseDetails() {
           setSimilarCases(similar || [])
         }
       } catch (err: any) {
-        console.error('Error fetching case:', err)
+        logger.error('Error fetching case:', { error: err, context: 'TribunalCaseDetails' })
         setError(err.message || 'Failed to load case')
       } finally {
         setLoading(false)

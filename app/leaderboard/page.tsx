@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'edge'
@@ -77,7 +79,7 @@ export default function LeaderboardPage() {
           setSelectedLeaderboard(boards[0])
         }
       } catch (error) {
-        console.error('Error loading leaderboards:', error)
+        logger.error('Error loading leaderboards:', { error: error, context: 'dynamic' })
       } finally {
         setLoading(false)
       }
@@ -109,7 +111,7 @@ export default function LeaderboardPage() {
           setUserEntry(userLeaderboardEntry)
         }
       } catch (error) {
-        console.error('Error loading leaderboard entries:', error)
+        logger.error('Error loading leaderboard entries:', { error: error, context: 'dynamic' })
       } finally {
         setLoading(false)
       }
@@ -303,7 +305,7 @@ export default function LeaderboardPage() {
                       </div>
                     </div>
                     <p className="text-sm font-medium text-teal-700">
-                      Keep learning to climb the ranks! 🚀
+                      Keep learning to climb the ranks! ðŸš€
                     </p>
                   </div>
                 </div>

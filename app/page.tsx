@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 import Link from 'next/link'
 import { BookOpen, Scale, Users, TrendingUp, ArrowRight, Clock, Award } from 'lucide-react'
@@ -36,7 +38,7 @@ export default function HomePage() {
           loading: false,
         })
       } catch (err) {
-        console.error('Failed to fetch case stats (database not initialized):', err)
+        logger.error('Failed to fetch case stats (database not initialized):', { error: err, context: 'HomePage' })
         // Use fallback stats until database is initialized
         setStats({
           totalCases: 0,
@@ -54,7 +56,7 @@ export default function HomePage() {
           setFeaturedCourses(courses)
         }
       } catch (err) {
-        console.error('Failed to fetch featured courses:', err)
+        logger.error('Failed to fetch featured courses:', { error: err, context: 'HomePage' })
       }
 
       // Fetch testimonials independently
@@ -62,7 +64,7 @@ export default function HomePage() {
         const testimonialsData = await getFeaturedTestimonials(3)
         setTestimonials(testimonialsData || [])
       } catch (err) {
-        console.error('Failed to fetch testimonials:', err)
+        logger.error('Failed to fetch testimonials:', { error: err, context: 'HomePage' })
         // Testimonials table might not exist yet, fail gracefully
         setTestimonials([])
       }
@@ -312,7 +314,7 @@ function CourseCard({ course }: { course: Course }) {
           <BookOpen className="mr-1 h-4 w-4" />
           {course.total_lessons || 0} lessons
         </span>
-        <span className="text-primary-600 group-hover:underline">Start Learning →</span>
+        <span className="text-primary-600 group-hover:underline">Start Learning â†’</span>
       </div>
     </Link>
   )

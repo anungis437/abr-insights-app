@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 /**
  * QuizPlayer Component
@@ -213,7 +215,7 @@ export function QuizPlayer({ quiz, userId, onComplete }: QuizPlayerProps) {
         }
       }
     } catch (error) {
-      console.error('Error submitting quiz:', error)
+      logger.error('Error submitting quiz:', { error: error, context: 'QuizPlayer' })
       toast({
         title: 'Submission Error',
         description: 'Failed to submit quiz. Please try again.',
@@ -262,7 +264,7 @@ export function QuizPlayer({ quiz, userId, onComplete }: QuizPlayerProps) {
         })
       }
     } catch (error) {
-      console.error('Error generating certificate:', error)
+      logger.error('Error generating certificate:', { error: error, context: 'QuizPlayer' })
       setCertificateError('An unexpected error occurred')
       toast({
         title: 'Certificate Error',
@@ -558,7 +560,7 @@ export function QuizPlayer({ quiz, userId, onComplete }: QuizPlayerProps) {
             </Button>
           </div>
           <div className="text-muted-foreground mt-1 text-sm">
-            {currentQuestion.points} point{currentQuestion.points !== 1 ? 's' : ''} •{' '}
+            {currentQuestion.points} point{currentQuestion.points !== 1 ? 's' : ''} â€¢{' '}
             {currentQuestion.difficulty_level}
           </div>
         </CardHeader>

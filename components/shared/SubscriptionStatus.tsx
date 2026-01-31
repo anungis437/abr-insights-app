@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 import { useState } from 'react'
 import { useEntitlements } from '@/hooks/use-entitlements'
@@ -99,7 +101,7 @@ export function SubscriptionStatus() {
       const { url } = await response.json()
       window.location.href = url
     } catch (error) {
-      console.error('Error opening portal:', error)
+      logger.error('Error opening portal:', { error: error, context: 'SubscriptionBadge' })
       alert('Failed to open billing portal. Please try again.')
     } finally {
       setIsLoading(false)

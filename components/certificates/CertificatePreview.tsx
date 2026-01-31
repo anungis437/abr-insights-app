@@ -1,14 +1,14 @@
+'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 /**
  * Certificate Preview Component
  *
  * Displays certificate details with download and verification options
  */
 
-'use client'
-
 import React, { useState } from 'react'
 import Image from 'next/image'
-import { logger } from '@/lib/utils/logger'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -134,7 +134,7 @@ export default function CertificatePreview({
         organizationName: 'ABR Insights',
       })
     } catch (error) {
-      console.error('Failed to download certificate:', error)
+      logger.error('Failed to download certificate:', { error: error, context: 'CertificatePreview' })
       alert('Failed to download certificate. Please try again.')
     } finally {
       setDownloading(false)

@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 /**
  * AI Coach Page
@@ -188,7 +190,7 @@ export default function AICoachPage() {
         learning_path: data.learningPath || [],
       })
     } catch (error) {
-      console.error('Error generating coaching session:', error)
+      logger.error('Error generating coaching session:', { error: error, context: 'AICoachPage' })
       setCurrentSession({
         session_type: type,
         insights_generated:
@@ -529,10 +531,10 @@ export default function AICoachPage() {
                   </h3>
                 </div>
                 <div className="space-y-3 p-6 text-sm text-gray-700">
-                  <p>💡 Check in with your AI coach weekly for best results</p>
-                  <p>🎯 Be specific in your questions for more targeted advice</p>
-                  <p>📈 Act on recommendations to see real progress</p>
-                  <p>🔥 Consistent small steps beat occasional big efforts</p>
+                  <p>ðŸ’¡ Check in with your AI coach weekly for best results</p>
+                  <p>ðŸŽ¯ Be specific in your questions for more targeted advice</p>
+                  <p>ðŸ“ˆ Act on recommendations to see real progress</p>
+                  <p>ðŸ”¥ Consistent small steps beat occasional big efforts</p>
                 </div>
               </div>
 

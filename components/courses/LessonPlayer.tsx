@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 import React, { useState, useEffect, useRef } from 'react'
 import {
@@ -94,7 +96,7 @@ export function LessonPlayer({
             setTimeout(() => setShowResumeNotification(false), 3000)
           }
         } catch (e) {
-          console.error('Failed to parse saved progress:', e)
+          logger.error('Failed to parse saved progress:', { error: e, context: 'LessonPlayer' })
         }
       }
     }
@@ -210,12 +212,12 @@ export function LessonPlayer({
                   onComplete?.()
                 })
                 .catch((error) => {
-                  console.error('Error completing lesson:', error)
+                  logger.error('Error completing lesson:', { error: error, context: 'LessonPlayer' })
                 })
             }
           })
           .catch((error) => {
-            console.error('Error updating progress:', error)
+            logger.error('Error updating progress:', { error: error, context: 'LessonPlayer' })
           })
       }, 5000)
     } else {
@@ -249,7 +251,7 @@ export function LessonPlayer({
           sessionStartTime.current = Date.now()
         })
         .catch((error) => {
-          console.error('Error starting watch session:', error)
+          logger.error('Error starting watch session:', { error: error, context: 'LessonPlayer' })
         })
     }
 
@@ -266,7 +268,7 @@ export function LessonPlayer({
           progressPercentage,
           progressPercentage >= 95
         ).catch((error) => {
-          console.error('Error ending watch session:', error)
+          logger.error('Error ending watch session:', { error: error, context: 'LessonPlayer' })
         })
 
         watchSessionId.current = null
@@ -304,7 +306,7 @@ export function LessonPlayer({
         await handleComplete()
       }
     } catch (error) {
-      console.error('Error updating progress:', error)
+      logger.error('Error updating progress:', { error: error, context: 'LessonPlayer' })
     }
   }
 
@@ -316,7 +318,7 @@ export function LessonPlayer({
       await completeLessonProgress(userId, lesson.id, enrollmentId)
       onComplete?.()
     } catch (error) {
-      console.error('Error completing lesson:', error)
+      logger.error('Error completing lesson:', { error: error, context: 'LessonPlayer' })
     } finally {
       setIsCompleting(false)
     }
@@ -555,7 +557,7 @@ export function LessonPlayer({
                         }
                       }
                     } catch (error) {
-                      console.error('Picture-in-Picture error:', error)
+                      logger.error('Picture-in-Picture error:', { error: error, context: 'LessonPlayer' })
                     }
                   }}
                   className="text-white transition-colors hover:text-blue-400"
@@ -786,25 +788,25 @@ export function LessonPlayer({
                 </div>
                 <div className="flex items-center gap-2">
                   <kbd className="rounded border border-gray-300 bg-white px-2 py-1 font-mono text-xs">
-                    ←
+                    â†
                   </kbd>
                   <span className="text-gray-600">Rewind 10s</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <kbd className="rounded border border-gray-300 bg-white px-2 py-1 font-mono text-xs">
-                    →
+                    â†’
                   </kbd>
                   <span className="text-gray-600">Forward 10s</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <kbd className="rounded border border-gray-300 bg-white px-2 py-1 font-mono text-xs">
-                    ↑
+                    â†‘
                   </kbd>
                   <span className="text-gray-600">Volume Up</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <kbd className="rounded border border-gray-300 bg-white px-2 py-1 font-mono text-xs">
-                    ↓
+                    â†“
                   </kbd>
                   <span className="text-gray-600">Volume Down</span>
                 </div>
@@ -872,7 +874,7 @@ export function LessonPlayer({
                       }`}
                       aria-pressed={transcriptLanguage === 'fr'}
                     >
-                      Français
+                      FranÃ§ais
                     </button>
                   </div>
                 </div>

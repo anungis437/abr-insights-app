@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 import React from 'react'
 import { Download, CheckCircle, Loader2, XCircle, HardDrive } from 'lucide-react'
@@ -37,7 +39,7 @@ export default function OfflineDownloadButton({
       try {
         await downloadCourse(courseId)
       } catch (error) {
-        console.error('Download failed:', error)
+        logger.error('Download failed:', { error: error, context: 'OfflineDownloadButton' })
         alert('Failed to download course. Please check your connection and try again.')
       }
     }

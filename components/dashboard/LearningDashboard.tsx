@@ -1,4 +1,6 @@
-'use client'
+﻿'use client'
+
+import { logger } from '@/lib/utils/production-logger'
 
 /**
  * Learning Dashboard - Simplified Version
@@ -48,7 +50,7 @@ export default function LearningDashboard({ userId }: LearningDashboardProps) {
         setSkills(skillsData.slice(0, 2)) // Limit to top 2 skills
         setActivities(activitiesData)
       } catch (err) {
-        console.error('Dashboard error:', err)
+        logger.error('Dashboard error:', { error: err, context: 'LearningDashboard' })
         setError(t('errors.loading_dashboard'))
       } finally {
         setLoading(false)
@@ -113,7 +115,7 @@ export default function LearningDashboard({ userId }: LearningDashboardProps) {
                 <Flame className="h-8 w-8" />
                 <h2 className="text-3xl font-bold">{streak.current_streak} Day Streak</h2>
               </div>
-              <p className="mb-4 text-lg text-orange-100">Keep it going! You&apos;re on fire 🔥</p>
+              <p className="mb-4 text-lg text-orange-100">Keep it going! You&apos;re on fire ðŸ”¥</p>
               <Link
                 href="/courses"
                 className="inline-flex items-center gap-2 rounded-lg bg-white/20 px-6 py-3 font-semibold transition-colors hover:bg-white/30"
