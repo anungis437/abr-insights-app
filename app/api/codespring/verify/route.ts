@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyCodespringApiKey } from '@/lib/services/codespring'
 import { requireAnyPermission } from '@/lib/auth/permissions'
+import { logger } from '@/lib/utils/production-logger'
+import { sanitizeError } from '@/lib/utils/error-responses'
 
 /**
  * GET /api/codespring/verify
@@ -35,7 +37,7 @@ export async function GET(request: NextRequest) {
       { status: 200 }
     )
   } catch (error) {
-    console.error('Codespring API key verification error:', error)
+    logger.error('Codespring API key verification error:', { error: error })
     return NextResponse.json(
       {
         valid: false,

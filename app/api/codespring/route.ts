@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCodespringClient } from '@/lib/services/codespring'
 import { requireAnyPermission } from '@/lib/auth/permissions'
+import { logger } from '@/lib/utils/production-logger'
+import { sanitizeError } from '@/lib/utils/error-responses'
 
 /**
  * POST /api/codespring/analyze
@@ -31,9 +33,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(response.data, { status: 200 })
   } catch (error) {
-    console.error('Codespring API error:', error)
+    logger.error('Codespring API error:', { error: error })
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Internal server error' },
+      { error: sanitizeError(error) },
       { status: 500 }
     )
   }
@@ -74,7 +76,7 @@ export async function GET(request: NextRequest) {
       { status: 200 }
     )
   } catch (error) {
-    console.error('Codespring health check error:', error)
+    logger.error('Codespring health check error:', { error: error })
     return NextResponse.json(
       {
         status: 'error',

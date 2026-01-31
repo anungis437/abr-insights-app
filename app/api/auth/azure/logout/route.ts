@@ -10,6 +10,8 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/production-logger'
+import { sanitizeError } from '@/lib/utils/error-responses'
 
 export async function POST(request: NextRequest) {
   try {
@@ -83,12 +85,12 @@ export async function POST(request: NextRequest) {
       message: 'Logged out successfully',
     })
   } catch (error) {
-    console.error('[Azure AD Logout] Error:', error)
+    logger.error('[Azure AD Logout] Error:', { error: error })
 
     return NextResponse.json(
       {
         error: 'Logout failed',
-        details: error instanceof Error ? error.message : 'Unknown error',
+        details: sanitizeError(error, 'An error occurred'),
       },
       { status: 500 }
     )
@@ -121,7 +123,7 @@ export async function GET(request: NextRequest) {
     // Redirect to login
     return NextResponse.redirect(new URL('/login', request.url))
   } catch (error) {
-    console.error('[Azure AD Logout] Error:', error)
+    logger.error('[Azure AD Logout] Error:', { error: error })
     return NextResponse.redirect(new URL('/login', request.url))
   }
 }

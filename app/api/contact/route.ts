@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { withRedisRateLimit } from '@/lib/security/redisRateLimit'
 import { RateLimitPresets } from '@/lib/security/rateLimitPresets'
+import { logger } from '@/lib/utils/production-logger'
 import {
   sendContactFormNotification,
   sendContactFormConfirmation,
@@ -33,10 +34,16 @@ export const POST = withRedisRateLimit(async (request: NextRequest) => {
 
     // Log results but don't fail the request if emails fail
     if (!notificationResult.success) {
-      console.error('Failed to send notification email:', notificationResult.error)
+      logger.error('Failed to send notification email', {
+        error: notificationResult.error,
+        context: 'ContactForm',
+      })
     }
     if (!confirmationResult.success) {
-      console.error('Failed to send confirmation email:', confirmationResult.error)
+      logger.error('Failed to send confirmation email', {
+        error: confirmationResult.error,
+        context: 'ContactForm',
+      })
     }
 
     return NextResponse.json(
@@ -47,7 +54,7 @@ export const POST = withRedisRateLimit(async (request: NextRequest) => {
       { status: 200 }
     )
   } catch (error) {
-    console.error('Contact form error:', error)
+    logger.error('Contact form error:', { error: error })
 
     // Handle validation errors
     if (error instanceof z.ZodError) {

@@ -13,6 +13,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAzureADService } from '@/lib/auth/azure-ad'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { cookies } from 'next/headers'
+import { logger } from '@/lib/utils/production-logger'
+import { errorRedirect, ErrorCodes } from '@/lib/utils/error-responses'
 
 export async function GET(request: NextRequest) {
   try {
@@ -24,7 +26,11 @@ export async function GET(request: NextRequest) {
 
     // Check for errors from Azure AD
     if (error) {
-      console.error('[Azure AD Callback] Error from Azure AD:', error, errorDescription)
+      logger.error('Azure AD error received', {
+        error: error,
+        errorDescription,
+        context: 'AzureCallback',
+      })
       return NextResponse.redirect(
         new URL(
           `/login?error=${encodeURIComponent(error)}&error_description=${encodeURIComponent(errorDescription || '')}`,
@@ -43,7 +49,7 @@ export async function GET(request: NextRequest) {
     const storedState = cookieStore.get('azure_ad_state')?.value
 
     if (!storedState || storedState !== state.split('|')[0]) {
-      console.error('[Azure AD Callback] State mismatch - possible CSRF attack')
+      logger.error('[Azure AD Callback] State mismatch - possible CSRF attack')
       return NextResponse.redirect(new URL('/login?error=invalid_state', request.url))
     }
 
@@ -129,7 +135,7 @@ export async function GET(request: NextRequest) {
       )
 
       if (authError) {
-        console.error('[Azure AD Callback] Auth update error:', authError)
+        logger.error('[Azure AD Callback] Auth update error:', { error: authError })
         // Non-fatal - continue with login
       }
 
@@ -150,7 +156,11 @@ export async function GET(request: NextRequest) {
       // Redirect to dashboard
       return NextResponse.redirect(new URL('/dashboard', request.url))
     } catch (provisionError) {
-      console.error('[Azure AD Callback] Provisioning error:', provisionError)
+      logger.error('Azure AD provisioning failed', {
+        error: provisionError,
+        organizationId: organization.id,
+        ssoProviderId,
+      })
 
       // Log failed login
       if (ssoProviderId) {
@@ -162,26 +172,20 @@ export async function GET(request: NextRequest) {
           undefined,
           ipAddress,
           userAgent,
-          provisionError instanceof Error ? provisionError.message : 'Unknown error',
+          'Provisioning error',
           'PROVISIONING_ERROR'
         )
       }
 
       return NextResponse.redirect(
-        new URL(
-          `/login?error=provisioning_failed&details=${encodeURIComponent(provisionError instanceof Error ? provisionError.message : 'Unknown error')}`,
-          request.url
-        )
+        new URL(errorRedirect('/login', ErrorCodes.PROVISIONING_FAILED), request.url)
       )
     }
   } catch (error) {
-    console.error('[Azure AD Callback] Error:', error)
+    logger.error('Azure AD callback error', { error })
 
     return NextResponse.redirect(
-      new URL(
-        `/login?error=callback_error&details=${encodeURIComponent(error instanceof Error ? error.message : 'Unknown error')}`,
-        request.url
-      )
+      new URL(errorRedirect('/login', ErrorCodes.CALLBACK_ERROR), request.url)
     )
   }
 }

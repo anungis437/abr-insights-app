@@ -6,6 +6,7 @@
 import { NextResponse } from 'next/server'
 import { getUserEntitlements } from '@/lib/services/entitlements'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/production-logger'
 
 export async function GET() {
   try {
@@ -28,7 +29,7 @@ export async function GET() {
 
     return NextResponse.json({ entitlements })
   } catch (error) {
-    console.error('Error fetching entitlements:', error)
+    logger.error('Error fetching entitlements:', { error: error })
     return NextResponse.json({ error: 'Failed to fetch entitlements' }, { status: 500 })
   }
 }

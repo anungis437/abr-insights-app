@@ -18,6 +18,7 @@ import { createClient } from '@/lib/supabase/server'
 import { withRateLimit, RateLimitPresets } from '@/lib/security/rateLimit'
 import { logger } from '@/lib/utils/production-logger'
 import { checkAIQuota } from '@/lib/services/ai-quotas'
+import { sanitizeError } from '@/lib/utils/error-responses'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -166,7 +167,7 @@ async function getEmbeddingStatusHandler(request: NextRequest, context: GuardedC
     return NextResponse.json(
       {
         error: 'Failed to get job status',
-        details: error instanceof Error ? error.message : 'Unknown error',
+        details: sanitizeError(error, 'An error occurred'),
       },
       { status: 500 }
     )

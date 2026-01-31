@@ -28,6 +28,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSAMLService } from '@/lib/auth/saml'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { cookies } from 'next/headers'
+import { logger } from '@/lib/utils/production-logger'
 
 export async function POST(request: NextRequest) {
   let organizationSlug = ''
@@ -49,7 +50,7 @@ export async function POST(request: NextRequest) {
     const storedRelayState = cookieStore.get('saml_relay_state')?.value
 
     if (!storedRelayState || storedRelayState !== relayState) {
-      console.error('[SAML Callback] Relay state mismatch')
+      logger.error('[SAML Callback] Relay state mismatch')
       return NextResponse.redirect(new URL('/login?error=invalid_relay_state', request.url))
     }
 
@@ -138,7 +139,7 @@ export async function POST(request: NextRequest) {
     // Redirect to dashboard
     return NextResponse.redirect(new URL('/dashboard', request.url))
   } catch (error) {
-    console.error('[SAML Callback] Error:', error)
+    logger.error('[SAML Callback] Error:', { error: error })
 
     // Log failed login attempt
     if (samlService && organizationSlug) {
@@ -180,7 +181,7 @@ export async function POST(request: NextRequest) {
           }
         }
       } catch (logError) {
-        console.error('[SAML Callback] Failed to log error:', logError)
+        logger.error('[SAML Callback] Failed to log error:', { error: logError })
       }
     }
 

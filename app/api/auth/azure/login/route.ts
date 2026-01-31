@@ -11,6 +11,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAzureADService } from '@/lib/auth/azure-ad'
 import crypto from 'crypto'
 import { cookies } from 'next/headers'
+import { logger } from '@/lib/utils/production-logger'
+import { sanitizeError } from '@/lib/utils/error-responses'
 
 export async function POST(request: NextRequest) {
   try {
@@ -48,12 +50,12 @@ export async function POST(request: NextRequest) {
       success: true,
     })
   } catch (error) {
-    console.error('[Azure AD Login] Error:', error)
+    logger.error('[Azure AD Login] Error:', { error: error })
 
     return NextResponse.json(
       {
         error: 'Failed to initiate Azure AD login',
-        details: error instanceof Error ? error.message : 'Unknown error',
+        details: sanitizeError(error, 'An error occurred'),
       },
       { status: 500 }
     )
@@ -95,7 +97,7 @@ export async function GET(request: NextRequest) {
     // Redirect to Azure AD
     return NextResponse.redirect(authUrl)
   } catch (error) {
-    console.error('[Azure AD Login] Error:', error)
+    logger.error('[Azure AD Login] Error:', { error: error })
 
     return NextResponse.redirect(
       new URL(`/login?error=${encodeURIComponent('azure_ad_error')}`, request.url)

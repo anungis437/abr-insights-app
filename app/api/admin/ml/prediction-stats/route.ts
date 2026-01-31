@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { requireAnyPermission } from '@/lib/auth/permissions'
+import { logger } from '@/lib/utils/production-logger'
 
 export async function GET() {
   // Check permissions
@@ -54,7 +55,7 @@ export async function GET() {
       period: 'last_30_days',
     })
   } catch (error) {
-    console.error('Error fetching prediction stats:', error)
+    logger.error('Error fetching prediction stats:', { error: error })
     return NextResponse.json({ error: 'Failed to fetch prediction statistics' }, { status: 500 })
   }
 }

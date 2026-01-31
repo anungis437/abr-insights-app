@@ -10,6 +10,7 @@ import {
 } from '@/lib/services/ai-verification'
 import { logger } from '@/lib/utils/production-logger'
 import { checkAIQuota } from '@/lib/services/ai-quotas'
+import { sanitizeError } from '@/lib/utils/error-responses'
 
 /**
  * AI Chat API Endpoint
@@ -209,7 +210,7 @@ Respond in a helpful, conversational tone with actionable insights.`
     logger.error('AI chat request failed', error as Error, {
       userId: context.user?.id,
       organizationId: context.organizationId,
-      errorMessage: error.message,
+      error: sanitizeError(error, 'Operation failed'),
     })
     return NextResponse.json(
       {

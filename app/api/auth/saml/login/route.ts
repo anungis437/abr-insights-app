@@ -20,6 +20,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSAMLService } from '@/lib/auth/saml'
 import { cookies } from 'next/headers'
+import { logger } from '@/lib/utils/production-logger'
+import { sanitizeError } from '@/lib/utils/error-responses'
 
 /**
  * POST handler - API-style login initiation
@@ -61,11 +63,11 @@ export async function POST(request: NextRequest) {
       organizationSlug,
     })
   } catch (error) {
-    console.error('[SAML Login] Error:', error)
+    logger.error('[SAML Login] Error:', { error: error })
     return NextResponse.json(
       {
         error: 'Failed to initiate SAML login',
-        details: error instanceof Error ? error.message : 'Unknown error',
+        details: sanitizeError(error, 'An error occurred'),
       },
       { status: 500 }
     )
@@ -110,7 +112,7 @@ export async function GET(request: NextRequest) {
     // Redirect to IdP
     return NextResponse.redirect(authUrl)
   } catch (error) {
-    console.error('[SAML Login] Error:', error)
+    logger.error('[SAML Login] Error:', { error: error })
     return NextResponse.redirect(
       new URL(
         `/login?error=saml_error&details=${encodeURIComponent(

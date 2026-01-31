@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getBadgeByAssertion } from '@/lib/services/certificates'
+import { logger } from '@/lib/utils/production-logger'
 
 /**
  * GET /api/badges/[assertionId]
@@ -56,7 +57,7 @@ export async function GET(
       },
     })
   } catch (error) {
-    console.error('Error fetching badge assertion:', error)
+    logger.error('Error fetching badge assertion:', { error: error })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

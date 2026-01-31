@@ -18,6 +18,8 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { getSAMLService } from '@/lib/auth/saml'
+import { logger } from '@/lib/utils/production-logger'
+import { sanitizeError } from '@/lib/utils/error-responses'
 
 export async function GET(request: NextRequest) {
   try {
@@ -45,11 +47,11 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error('[SAML Metadata] Error:', error)
+    logger.error('[SAML Metadata] Error:', { error: error })
     return NextResponse.json(
       {
         error: 'Failed to generate SAML metadata',
-        details: error instanceof Error ? error.message : 'Unknown error',
+        details: sanitizeError(error, 'An error occurred'),
       },
       { status: 500 }
     )

@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { requireAnyPermission } from '@/lib/auth/permissions'
 import { validateCSRFToken } from '@/lib/security/csrf'
 import { logger } from '@/lib/utils/production-logger'
+import { sanitizeError } from '@/lib/utils/error-responses'
 
 // GET /api/admin/permissions - List all permissions
 export async function GET(request: NextRequest) {
@@ -126,7 +127,7 @@ export async function POST(request: NextRequest) {
         slug,
         resource,
         action,
-        errorMessage: error.message,
+        error: sanitizeError(error, 'Operation failed'),
       })
       return NextResponse.json(
         {

@@ -1,8 +1,13 @@
 /**
- * Redis-Based Rate Limiting (Production-Ready)
+ * Redis-Based Rate Limiting (Production-Ready with Fail-Closed)
  *
  * Production-safe rate limiting using Redis for distributed deployments.
  * Supports Upstash Redis (serverless) and Azure Cache for Redis.
+ *
+ * Fail-Closed Behavior:
+ * - In production (NODE_ENV=production), missing/failed Redis returns 503
+ * - In development/test, falls back to in-memory rate limiting
+ * - Protects AI/expensive routes from abuse when Redis misconfigured
  *
  * Setup:
  * 1. Upstash Redis (Recommended for serverless):
@@ -25,8 +30,10 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { RateLimitConfig } from './rateLimit'
-import { withRateLimit } from './rateLimit' // Fallback to in-memory limiter
+import { withRateLimit } from './rateLimit' // Dev-only fallback
 import { logger } from '@/lib/utils/production-logger'
+
+const IS_PRODUCTION = process.env.NODE_ENV === 'production'
 
 // Lazy-loaded Redis client
 let redisClient: any = null
@@ -72,9 +79,16 @@ async function getRedisClient() {
   }
 
   // No Redis configured
-  logger.warn('Redis not configured - falling back to in-memory rate limiting', {
-    hint: 'Set UPSTASH_REDIS_REST_URL or REDIS_URL in .env.local for production',
-  })
+  if (IS_PRODUCTION) {
+    logger.error('Redis not configured in production', {
+      error: 'UPSTASH_REDIS_REST_URL or REDIS_URL required for production deployments',
+      hint: 'Configure Redis to enable rate limiting',
+    })
+  } else {
+    logger.warn('Redis not configured - falling back to in-memory rate limiting', {
+      hint: 'Set UPSTASH_REDIS_REST_URL or REDIS_URL in .env.local for production testing',
+    })
+  }
   return null
 }
 
@@ -182,8 +196,9 @@ async function checkRateLimit(
 }
 
 /**
- * Redis-based rate limiting middleware with in-memory fallback
- * Falls back to in-memory rate limiting if Redis is not configured or unavailable
+ * Redis-based rate limiting middleware with fail-closed production behavior
+ * Production: Returns 503 if Redis unavailable (fail closed)
+ * Development: Falls back to in-memory rate limiting (fail open for dev convenience)
  */
 export function withRedisRateLimit<
   T extends (...args: any[]) => Promise<NextResponse> | NextResponse,
@@ -191,10 +206,26 @@ export function withRedisRateLimit<
   return async (request: NextRequest, ...args: any[]) => {
     const client = await getRedisClient()
 
-    // Fallback to in-memory rate limiting if Redis not available
+    // Fail-closed in production if Redis not available
     if (!client) {
-      logger.warn('Using in-memory rate limiting fallback', {
-        hint: 'Configure Redis for production deployments',
+      if (IS_PRODUCTION) {
+        logger.error('Rate limiting unavailable in production', {
+          endpoint: request.nextUrl.pathname,
+          error: 'Redis not configured',
+        })
+        return NextResponse.json(
+          {
+            error: 'Service temporarily unavailable',
+            details: 'Rate limiting service not configured',
+          },
+          { status: 503 }
+        )
+      }
+
+      // Development: fallback to in-memory
+      logger.warn('Using in-memory rate limiting fallback (dev mode)', {
+        endpoint: request.nextUrl.pathname,
+        hint: 'Configure Redis for production-like testing',
       })
       return withRateLimit(config, handler)(request, ...args)
     }
@@ -227,16 +258,34 @@ export function withRedisRateLimit<
 
       return response
     } catch (error) {
-      logger.error('Redis rate limiting failed, falling back to in-memory', { error })
-      // Fallback to in-memory rate limiting on error
+      logger.error('Redis rate limiting failed', {
+        error,
+        endpoint: request.nextUrl.pathname,
+      })
+
+      // Fail closed in production on error
+      if (IS_PRODUCTION) {
+        return NextResponse.json(
+          {
+            error: 'Service temporarily unavailable',
+            details: 'Rate limiting service error',
+          },
+          { status: 503 }
+        )
+      }
+
+      // Development: fallback to in-memory
+      logger.warn('Falling back to in-memory rate limiting (dev mode)')
       return withRateLimit(config, handler)(request, ...args)
     }
   }
 }
 
 /**
- * Apply multiple rate limits in sequence with in-memory fallback
+ * Apply multiple rate limits in sequence with fail-closed production behavior
  * ALL limits must pass for the request to proceed
+ * Production: Returns 503 if Redis unavailable
+ * Development: Falls back to in-memory rate limiting
  */
 export function withMultipleRedisRateLimits<
   T extends (...args: any[]) => Promise<NextResponse> | NextResponse,
@@ -244,12 +293,28 @@ export function withMultipleRedisRateLimits<
   return async (request: NextRequest, ...args: any[]) => {
     const client = await getRedisClient()
 
-    // Fallback to in-memory for multiple configs (apply all)
+    // Fail-closed in production if Redis not available
     if (!client) {
-      logger.warn('Using in-memory rate limiting fallback for multiple limits', {
-        hint: 'Configure Redis for production deployments',
+      if (IS_PRODUCTION) {
+        logger.error('Rate limiting unavailable in production', {
+          endpoint: request.nextUrl.pathname,
+          error: 'Redis not configured',
+          configCount: configs.length,
+        })
+        return NextResponse.json(
+          {
+            error: 'Service temporarily unavailable',
+            details: 'Rate limiting service not configured',
+          },
+          { status: 503 }
+        )
+      }
+
+      // Development: fallback to in-memory for all configs
+      logger.warn('Using in-memory rate limiting fallback for multiple limits (dev mode)', {
+        endpoint: request.nextUrl.pathname,
+        configCount: configs.length,
       })
-      // Apply all rate limits sequentially using in-memory fallback
       let wrappedHandler: any = handler
       for (const config of configs.reverse()) {
         wrappedHandler = withRateLimit(config, wrappedHandler)
@@ -303,8 +368,25 @@ export function withMultipleRedisRateLimits<
 
       return response
     } catch (error) {
-      logger.error('Multiple Redis rate limiting failed, falling back to in-memory', { error })
-      // Fallback to in-memory rate limiting
+      logger.error('Multiple Redis rate limiting failed', {
+        error,
+        endpoint: request.nextUrl.pathname,
+        configCount: configs.length,
+      })
+
+      // Fail closed in production on error
+      if (IS_PRODUCTION) {
+        return NextResponse.json(
+          {
+            error: 'Service temporarily unavailable',
+            details: 'Rate limiting service error',
+          },
+          { status: 503 }
+        )
+      }
+
+      // Development: fallback to in-memory rate limiting
+      logger.warn('Falling back to in-memory rate limiting (dev mode)')
       let wrappedHandler: any = handler
       for (const config of configs.reverse()) {
         wrappedHandler = withRateLimit(config, wrappedHandler)

@@ -24,6 +24,14 @@ lint-check.txt
 lint-unused.txt
 lint-final.txt
 
+# Backup/temporary files (never commit)
+*.backup
+*.old
+*.bak
+*.tmp
+*~
+.*.swp
+
 # debug
 npm-debug.log*
 yarn-debug.log*

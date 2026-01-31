@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { stripe, STRIPE_PRICES, getOrCreateStripeCustomer } from '@/lib/stripe'
+import { logger } from '@/lib/utils/production-logger'
+import { sanitizeError } from '@/lib/utils/error-responses'
 
 export async function POST(request: NextRequest) {
   // P0 Security: Block in production
@@ -74,7 +76,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ sessionId: session.id, url: session.url })
   } catch (error: any) {
-    console.error('Checkout session creation error:', error)
+    logger.error('Checkout session creation error:', { error: error })
     return NextResponse.json(
       { error: error.message || 'Failed to create checkout session' },
       { status: 500 }

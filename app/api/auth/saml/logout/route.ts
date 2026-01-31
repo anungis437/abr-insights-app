@@ -19,6 +19,8 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/production-logger'
+import { sanitizeError } from '@/lib/utils/error-responses'
 
 /**
  * POST handler - API-style logout
@@ -75,11 +77,11 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('[SAML Logout] Error:', error)
+    logger.error('[SAML Logout] Error:', { error: error })
     return NextResponse.json(
       {
         error: 'Logout failed',
-        details: error instanceof Error ? error.message : 'Unknown error',
+        details: sanitizeError(error, 'An error occurred'),
       },
       { status: 500 }
     )
@@ -141,7 +143,7 @@ export async function GET(request: NextRequest) {
     // Redirect to login
     return NextResponse.redirect(new URL('/login', request.url))
   } catch (error) {
-    console.error('[SAML Logout] Error:', error)
+    logger.error('[SAML Logout] Error:', { error: error })
     return NextResponse.redirect(new URL('/login?error=logout_failed', request.url))
   }
 }
