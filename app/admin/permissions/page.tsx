@@ -138,7 +138,10 @@ export default function PermissionsPage() {
       const { data: permsData, error: permsError } = await permsQuery.order('name')
 
       if (permsError) {
-        logger.warn('[Permissions] Error fetching permissions:', { permsError, context: 'PermissionsPage' })
+        logger.warn('[Permissions] Error fetching permissions:', {
+          permsError,
+          context: 'PermissionsPage',
+        })
         setPermissions([])
       } else {
         setPermissions(permsData || [])
@@ -158,7 +161,10 @@ export default function PermissionsPage() {
         .limit(100)
 
       if (resPermsError) {
-        logger.warn('[Permissions] Error fetching resource permissions:', { resPermsError, context: 'PermissionsPage' })
+        logger.warn('[Permissions] Error fetching resource permissions:', {
+          resPermsError,
+          context: 'PermissionsPage',
+        })
         setResourcePermissions([])
         return
       }
@@ -174,7 +180,10 @@ export default function PermissionsPage() {
 
       setResourcePermissions(flattenedPerms || [])
     } catch (error) {
-      logger.error('[Permissions] Error loading permissions:', { error: error, context: 'PermissionsPage' })
+      logger.error('[Permissions] Error loading permissions:', {
+        error: error,
+        context: 'PermissionsPage',
+      })
       setPermissions([])
       setResourcePermissions([])
     }

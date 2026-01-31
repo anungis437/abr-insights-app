@@ -82,7 +82,10 @@ export default function ManageUserPermissionsPage() {
       if (allPermsError) throw allPermsError
       setAllPermissions(allPerms || [])
     } catch (error) {
-      logger.error('Error loading permissions:', { error: error, context: 'ManageUserPermissionsPage' })
+      logger.error('Error loading permissions:', {
+        error: error,
+        context: 'ManageUserPermissionsPage',
+      })
     } finally {
       setLoading(false)
     }
@@ -102,7 +105,10 @@ export default function ManageUserPermissionsPage() {
     })
 
     if (error) {
-      logger.error('Error assigning permission:', { error: error, context: 'ManageUserPermissionsPage' })
+      logger.error('Error assigning permission:', {
+        error: error,
+        context: 'ManageUserPermissionsPage',
+      })
       alert('Failed to assign permission')
     } else {
       setShowAssignDialog(false)
@@ -119,7 +125,10 @@ export default function ManageUserPermissionsPage() {
     const { error } = await supabase.from('user_permissions').delete().eq('id', permissionId)
 
     if (error) {
-      logger.error('Error revoking permission:', { error: error, context: 'ManageUserPermissionsPage' })
+      logger.error('Error revoking permission:', {
+        error: error,
+        context: 'ManageUserPermissionsPage',
+      })
       alert('Failed to revoke permission')
     } else {
       loadData()

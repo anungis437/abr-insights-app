@@ -78,7 +78,10 @@ export default function SyncStatusIndicator({
 
       setPendingItems(items)
     } catch (error) {
-      logger.error('[SyncStatus] Failed to load pending items:', { error: error, context: 'SyncStatusIndicator' })
+      logger.error('[SyncStatus] Failed to load pending items:', {
+        error: error,
+        context: 'SyncStatusIndicator',
+      })
     }
   }, [])
 

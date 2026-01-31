@@ -185,7 +185,10 @@ export default function OrgDashboardPage() {
       if (coursesError) throw coursesError
       setCourses(allCourses || [])
     } catch (err: any) {
-      logger.error('Failed to load organization dashboard:', { error: err, context: 'OrgDashboardPage' })
+      logger.error('Failed to load organization dashboard:', {
+        error: err,
+        context: 'OrgDashboardPage',
+      })
       setError(err.message || 'Failed to load dashboard data')
     } finally {
       setLoading(false)

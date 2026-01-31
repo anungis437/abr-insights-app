@@ -29,7 +29,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   // P0 Security: Check admin role via RBAC tables (user_roles / roles)
   // This matches the backend authorization model used by DB-side functions
   const isAdmin = await hasAdminRole(user.id, profile.organization_id)
-  
+
   if (!isAdmin) {
     redirect('/dashboard?error=unauthorized')
   }

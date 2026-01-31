@@ -150,7 +150,10 @@ export default function NewSavedSearchPage() {
 
       router.push('/admin/case-alerts')
     } catch (error) {
-      logger.error('Failed to create saved search:', { error: error, context: 'NewSavedSearchPage' })
+      logger.error('Failed to create saved search:', {
+        error: error,
+        context: 'NewSavedSearchPage',
+      })
       alert('Failed to create saved search. Please try again.')
     } finally {
       setLoading(false)

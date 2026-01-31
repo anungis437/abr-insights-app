@@ -51,7 +51,10 @@ export default function PermissionsManagementPage() {
       // Clear message after 3 seconds
       setTimeout(() => setMessage(null), 3000)
     } catch (error) {
-      logger.error('Error toggling permission:', { error: error, context: 'PermissionsManagementPage' })
+      logger.error('Error toggling permission:', {
+        error: error,
+        context: 'PermissionsManagementPage',
+      })
       setMessage({
         type: 'error',
         text: error instanceof Error ? error.message : 'Failed to update permission',

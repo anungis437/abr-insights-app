@@ -53,7 +53,10 @@ export default function CourseDetailPage() {
           .single()
 
         if (courseError) {
-          logger.error('Error fetching course:', { error: courseError, context: 'CourseDetailPage' })
+          logger.error('Error fetching course:', {
+            error: courseError,
+            context: 'CourseDetailPage',
+          })
           setError('Course not found')
           setLoading(false)
           return

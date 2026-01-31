@@ -134,7 +134,10 @@ export default function CertificatePreview({
         organizationName: 'ABR Insights',
       })
     } catch (error) {
-      logger.error('Failed to download certificate:', { error: error, context: 'CertificatePreview' })
+      logger.error('Failed to download certificate:', {
+        error: error,
+        context: 'CertificatePreview',
+      })
       alert('Failed to download certificate. Please try again.')
     } finally {
       setDownloading(false)

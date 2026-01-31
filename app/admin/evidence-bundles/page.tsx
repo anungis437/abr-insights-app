@@ -45,7 +45,10 @@ export default function EvidenceBundlesPage() {
       const data = await listEvidenceBundles(profile.organization_id, status)
       setBundles(data)
     } catch (error) {
-      logger.error('Error loading evidence bundles:', { error: error, context: 'EvidenceBundlesPage' })
+      logger.error('Error loading evidence bundles:', {
+        error: error,
+        context: 'EvidenceBundlesPage',
+      })
     } finally {
       setLoading(false)
     }

@@ -102,7 +102,10 @@ export default function InstructorCourseEditPage() {
       await loadWorkflowSummary()
       await loadVersions()
     } catch (error) {
-      logger.error('Error in checkAuthAndLoadData:', { error: error, context: 'InstructorCourseEditPage' })
+      logger.error('Error in checkAuthAndLoadData:', {
+        error: error,
+        context: 'InstructorCourseEditPage',
+      })
     } finally {
       setIsLoading(false)
     }
@@ -153,7 +156,10 @@ export default function InstructorCourseEditPage() {
       if (error) throw error
       setCategories(data || [])
     } catch (error) {
-      logger.error('Error loading categories:', { error: error, context: 'InstructorCourseEditPage' })
+      logger.error('Error loading categories:', {
+        error: error,
+        context: 'InstructorCourseEditPage',
+      })
     }
   }
 
@@ -162,7 +168,10 @@ export default function InstructorCourseEditPage() {
       const summary = await courseWorkflowService.getWorkflowSummary(courseId)
       setWorkflowSummary(summary)
     } catch (error) {
-      logger.error('Error loading workflow summary:', { error: error, context: 'InstructorCourseEditPage' })
+      logger.error('Error loading workflow summary:', {
+        error: error,
+        context: 'InstructorCourseEditPage',
+      })
     }
   }
 
@@ -255,7 +264,10 @@ export default function InstructorCourseEditPage() {
         router.push('/instructor/dashboard?success=submitted')
       }, 2000)
     } catch (error) {
-      logger.error('Error submitting for review:', { error: error, context: 'InstructorCourseEditPage' })
+      logger.error('Error submitting for review:', {
+        error: error,
+        context: 'InstructorCourseEditPage',
+      })
       setErrors({ general: 'Failed to submit course for review' })
     } finally {
       setIsSaving(false)

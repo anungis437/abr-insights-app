@@ -49,7 +49,10 @@ export default function AdminOrganizationsPage() {
       if (error) throw error
       setOrganizations(data || [])
     } catch (error) {
-      logger.error('Error loading organizations:', { error: error, context: 'AdminOrganizationsPage' })
+      logger.error('Error loading organizations:', {
+        error: error,
+        context: 'AdminOrganizationsPage',
+      })
     } finally {
       setLoading(false)
     }

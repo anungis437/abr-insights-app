@@ -56,7 +56,10 @@ export default function InstructorDashboardPage() {
       )
       setAnalytics(analyticsData)
     } catch (error) {
-      logger.error('Failed to load analytics:', { error: error, context: 'InstructorDashboardPage' })
+      logger.error('Failed to load analytics:', {
+        error: error,
+        context: 'InstructorDashboardPage',
+      })
     }
   }, [user, selectedPeriod])
 
@@ -74,7 +77,10 @@ export default function InstructorDashboardPage() {
       const coursesWithStats = await instructorsService.getInstructorCourses(profile.id)
       setCourses(coursesWithStats)
     } catch (error) {
-      logger.error('Failed to load dashboard data:', { error: error, context: 'InstructorDashboardPage' })
+      logger.error('Failed to load dashboard data:', {
+        error: error,
+        context: 'InstructorDashboardPage',
+      })
     }
   }, [])
 

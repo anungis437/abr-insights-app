@@ -174,7 +174,10 @@ export default function TeamManagementPage() {
         setProgress([])
       }
     } catch (err) {
-      logger.error('Error loading organization data:', { error: err, context: 'TeamManagementPage' })
+      logger.error('Error loading organization data:', {
+        error: err,
+        context: 'TeamManagementPage',
+      })
     }
   }
 
@@ -204,7 +207,10 @@ export default function TeamManagementPage() {
 
         setIsLoading(false)
       } catch (err) {
-        logger.error('Error loading user and organization:', { error: err, context: 'TeamManagementPage' })
+        logger.error('Error loading user and organization:', {
+          error: err,
+          context: 'TeamManagementPage',
+        })
         setIsLoading(false)
       }
     }

@@ -60,7 +60,10 @@ export function EvidenceBundleGenerator({
         setTimeout(() => setSuccess(false), 5000)
       }
     } catch (err: any) {
-      logger.error('Evidence bundle generation error:', { error: err, context: 'EvidenceBundleGenerator' })
+      logger.error('Evidence bundle generation error:', {
+        error: err,
+        context: 'EvidenceBundleGenerator',
+      })
       setError(err.message || 'An unexpected error occurred')
     } finally {
       setLoading(false)

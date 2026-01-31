@@ -106,7 +106,10 @@ export default function IngestionReviewPage() {
       })
 
       if (insertError) {
-        logger.error('Error inserting case into production:', { error: insertError, context: 'IngestionReviewPage' })
+        logger.error('Error inserting case into production:', {
+          error: insertError,
+          context: 'IngestionReviewPage',
+        })
         return
       }
 
@@ -117,7 +120,10 @@ export default function IngestionReviewPage() {
         .eq('id', caseId)
 
       if (updateError) {
-        logger.error('Error approving case:', { error: updateError, context: 'IngestionReviewPage' })
+        logger.error('Error approving case:', {
+          error: updateError,
+          context: 'IngestionReviewPage',
+        })
         return
       }
 

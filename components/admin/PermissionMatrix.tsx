@@ -60,7 +60,10 @@ export default function PermissionMatrix({
       })
       setRolePermissions(rolePermMap)
     } catch (error) {
-      logger.error('Error loading permission matrix:', { error: error, context: 'PermissionMatrix' })
+      logger.error('Error loading permission matrix:', {
+        error: error,
+        context: 'PermissionMatrix',
+      })
     } finally {
       setLoading(false)
     }

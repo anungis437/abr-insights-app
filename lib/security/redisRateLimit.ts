@@ -190,7 +190,7 @@ export function withRedisRateLimit<
 >(handler: T, config: RateLimitConfig): (...args: any[]) => Promise<NextResponse> {
   return async (request: NextRequest, ...args: any[]) => {
     const client = await getRedisClient()
-    
+
     // Fallback to in-memory rate limiting if Redis not available
     if (!client) {
       logger.warn('Using in-memory rate limiting fallback', {
@@ -243,7 +243,7 @@ export function withMultipleRedisRateLimits<
 >(handler: T, configs: RateLimitConfig[]): (...args: any[]) => Promise<NextResponse> {
   return async (request: NextRequest, ...args: any[]) => {
     const client = await getRedisClient()
-    
+
     // Fallback to in-memory for multiple configs (apply all)
     if (!client) {
       logger.warn('Using in-memory rate limiting fallback for multiple limits', {

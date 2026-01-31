@@ -8,7 +8,6 @@ import { logger } from '@/lib/utils/production-logger'
  * Copy this code to your actual component files as needed
  */
 
-
 import { useState } from 'react'
 import {
   useCodespringAnalyze,
@@ -17,7 +16,9 @@ import {
 } from '@/lib/hooks/use-codespring'
 
 export function CodespringExample() {
-  const [code, setCode] = useState('logger.info(\'Hello, World!\', { context: \'CodespringExample\' });')
+  const [code, setCode] = useState(
+    "logger.info('Hello, World!', { context: 'CodespringExample' });"
+  )
   const [language, setLanguage] = useState('javascript')
 
   const { analyzeCode, data, error, isLoading } = useCodespringAnalyze({

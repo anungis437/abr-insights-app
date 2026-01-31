@@ -48,7 +48,10 @@ export function RevokeCertificateForm({ certificateId }: RevokeCertificateFormPr
       // Refresh the page to show updated status
       router.refresh()
     } catch (error) {
-      logger.error('Error revoking certificate:', { error: error, context: 'RevokeCertificateForm' })
+      logger.error('Error revoking certificate:', {
+        error: error,
+        context: 'RevokeCertificateForm',
+      })
       toast({
         title: 'Error',
         description: 'Failed to revoke certificate',

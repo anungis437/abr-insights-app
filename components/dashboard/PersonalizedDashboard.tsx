@@ -77,7 +77,10 @@ export default function PersonalizedDashboard({
         setCompletionPrediction(prediction)
       }
     } catch (error) {
-      logger.error('[Personalization] Failed to load data:', { error: error, context: 'PersonalizedDashboard' })
+      logger.error('[Personalization] Failed to load data:', {
+        error: error,
+        context: 'PersonalizedDashboard',
+      })
     } finally {
       setIsLoading(false)
     }

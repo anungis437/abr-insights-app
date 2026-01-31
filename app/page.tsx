@@ -38,7 +38,10 @@ export default function HomePage() {
           loading: false,
         })
       } catch (err) {
-        logger.error('Failed to fetch case stats (database not initialized):', { error: err, context: 'HomePage' })
+        logger.error('Failed to fetch case stats (database not initialized):', {
+          error: err,
+          context: 'HomePage',
+        })
         // Use fallback stats until database is initialized
         setStats({
           totalCases: 0,

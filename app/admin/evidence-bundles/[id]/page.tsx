@@ -37,7 +37,10 @@ export default function EvidenceBundleDetailPage() {
       const data = await getEvidenceBundle(bundleId)
       setBundle(data)
     } catch (error) {
-      logger.error('Error loading evidence bundle:', { error: error, context: 'EvidenceBundleDetailPage' })
+      logger.error('Error loading evidence bundle:', {
+        error: error,
+        context: 'EvidenceBundleDetailPage',
+      })
     } finally {
       setLoading(false)
     }

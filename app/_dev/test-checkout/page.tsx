@@ -78,7 +78,9 @@ export default function TestCheckoutPage() {
     <div className="container mx-auto max-w-4xl px-4 py-12">
       <div className="mb-8">
         <h1 className="mb-2 text-3xl font-bold">Test Stripe Checkout</h1>
-        <p className="text-gray-600">Test the complete Stripe â†’ Webhook â†’ Entitlements â†’ UI flow</p>
+        <p className="text-gray-600">
+          Test the complete Stripe â†’ Webhook â†’ Entitlements â†’ UI flow
+        </p>
       </div>
 
       {/* Current Entitlements Status */}
@@ -116,7 +118,8 @@ export default function TestCheckoutPage() {
                   {entitlements.features.exportCapabilities ? 'âœ… Yes' : 'âŒ No'}
                 </li>
                 <li>
-                  Advanced Analytics: {entitlements.features.advancedAnalytics ? 'âœ… Yes' : 'âŒ No'}
+                  Advanced Analytics:{' '}
+                  {entitlements.features.advancedAnalytics ? 'âœ… Yes' : 'âŒ No'}
                 </li>
                 <li>
                   Max Courses:{' '}

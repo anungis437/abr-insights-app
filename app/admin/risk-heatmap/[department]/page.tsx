@@ -55,7 +55,10 @@ export default function DepartmentUserRiskPage() {
       setUserDetails(details)
       setFilteredUsers(details)
     } catch (error) {
-      logger.error('Error loading user details:', { error: error, context: 'DepartmentUserRiskPage' })
+      logger.error('Error loading user details:', {
+        error: error,
+        context: 'DepartmentUserRiskPage',
+      })
     } finally {
       setLoading(false)
     }

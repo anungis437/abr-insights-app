@@ -61,7 +61,10 @@ export default function OrganizationDetailPage() {
         if (membersError) throw membersError
         setMembers(membersData || [])
       } catch (error) {
-        logger.error('Error loading organization:', { error: error, context: 'OrganizationDetailPage' })
+        logger.error('Error loading organization:', {
+          error: error,
+          context: 'OrganizationDetailPage',
+        })
       } finally {
         setLoading(false)
       }

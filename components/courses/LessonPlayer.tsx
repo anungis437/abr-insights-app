@@ -212,7 +212,10 @@ export function LessonPlayer({
                   onComplete?.()
                 })
                 .catch((error) => {
-                  logger.error('Error completing lesson:', { error: error, context: 'LessonPlayer' })
+                  logger.error('Error completing lesson:', {
+                    error: error,
+                    context: 'LessonPlayer',
+                  })
                 })
             }
           })
@@ -557,7 +560,10 @@ export function LessonPlayer({
                         }
                       }
                     } catch (error) {
-                      logger.error('Picture-in-Picture error:', { error: error, context: 'LessonPlayer' })
+                      logger.error('Picture-in-Picture error:', {
+                        error: error,
+                        context: 'LessonPlayer',
+                      })
                     }
                   }}
                   className="text-white transition-colors hover:text-blue-400"
