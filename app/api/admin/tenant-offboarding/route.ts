@@ -48,21 +48,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const body = await request.json()
+    
     // Verify super_admin
     const isSuperAdmin = await verifySuperAdmin(supabase, user.id)
     if (!isSuperAdmin) {
+      const { organizationId } = body
       await logAuthorizationEvent(
-        null,
+        organizationId || 'system',
         'tenant_offboarding_denied',
         user.id,
-        false,
-        'super_admin',
-        'Attempted tenant offboarding without super_admin role'
+        'organization',
+        organizationId,
+        { reason: 'Attempted tenant offboarding without super_admin role' }
       )
       return NextResponse.json({ error: 'Forbidden: super_admin required' }, { status: 403 })
     }
-
-    const body = await request.json()
     const { organizationId, reason, gracePeriodDays } = body
 
     if (!organizationId || !reason) {
