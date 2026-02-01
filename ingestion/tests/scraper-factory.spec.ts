@@ -20,31 +20,22 @@ describe('Scraper Factory', () => {
   describe('Scraper Mode Selection', () => {
     const mockRestApiConfig: SourceConfig = {
       sourceSystem: 'canlii_hrto',
-      name: 'CanLII REST API',
-      type: 'canlii',
       apiMode: 'rest',
       baseUrl: 'https://www.canlii.org',
       databaseId: 'onhrt',
-      enabled: true,
     }
 
     const mockWebScraperConfig: SourceConfig = {
       sourceSystem: 'canlii_hrto',
-      name: 'CanLII Web Scraper',
-      type: 'canlii',
       apiMode: 'scrape',
       baseUrl: 'https://www.canlii.org',
       listingUrl: 'https://example.com/cases',
-      enabled: true,
     }
 
     const mockAutoConfig: SourceConfig = {
       sourceSystem: 'canlii_hrto',
-      name: 'CanLII Auto',
-      type: 'canlii',
       baseUrl: 'https://www.canlii.org',
       databaseId: 'onhrt',
-      enabled: true,
       // apiMode not specified - should auto-detect
     }
 
@@ -143,12 +134,9 @@ describe('Scraper Factory', () => {
     it('should create REST API scraper in REST mode', async () => {
       const config: SourceConfig = {
         sourceSystem: 'canlii_hrto',
-        name: 'Test REST API',
-        type: 'canlii',
         apiMode: 'rest',
         baseUrl: 'https://www.canlii.org',
         databaseId: 'onhrt',
-        enabled: true,
       }
 
       // Set up environment
@@ -173,12 +161,9 @@ describe('Scraper Factory', () => {
     it('should create web scraper in scrape mode', async () => {
       const config: SourceConfig = {
         sourceSystem: 'canlii_hrto',
-        name: 'Test Web Scraper',
-        type: 'canlii',
         apiMode: 'scrape',
         baseUrl: 'https://www.canlii.org',
         listingUrl: 'https://example.com/cases',
-        enabled: true,
       }
 
       const scraper = await createScraperWithMode(config.sourceSystem, config, 'scrape')
@@ -190,10 +175,7 @@ describe('Scraper Factory', () => {
     it('should throw error for invalid configuration', async () => {
       const invalidConfig: SourceConfig = {
         sourceSystem: 'canlii_hrto',
-        name: 'Invalid Config',
-        type: 'canlii',
         baseUrl: 'https://www.canlii.org',
-        enabled: true,
         // Missing both databaseId and listingUrl
       }
 
@@ -216,12 +198,9 @@ describe('Scraper Factory', () => {
 
         const config: SourceConfig = {
           sourceSystem: 'canlii_hrto',
-          name: 'Test',
-          type: 'canlii',
           apiMode: 'rest',
           baseUrl: 'https://www.canlii.org',
           databaseId: 'onhrt',
-          enabled: true,
         }
 
         // Should fall back to scraper
@@ -240,12 +219,9 @@ describe('Scraper Factory', () => {
       try {
         const config: SourceConfig = {
           sourceSystem: 'canlii_hrto',
-          name: 'Test',
-          type: 'canlii',
           apiMode: 'rest',
           baseUrl: 'https://www.canlii.org',
           // Missing databaseId
-          enabled: true,
         }
 
         // Should fall back to scraper
@@ -261,12 +237,9 @@ describe('Scraper Factory', () => {
     it('should handle missing listing URL for web scraper', () => {
       const config: SourceConfig = {
         sourceSystem: 'canlii_hrto',
-        name: 'Test',
-        type: 'canlii',
         apiMode: 'scrape',
         baseUrl: 'https://www.canlii.org',
         // Missing listingUrl
-        enabled: true,
       }
 
       // Should throw during creation if mode is forced to scrape
@@ -292,30 +265,21 @@ describe('Scraper Factory', () => {
         const configs = [
         {
           sourceSystem: 'canlii_hrto' as const,
-          name: 'HRTO (REST API)',
-          type: 'canlii',
           apiMode: 'rest' as const,
           baseUrl: 'https://www.canlii.org',
           databaseId: 'onhrt',
-          enabled: true,
         },
         {
           sourceSystem: 'canlii_chrt' as const,
-          name: 'CHRT (REST API)',
-          type: 'canlii',
           apiMode: 'rest' as const,
           baseUrl: 'https://www.canlii.org',
           databaseId: 'chrt',
-          enabled: true,
         },
         {
           sourceSystem: 'canlii_hrto' as const,
-          name: 'Legacy Source (Scraper)',
-          type: 'canlii',
           apiMode: 'scrape' as const,
           baseUrl: 'https://www.canlii.org',
           listingUrl: 'https://legacy.example.com',
-          enabled: true,
         },
       ]
 
@@ -334,12 +298,9 @@ describe('Scraper Factory', () => {
     it('should support configuration override for testing', () => {
       const config: SourceConfig = {
         sourceSystem: 'canlii_hrto',
-        name: 'Test Config',
-        type: 'canlii',
         apiMode: 'auto' as any, // Invalid mode to force override
         baseUrl: 'https://www.canlii.org',
         databaseId: 'onhrt',
-        enabled: true,
       }
 
       const origApiKey = process.env.CANLII_API_KEY
@@ -367,11 +328,8 @@ describe('Scraper Factory', () => {
     it('should support legacy web scraper config (no apiMode)', () => {
       const legacyConfig: SourceConfig = {
         sourceSystem: 'canlii_hrto',
-        name: 'Legacy Source',
-        type: 'canlii',
         baseUrl: 'https://www.canlii.org',
         listingUrl: 'https://example.com/cases',
-        enabled: true,
         // No apiMode specified
       }
 
@@ -382,12 +340,9 @@ describe('Scraper Factory', () => {
     it('should support REST API config (new style)', () => {
       const newConfig: SourceConfig = {
         sourceSystem: 'canlii_hrto',
-        name: 'New REST API',
-        type: 'canlii',
         apiMode: 'rest',
         baseUrl: 'https://www.canlii.org',
         databaseId: 'onhrt',
-        enabled: true,
       }
 
       const origApiKey = process.env.CANLII_API_KEY
