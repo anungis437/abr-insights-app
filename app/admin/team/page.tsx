@@ -81,7 +81,9 @@ export default function TeamManagementPage() {
     } catch (err: any) {
       logger.error('Failed to remove member:', { error: err, context: 'TeamManagementPage' })
       // Use stable user-facing message
-      setError('Failed to remove member. Please try again or contact support if the issue persists.')
+      setError(
+        'Failed to remove member. Please try again or contact support if the issue persists.'
+      )
     }
   }
 
@@ -136,10 +138,10 @@ export default function TeamManagementPage() {
       await loadOrganizationData()
     } catch (err: any) {
       logger.error('Failed to invite member:', { error: err, context: 'TeamManagementPage' })
-      
+
       // Map to stable user-facing error messages
       let userMessage = 'Failed to invite member. Please try again.'
-      
+
       if (err.message) {
         const msg = err.message.toLowerCase()
         if (msg.includes('already a member') || msg.includes('already in an organization')) {
@@ -152,7 +154,7 @@ export default function TeamManagementPage() {
           userMessage = 'Organization subscription is not active. Please contact support.'
         }
       }
-      
+
       setError(userMessage)
     } finally {
       setInviteLoading(false)
