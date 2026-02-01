@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         status: 'error',
-        error: error instanceof Error ? error.message : 'Health check failed',
+        error: sanitizeError(error, 'Health check failed'),
       },
       { status: 500 }
     )

@@ -8,6 +8,10 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/admin/*",
+      "allowedRoles": ["authenticated"]
+    },
+    {
       "route": "/dashboard/*",
       "allowedRoles": ["authenticated"]
     },

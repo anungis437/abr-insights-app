@@ -113,13 +113,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(authUrl)
   } catch (error) {
     logger.error('[SAML Login] Error:', { error: error })
-    return NextResponse.redirect(
-      new URL(
-        `/login?error=saml_error&details=${encodeURIComponent(
-          error instanceof Error ? error.message : 'Unknown error'
-        )}`,
-        request.url
-      )
-    )
+    // Use stable error code - don't leak error.message to browser
+    return NextResponse.redirect(new URL('/login?error=saml_error', request.url))
   }
 }

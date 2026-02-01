@@ -144,10 +144,10 @@ export class CanLIIRestApiScraper {
 
   /**
    * Fetch full content for a decision URL via REST API
-   * In metadata-only mode, returns only API metadata (compliant with CanLII)
-   * In full-text mode, falls back to web scraping for full text
+   * COMPLIANCE NOTE: Locked to metadata-only mode per CanLII Terms of Service
+   * Full-text web scraping is blocked to ensure compliance
    * @param url Decision page URL
-   * @returns Extracted decision content
+   * @returns Extracted decision content (metadata only)
    */
   async fetchDecisionContent(url: string): Promise<DecisionContent> {
     try {
@@ -167,15 +167,24 @@ export class CanLIIRestApiScraper {
       // Fetch metadata via API
       const metadata = await this.client.getCaseMetadata(this.databaseId, caseId)
 
-      // Get full text only if explicitly configured
+      // COMPLIANCE ENFORCEMENT: Block full-text mode unless explicit risk flag set
       const fetchMode = process.env.CANLII_FETCH_MODE || 'metadata-only'
+      const allowRiskyFullText = process.env.CANLII_ALLOW_FULL_TEXT_RISK === 'true'
+
       let fullText = ''
 
       if (fetchMode === 'full-text') {
-        logger.warn('Fetching full text via web scraping (not API-compliant)', { caseId })
+        if (!allowRiskyFullText) {
+          // Hard block: full-text requires explicit risk acknowledgment
+          throw new Error(
+            'CANLII_FETCH_MODE=full-text requires CANLII_ALLOW_FULL_TEXT_RISK=true flag to acknowledge compliance risk. ' +
+              'CanLII Terms of Service prohibit scraping full-text content. Use metadata-only mode for compliance.'
+          )
+        }
+        logger.warn('⚠️  Using full-text mode with EXPLICIT RISK ACKNOWLEDGMENT', { caseId })
         fullText = await this.fetchFullTextFromWeb(url)
       } else {
-        // Metadata-only mode: use title + available summary/keywords
+        // Metadata-only mode: CanLII compliant
         logger.info('Using metadata-only mode (CanLII compliant)', { caseId })
         fullText = this.buildTextFromMetadata(metadata)
       }
