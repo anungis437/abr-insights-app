@@ -120,8 +120,8 @@ export function validateDatabaseId(databaseId: string): boolean {
  */
 export function validateCaseId(caseId: string): boolean {
   if (!caseId) return false
-  // CanLII case IDs are typically alphanumeric with no spaces
-  return /^[a-z0-9]+$/i.test(caseId) && caseId.length >= 3 && caseId.length <= 50
+  // CanLII case IDs are typically alphanumeric with optional hyphens
+  return /^[a-z0-9-]+$/i.test(caseId) && caseId.length >= 3 && caseId.length <= 50
 }
 
 /**
@@ -131,6 +131,8 @@ export function validateDecisionDate(date: string | Date | null | undefined): bo
   if (!date) return true // Optional field
   if (date instanceof Date) return !isNaN(date.getTime())
   if (typeof date === 'string') {
+    // Check format - must use hyphens (YYYY-MM-DD), not slashes
+    if (date.includes('/')) return false
     const parsed = new Date(date)
     return !isNaN(parsed.getTime())
   }
@@ -266,7 +268,8 @@ export function calculateBackoffDelay(
   // Exponential backoff with jitter
   const exponentialDelay = Math.min(baseDelayMs * Math.pow(2, attemptNumber), maxDelayMs)
   const jitter = Math.random() * 0.1 * exponentialDelay
-  return exponentialDelay + jitter
+  // Ensure total delay never exceeds maxDelay
+  return Math.min(exponentialDelay + jitter, maxDelayMs)
 }
 
 /**

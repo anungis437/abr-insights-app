@@ -120,8 +120,8 @@ describe('CanLII Validation & Error Handling', () => {
         delete process.env.CANLII_API_KEY
 
         const result = validateApiConfiguration()
-        expect(result.errors.length).toBeGreaterThan(0)
-        expect(result.errors.some((e: string) => e.includes('API_KEY'))).toBe(true)
+        expect(result.warnings.length).toBeGreaterThan(0)
+        expect(result.warnings.some((w) => w.message.includes('API_KEY'))).toBe(true)
       } finally {
         if (origApiKey) process.env.CANLII_API_KEY = origApiKey
       }
