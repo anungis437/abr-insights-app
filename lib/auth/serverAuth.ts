@@ -10,6 +10,7 @@
 import { NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import type { Session, User } from '@supabase/supabase-js'
+import { logger } from '@/lib/utils/production-logger'
 
 export class AuthError extends Error {
   constructor(
@@ -142,7 +143,7 @@ export async function requirePermission(
   })
 
   if (error) {
-    console.error('Permission check failed:', error)
+    logger.error('Permission check failed', { error, userId, organizationId, permissionSlug })
     throw new AuthError('Permission check failed', 500, 'PERMISSION_CHECK_ERROR')
   }
 
@@ -197,7 +198,7 @@ export async function hasAdminRole(userId: string, organizationId?: string): Pro
   const { data: userRoles, error } = await query
 
   if (error) {
-    console.error('Failed to check admin role:', error)
+    logger.error('Failed to check admin role', { error, userId })
     return false
   }
 
@@ -258,7 +259,7 @@ export async function getUserPermissions(
   })
 
   if (error) {
-    console.error('Failed to fetch user permissions:', error)
+    logger.error('Failed to fetch user permissions', { error, userId, orgId })
     return []
   }
 

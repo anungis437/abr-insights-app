@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/production-logger'
 
 /**
  * Server-side permission check utilities
@@ -22,13 +23,13 @@ export async function hasPermission(permissionName: string): Promise<PermissionC
     })
 
     if (error) {
-      console.error('Permission check error:', error)
+      logger.error('Permission check error', { error, permissionName })
       return { allowed: false, error: error.message }
     }
 
     return { allowed: data === true }
   } catch (error) {
-    console.error('Permission check exception:', error)
+    logger.error('Permission check exception', { error, permissionName })
     return { allowed: false, error: 'Permission check failed' }
   }
 }
@@ -65,13 +66,13 @@ export async function hasAnyPermission(permissions: string[]): Promise<Permissio
     })
 
     if (error) {
-      console.error('Permission check error:', error)
+      logger.error('Permission check error', { error, permissions })
       return { allowed: false, error: error.message }
     }
 
     return { allowed: data === true }
   } catch (error) {
-    console.error('Permission check exception:', error)
+    logger.error('Permission check exception', { error, permissions })
     return { allowed: false, error: 'Permission check failed' }
   }
 }
@@ -108,13 +109,13 @@ export async function hasAllPermissions(permissions: string[]): Promise<Permissi
     })
 
     if (error) {
-      console.error('Permission check error:', error)
+      logger.error('Permission check error', { error, permissions })
       return { allowed: false, error: error.message }
     }
 
     return { allowed: data === true }
   } catch (error) {
-    console.error('Permission check exception:', error)
+    logger.error('Permission check exception', { error, permissions })
     return { allowed: false, error: 'Permission check failed' }
   }
 }
@@ -138,13 +139,13 @@ export async function isAdmin(): Promise<PermissionCheckResult> {
     })
 
     if (error) {
-      console.error('Admin check error:', error)
+      logger.error('Admin check error', { error })
       return { allowed: false, error: error.message }
     }
 
     return { allowed: data === true }
   } catch (error) {
-    console.error('Admin check exception:', error)
+    logger.error('Admin check exception', { error })
     return { allowed: false, error: 'Admin check failed' }
   }
 }

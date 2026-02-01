@@ -5,6 +5,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { logger } from '@/lib/utils/production-logger'
 
 export interface OrgSubscription {
   subscription_id: string
@@ -71,7 +72,7 @@ export async function canAddUsers(
   })
 
   if (error) {
-    console.error('Error checking seat availability:', error)
+    logger.error('Error checking seat availability', { error, orgId, count })
     return false
   }
 
@@ -92,7 +93,7 @@ export async function getOrgSubscription(
   })
 
   if (error) {
-    console.error('Error fetching org subscription:', error)
+    logger.error('Error fetching org subscription', { error, orgId })
     return null
   }
 
@@ -200,7 +201,7 @@ export async function getSeatAllocations(
     .order('allocated_at', { ascending: false })
 
   if (error) {
-    console.error('Error fetching seat allocations:', error)
+    logger.error('Error fetching seat allocations', { error, subscriptionId })
     return []
   }
 
@@ -295,7 +296,7 @@ export async function getSubscriptionInvoices(
     .order('invoice_date', { ascending: false })
 
   if (error) {
-    console.error('Error fetching invoices:', error)
+    logger.error('Error fetching invoices', { error, subscriptionId })
     return []
   }
 
@@ -401,7 +402,7 @@ export async function getSubscriptionByStripeId(
     .single()
 
   if (error) {
-    console.error('Error fetching subscription by Stripe ID:', error)
+    logger.error('Error fetching subscription by Stripe ID', { error, stripeSubscriptionId })
     return null
   }
 

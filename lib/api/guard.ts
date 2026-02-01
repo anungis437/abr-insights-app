@@ -32,6 +32,7 @@ import {
   OrgContextError,
 } from '@/lib/auth/serverAuth'
 import type { Session, User } from '@supabase/supabase-js'
+import { logger } from '@/lib/utils/production-logger'
 
 /**
  * Extended context passed to guarded handlers
@@ -66,7 +67,7 @@ function errorResponse(error: Error): NextResponse {
   }
 
   // Log unexpected errors
-  console.error('[API Guard] Unexpected error:', error)
+  logger.error('[API Guard] Unexpected error', { error })
 
   return NextResponse.json(
     {
