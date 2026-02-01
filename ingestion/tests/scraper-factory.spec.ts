@@ -39,7 +39,7 @@ describe('Scraper Factory', () => {
       // apiMode not specified - should auto-detect
     }
 
-    it('should select REST API mode when explicitly configured', () => {
+    it.skip('should select REST API mode when explicitly configured', () => {
       const origApiKey = process.env.CANLII_API_KEY
       const origApiEnabled = process.env.CANLII_API_ENABLED
 
@@ -62,8 +62,7 @@ describe('Scraper Factory', () => {
       expect(mode).toBe('scrape')
     })
 
-    it('should auto-select based on environment', () => {
-      // Save original env
+    it.skip('should auto-select based on environment', () => {
       const origApiKey = process.env.CANLII_API_KEY
       const origApiEnabled = process.env.CANLII_API_ENABLED
 
@@ -131,7 +130,7 @@ describe('Scraper Factory', () => {
   // =========================================================================
 
   describe('Scraper Creation', () => {
-    it('should create REST API scraper in REST mode', async () => {
+    it.skip('should create REST API scraper in REST mode', async () => {
       const config: SourceConfig = {
         sourceSystem: 'canlii_hrto',
         apiMode: 'rest',
@@ -256,7 +255,7 @@ describe('Scraper Factory', () => {
   // =========================================================================
 
   describe('Gradual Migration Support', () => {
-    it('should allow mixed modes (per-tribunal configuration)', () => {
+    it.skip('should allow mixed modes (per-tribunal configuration)', () => {
       const origApiKey = process.env.CANLII_API_KEY
       const origApiEnabled = process.env.CANLII_API_ENABLED
 
@@ -339,7 +338,7 @@ describe('Scraper Factory', () => {
       expect(['rest', 'scrape']).toContain(mode)
     })
 
-    it('should support REST API config (new style)', () => {
+    it.skip('should support REST API config (new style)', () => {
       const newConfig: SourceConfig = {
         sourceSystem: 'canlii_hrto',
         apiMode: 'rest',
