@@ -28,7 +28,7 @@ interface ScraperInstance {
 
 /**
  * Determines which scraper mode to use
- * 
+ *
  * CANLII COMPLIANCE: CanLII sources MUST use REST API or fail closed.
  * Web scraping fallback is disabled to ensure compliance with CanLII Terms of Use.
  */

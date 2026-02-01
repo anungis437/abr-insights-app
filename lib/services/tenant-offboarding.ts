@@ -142,10 +142,14 @@ export async function initiateOffboarding(request: OffboardingRequest): Promise<
               subscriptionId: sub.stripe_subscription_id,
             })
           } catch (stripeError) {
-            logger.error('[Offboarding] Failed to cancel Stripe subscription', stripeError as Error, {
-              organizationId: request.organizationId,
-              subscriptionId: sub.stripe_subscription_id,
-            })
+            logger.error(
+              '[Offboarding] Failed to cancel Stripe subscription',
+              stripeError as Error,
+              {
+                organizationId: request.organizationId,
+                subscriptionId: sub.stripe_subscription_id,
+              }
+            )
             // Continue with offboarding even if Stripe cancellation fails
             // Admin will need to manually cancel in Stripe dashboard
           }

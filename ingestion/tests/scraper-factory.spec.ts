@@ -328,11 +328,11 @@ describe('Scraper Factory', () => {
       // CanLII sources require valid API configuration
       const origApiKey = process.env.CANLII_API_KEY
       const origApiEnabled = process.env.CANLII_API_ENABLED
-      
+
       try {
         delete process.env.CANLII_API_KEY
         delete process.env.CANLII_API_ENABLED
-        
+
         expect(() => {
           selectScraperMode(config.sourceSystem, config)
         }).toThrow(/requires CANLII_API_KEY/i)
@@ -360,11 +360,11 @@ describe('Scraper Factory', () => {
 
       const origApiKey = process.env.CANLII_API_KEY
       const origApiEnabled = process.env.CANLII_API_ENABLED
-      
+
       try {
         delete process.env.CANLII_API_KEY
         delete process.env.CANLII_API_ENABLED
-        
+
         // CanLII sources must have API configured
         expect(() => {
           selectScraperMode(legacyConfig.sourceSystem, legacyConfig)
