@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         valid: false,
-        error: error instanceof Error ? error.message : 'Verification failed',
+        error: sanitizeError(error, 'Verification failed'),
       },
       { status: 500 }
     )

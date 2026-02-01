@@ -80,7 +80,8 @@ export default function TeamManagementPage() {
       await loadOrganizationData()
     } catch (err: any) {
       logger.error('Failed to remove member:', { error: err, context: 'TeamManagementPage' })
-      setError('Failed to remove member: ' + (err.message || 'Unknown error'))
+      // Use stable user-facing message
+      setError('Failed to remove member. Please try again or contact support if the issue persists.')
     }
   }
 
@@ -135,7 +136,24 @@ export default function TeamManagementPage() {
       await loadOrganizationData()
     } catch (err: any) {
       logger.error('Failed to invite member:', { error: err, context: 'TeamManagementPage' })
-      setError('Failed to invite member: ' + (err.message || 'Unknown error'))
+      
+      // Map to stable user-facing error messages
+      let userMessage = 'Failed to invite member. Please try again.'
+      
+      if (err.message) {
+        const msg = err.message.toLowerCase()
+        if (msg.includes('already a member') || msg.includes('already in an organization')) {
+          userMessage = 'This user is already part of an organization.'
+        } else if (msg.includes('seat limit') || msg.includes('upgrade your plan')) {
+          userMessage = 'Seat limit reached. Please upgrade your plan to add more members.'
+        } else if (msg.includes('no user found') || msg.includes('user must create')) {
+          userMessage = 'No user found with this email. User must create an account first.'
+        } else if (msg.includes('subscription is not active')) {
+          userMessage = 'Organization subscription is not active. Please contact support.'
+        }
+      }
+      
+      setError(userMessage)
     } finally {
       setInviteLoading(false)
     }
