@@ -259,7 +259,7 @@ export async function getUserPermissions(
   })
 
   if (error) {
-    logger.error('Failed to fetch user permissions', { error, userId, orgId })
+    logger.error('Failed to fetch user permissions', { error, userId, organizationId })
     return []
   }
 

@@ -28,7 +28,7 @@ The CanLII web scraper (`ingestion/src/scrapers/canlii.ts`) is **fail-closed by 
 ✅ Missing API key → fail-closed (error thrown)  
 ✅ Default mode: metadata-only  
 ✅ Full-text requires explicit risk flag  
-✅ No accidental web scraping for CanLII  
+✅ No accidental web scraping for CanLII
 
 ## Recommended Production Configuration
 
@@ -49,7 +49,9 @@ CANLII_ALLOW_FULL_TEXT_RISK=false
 If you want **maximum assurance** that the CanLII web scraper cannot be accidentally enabled:
 
 ### Option 1: Remove from production builds
+
 Add to `next.config.js`:
+
 ```js
 webpack: (config, { isServer }) => {
   if (isServer && process.env.NODE_ENV === 'production') {
@@ -64,7 +66,9 @@ webpack: (config, { isServer }) => {
 ```
 
 ### Option 2: Hard-disable in code
+
 Add to `canlii.ts`:
+
 ```typescript
 if (process.env.NODE_ENV === 'production') {
   throw new Error('CanLII web scraper is disabled in production')
@@ -74,6 +78,7 @@ if (process.env.NODE_ENV === 'production') {
 ## Verdict
 
 **Current implementation is world-class for CanLII compliance:**
+
 - Factory-level fail-closed enforcement
 - No web scraping fallback possible
 - Explicit risk acknowledgment required for full-text
