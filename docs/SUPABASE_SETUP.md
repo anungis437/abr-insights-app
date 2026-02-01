@@ -17,7 +17,7 @@
 2. Copy these values:
    - **Project URL** (e.g., `https://xxxxx.supabase.co`)
    - **anon public key** (starts with `eyJhbGc...`)
-   - **.* key** (starts with `eyJhbGc...`) - Keep this secret!
+   - **.\* key** (starts with `eyJhbGc...`) - Keep this secret!
 
 ## Step 3: Update Environment Variables
 

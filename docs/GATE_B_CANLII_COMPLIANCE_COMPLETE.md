@@ -15,20 +15,24 @@ Gate B focused on achieving compliance with CanLII's Terms of Service by impleme
 ## ✅ Completed Actions
 
 ### 1. Wire Orchestrator to Factory for API-First Mode
+
 **Status**: ✅ Complete
 
 **Changes**:
+
 - Updated [orchestrator/index.ts](ingestion/src/orchestrator/index.ts#L30-L32) to use scraper factory instead of hardcoded `CanLIIScraper`
 - Factory automatically selects REST API when available, falls back to web scraping
 - Orchestrator now creates scraper via: `await createScraper(sourceSystem, sourceConfig)`
 
 **Before**:
+
 ```typescript
 // Hardcoded to web scraper
 this.scraper = new CanLIIScraper(sourceSystem)
 ```
 
 **After**:
+
 ```typescript
 // Factory selects appropriate scraper
 import { createScraper } from '../scrapers/factory'
@@ -38,25 +42,27 @@ this.scraper = await createScraper(sourceSystem, sourceConfig)
 ---
 
 ### 2. Add DatabaseId Mappings Configuration
+
 **Status**: ✅ Complete
 
 **Implementation**: Added `databaseId` field to all SOURCE_CONFIGS in [config/index.ts](ingestion/src/config/index.ts)
 
 **Database ID Mappings**:
 
-| Source System | Tribunal Name | Database ID | Status |
-|--------------|---------------|-------------|--------|
-| `canlii_hrto` | Human Rights Tribunal of Ontario | `onhrt` | ✅ Mapped |
-| `canlii_chrt` | Canadian Human Rights Tribunal | `chrt` | ✅ Mapped |
-| `canlii_bchrt` | BC Human Rights Tribunal | `bchrt` | ✅ Mapped |
-| `canlii_abhr` | Alberta Human Rights Commission | `abhrc` | ✅ Mapped |
-| `canlii_skhr` | Saskatchewan Human Rights | `skhrc` | ✅ Mapped |
-| `canlii_mbhr` | Manitoba Human Rights | `mbhrc` | ✅ Mapped |
-| `canlii_qctdp` | Quebec Tribunal des droits | `qctdp` | ✅ Mapped |
-| `canlii_nshr` | Nova Scotia Human Rights | `nshrc` | ✅ Mapped |
-| `canlii_nbhr` | New Brunswick Human Rights | `nbhrc` | ✅ Mapped |
+| Source System  | Tribunal Name                    | Database ID | Status    |
+| -------------- | -------------------------------- | ----------- | --------- |
+| `canlii_hrto`  | Human Rights Tribunal of Ontario | `onhrt`     | ✅ Mapped |
+| `canlii_chrt`  | Canadian Human Rights Tribunal   | `chrt`      | ✅ Mapped |
+| `canlii_bchrt` | BC Human Rights Tribunal         | `bchrt`     | ✅ Mapped |
+| `canlii_abhr`  | Alberta Human Rights Commission  | `abhrc`     | ✅ Mapped |
+| `canlii_skhr`  | Saskatchewan Human Rights        | `skhrc`     | ✅ Mapped |
+| `canlii_mbhr`  | Manitoba Human Rights            | `mbhrc`     | ✅ Mapped |
+| `canlii_qctdp` | Quebec Tribunal des droits       | `qctdp`     | ✅ Mapped |
+| `canlii_nshr`  | Nova Scotia Human Rights         | `nshrc`     | ✅ Mapped |
+| `canlii_nbhr`  | New Brunswick Human Rights       | `nbhrc`     | ✅ Mapped |
 
 **Configuration Format**:
+
 ```typescript
 canlii_hrto: {
   sourceSystem: 'canlii_hrto',
@@ -71,11 +77,13 @@ canlii_hrto: {
 ---
 
 ### 3. Implement Compliant Full-Text Strategy
+
 **Status**: ✅ Complete (Metadata-Only by Default)
 
 **Implementation**: Added `CANLII_FETCH_MODE` environment variable
 
 **Configuration** ([config/index.ts](ingestion/src/config/index.ts#L25-L29)):
+
 ```typescript
 // CanLII Compliance Mode
 // 'metadata-only': Only use API metadata (compliant, no full-text scraping)
@@ -84,12 +92,14 @@ CANLII_FETCH_MODE: (process.env.CANLII_FETCH_MODE as 'metadata-only' | 'full-tex
 ```
 
 **Metadata-Only Content** ([canlii-rest-api.ts](ingestion/src/scrapers/canlii-rest-api.ts#L217-L248)):
+
 - Uses only API-provided fields: title, citation, docketNumber, keywords
 - Builds searchable text from metadata
 - No web scraping for full content
 - Clearly marked: `[Metadata-only content - Full text not included per CanLII compliance]`
 
 **Example Output**:
+
 ```
 Hamilton-Wentworth District School Board v. Fair
 
@@ -103,6 +113,7 @@ Keywords: discrimination, race, education, anti-Black racism
 ```
 
 **Benefits**:
+
 - ✅ Fully compliant with CanLII Terms of Service
 - ✅ Only uses officially provided REST API data
 - ✅ No copyright/scraping concerns
@@ -112,12 +123,15 @@ Keywords: discrimination, race, education, anti-Black racism
 ---
 
 ### 4. Add Rate Limiting and Caching
+
 **Status**: ✅ Complete
 
 #### Rate Limiting
+
 **Implementation**: [canlii-api.ts](ingestion/src/clients/canlii-api.ts#L399-L411)
 
 **Configuration**:
+
 ```typescript
 private async applyRateLimit(): Promise<void> {
   const minIntervalMs = 500 // 2 requests/second
@@ -130,15 +144,18 @@ private async applyRateLimit(): Promise<void> {
 ```
 
 **Features**:
+
 - ⏱️ Maximum 2 requests/second (500ms minimum interval)
 - 📊 Request counting and tracking
 - 🔄 Automatic delay injection
 - 📝 Logged delays for observability
 
 #### Caching
+
 **Implementation**: [canlii-api.ts](ingestion/src/clients/canlii-api.ts#L100-L108)
 
 **Features**:
+
 - 💾 In-memory cache for case metadata
 - ⏰ Configurable TTL (default: 5 minutes, metadata: 1 hour)
 - 🗑️ Automatic expiration
@@ -146,6 +163,7 @@ private async applyRateLimit(): Promise<void> {
 - 🔍 Cache hit logging
 
 **Cache Methods**:
+
 ```typescript
 private getFromCache<T>(key: string): T | null {
   // Check expiration, return data or null
@@ -162,11 +180,13 @@ clearCache(): void {
 ```
 
 **Cache Keys**:
+
 - Metadata: `metadata:${databaseId}:${caseId}`
 - TTL: 1 hour for metadata
 - Example: `metadata:onhrt:2024hrto123` → cached case metadata
 
 **Impact**:
+
 - ✅ Reduces duplicate API calls
 - ✅ Faster repeated queries
 - ✅ Lower API quota usage
@@ -179,6 +199,7 @@ clearCache(): void {
 ### Environment Variables (.env.local)
 
 **Required for REST API Mode**:
+
 ```bash
 # CanLII REST API Configuration
 CANLII_API_KEY=your-api-key-here
@@ -189,6 +210,7 @@ CANLII_FETCH_MODE=metadata-only
 ```
 
 **Optional**:
+
 ```bash
 # Enable full-text scraping (NOT RECOMMENDED - compliance risk)
 CANLII_FETCH_MODE=full-text
@@ -234,20 +256,16 @@ CANLII_FETCH_MODE=full-text
 - [x] **No unauthorized web scraping of full-text content**
   - Metadata-only mode enabled by default
   - Full-text mode requires explicit opt-in
-  
 - [x] **Rate limiting respected**
   - Maximum 2 requests/second
   - Automatic delay injection
-  
 - [x] **Caching implemented**
   - Reduces redundant API calls
   - 1-hour TTL for case metadata
-  
 - [x] **API-first architecture**
   - Orchestrator uses factory
   - REST API selected when available
   - Graceful fallback to legacy scraper
-  
 - [x] **Database IDs configured**
   - All 9 tribunals mapped
   - Ready for production ingestion
@@ -257,6 +275,7 @@ CANLII_FETCH_MODE=full-text
 ## Testing Instructions
 
 ### 1. Validate Configuration
+
 ```bash
 cd ingestion
 node -e "
@@ -268,11 +287,13 @@ Object.entries(SOURCE_CONFIGS).forEach(([key, config]) => {
 ```
 
 ### 2. Test REST API Connection
+
 ```bash
 CANLII_API_KEY=your-key npm run test:unit tests/canlii-api.spec.ts
 ```
 
 ### 3. Test Scraper Factory
+
 ```bash
 # Verify factory selects REST API mode
 node -e "
@@ -286,11 +307,13 @@ console.log('Config:', config.databaseId, config.apiMode);
 ```
 
 ### 4. Run Ingestion in Dry-Run Mode
+
 ```bash
 npm run ingest -- --source canlii_hrto --limit 5 --dry-run
 ```
 
 **Expected Output**:
+
 ```
 🔍 Creating scraper instance
 sourceSystem: canlii_hrto
@@ -319,6 +342,7 @@ databaseId: onhrt
 ## Next Steps
 
 ### Production Deployment
+
 1. Obtain CanLII API key: https://www.canlii.org/en/info/feedback
 2. Add key to `.env.local` and deployment environment
 3. Set `CANLII_API_ENABLED=true`
@@ -327,7 +351,9 @@ databaseId: onhrt
 6. Scale to all 9 tribunals
 
 ### Gate C: Operational Readiness
+
 Now that Gate B is complete, proceed to Gate C:
+
 - Audit logging for sensitive actions
 - Data retention and deletion workflows
 - Environment separation (dev/stage/prod)
@@ -338,12 +364,12 @@ Now that Gate B is complete, proceed to Gate C:
 
 ## Files Modified
 
-| File | Changes | Lines |
-|------|---------|-------|
-| [ingestion/src/orchestrator/index.ts](ingestion/src/orchestrator/index.ts) | Import factory, use createScraper | 3 |
-| [ingestion/src/config/index.ts](ingestion/src/config/index.ts) | Add databaseId + CANLII_FETCH_MODE | 13 |
-| [ingestion/src/scrapers/canlii-rest-api.ts](ingestion/src/scrapers/canlii-rest-api.ts) | Metadata-only mode, buildTextFromMetadata | 40 |
-| [ingestion/src/clients/canlii-api.ts](ingestion/src/clients/canlii-api.ts) | Add caching layer with TTL | 50 |
+| File                                                                                   | Changes                                   | Lines |
+| -------------------------------------------------------------------------------------- | ----------------------------------------- | ----- |
+| [ingestion/src/orchestrator/index.ts](ingestion/src/orchestrator/index.ts)             | Import factory, use createScraper         | 3     |
+| [ingestion/src/config/index.ts](ingestion/src/config/index.ts)                         | Add databaseId + CANLII_FETCH_MODE        | 13    |
+| [ingestion/src/scrapers/canlii-rest-api.ts](ingestion/src/scrapers/canlii-rest-api.ts) | Metadata-only mode, buildTextFromMetadata | 40    |
+| [ingestion/src/clients/canlii-api.ts](ingestion/src/clients/canlii-api.ts)             | Add caching layer with TTL                | 50    |
 
 **Total**: 4 files modified, ~106 lines changed
 

@@ -56,9 +56,7 @@ export interface OffboardingResult {
 /**
  * Stage 1: Initiate soft delete (organization marked deleted)
  */
-export async function initiateOffboarding(
-  request: OffboardingRequest
-): Promise<OffboardingResult> {
+export async function initiateOffboarding(request: OffboardingRequest): Promise<OffboardingResult> {
   const supabase = await createClient()
   const result: OffboardingResult = {
     success: false,
@@ -219,7 +217,9 @@ export async function executeHardDelete(
 
     const deletedAt = new Date(org.deleted_at)
     const now = new Date()
-    const daysSinceDeleted = Math.floor((now.getTime() - deletedAt.getTime()) / (1000 * 60 * 60 * 24))
+    const daysSinceDeleted = Math.floor(
+      (now.getTime() - deletedAt.getTime()) / (1000 * 60 * 60 * 24)
+    )
 
     if (daysSinceDeleted < 30) {
       throw new Error(`Grace period not expired. ${30 - daysSinceDeleted} days remaining.`)
@@ -425,7 +425,9 @@ export async function getPendingDeletions(): Promise<
 
   for (const org of orgs) {
     const deletedAt = new Date(org.deleted_at!)
-    const daysSinceDeleted = Math.floor((now.getTime() - deletedAt.getTime()) / (1000 * 60 * 60 * 24))
+    const daysSinceDeleted = Math.floor(
+      (now.getTime() - deletedAt.getTime()) / (1000 * 60 * 60 * 24)
+    )
     const daysRemaining = 30 - daysSinceDeleted
 
     // Get user count

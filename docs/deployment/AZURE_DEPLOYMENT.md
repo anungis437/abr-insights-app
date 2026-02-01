@@ -104,7 +104,7 @@ _Replace with your actual Azure Static Web App URL after creation_
 your-supabase-service-role-key-from-project-settings
 ```
 
-_Get this from Supabase Dashboard → Project Settings → API → .* key (Keep secret!)_
+_Get this from Supabase Dashboard → Project Settings → API → .\* key (Keep secret!)_
 
 ## Environment Variables in Azure Portal
 

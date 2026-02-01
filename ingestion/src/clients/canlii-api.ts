@@ -115,7 +115,7 @@ export class CanLIIApiClient {
   private readonly language: 'en' | 'fr' = 'en'
   private requestCount = 0
   private lastRequestTime = 0
-  
+
   // Simple in-memory cache
   private cache: Map<string, CacheEntry<any>> = new Map()
   private readonly defaultCacheTTL = 5 * 60 * 1000 // 5 minutes
@@ -388,14 +388,14 @@ export class CanLIIApiClient {
   private getFromCache<T>(key: string): T | null {
     const entry = this.cache.get(key)
     if (!entry) return null
-    
+
     const now = Date.now()
     if (now - entry.timestamp > entry.ttl) {
       // Expired
       this.cache.delete(key)
       return null
     }
-    
+
     return entry.data as T
   }
 
@@ -408,7 +408,7 @@ export class CanLIIApiClient {
       timestamp: Date.now(),
       ttl: ttl || this.defaultCacheTTL,
     })
-    
+
     // Prevent unbounded cache growth
     if (this.cache.size > 1000) {
       const firstKey = this.cache.keys().next().value

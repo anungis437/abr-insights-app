@@ -179,7 +179,9 @@ describe('Scraper Factory', () => {
         // Missing both databaseId and listingUrl
       }
 
-      await expect(createScraperWithMode(invalidConfig.sourceSystem, invalidConfig, 'rest')).rejects.toThrow()
+      await expect(
+        createScraperWithMode(invalidConfig.sourceSystem, invalidConfig, 'rest')
+      ).rejects.toThrow()
     })
   })
 
@@ -263,30 +265,30 @@ describe('Scraper Factory', () => {
         process.env.CANLII_API_ENABLED = 'true'
 
         const configs = [
-        {
-          sourceSystem: 'canlii_hrto' as const,
-          apiMode: 'rest' as const,
-          baseUrl: 'https://www.canlii.org',
-          databaseId: 'onhrt',
-        },
-        {
-          sourceSystem: 'canlii_chrt' as const,
-          apiMode: 'rest' as const,
-          baseUrl: 'https://www.canlii.org',
-          databaseId: 'chrt',
-        },
-        {
-          sourceSystem: 'canlii_hrto' as const,
-          apiMode: 'scrape' as const,
-          baseUrl: 'https://www.canlii.org',
-          listingUrl: 'https://legacy.example.com',
-        },
-      ]
+          {
+            sourceSystem: 'canlii_hrto' as const,
+            apiMode: 'rest' as const,
+            baseUrl: 'https://www.canlii.org',
+            databaseId: 'onhrt',
+          },
+          {
+            sourceSystem: 'canlii_chrt' as const,
+            apiMode: 'rest' as const,
+            baseUrl: 'https://www.canlii.org',
+            databaseId: 'chrt',
+          },
+          {
+            sourceSystem: 'canlii_hrto' as const,
+            apiMode: 'scrape' as const,
+            baseUrl: 'https://www.canlii.org',
+            listingUrl: 'https://legacy.example.com',
+          },
+        ]
 
-      const modes = configs.map((cfg) => selectScraperMode(cfg.sourceSystem, cfg as SourceConfig))
-      expect(modes[0]).toBe('rest')
-      expect(modes[1]).toBe('rest')
-      expect(modes[2]).toBe('scrape')
+        const modes = configs.map((cfg) => selectScraperMode(cfg.sourceSystem, cfg as SourceConfig))
+        expect(modes[0]).toBe('rest')
+        expect(modes[1]).toBe('rest')
+        expect(modes[2]).toBe('scrape')
       } finally {
         if (origApiKey) process.env.CANLII_API_KEY = origApiKey
         else delete process.env.CANLII_API_KEY

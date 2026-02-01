@@ -11,11 +11,7 @@ import { cancelOffboarding } from '@/lib/services/tenant-offboarding'
 import { logAuthorizationEvent } from '@/lib/services/audit-logger'
 
 async function verifySuperAdmin(supabase: any, userId: string): Promise<boolean> {
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', userId)
-    .single()
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', userId).single()
 
   return profile?.role === 'super_admin'
 }
@@ -32,7 +28,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    
+
     const isSuperAdmin = await verifySuperAdmin(supabase, user.id)
     if (!isSuperAdmin) {
       const { organizationId } = body

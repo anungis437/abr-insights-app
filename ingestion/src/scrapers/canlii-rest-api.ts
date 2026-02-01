@@ -160,7 +160,7 @@ export class CanLIIRestApiScraper {
       }
 
       const caseId = caseIdMatch[1]
-      
+
       // Rate limit API calls
       await this.rateLimiter.acquire()
 
@@ -170,7 +170,7 @@ export class CanLIIRestApiScraper {
       // Get full text only if explicitly configured
       const fetchMode = process.env.CANLII_FETCH_MODE || 'metadata-only'
       let fullText = ''
-      
+
       if (fetchMode === 'full-text') {
         logger.warn('Fetching full text via web scraping (not API-compliant)', { caseId })
         fullText = await this.fetchFullTextFromWeb(url)
@@ -221,30 +221,30 @@ export class CanLIIRestApiScraper {
    */
   private buildTextFromMetadata(metadata: CanLIICaseMetadata): string {
     const parts: string[] = []
-    
+
     // Add title (most important)
     if (metadata.title) {
       parts.push(metadata.title)
     }
-    
+
     // Add citation if available
     if (metadata.citation) {
       parts.push(metadata.citation)
     }
-    
+
     // Add docket number
     if (metadata.docketNumber) {
       parts.push(`Docket: ${metadata.docketNumber}`)
     }
-    
+
     // Add keywords if available (note: keywords is a string, not array)
     if (metadata.keywords) {
       parts.push(`Keywords: ${metadata.keywords}`)
     }
-    
+
     // Note: This is metadata-only content
     parts.push('[Metadata-only content - Full text not included per CanLII compliance]')
-    
+
     return parts.join('\n\n')
   }
 

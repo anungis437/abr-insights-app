@@ -25,11 +25,7 @@ import { logAuthorizationEvent } from '@/lib/services/audit-logger'
  * Verify super_admin role
  */
 async function verifySuperAdmin(supabase: any, userId: string): Promise<boolean> {
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', userId)
-    .single()
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', userId).single()
 
   return profile?.role === 'super_admin'
 }
@@ -49,7 +45,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    
+
     // Verify super_admin
     const isSuperAdmin = await verifySuperAdmin(supabase, user.id)
     if (!isSuperAdmin) {

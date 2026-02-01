@@ -313,7 +313,9 @@ describe('CanLII REST API Integration', () => {
       expect(databases.length).toBeGreaterThan(0)
 
       // 3. Filter to known human rights tribunals
-      const hrDatabases = databases.filter((db: CanLIIDatabase) => db.name.toLowerCase().includes('human rights'))
+      const hrDatabases = databases.filter((db: CanLIIDatabase) =>
+        db.name.toLowerCase().includes('human rights')
+      )
       if (hrDatabases.length === 0) {
         console.warn('No human rights databases found in this test')
         return

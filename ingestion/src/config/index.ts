@@ -26,11 +26,12 @@ export const ENV = {
   CANLII_API_KEY: process.env.CANLII_API_KEY || '',
   CANLII_API_BASE_URL: 'https://api.canlii.org/v1',
   CANLII_API_ENABLED: process.env.CANLII_API_ENABLED === 'true',
-  
+
   // CanLII Compliance Mode
   // 'metadata-only': Only use API metadata (compliant, no full-text scraping)
   // 'full-text': Include web scraping for full text (requires caution)
-  CANLII_FETCH_MODE: (process.env.CANLII_FETCH_MODE as 'metadata-only' | 'full-text') || 'metadata-only',
+  CANLII_FETCH_MODE:
+    (process.env.CANLII_FETCH_MODE as 'metadata-only' | 'full-text') || 'metadata-only',
 
   // Pipeline
   PIPELINE_VERSION: process.env.npm_package_version || '1.0.0',

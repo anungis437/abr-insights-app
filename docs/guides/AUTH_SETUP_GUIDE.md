@@ -17,7 +17,7 @@ Login failing with 401 error: "Failed to load resource: the server responded wit
 3. Copy the correct keys:
    - **Project URL**: Should be `***REMOVED***`
    - **anon public key**: JWT token starting with `eyJ...`
-   - **.* secret**: JWT token starting with `eyJ...`
+   - **.\* secret**: JWT token starting with `eyJ...`
 
 4. Update `.env.local` if keys are different:
    ```env

@@ -27,18 +27,45 @@ Gate C focuses on **operational readiness** - ensuring the application can be ma
 ### Features Implemented
 
 #### Specialized Audit Functions
+
 ```typescript
 // Authentication events
 logAuthEvent(organizationId, eventType, userId, metadata, ipAddress)
 
-// Authorization events  
-logAuthorizationEvent(organizationId, eventType, userId, isAuthorized, requiredRole, details, ipAddress)
+// Authorization events
+logAuthorizationEvent(
+  organizationId,
+  eventType,
+  userId,
+  isAuthorized,
+  requiredRole,
+  details,
+  ipAddress
+)
 
 // Data access
-logDataAccess(organizationId, resourceType, resourceId, userId, operation, dataClassification, metadata, ipAddress)
+logDataAccess(
+  organizationId,
+  resourceType,
+  resourceId,
+  userId,
+  operation,
+  dataClassification,
+  metadata,
+  ipAddress
+)
 
 // Data modification
-logDataModification(organizationId, resourceType, resourceId, userId, operation, changes, metadata, ipAddress)
+logDataModification(
+  organizationId,
+  resourceType,
+  resourceId,
+  userId,
+  operation,
+  changes,
+  metadata,
+  ipAddress
+)
 
 // Configuration changes
 logConfigurationChange(organizationId, configType, userId, changes, metadata, ipAddress)
@@ -48,6 +75,7 @@ logAdminAction(organizationId, actionType, userId, targetType, targetId, metadat
 ```
 
 #### Event Categorization
+
 - `authentication` - Login, logout, MFA, password changes
 - `authorization` - Permission checks, role assignments
 - `data_access` - View, export, search operations
@@ -59,18 +87,21 @@ logAdminAction(organizationId, actionType, userId, targetType, targetId, metadat
 - `system_event` - Background jobs, migrations
 
 #### Compliance Levels
+
 - `low` - Non-sensitive operations
 - `standard` - Regular business operations
 - `high` - Sensitive data access
 - `critical` - Admin actions, security events
 
 #### Data Classification
+
 - `public` - Publicly accessible data
 - `internal` - Internal company data
 - `confidential` - Sensitive business data
 - `restricted` - Highly sensitive/regulated data
 
 #### Retention Policies
+
 - **Standard**: 2555 days (7 years) - PIPEDA compliance
 - **Restricted**: 3650 days (10 years) - Enhanced retention for regulated data
 - **Archival**: `audit_logs_archive` table for long-term storage
@@ -79,6 +110,7 @@ logAdminAction(organizationId, actionType, userId, targetType, targetId, metadat
 ### Database Infrastructure
 
 #### audit_logs Table Schema
+
 ```sql
 CREATE TABLE audit_logs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -94,7 +126,7 @@ CREATE TABLE audit_logs (
   user_agent TEXT,
   metadata JSONB DEFAULT '{}'::jsonb,
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  
+
   -- Enhanced audit fields
   compliance_level TEXT DEFAULT 'standard',
   data_classification TEXT DEFAULT 'internal',
@@ -114,11 +146,13 @@ CREATE TRIGGER generate_audit_log_hash_trigger
 ```
 
 #### Supporting Tables
+
 - `audit_logs_archive` - Long-term storage for old audit logs
 - `compliance_reports` - Scheduled compliance reporting
 - `audit_log_exports` - Export tracking with approval workflow
 
 #### Utility Functions
+
 - `archive_old_audit_logs(p_days_old INT)` - Move old logs to archive table
 - `get_audit_log_statistics()` - Generate audit statistics
 - `detect_audit_anomalies()` - Identify suspicious patterns
@@ -126,6 +160,7 @@ CREATE TRIGGER generate_audit_log_hash_trigger
 ### Tamper Detection
 
 **Blockchain-Style Hash Chain**: Each audit log entry includes:
+
 - `hash` - SHA-256 hash of current record
 - `previous_hash` - Reference to previous record's hash
 - Automatic verification via database trigger
@@ -150,6 +185,7 @@ approveAuditLogExport(exportId, approvedBy, reason)
 ```
 
 **Report Types**:
+
 - `access_log` - Data access tracking
 - `security_audit` - Security events
 - `compliance_audit` - Regulatory compliance
@@ -163,16 +199,17 @@ approveAuditLogExport(exportId, approvedBy, reason)
 
 ### Retention Policies
 
-| Data Type | Retention Period | Compliance |
-|-----------|------------------|------------|
-| Audit logs | 7 years (2555 days) | PIPEDA |
-| Restricted data logs | 10 years (3650 days) | Enhanced |
-| User data | Indefinite (until deletion) | N/A |
-| Organization data | 30-day grace + archival | Business |
+| Data Type            | Retention Period            | Compliance |
+| -------------------- | --------------------------- | ---------- |
+| Audit logs           | 7 years (2555 days)         | PIPEDA     |
+| Restricted data logs | 10 years (3650 days)        | Enhanced   |
+| User data            | Indefinite (until deletion) | N/A        |
+| Organization data    | 30-day grace + archival     | Business   |
 
 ### Archival Process
 
 **Automatic Archival** (via migration `20250116000003_audit_logs_enhancement.sql`):
+
 ```sql
 -- Archive logs older than 365 days
 SELECT archive_old_audit_logs(365);
@@ -185,6 +222,7 @@ SELECT archive_old_audit_logs(365);
 ### Implementation
 
 **Function**: `archive_old_audit_logs(p_days_old INT)`
+
 - Identifies logs older than specified days
 - Copies to `audit_logs_archive` table
 - Updates `archive_status` to 'archived'
@@ -192,6 +230,7 @@ SELECT archive_old_audit_logs(365);
 - Can be called manually or via scheduled job
 
 **Recommendation**: Set up monthly cron job:
+
 ```sql
 -- Run on 1st of each month
 SELECT archive_old_audit_logs(365);
@@ -209,6 +248,7 @@ SELECT archive_old_audit_logs(365);
 ### Multi-Stage Deletion Process
 
 #### Stage 1: Soft Delete (Immediate)
+
 ```typescript
 POST /api/admin/tenant-offboarding
 {
@@ -219,6 +259,7 @@ POST /api/admin/tenant-offboarding
 ```
 
 **Actions**:
+
 1. Sets `deleted_at` timestamp on organization
 2. Sets `subscription_status` to 'offboarding'
 3. Suspends all user accounts (`status = 'suspended'`)
@@ -227,22 +268,26 @@ POST /api/admin/tenant-offboarding
 6. Logs audit event: `tenant_offboarding_initiated`
 
 **Result**:
+
 - Organization inaccessible to users
 - Data preserved during grace period
 - Admin can cancel offboarding if needed
 
 #### Stage 2: Grace Period (30 Days)
+
 - Organization in "soft deleted" state
 - No user access
 - Data exportable by admins
 - Reversible via cancel endpoint
 
 #### Stage 3: Hard Delete (After Grace Period)
+
 ```typescript
 DELETE /api/admin/tenant-offboarding?organizationId=uuid
 ```
 
 **Actions**:
+
 1. Verifies grace period expired (min 30 days)
 2. Cascade deletion:
    - Enrollments
@@ -255,12 +300,14 @@ DELETE /api/admin/tenant-offboarding?organizationId=uuid
 5. Logs audit event: `tenant_hard_deleted`
 
 **Safeguards**:
+
 - ✅ Cannot execute before grace period expires
 - ✅ Preserves audit logs by default
 - ✅ Requires super_admin role
 - ✅ All actions audited
 
 #### Cancel Offboarding
+
 ```typescript
 POST /api/admin/tenant-offboarding/cancel
 {
@@ -270,6 +317,7 @@ POST /api/admin/tenant-offboarding/cancel
 ```
 
 **Actions**:
+
 1. Clears `deleted_at` timestamp
 2. Restores `subscription_status` to 'active'
 3. Reactivates user accounts
@@ -280,12 +328,9 @@ POST /api/admin/tenant-offboarding/cancel
 **Required Role**: `super_admin`
 
 All endpoints verify:
+
 ```typescript
-const { data: profile } = await supabase
-  .from('profiles')
-  .select('role')
-  .eq('id', userId)
-  .single()
+const { data: profile } = await supabase.from('profiles').select('role').eq('id', userId).single()
 
 if (profile?.role !== 'super_admin') {
   return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
@@ -295,11 +340,13 @@ if (profile?.role !== 'super_admin') {
 ### Monitoring
 
 **List Pending Deletions**:
+
 ```typescript
-GET /api/admin/tenant-offboarding/pending
+GET / api / admin / tenant - offboarding / pending
 ```
 
 Returns:
+
 ```json
 {
   "success": true,
@@ -319,11 +366,13 @@ Returns:
 ### Data Preservation
 
 **Preserved Indefinitely** (unless explicitly deleted):
+
 - ✅ Audit logs (7-year retention)
 - ✅ Compliance reports
 - ✅ Audit log exports
 
 **Deleted Permanently**:
+
 - ❌ User profiles
 - ❌ Enrollments
 - ❌ Certificates
@@ -341,6 +390,7 @@ Returns:
 **File**: `.env.example`
 
 **Environment Variables**:
+
 ```bash
 NODE_ENV=development|production|test
 NEXT_PUBLIC_ENVIRONMENT=dev|staging|prod
@@ -348,6 +398,7 @@ NEXT_PUBLIC_APP_URL=<environment-specific-url>
 ```
 
 **Next.js Config** (`next.config.js`):
+
 ```javascript
 env: {
   NEXT_PUBLIC_ENVIRONMENT: process.env.NEXT_PUBLIC_ENVIRONMENT,
@@ -356,25 +407,28 @@ env: {
 
 ### Environments
 
-| Environment | Purpose | URL | Supabase Project |
-|-------------|---------|-----|------------------|
-| **Development** | Local dev | http://localhost:3000 | Dev project |
-| **Staging** | Pre-production testing | https://staging.abrinsights.ca | Staging project |
-| **Production** | Live users | https://app.abrinsights.ca | Production project |
+| Environment     | Purpose                | URL                            | Supabase Project   |
+| --------------- | ---------------------- | ------------------------------ | ------------------ |
+| **Development** | Local dev              | http://localhost:3000          | Dev project        |
+| **Staging**     | Pre-production testing | https://staging.abrinsights.ca | Staging project    |
+| **Production**  | Live users             | https://app.abrinsights.ca     | Production project |
 
 ### Separation Mechanisms
 
 #### 1. Supabase Projects
+
 - Separate Supabase projects per environment
 - Different `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - No cross-environment data leakage
 
 #### 2. API Keys
+
 - CanLII API: Test key for dev/staging, production key for prod
 - Stripe: Test mode for dev/staging, live mode for prod
 - Azure OpenAI: Separate deployments per environment
 
 #### 3. Feature Flags
+
 ```bash
 NEXT_PUBLIC_ENABLE_AI_FEATURES=true|false
 NEXT_PUBLIC_ENABLE_GAMIFICATION=true|false
@@ -382,10 +436,12 @@ NEXT_PUBLIC_ENABLE_ANALYTICS=true|false
 ```
 
 #### 4. Rate Limiting
+
 - Development: In-memory rate limiting
 - Staging/Production: Redis (Upstash or Azure Cache)
 
 #### 5. Logging
+
 - Development: Console logging
 - Production: JSON logs + Application Insights
 
@@ -407,15 +463,18 @@ NEXT_PUBLIC_ENABLE_ANALYTICS=true|false
 ### Current Implementation
 
 #### Application Insights (Azure)
+
 **Status**: ✅ Configured
 
 **Environment Variables**:
+
 ```bash
 APPLICATIONINSIGHTS_CONNECTION_STRING=InstrumentationKey=...
 NEXT_PUBLIC_APPINSIGHTS_INSTRUMENTATION_KEY=your-key
 ```
 
 **Capabilities**:
+
 - Request tracking
 - Exception logging
 - Performance metrics
@@ -423,15 +482,18 @@ NEXT_PUBLIC_APPINSIGHTS_INSTRUMENTATION_KEY=your-key
 - Dependency tracking
 
 #### Production Logger
+
 **File**: `lib/utils/production-logger.ts`
 
 **Features**:
+
 - JSON-formatted logs for parsing
 - Error tracking
 - Performance monitoring
 - Comment mentions Sentry integration
 
 #### Health Checks
+
 **File**: `ingestion/src/validation/canlii-validation.ts`
 
 ```typescript
@@ -447,6 +509,7 @@ performHealthCheck(): Promise<HealthCheckResult>
 ```
 
 **Docker Health Check** (`Dockerfile`):
+
 ```dockerfile
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
   CMD curl -f http://localhost:3000/api/health || exit 1
@@ -455,18 +518,21 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
 ### ⚠️ Recommended Enhancements
 
 #### 1. Error Tracking (Sentry)
+
 **Status**: Not implemented, but mentioned in code
 
 **Install**:
+
 ```bash
 npm install @sentry/nextjs
 npx @sentry/wizard@latest -i nextjs
 ```
 
 **Configure**:
+
 ```typescript
 // sentry.client.config.ts
-import * as Sentry from "@sentry/nextjs"
+import * as Sentry from '@sentry/nextjs'
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
@@ -476,6 +542,7 @@ Sentry.init({
 ```
 
 **Benefits**:
+
 - Automatic error capture
 - Source map support
 - Release tracking
@@ -483,12 +550,15 @@ Sentry.init({
 - User context
 
 #### 2. Uptime Monitoring
+
 **Recommendations**:
+
 - **Uptime Robot** (Free tier available)
 - **Pingdom** (Comprehensive)
 - **Azure Monitor** (Native integration)
 
 **Endpoints to Monitor**:
+
 ```
 GET /api/health (main health check)
 GET /api/health/db (database connectivity)
@@ -499,24 +569,29 @@ GET /api/health/canlii (CanLII API status)
 #### 3. Alerting Rules
 
 **Critical Alerts** (Page on-call):
+
 - API error rate > 5% for 5 minutes
 - Database connection failures
 - Authentication service down
 - Payment processing failures
 
 **Warning Alerts** (Email notification):
+
 - API latency > 1 second (p95)
 - CanLII rate limit approaching (>80%)
 - Audit log archival failures
 - Stripe webhook signature mismatches
 
 **Info Alerts** (Dashboard only):
+
 - New user registrations
 - Course completions
 - Certificate generations
 
 #### 4. Dashboard
+
 Create operational dashboard:
+
 - Real-time error rate
 - API response times
 - Active users
@@ -526,13 +601,13 @@ Create operational dashboard:
 
 ### Implementation Priority
 
-| Component | Priority | Effort | Status |
-|-----------|----------|--------|--------|
-| Application Insights | 🔴 Critical | Done | ✅ Complete |
-| Sentry error tracking | 🟠 High | 1 hour | ⚠️ Recommended |
-| Uptime monitoring | 🟠 High | 30 min | ⚠️ Recommended |
-| Alert rules | 🟠 High | 2 hours | ⚠️ Recommended |
-| Operational dashboard | 🟡 Medium | 4 hours | ⚠️ Nice-to-have |
+| Component             | Priority    | Effort  | Status          |
+| --------------------- | ----------- | ------- | --------------- |
+| Application Insights  | 🔴 Critical | Done    | ✅ Complete     |
+| Sentry error tracking | 🟠 High     | 1 hour  | ⚠️ Recommended  |
+| Uptime monitoring     | 🟠 High     | 30 min  | ⚠️ Recommended  |
+| Alert rules           | 🟠 High     | 2 hours | ⚠️ Recommended  |
+| Operational dashboard | 🟡 Medium   | 4 hours | ⚠️ Nice-to-have |
 
 ---
 
@@ -575,7 +650,7 @@ SELECT deleted_at FROM organizations WHERE id = 'test-org'
 -- Should return timestamp
 
 // 3. Wait 1 day (or modify DB for testing)
-UPDATE organizations 
+UPDATE organizations
 SET deleted_at = NOW() - INTERVAL '31 days'
 WHERE id = 'test-org'
 
@@ -609,13 +684,13 @@ NODE_ENV=production npm run build && npm start
 
 ### Access Control
 
-| Operation | Required Role | Audit Logged |
-|-----------|---------------|--------------|
-| View audit logs | `admin`, `super_admin` | ✅ Yes |
-| Export audit logs | `admin` (+ approval) | ✅ Yes |
-| Initiate offboarding | `super_admin` | ✅ Yes |
-| Cancel offboarding | `super_admin` | ✅ Yes |
-| Execute hard delete | `super_admin` | ✅ Yes |
+| Operation            | Required Role          | Audit Logged |
+| -------------------- | ---------------------- | ------------ |
+| View audit logs      | `admin`, `super_admin` | ✅ Yes       |
+| Export audit logs    | `admin` (+ approval)   | ✅ Yes       |
+| Initiate offboarding | `super_admin`          | ✅ Yes       |
+| Cancel offboarding   | `super_admin`          | ✅ Yes       |
+| Execute hard delete  | `super_admin`          | ✅ Yes       |
 
 ### Data Protection
 
@@ -629,12 +704,14 @@ NODE_ENV=production npm run build && npm start
 ### Compliance
 
 **PIPEDA (Canada)**:
+
 - ✅ 7-year audit log retention
 - ✅ Data deletion on request (via offboarding)
 - ✅ Access logging
 - ✅ Consent tracking
 
 **GDPR (EU)**:
+
 - ✅ Right to erasure (offboarding workflow)
 - ✅ Data portability (audit log export)
 - ✅ Breach notification (audit logs)
@@ -645,21 +722,25 @@ NODE_ENV=production npm run build && npm start
 ## Known Limitations
 
 ### 1. Manual Archival
+
 **Issue**: `archive_old_audit_logs()` requires manual invocation  
 **Impact**: Low (logs remain in primary table)  
 **Workaround**: Set up monthly cron job
 
 ### 2. No Automated Hard Delete
+
 **Issue**: Hard delete requires manual API call after grace period  
 **Impact**: Low (soft delete prevents access)  
 **Workaround**: Create admin dashboard with "Execute Deletion" button
 
 ### 3. Sentry Not Configured
+
 **Issue**: Error tracking relies on Application Insights only  
 **Impact**: Medium (less detailed error context)  
 **Workaround**: Enable Sentry (1-hour setup)
 
 ### 4. No Uptime Monitoring
+
 **Issue**: No external uptime checks  
 **Impact**: Medium (may not detect outages quickly)  
 **Workaround**: Configure Uptime Robot (30-minute setup)
@@ -707,18 +788,21 @@ If issues arise:
 ## Next Steps
 
 ### Immediate (Pre-Production)
+
 1. ⚠️ Install and configure Sentry (1 hour)
 2. ⚠️ Set up uptime monitoring (30 minutes)
 3. ⚠️ Configure alert rules (2 hours)
 4. ✅ Test tenant offboarding workflow (30 minutes)
 
 ### Short-Term (First Month)
+
 1. Create admin dashboard for tenant management
 2. Set up automated archival cron job
 3. Document operational runbooks
 4. Train support team
 
 ### Long-Term (Ongoing)
+
 1. Review audit logs monthly
 2. Refine alert thresholds
 3. Monitor offboarding metrics
@@ -731,6 +815,7 @@ If issues arise:
 Gate C: Operational Readiness is **COMPLETE** with minor enhancements recommended.
 
 ### ✅ Achieved
+
 - Enterprise-grade audit logging with hash chain
 - 7-year audit retention (PIPEDA compliant)
 - Multi-stage tenant offboarding with grace period
@@ -738,6 +823,7 @@ Gate C: Operational Readiness is **COMPLETE** with minor enhancements recommende
 - Application Insights monitoring
 
 ### ⚠️ Recommended
+
 - Sentry error tracking (1 hour)
 - Uptime monitoring (30 minutes)
 - Alert rules (2 hours)
