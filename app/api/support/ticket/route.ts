@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { guardedRoute, GuardedContext } from '@/lib/api/guard'
 import { createClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/utils/production-logger'
+import { sendSupportTicketNotification } from '@/lib/email/service'
 import { z } from 'zod'
 
 const ticketSchema = z.object({
@@ -76,8 +77,23 @@ async function createTicketHandler(request: NextRequest, context: GuardedContext
       return NextResponse.json({ error: 'Failed to create support ticket' }, { status: 500 })
     }
 
-    // Send notification email (TODO: implement email service)
-    // await sendSupportTicketEmail(ticket)
+    // Send notification email to support team
+    try {
+      await sendSupportTicketNotification({
+        ticketId: ticket.id,
+        userEmail: context.user!.email || 'unknown@example.com',
+        userName: context.user!.user_metadata?.full_name || 'Unknown User',
+        type,
+        subject,
+        description,
+        priority,
+      })
+    } catch (emailError) {
+      // Log but don't fail the request - ticket is already created
+      logger.error('Failed to send support ticket notification email', emailError as Error, {
+        ticketId: ticket.id,
+      })
+    }
 
     logger.info('Support ticket created', {
       ticketId: ticket.id,

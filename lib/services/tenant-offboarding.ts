@@ -14,6 +14,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { logAdminAction, logDataModification } from '@/lib/services/audit-logger'
 import { logger } from '@/lib/utils/logger'
+import { stripe } from '@/lib/stripe'
 
 // Offboarding stages
 export type OffboardingStage =
@@ -124,12 +125,42 @@ export async function initiateOffboarding(request: OffboardingRequest): Promise<
     // 5. Cancel Stripe subscriptions (if any)
     const { data: subs } = await supabase
       .from('organization_subscriptions')
-      .select('stripe_subscription_id')
+      .select('stripe_subscription_id, stripe_customer_id')
       .eq('organization_id', request.organizationId)
       .not('stripe_subscription_id', 'is', null)
 
     if (subs && subs.length > 0) {
-      // TODO: Call Stripe API to cancel subscriptions
+      // Cancel all active Stripe subscriptions
+      for (const sub of subs) {
+        if (sub.stripe_subscription_id) {
+          try {
+            await stripe.subscriptions.cancel(sub.stripe_subscription_id, {
+              prorate: true, // Prorate the cancellation
+            })
+            logger.info('[Offboarding] Stripe subscription cancelled', {
+              organizationId: request.organizationId,
+              subscriptionId: sub.stripe_subscription_id,
+            })
+          } catch (stripeError) {
+            logger.error('[Offboarding] Failed to cancel Stripe subscription', stripeError as Error, {
+              organizationId: request.organizationId,
+              subscriptionId: sub.stripe_subscription_id,
+            })
+            // Continue with offboarding even if Stripe cancellation fails
+            // Admin will need to manually cancel in Stripe dashboard
+          }
+        }
+      }
+
+      // Update local subscription records
+      await supabase
+        .from('organization_subscriptions')
+        .update({
+          status: 'canceled',
+          canceled_at: now.toISOString(),
+        })
+        .eq('organization_id', request.organizationId)
+
       result.itemsDeleted!.subscriptions = subs.length
     }
 

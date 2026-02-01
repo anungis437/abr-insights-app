@@ -57,9 +57,11 @@ describe('Scraper Factory', () => {
       }
     })
 
-    it('should select web scraper mode when explicitly configured', () => {
-      const mode = selectScraperMode(mockWebScraperConfig.sourceSystem, mockWebScraperConfig)
-      expect(mode).toBe('scrape')
+    it('should reject web scraper mode for CanLII sources (compliance)', () => {
+      // CanLII sources must use REST API - scrape mode is blocked
+      expect(() => {
+        selectScraperMode(mockWebScraperConfig.sourceSystem, mockWebScraperConfig)
+      }).toThrow(/cannot use web scraping mode/i)
     })
 
     it.skip('should auto-select based on environment', () => {
@@ -90,37 +92,44 @@ describe('Scraper Factory', () => {
       }
     })
 
-    it('should prioritize explicit config over environment', () => {
+    it('should reject scrape mode even when REST API is available (compliance)', () => {
       const origApiKey = process.env.CANLII_API_KEY
+      const origApiEnabled = process.env.CANLII_API_ENABLED
 
       try {
         // Set env to REST API enabled
         process.env.CANLII_API_KEY = 'test-key'
         process.env.CANLII_API_ENABLED = 'true'
 
-        // But config explicitly requests scraper
-        const mode = selectScraperMode(mockWebScraperConfig.sourceSystem, mockWebScraperConfig)
-        expect(mode).toBe('scrape')
+        // CanLII sources cannot explicitly request scraper mode
+        expect(() => {
+          selectScraperMode(mockWebScraperConfig.sourceSystem, mockWebScraperConfig)
+        }).toThrow(/cannot use web scraping mode/i)
       } finally {
         if (origApiKey) process.env.CANLII_API_KEY = origApiKey
         else delete process.env.CANLII_API_KEY
+        if (origApiEnabled) process.env.CANLII_API_ENABLED = origApiEnabled
+        else delete process.env.CANLII_API_ENABLED
       }
     })
 
-    it('should fall back to scraper when REST API is not configured', () => {
+    it('should fail closed when REST API is not configured (compliance)', () => {
       const origApiKey = process.env.CANLII_API_KEY
       const origApiEnabled = process.env.CANLII_API_ENABLED
 
       try {
-        // Remove API key and disable
+        // Remove API key and disable - CanLII sources should fail
         delete process.env.CANLII_API_KEY
         delete process.env.CANLII_API_ENABLED
 
-        const mode = selectScraperMode(mockAutoConfig.sourceSystem, mockAutoConfig)
-        expect(mode).toBe('scrape')
+        expect(() => {
+          selectScraperMode(mockAutoConfig.sourceSystem, mockAutoConfig)
+        }).toThrow(/requires CANLII_API_KEY/i)
       } finally {
         if (origApiKey) process.env.CANLII_API_KEY = origApiKey
+        else delete process.env.CANLII_API_KEY
         if (origApiEnabled) process.env.CANLII_API_ENABLED = origApiEnabled
+        else delete process.env.CANLII_API_ENABLED
       }
     })
   })
@@ -189,7 +198,7 @@ describe('Scraper Factory', () => {
   // =========================================================================
 
   describe('Error Handling', () => {
-    it('should handle missing API key gracefully', () => {
+    it('should throw error when API key is missing (fail closed)', () => {
       const origApiKey = process.env.CANLII_API_KEY
       const origApiEnabled = process.env.CANLII_API_ENABLED
 
@@ -204,16 +213,21 @@ describe('Scraper Factory', () => {
           databaseId: 'onhrt',
         }
 
-        // Should fall back to scraper
-        const mode = selectScraperMode(config.sourceSystem, config)
-        expect(mode).toBe('scrape')
+        // Should throw error, not fall back
+        expect(() => {
+          selectScraperMode(config.sourceSystem, config)
+        }).toThrow(/requires CANLII_API_KEY/i)
       } finally {
         if (origApiKey) process.env.CANLII_API_KEY = origApiKey
+        else delete process.env.CANLII_API_KEY
+        if (origApiEnabled) process.env.CANLII_API_ENABLED = origApiEnabled
+        else delete process.env.CANLII_API_ENABLED
       }
     })
 
-    it('should handle missing database ID for REST API', () => {
+    it('should throw error when database ID missing (fail closed)', () => {
       const origApiKey = process.env.CANLII_API_KEY
+      const origApiEnabled = process.env.CANLII_API_ENABLED
       process.env.CANLII_API_KEY = 'test-key'
       process.env.CANLII_API_ENABLED = 'true'
 
@@ -225,17 +239,19 @@ describe('Scraper Factory', () => {
           // Missing databaseId
         }
 
-        // Should fall back to scraper
-        const mode = selectScraperMode(config.sourceSystem, config)
-        expect(mode).toBe('scrape')
+        // Should throw error, not fall back
+        expect(() => {
+          selectScraperMode(config.sourceSystem, config)
+        }).toThrow(/requires.*databaseId|databaseId.*required/i)
       } finally {
-        delete process.env.CANLII_API_KEY
-        delete process.env.CANLII_API_ENABLED
         if (origApiKey) process.env.CANLII_API_KEY = origApiKey
+        else delete process.env.CANLII_API_KEY
+        if (origApiEnabled) process.env.CANLII_API_ENABLED = origApiEnabled
+        else delete process.env.CANLII_API_ENABLED
       }
     })
 
-    it('should handle missing listing URL for web scraper', () => {
+    it('should reject scrape mode for CanLII sources (compliance)', () => {
       const config: SourceConfig = {
         sourceSystem: 'canlii_hrto',
         apiMode: 'scrape',
@@ -243,10 +259,10 @@ describe('Scraper Factory', () => {
         // Missing listingUrl
       }
 
-      // Should throw during creation if mode is forced to scrape
+      // Should throw error - CanLII cannot use scrape mode
       expect(() => {
         selectScraperMode(config.sourceSystem, config)
-      }).not.toThrow() // Mode selection doesn't throw, creation will
+      }).toThrow(/cannot use web scraping mode/i)
     })
   })
 
@@ -276,18 +292,23 @@ describe('Scraper Factory', () => {
             baseUrl: 'https://www.canlii.org',
             databaseId: 'chrt',
           },
-          {
-            sourceSystem: 'canlii_hrto' as const,
-            apiMode: 'scrape' as const,
-            baseUrl: 'https://www.canlii.org',
-            listingUrl: 'https://legacy.example.com',
-          },
         ]
 
+        // First two configs should work
         const modes = configs.map((cfg) => selectScraperMode(cfg.sourceSystem, cfg as SourceConfig))
         expect(modes[0]).toBe('rest')
         expect(modes[1]).toBe('rest')
-        expect(modes[2]).toBe('scrape')
+
+        // Third config with scrape mode should throw
+        const scrapeConfig = {
+          sourceSystem: 'canlii_hrto' as const,
+          apiMode: 'scrape' as const,
+          baseUrl: 'https://www.canlii.org',
+          listingUrl: 'https://legacy.example.com',
+        }
+        expect(() => {
+          selectScraperMode(scrapeConfig.sourceSystem, scrapeConfig as SourceConfig)
+        }).toThrow(/cannot use web scraping mode/i)
       } finally {
         if (origApiKey) process.env.CANLII_API_KEY = origApiKey
         else delete process.env.CANLII_API_KEY
@@ -296,27 +317,30 @@ describe('Scraper Factory', () => {
       }
     })
 
-    it('should support configuration override for testing', () => {
+    it('should require proper config for CanLII sources', () => {
       const config: SourceConfig = {
         sourceSystem: 'canlii_hrto',
-        apiMode: 'auto' as any, // Invalid mode to force override
+        apiMode: 'auto' as any, // Invalid mode
         baseUrl: 'https://www.canlii.org',
         databaseId: 'onhrt',
       }
 
+      // CanLII sources require valid API configuration
       const origApiKey = process.env.CANLII_API_KEY
-      process.env.CANLII_API_KEY = 'test-key'
-      process.env.CANLII_API_ENABLED = 'true'
-
+      const origApiEnabled = process.env.CANLII_API_ENABLED
+      
       try {
-        // When explicit mode override is provided, it should be used
-        const mode = selectScraperMode(config.sourceSystem, config)
-        // With proper REST API config, should select REST
-        expect(['rest', 'scrape']).toContain(mode)
+        delete process.env.CANLII_API_KEY
+        delete process.env.CANLII_API_ENABLED
+        
+        expect(() => {
+          selectScraperMode(config.sourceSystem, config)
+        }).toThrow(/requires CANLII_API_KEY/i)
       } finally {
         if (origApiKey) process.env.CANLII_API_KEY = origApiKey
         else delete process.env.CANLII_API_KEY
-        delete process.env.CANLII_API_ENABLED
+        if (origApiEnabled) process.env.CANLII_API_ENABLED = origApiEnabled
+        else delete process.env.CANLII_API_ENABLED
       }
     })
   })
@@ -326,16 +350,31 @@ describe('Scraper Factory', () => {
   // =========================================================================
 
   describe('Backwards Compatibility', () => {
-    it('should support legacy web scraper config (no apiMode)', () => {
+    it('should reject legacy web scraper config for CanLII (compliance)', () => {
       const legacyConfig: SourceConfig = {
         sourceSystem: 'canlii_hrto',
         baseUrl: 'https://www.canlii.org',
         listingUrl: 'https://example.com/cases',
-        // No apiMode specified
+        // No apiMode specified - should fail closed for CanLII
       }
 
-      const mode = selectScraperMode(legacyConfig.sourceSystem, legacyConfig)
-      expect(['rest', 'scrape']).toContain(mode)
+      const origApiKey = process.env.CANLII_API_KEY
+      const origApiEnabled = process.env.CANLII_API_ENABLED
+      
+      try {
+        delete process.env.CANLII_API_KEY
+        delete process.env.CANLII_API_ENABLED
+        
+        // CanLII sources must have API configured
+        expect(() => {
+          selectScraperMode(legacyConfig.sourceSystem, legacyConfig)
+        }).toThrow(/requires CANLII_API_KEY/i)
+      } finally {
+        if (origApiKey) process.env.CANLII_API_KEY = origApiKey
+        else delete process.env.CANLII_API_KEY
+        if (origApiEnabled) process.env.CANLII_API_ENABLED = origApiEnabled
+        else delete process.env.CANLII_API_ENABLED
+      }
     })
 
     it.skip('should support REST API config (new style)', () => {

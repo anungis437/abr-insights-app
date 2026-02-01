@@ -168,3 +168,50 @@ export async function sendEmail({
     return { success: false, error: 'Failed to send email' }
   }
 }
+
+export interface SupportTicketData {
+  ticketId: string
+  userEmail: string
+  userName: string
+  type: string
+  subject: string
+  description: string
+  priority: string
+}
+
+/**
+ * Send support ticket notification to admin team
+ */
+export async function sendSupportTicketNotification(data: SupportTicketData) {
+  const resend = getResendClient()
+
+  if (!resend) {
+    console.warn('RESEND_API_KEY not configured, skipping support ticket email')
+    return { success: false, error: 'Email service not configured' }
+  }
+
+  try {
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: CONTACT_RECIPIENT,
+      replyTo: data.userEmail,
+      subject: `[${data.priority.toUpperCase()}] Support Ticket: ${data.subject}`,
+      html: `
+        <h2>New Support Ticket #${data.ticketId}</h2>
+        <p><strong>From:</strong> ${data.userName} (${data.userEmail})</p>
+        <p><strong>Type:</strong> ${data.type}</p>
+        <p><strong>Priority:</strong> ${data.priority}</p>
+        <p><strong>Subject:</strong> ${data.subject}</p>
+        <h3>Description:</h3>
+        <p style="white-space: pre-wrap;">${data.description}</p>
+        <hr />
+        <p><small>Ticket ID: ${data.ticketId}</small></p>
+      `,
+    })
+
+    return { success: true }
+  } catch (error) {
+    console.error('Failed to send support ticket notification:', error)
+    return { success: false, error: 'Failed to send notification email' }
+  }
+}

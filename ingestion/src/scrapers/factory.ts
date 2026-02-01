@@ -28,26 +28,37 @@ interface ScraperInstance {
 
 /**
  * Determines which scraper mode to use
+ * 
+ * CANLII COMPLIANCE: CanLII sources MUST use REST API or fail closed.
+ * Web scraping fallback is disabled to ensure compliance with CanLII Terms of Use.
  */
 function selectScraperMode(sourceSystem: SourceSystem, config: SourceConfig): 'rest' | 'scrape' {
+  const isCanLIISource = sourceSystem.startsWith('canlii_')
+
   // Explicit configuration takes precedence
   if (config.apiMode === 'rest') {
     if (!config.databaseId) {
+      if (isCanLIISource) {
+        throw new Error(
+          `CanLII source "${sourceSystem}" requires REST API with databaseId. Web scraping is not permitted for CanLII sources.`
+        )
+      }
       logger.warn(
         'REST API mode requested but databaseId not configured, falling back to scraping',
-        {
-          sourceSystem,
-        }
+        { sourceSystem }
       )
       return 'scrape'
     }
 
     if (!ENV.CANLII_API_KEY) {
+      if (isCanLIISource) {
+        throw new Error(
+          `CanLII source "${sourceSystem}" requires CANLII_API_KEY. Web scraping is not permitted for CanLII sources.`
+        )
+      }
       logger.warn(
         'REST API mode requested but CANLII_API_KEY not configured, falling back to scraping',
-        {
-          sourceSystem,
-        }
+        { sourceSystem }
       )
       return 'scrape'
     }
@@ -56,10 +67,38 @@ function selectScraperMode(sourceSystem: SourceSystem, config: SourceConfig): 'r
   }
 
   if (config.apiMode === 'scrape') {
+    if (isCanLIISource) {
+      throw new Error(
+        `CanLII source "${sourceSystem}" cannot use web scraping mode. Must use REST API (apiMode: 'rest') with valid CANLII_API_KEY and databaseId.`
+      )
+    }
     return 'scrape'
   }
 
-  // Default: Use REST API if available, otherwise scrape
+  // Auto-detect mode for sources without explicit apiMode
+  if (isCanLIISource) {
+    // CanLII sources: FAIL CLOSED - require API or throw error
+    if (!ENV.CANLII_API_KEY) {
+      throw new Error(
+        `CanLII source "${sourceSystem}" requires CANLII_API_KEY environment variable. Set CANLII_API_KEY or disable CanLII ingestion.`
+      )
+    }
+    if (!config.databaseId) {
+      throw new Error(
+        `CanLII source "${sourceSystem}" requires databaseId in configuration. Add databaseId to source config.`
+      )
+    }
+    if (!ENV.CANLII_API_ENABLED) {
+      throw new Error(
+        `CanLII source "${sourceSystem}" requires CANLII_API_ENABLED=true. Set environment variable or disable CanLII ingestion.`
+      )
+    }
+
+    logger.info('CanLII source using REST API (required for compliance)', { sourceSystem })
+    return 'rest'
+  }
+
+  // Non-CanLII sources: allow fallback to scraping
   if (ENV.CANLII_API_ENABLED && ENV.CANLII_API_KEY && config.databaseId) {
     logger.info('REST API available, using API mode', { sourceSystem })
     return 'rest'
