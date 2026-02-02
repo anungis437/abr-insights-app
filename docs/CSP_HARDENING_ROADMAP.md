@@ -1,22 +1,23 @@
 # CSP Hardening Roadmap
 
-## ⚠️ CRITICAL DEPLOYMENT REQUIREMENT
+## Deployment Status
 
-**proxy.ts requires Node.js server runtime**. Current Azure Static Web Apps deployment **does NOT execute proxy.ts** (static hosting only).
+**Platform**: Azure Container Apps (Node.js server runtime)  
+**Container URL**: `https://abr-insights-app.thankfulsea-568c2dd6.eastus.azurecontainerapps.io`  
+**Runtime**: Next.js standalone server in Docker container  
+**CSP Implementation**: proxy.ts executes on every HTTP request
 
-**Required**: Deploy to Azure Container Apps, Azure App Service, or Docker container for CSP enforcement.
-
-See: [AZURE_CONTAINER_APPS_DEPLOYMENT.md](./AZURE_CONTAINER_APPS_DEPLOYMENT.md)
+See: [CONTAINER_SECURITY_CONTROLS.md](./CONTAINER_SECURITY_CONTROLS.md) for complete security architecture
 
 ---
 
-## Current Status: ✅ Code Complete (⏳ Awaiting Server Deployment)
+## Current Status: ⏳ Pending Runtime Validation
 
 ### Current CSP Configuration
 
 **Location**: Dynamic CSP headers via Next.js 16 proxy pattern
 
-**Entrypoint**: `proxy.ts` (Next.js 16 replaces middleware.ts with proxy.ts)
+**Entrypoint**: `proxy.ts` (Next.js 16 uses proxy.ts as middleware entrypoint)
 
 **Implementation**: Nonce-based CSP with per-request cryptographic nonces
 
@@ -43,8 +44,9 @@ Content-Security-Policy:
 
 - ✅ NO `unsafe-inline` in script-src or style-src
 - ✅ Cryptographic nonces generated per request (Web Crypto API)
-- ✅ CSP enforced dynamically at edge middleware layer
+- ✅ CSP enforced dynamically at proxy middleware layer
 - ✅ Meets enterprise security standards (SOC2, OWASP)
+- ✅ Dev routes (`/_dev`) blocked in production
 
 **Architecture**:
 

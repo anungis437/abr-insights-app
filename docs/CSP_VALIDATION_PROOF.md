@@ -2,32 +2,42 @@
 
 ## Executive Summary
 
-**CSP Status**: ⚠️ Code complete - **Requires Node.js server deployment**
+**CSP Status**: ⏳ Pending Runtime Validation (Container Infrastructure Ready)
 
-**Current Deployment**: Azure Static Web Apps (static hosting) - **proxy.ts NOT executing**
+**Current Deployment**: Azure Container Apps (Node.js server runtime)
 
-**Required Deployment**: Azure Container Apps, App Service, or Docker container
+**Container URL**: `https://abr-insights-app.thankfulsea-568c2dd6.eastus.azurecontainerapps.io`
 
-**Security Posture**: No `unsafe-inline`, no `unsafe-eval`, per-request nonces (when deployed correctly)
+**Security Posture**: No `unsafe-inline`, no `unsafe-eval`, per-request nonces
 
-**Evidence**: Runtime validation required after deploying to Node.js server
+**Evidence**: Awaiting first application deployment and header capture
 
 **Wiring**: `proxy.ts` (Next.js 16 entrypoint) → CSP generation → All routes covered
+
+**See**: [CONTAINER_SECURITY_CONTROLS.md](CONTAINER_SECURITY_CONTROLS.md) for complete security architecture
 
 ---
 
 ## ⚠️ VALIDATION REQUIREMENT: Capture Actual Headers
 
-**Before claiming "CSP is enforced"**, you MUST capture actual HTTP response headers from a deployed environment (dev/staging/prod) showing:
+**Before claiming "CSP is enforced"**, you MUST capture actual HTTP response headers from the deployed container showing:
 
 1. ✅ `Content-Security-Policy` header present
 2. ✅ `x-nonce` header present
 3. ✅ Nonce value matches between CSP and x-nonce
 4. ✅ Nonce differs per request (run curl twice, compare)
+5. ✅ No `unsafe-inline` in CSP directive
 
 **Test these routes** (minimum):
 
 ```bash
+# Container Apps URL
+BASE_URL="https://abr-insights-app.thankfulsea-568c2dd6.eastus.azurecontainerapps.io"
+
+curl -I $BASE_URL/
+curl -I $BASE_URL/pricing
+curl -I $BASE_URL/dashboard
+curl -I $BASE_URL/_dev/test-checkout  # Should return 404
 curl -I https://yourdomain.com/
 curl -I https://yourdomain.com/pricing
 curl -I https://yourdomain.com/dashboard

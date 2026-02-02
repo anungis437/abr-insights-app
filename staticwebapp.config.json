@@ -1,4 +1,6 @@
 {
+  "$schema": "https://aka.ms/azure/static-web-apps-schema",
+  "DEPRECATED": "This configuration is for Azure Static Web Apps only. Container Apps deployment uses proxy.ts for security controls.",
   "platform": {
     "apiRuntime": "node:20"
   },
