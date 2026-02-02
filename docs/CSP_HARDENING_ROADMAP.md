@@ -1,6 +1,16 @@
 # CSP Hardening Roadmap
 
-## Current Status: ✅ Production-Ready with Nonce-Based CSP
+## ⚠️ CRITICAL DEPLOYMENT REQUIREMENT
+
+**proxy.ts requires Node.js server runtime**. Current Azure Static Web Apps deployment **does NOT execute proxy.ts** (static hosting only).
+
+**Required**: Deploy to Azure Container Apps, Azure App Service, or Docker container for CSP enforcement.
+
+See: [AZURE_CONTAINER_APPS_DEPLOYMENT.md](./AZURE_CONTAINER_APPS_DEPLOYMENT.md)
+
+---
+
+## Current Status: ✅ Code Complete (⏳ Awaiting Server Deployment)
 
 ### Current CSP Configuration
 

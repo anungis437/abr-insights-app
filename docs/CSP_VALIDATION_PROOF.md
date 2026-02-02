@@ -2,13 +2,17 @@
 
 ## Executive Summary
 
-**CSP Status**: ✅ World-class nonce-based CSP enforced dynamically at the edge
+**CSP Status**: ⚠️ Code complete - **Requires Node.js server deployment**
 
-**Security Posture**: No `unsafe-inline`, no `unsafe-eval`, per-request nonces, strict directives
+**Current Deployment**: Azure Static Web Apps (static hosting) - **proxy.ts NOT executing**
 
-**Evidence**: This document provides proof that all 5 validation conditions are met for enterprise security questionnaires.
+**Required Deployment**: Azure Container Apps, App Service, or Docker container
 
-**Wiring**: `middleware.ts` (Next.js entrypoint) → `proxy.ts` (CSP generation) → All routes covered
+**Security Posture**: No `unsafe-inline`, no `unsafe-eval`, per-request nonces (when deployed correctly)
+
+**Evidence**: Runtime validation required after deploying to Node.js server
+
+**Wiring**: `proxy.ts` (Next.js 16 entrypoint) → CSP generation → All routes covered
 
 ---
 
