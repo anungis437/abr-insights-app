@@ -6,12 +6,12 @@
 
 ### Platform Compatibility
 
-| Platform | proxy.ts Support | CSP Nonces |
-|----------|-----------------|------------|
-| Azure Static Web Apps | ❌ No | ❌ No (static hosting only) |
-| Azure Container Apps | ✅ Yes | ✅ Yes (full runtime support) |
-| Azure App Service | ✅ Yes | ✅ Yes (Node.js server) |
-| Docker/Kubernetes | ✅ Yes | ✅ Yes (container runtime) |
+| Platform              | proxy.ts Support | CSP Nonces                    |
+| --------------------- | ---------------- | ----------------------------- |
+| Azure Static Web Apps | ❌ No            | ❌ No (static hosting only)   |
+| Azure Container Apps  | ✅ Yes           | ✅ Yes (full runtime support) |
+| Azure App Service     | ✅ Yes           | ✅ Yes (Node.js server)       |
+| Docker/Kubernetes     | ✅ Yes           | ✅ Yes (container runtime)    |
 
 **Current deployment**: Azure Static Web Apps (purple-ground-03d2b380f) - **proxy.ts NOT executing**
 
@@ -117,7 +117,7 @@ Add output configuration for standalone build:
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone', // Required for Docker deployment
-  
+
   // ... rest of your config
 }
 
@@ -264,7 +264,7 @@ env:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v3
 
@@ -318,6 +318,7 @@ After deployment, test the Container App URL:
 ```
 
 **Expected output**:
+
 ```
 ✅ PASS: CSP header present
 ✅ PASS: x-nonce header present
@@ -331,12 +332,14 @@ After deployment, test the Container App URL:
 ## Cost Comparison
 
 ### Azure Static Web Apps (Current)
+
 - **Cost**: ~$9/month (Standard tier)
 - **CSP Support**: ❌ No (static only)
 - **Scalability**: Automatic
 - **Use Case**: Static sites, pre-rendered content
 
 ### Azure Container Apps (Recommended)
+
 - **Cost**: ~$0-50/month (consumption-based)
   - Free: 180,000 vCPU-seconds + 360,000 GiB-seconds per month
   - Can scale to zero (0 replicas when idle)
@@ -388,21 +391,25 @@ STRIPE_SECRET_KEY         - Stripe secret key (if using Stripe)
 ## Troubleshooting
 
 ### Docker build fails
+
 - Check Dockerfile syntax
 - Verify all COPY paths are correct
 - Ensure next.config.js has `output: 'standalone'`
 
 ### Container starts but crashes
+
 - Check logs: `az containerapp logs show --name abr-insights-app --resource-group abr-insights-rg --tail 50`
 - Verify environment variables are set correctly
 - Check if PORT=3000 is exposed
 
 ### CSP headers still missing
+
 - Verify proxy.ts exists in container: `docker exec <container-id> ls -la proxy.ts`
 - Check Next.js is running in server mode (not static export)
 - Review container logs for proxy.ts execution errors
 
 ### High costs
+
 - Enable scale-to-zero: `--min-replicas 0`
 - Set aggressive scale-down: `--scale-down-delay 60`
 - Monitor usage in Azure Portal

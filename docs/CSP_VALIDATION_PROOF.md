@@ -21,11 +21,12 @@
 **Before claiming "CSP is enforced"**, you MUST capture actual HTTP response headers from a deployed environment (dev/staging/prod) showing:
 
 1. ✅ `Content-Security-Policy` header present
-2. ✅ `x-nonce` header present  
+2. ✅ `x-nonce` header present
 3. ✅ Nonce value matches between CSP and x-nonce
 4. ✅ Nonce differs per request (run curl twice, compare)
 
 **Test these routes** (minimum):
+
 ```bash
 curl -I https://yourdomain.com/
 curl -I https://yourdomain.com/pricing
@@ -35,6 +36,7 @@ curl -I https://yourdomain.com/auth/login
 ```
 
 **Expected Headers** (example):
+
 ```
 Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-ABC123...' https://js.stripe.com https://cdn.jsdelivr.net; ...
 x-nonce: ABC123...
@@ -158,6 +160,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 **Step 4: Current State - No Inline Content**
 
 **Critical Observation**: Application currently has ZERO inline scripts or styles:
+
 - ✅ Tailwind CSS compiled to `globals.css` (external stylesheet)
 - ✅ All JavaScript loaded via external `<script src>` tags (Stripe, etc.)
 - ✅ No CSS-in-JS libraries injecting inline styles

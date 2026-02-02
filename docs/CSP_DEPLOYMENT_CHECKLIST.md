@@ -21,9 +21,9 @@ Use this checklist after deploying to verify CSP enforcement is active.
   - [ ] Azure Static Web Apps (Production)
   - [ ] Azure Static Web Apps (Preview/Staging)
   - [ ] Local dev server (npm run dev)
-  - [ ] Other: _______________
+  - [ ] Other: **\*\***\_\_\_**\*\***
 
-- [ ] **Note deployment URL**: _________________________________
+- [ ] **Note deployment URL**: ******\*\*\*\*******\_******\*\*\*\*******
 
 - [ ] **Verify deployment success** - Site is accessible
 
@@ -34,11 +34,13 @@ Use this checklist after deploying to verify CSP enforcement is active.
 ### Step 1: Run Validation Script
 
 **Bash** (Linux/macOS/Git Bash):
+
 ```bash
 ./scripts/validate-csp-headers.sh https://YOUR-DEPLOYMENT-URL
 ```
 
 **PowerShell** (Windows):
+
 ```powershell
 .\scripts\validate-csp-headers.ps1 -BaseUrl "https://YOUR-DEPLOYMENT-URL"
 ```
@@ -59,6 +61,7 @@ curl -I https://YOUR-DEPLOYMENT-URL/auth/login
 ```
 
 Verify each response contains:
+
 - [ ] **Content-Security-Policy header present**
 - [ ] **x-nonce header present**
 - [ ] **Nonce value matches** between CSP and x-nonce
@@ -67,6 +70,7 @@ Verify each response contains:
 ### Step 3: Test Nonce Uniqueness
 
 Run curl twice to the same route:
+
 ```bash
 curl -I https://YOUR-DEPLOYMENT-URL/ | grep x-nonce
 # Wait 1 second
@@ -101,6 +105,7 @@ After successful validation:
 - [ ] **Update status** - Change "INTENDED architecture" to "PROVEN enforcement"
 
 Example documentation update:
+
 ```markdown
 ## ✅ VALIDATION COMPLETE
 
@@ -110,17 +115,22 @@ Example documentation update:
 
 **Evidence**:
 ```
+
 $ curl -I https://purple-ground-03d2b380f.5.azurestaticapps.net/
 HTTP/2 200
 content-security-policy: default-src 'self'; script-src 'self' 'nonce-ABC123XYZ...' https://js.stripe.com; ...
 x-nonce: ABC123XYZ...
 x-correlation-id: 12345678-1234-1234-1234-123456789abc
+
 ```
 
 **Validation Script Output**:
 ```
+
 ✅ ALL TESTS PASSED - CSP enforcement verified!
+
 ```
+
 ```
 
 ---
@@ -146,11 +156,13 @@ After validation is complete, you can claim:
 **Symptom**: No `Content-Security-Policy` header in response
 
 **Possible Causes**:
+
 1. middleware.ts not deployed (check deployment files)
 2. Azure SWA stripping headers (check platform config)
 3. Route not matching config (check proxy.ts matcher)
 
 **Debug Steps**:
+
 ```bash
 # Check if middleware.ts exists in deployment
 ls -la middleware.ts
@@ -170,11 +182,13 @@ npm run build 2>&1 | grep -i middleware
 **Symptom**: CSP nonce ≠ x-nonce header value
 
 **Possible Causes**:
+
 1. Multiple middleware interfering
 2. Header overwrite somewhere
 3. Caching issue
 
 **Debug Steps**:
+
 - Clear browser cache
 - Run curl (bypasses browser cache)
 - Check for other middleware files
@@ -185,11 +199,13 @@ npm run build 2>&1 | grep -i middleware
 **Symptom**: Same nonce across multiple requests
 
 **Possible Causes**:
+
 1. Server-side caching
 2. CDN caching
 3. Load balancer caching
 
 **Debug Steps**:
+
 - Add `Cache-Control: no-cache` to headers
 - Test directly against origin (bypass CDN)
 - Check Azure SWA caching settings
@@ -199,11 +215,13 @@ npm run build 2>&1 | grep -i middleware
 **Symptom**: CSP still contains 'unsafe-inline'
 
 **Possible Causes**:
+
 1. Old code deployed
 2. Fallback CSP being used
 3. Manual override somewhere
 
 **Debug Steps**:
+
 - Verify proxy.ts is the deployed version
 - Check for multiple CSP headers (Last-Writer-Wins)
 - Search codebase for other CSP definitions
@@ -213,6 +231,7 @@ npm run build 2>&1 | grep -i middleware
 ## Expected Script Output
 
 ### ✅ Success
+
 ```
 🔍 Validating CSP headers for: https://yourdomain.com
 ==================================================
@@ -251,6 +270,7 @@ You can now claim in enterprise questionnaires:
 ```
 
 ### ❌ Failure
+
 ```
 🔍 Validating CSP headers for: https://yourdomain.com
 ==================================================
@@ -279,11 +299,11 @@ Review the errors above and fix the CSP configuration.
 
 ## Sign-Off
 
-**Developer**: _________________________________  
-**Date**: _________________________________  
-**Deployment URL**: _________________________________  
+**Developer**: ******\*\*\*\*******\_******\*\*\*\*******  
+**Date**: ******\*\*\*\*******\_******\*\*\*\*******  
+**Deployment URL**: ******\*\*\*\*******\_******\*\*\*\*******  
 **Validation Status**: [ ] PASS / [ ] FAIL  
-**Notes**: _________________________________
+**Notes**: ******\*\*\*\*******\_******\*\*\*\*******
 
 ---
 
@@ -292,6 +312,6 @@ Review the errors above and fix the CSP configuration.
 - **Implementation**: [CSP_HARDENING_ROADMAP.md](./CSP_HARDENING_ROADMAP.md)
 - **Proof**: [CSP_VALIDATION_PROOF.md](./CSP_VALIDATION_PROOF.md)
 - **Summary**: [CSP_WIRING_COMPLETE.md](./CSP_WIRING_COMPLETE.md)
-- **Scripts**: 
+- **Scripts**:
   - [validate-csp-headers.sh](../scripts/validate-csp-headers.sh)
   - [validate-csp-headers.ps1](../scripts/validate-csp-headers.ps1)
