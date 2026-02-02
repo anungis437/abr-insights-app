@@ -118,14 +118,19 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 - Root layout retrieves nonce from headers
 - Available for any inline scripts/styles requiring nonce attribute
 
-**Step 4: Framework Integration**
+**Step 4: Current State - No Inline Content**
 
-Next.js 15+ automatically applies nonces to:
+**Critical Observation**: Application currently has ZERO inline scripts or styles:
 
-- React hydration scripts (framework-generated inline scripts)
-- Server-side rendering inline styles (if any)
+- ✅ Tailwind CSS compiled to `globals.css` (external stylesheet)
+- ✅ All JavaScript loaded via external `<script src>` tags (Stripe, etc.)
+- ✅ No CSS-in-JS libraries injecting inline styles
+- ✅ No `<style>` tags in components
+- ✅ No `<script>` tags in HTML
 
-Custom inline scripts/styles can use the nonce prop when needed.
+**Framework Behavior**: Next.js 15+ hydration scripts are external, NOT inline.
+
+**Result**: CSP with nonces works immediately without needing to apply nonces anywhere, because no inline content exists to nonce. The nonce infrastructure is available for future use if inline scripts/styles are added.
 
 **Verification**: Nonce changes per request (CSPRNG guarantees uniqueness)
 

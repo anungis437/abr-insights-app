@@ -93,13 +93,15 @@ export const metadata: Metadata = {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  // Get CSP nonce from middleware for inline script/style security
+  // Get CSP nonce from middleware (available for future inline script/style use if needed)
   const headersList = await headers()
   const nonce = headersList.get('x-nonce') || undefined
 
   return (
     <html lang="en" className={poppins.variable} data-scroll-behavior="smooth">
-      <head>{/* CSP nonce applied to any inline scripts/styles added here */}</head>
+      <head>
+        {/* CSP nonce available here if inline scripts/styles are needed (currently none exist) */}
+      </head>
       <body className="font-sans">
         <AuthProvider>
           <LanguageProvider>
