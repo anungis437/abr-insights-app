@@ -4,8 +4,8 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
 
-  // Enable standalone output for Docker builds
-  output: process.env.DOCKER_BUILD === 'true' ? 'standalone' : undefined,
+  // Enable standalone output for Docker/Container Apps deployment
+  output: 'standalone',
 
   // Next.js 15 Performance Optimizations
   experimental: {
