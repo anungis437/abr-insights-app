@@ -47,7 +47,9 @@ export default async function proxy(request: NextRequest) {
     form-action 'self';
     frame-ancestors 'none';
     upgrade-insecure-requests;
-  `.replace(/\s{2,}/g, ' ').trim()
+  `
+    .replace(/\s{2,}/g, ' ')
+    .trim()
 
   // Set security headers
   response.headers.set('Content-Security-Policy', cspHeader)
