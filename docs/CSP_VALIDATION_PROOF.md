@@ -8,15 +8,48 @@
 
 **Evidence**: This document provides proof that all 5 validation conditions are met for enterprise security questionnaires.
 
+**Wiring**: `middleware.ts` (Next.js entrypoint) → `proxy.ts` (CSP generation) → All routes covered
+
+---
+
+## ⚠️ VALIDATION REQUIREMENT: Capture Actual Headers
+
+**Before claiming "CSP is enforced"**, you MUST capture actual HTTP response headers from a deployed environment (dev/staging/prod) showing:
+
+1. ✅ `Content-Security-Policy` header present
+2. ✅ `x-nonce` header present  
+3. ✅ Nonce value matches between CSP and x-nonce
+4. ✅ Nonce differs per request (run curl twice, compare)
+
+**Test these routes** (minimum):
+```bash
+curl -I https://yourdomain.com/
+curl -I https://yourdomain.com/pricing
+curl -I https://yourdomain.com/dashboard
+curl -I https://yourdomain.com/admin
+curl -I https://yourdomain.com/auth/login
+```
+
+**Expected Headers** (example):
+```
+Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-ABC123...' https://js.stripe.com https://cdn.jsdelivr.net; ...
+x-nonce: ABC123...
+x-correlation-id: <uuid>
+```
+
+**Until headers are captured**: This document describes the INTENDED architecture, not proven enforcement.
+
 ---
 
 ## 5-Point Validation Framework
 
 ### ✅ Condition 1: CSP Header on Every HTML Response
 
-**Implementation**: `proxy.ts` (Next.js 16 Edge proxy/middleware pattern)
+**Implementation**: `middleware.ts` → `proxy.ts` (Next.js middleware pattern)
 
-**Scope**: Lines 63-78 define matcher that covers **ALL routes** except static assets:
+**Entrypoint**: `middleware.ts` is the Next.js-required entrypoint that delegates to `proxy.ts` for CSP logic
+
+**Scope**: proxy.ts lines 63-78 define matcher that covers **ALL routes** except static assets:
 
 ```typescript
 export const config = {
@@ -121,7 +154,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 **Step 4: Current State - No Inline Content**
 
 **Critical Observation**: Application currently has ZERO inline scripts or styles:
-
 - ✅ Tailwind CSS compiled to `globals.css` (external stylesheet)
 - ✅ All JavaScript loaded via external `<script src>` tags (Stripe, etc.)
 - ✅ No CSS-in-JS libraries injecting inline styles
