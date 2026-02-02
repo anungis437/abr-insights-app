@@ -45,9 +45,9 @@ x-correlation-id: <uuid>
 
 ### ✅ Condition 1: CSP Header on Every HTML Response
 
-**Implementation**: `middleware.ts` → `proxy.ts` (Next.js middleware pattern)
+**Implementation**: proxy.ts (Next.js 16 proxy pattern)
 
-**Entrypoint**: `middleware.ts` is the Next.js-required entrypoint that delegates to `proxy.ts` for CSP logic
+**Entrypoint**: proxy.ts is the Next.js 16 entrypoint that replaced middleware.ts
 
 **Scope**: proxy.ts lines 63-78 define matcher that covers **ALL routes** except static assets:
 

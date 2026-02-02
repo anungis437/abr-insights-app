@@ -4,9 +4,9 @@
 
 ### Current CSP Configuration
 
-**Location**: Dynamic CSP headers via Next.js middleware
+**Location**: Dynamic CSP headers via Next.js 16 proxy pattern
 
-**Entrypoint**: `middleware.ts` (Next.js requirement) → delegates to `proxy.ts` (CSP logic)
+**Entrypoint**: `proxy.ts` (Next.js 16 replaces middleware.ts with proxy.ts)
 
 **Implementation**: Nonce-based CSP with per-request cryptographic nonces
 
@@ -38,8 +38,7 @@ Content-Security-Policy:
 
 **Architecture**:
 
-- `middleware.ts` - Next.js entrypoint (required by framework)
-- `proxy.ts` - CSP nonce generation + header injection logic
+- `proxy.ts` - Next.js 16 entrypoint with CSP nonce generation + header injection
 - `app/layout.tsx` - Nonce retrieval (available for inline usage if needed)
 
 **Current State**:
