@@ -1,6 +1,7 @@
 import { Poppins } from 'next/font/google'
 import './globals.css'
 import type { Metadata, Viewport } from 'next'
+import { headers } from 'next/headers'
 import { AuthProvider } from '@/lib/auth/AuthContext'
 import { LanguageProvider } from '@/lib/contexts/LanguageContext'
 import NavigationWrapper from '@/components/shared/navigation/NavigationWrapper'
@@ -91,9 +92,14 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Get CSP nonce from middleware for inline script/style security
+  const headersList = await headers()
+  const nonce = headersList.get('x-nonce') || undefined
+
   return (
     <html lang="en" className={poppins.variable} data-scroll-behavior="smooth">
+      <head>{/* CSP nonce applied to any inline scripts/styles added here */}</head>
       <body className="font-sans">
         <AuthProvider>
           <LanguageProvider>
