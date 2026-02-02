@@ -121,6 +121,21 @@ const nextConfig = {
         destination: '/',
         permanent: true,
       },
+      // World-class hygiene: Block _dev routes in production builds
+      ...(process.env.NODE_ENV === 'production'
+        ? [
+            {
+              source: '/_dev/:path*',
+              destination: '/404',
+              permanent: false,
+            },
+            {
+              source: '/api/_dev/:path*',
+              destination: '/404',
+              permanent: false,
+            },
+          ]
+        : []),
     ]
   },
 

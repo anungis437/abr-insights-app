@@ -78,9 +78,7 @@ export default function TestCheckoutPage() {
     <div className="container mx-auto max-w-4xl px-4 py-12">
       <div className="mb-8">
         <h1 className="mb-2 text-3xl font-bold">Test Stripe Checkout</h1>
-        <p className="text-gray-600">
-          Test the complete Stripe â†’ Webhook â†’ Entitlements â†’ UI flow
-        </p>
+        <p className="text-gray-600">Test the complete Stripe → Webhook → Entitlements → UI flow</p>
       </div>
 
       {/* Current Entitlements Status */}
@@ -110,12 +108,12 @@ export default function TestCheckoutPage() {
               <span className="font-medium">Features:</span>
               <ul className="ml-6 mt-2 space-y-1 text-sm">
                 <li>
-                  AI Assistant: {entitlements.features.aiAssistantAccess ? 'âœ… Yes' : 'âŒ No'}
+                  AI Assistant: {entitlements.features.aiAssistantAccess ? '✅ Yes' : '❌ No'}
                 </li>
-                <li>AI Coach: {entitlements.features.aiCoachAccess ? 'âœ… Yes' : 'âŒ No'}</li>
+                <li>AI Coach: {entitlements.features.aiCoachAccess ? '✅ Yes' : '❌ No'}</li>
                 <li>
                   Export Capabilities:{' '}
-                  {entitlements.features.exportCapabilities ? 'âœ… Yes' : 'âŒ No'}
+                  {entitlements.features.exportCapabilities ? '✅ Yes' : '❌ No'}
                 </li>
                 <li>
                   Advanced Analytics:{' '}
