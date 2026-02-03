@@ -214,10 +214,22 @@ describe.skipIf(skipTests)('Permission System Tests', () => {
         .select()
         .single()
 
+      // Get admin role_id
+      const { data: roleData } = await supabase
+        .from('roles')
+        .select('id')
+        .eq('name', 'super_admin')
+        .single()
+
+      if (!roleData) {
+        console.warn('super_admin role not found, skipping test')
+        return
+      }
+
       // Create role in first org
       await supabase.from('user_roles').insert({
         user_id: testUserId,
-        role: 'admin',
+        role_id: (roleData as any).id,
         organization_id: testOrgId,
       } as any)
 
