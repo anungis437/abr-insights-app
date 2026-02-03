@@ -45,7 +45,7 @@ export async function middleware(request: NextRequest) {
   const cspHeader = `
     default-src 'self';
     script-src 'self' 'nonce-${nonce}' https://js.stripe.com https://cdn.jsdelivr.net;
-    style-src 'self' 'nonce-${nonce}' 'unsafe-hashes' https://fonts.googleapis.com;
+    style-src 'self' 'nonce-${nonce}' 'unsafe-hashes' 'sha256-PW16PFJVsmnH4Rya4FHBjeKOzpeiM93LZcxDHGY6RGI=' https://fonts.googleapis.com;
     font-src 'self' https://fonts.gstatic.com data:;
     img-src 'self' data: https: blob:;
     connect-src 'self' https://*.supabase.co https://*.upstash.io https://api.stripe.com https://*.sentry.io https://*.ingest.sentry.io;
