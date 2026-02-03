@@ -75,12 +75,12 @@ jobs:
           resourceGroup: ${{ env.AZURE_RESOURCE_GROUP }}
           imageToDeploy: ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.AZURE_CONTAINER_APP_NAME }}:${{ github.sha }}
           environmentVariables: |
-            NEXT_PUBLIC_SUPABASE_URL=secretref:supabase-url
-            NEXT_PUBLIC_SUPABASE_ANON_KEY=secretref:supabase-anon-key
-            NEXT_PUBLIC_APP_URL=secretref:app-url
+            NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+            NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+            NEXT_PUBLIC_APP_URL=${{ secrets.NEXT_PUBLIC_APP_URL }}
             SUPABASE_SERVICE_ROLE_KEY=secretref:supabase-service-role-key
             STRIPE_SECRET_KEY=secretref:stripe-secret-key
-            REDIS_URL=secretref:redis-url
+            UPSTASH_REDIS_REST_URL=${{ secrets.UPSTASH_REDIS_REST_URL }}
             NEXT_PUBLIC_APP_NAME=ABR Insights
             NEXT_PUBLIC_APP_VERSION=2.0.0
             NODE_ENV=production
