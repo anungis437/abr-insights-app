@@ -55,6 +55,19 @@ jobs:
             NEXT_PUBLIC_APP_URL=${{ secrets.NEXT_PUBLIC_APP_URL || '' }}
             SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY || '' }}
 
+      - name: Create Container App secrets
+        run: |
+          az containerapp secret set \
+            --name ${{ env.AZURE_CONTAINER_APP_NAME }} \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --secrets \
+              supabase-url="${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}" \
+              supabase-anon-key="${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" \
+              app-url="${{ secrets.NEXT_PUBLIC_APP_URL }}" \
+              supabase-service-role-key="${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+              stripe-secret-key="${{ secrets.STRIPE_SECRET_KEY }}" \
+              redis-url="${{ secrets.UPSTASH_REDIS_REST_URL }}"
+
       - name: Deploy to Azure Container Apps
         uses: azure/container-apps-deploy-action@v1
         with:
