@@ -301,10 +301,10 @@ export default function PersonalizedDashboard({
           <div className="mt-4">
             <div className="h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
               <div
-                className="h-full bg-gradient-to-r from-purple-500 to-pink-500"
+                className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-300"
                 style={
                   {
-                    width: `${Math.min(
+                    '--progress-width': `${Math.min(
                       (completionPrediction.remainingModules /
                         (completionPrediction.remainingModules + 5)) *
                         100,

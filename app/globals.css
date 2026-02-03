@@ -55,4 +55,9 @@
   [style*='--progress-width'] {
     width: var(--progress-width, 0%);
   }
+
+  /* Progress indicator transform using CSS custom property */
+  [style*='--progress-value'] {
+    transform: translateX(calc(-1 * var(--progress-value, 100%)));
+  }
 }
