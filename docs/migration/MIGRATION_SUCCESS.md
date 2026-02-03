@@ -69,8 +69,8 @@ Successfully applied **38 migrations** to PostgreSQL 17.6 database on Supabase, 
 
 **Password for all accounts**: `TestPass123!`
 
-| Role               | Email                         | Description                  |
-| ------------------ | ----------------------------- | ---------------------------- |
+| Role               | Email                           | Description                  |
+| ------------------ | ------------------------------- | ---------------------------- |
 | Super Admin        | <super_admin@abr-insights.com>  | Full system access           |
 | Org Admin          | <orgadmin@abr-insights.com>     | Organization management      |
 | Compliance Officer | <compliance@abr-insights.com>   | Compliance & auditing        |

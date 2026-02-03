@@ -82,7 +82,7 @@ Containers will no longer be incorrectly marked unhealthy or restarted when appl
 - ✅ Middleware generates unique nonce per request
 - ✅ Nonce injected into CSP header
 - ✅ Nonce available via `x-nonce` header
-- ⚠️  **Action Required**: Validate no inline scripts/styles without nonce attributes
+- ⚠️ **Action Required**: Validate no inline scripts/styles without nonce attributes
 
 **Next Steps**:
 
@@ -115,9 +115,7 @@ Nonce infrastructure is operational; runtime validation needed to confirm no bre
 
 ```typescript
 // Before: Re-checked limits after handler execution
-const results = await Promise.all(
-  configs.map((config) => checkRateLimit(request, config, context))
-)
+const results = await Promise.all(configs.map((config) => checkRateLimit(request, config, context)))
 
 // After: Reuse results from initial check
 const mostRestrictive = results.reduce((prev, curr) =>
@@ -139,7 +137,7 @@ In-memory rate limiting now correctly consumes tokens only once. Note: Productio
 ```typescript
 /**
  * Composeable guard with all options
- * 
+ *
  * Note: Rate limiting is intentionally NOT included here.
  * Apply rate limits separately using withRateLimit or withMultipleRateLimits
  * from lib/security/rateLimit.ts for better composability.
@@ -253,13 +251,13 @@ curl -I https://your-production-domain.com/admin
 
 ## Readiness Scorecard Update
 
-| Category | Before | After | Notes |
-|----------|--------|-------|-------|
-| Security Posture | 7.5/10 | **9.5/10** | ✅ Middleware active, CSP enforced |
-| Reliability & Deployability | 6.5/10 | **9.0/10** | ✅ Healthchecks aligned |
-| API Protection | 8.0/10 | **9.0/10** | ✅ Rate limit correctness improved |
-| Observability | 7.0/10 | **9.0/10** | ✅ Correlation IDs operational |
-| Maintainability | 8.0/10 | **9.0/10** | ✅ Docs align with code |
+| Category                    | Before | After      | Notes                              |
+| --------------------------- | ------ | ---------- | ---------------------------------- |
+| Security Posture            | 7.5/10 | **9.5/10** | ✅ Middleware active, CSP enforced |
+| Reliability & Deployability | 6.5/10 | **9.0/10** | ✅ Healthchecks aligned            |
+| API Protection              | 8.0/10 | **9.0/10** | ✅ Rate limit correctness improved |
+| Observability               | 7.0/10 | **9.0/10** | ✅ Correlation IDs operational     |
+| Maintainability             | 8.0/10 | **9.0/10** | ✅ Docs align with code            |
 
 **Overall**: 🎯 **WORLD-CLASS READY** (pending CSP runtime validation)
 

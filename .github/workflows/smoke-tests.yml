@@ -62,7 +62,7 @@ jobs:
           npm run build
           npm run start &
           SERVER_PID=$!
-          
+
           # Wait for server to be ready
           for i in {1..60}; do
             if curl -s http://localhost:3000 > /dev/null; then
@@ -72,7 +72,7 @@ jobs:
             echo "Waiting for server... ($i/60)"
             sleep 2
           done
-          
+
           echo "Server failed to start"
           kill $SERVER_PID
           exit 1
@@ -85,7 +85,7 @@ jobs:
         # Skip tests if no test credentials are configured
         if: env.TEST_USER_EMAIL != '' && env.PLAYWRIGHT_BASE_URL != ''
         run: npx playwright test --project=chromium
-      
+
       - name: Skip Playwright tests (no credentials)
         if: env.TEST_USER_EMAIL == '' || env.PLAYWRIGHT_BASE_URL == ''
         run: echo "Skipping E2E tests - no test credentials or base URL configured"

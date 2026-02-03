@@ -322,9 +322,9 @@ gpg --decrypt secrets-backup.enc.txt
 
 | Role                 | Contact | Phone           | Email                              |
 | -------------------- | ------- | --------------- | ---------------------------------- |
-| **On-Call Engineer** | TBD     | +1-XXX-XXX-XXXX | <oncall@abrinsights.com>             |
-| **CTO**              | TBD     | +1-XXX-XXX-XXXX | <cto@abrinsights.com>                |
-| **Supabase Support** | N/A     | N/A             | <support@supabase.com>               |
+| **On-Call Engineer** | TBD     | +1-XXX-XXX-XXXX | <oncall@abrinsights.com>           |
+| **CTO**              | TBD     | +1-XXX-XXX-XXXX | <cto@abrinsights.com>              |
+| **Supabase Support** | N/A     | N/A             | <support@supabase.com>             |
 | **Azure Support**    | N/A     | N/A             | [Portal](https://portal.azure.com) |
 
 ### Escalation Path

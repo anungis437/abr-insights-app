@@ -268,13 +268,13 @@ logger.error('Failed to send notification email', {
 
 **Changes**:
 
-| Directive | Before | After | Impact |
-|-----------|--------|-------|--------|
-| `script-src` | `'unsafe-eval'` | Removed | Blocks arbitrary code execution |
-| `unsafe-inline` | Kept | Kept | Required by Next.js build system |
-| `frame-src` | Missing | `'self' https://js.stripe.com` | Prevents clickjacking via iframes |
-| `frame-ancestors` | Missing | `'none'` | Prevents embedding in other sites |
-| `upgrade-insecure-requests` | Missing | Added | Forces HTTPS |
+| Directive                   | Before          | After                          | Impact                            |
+| --------------------------- | --------------- | ------------------------------ | --------------------------------- |
+| `script-src`                | `'unsafe-eval'` | Removed                        | Blocks arbitrary code execution   |
+| `unsafe-inline`             | Kept            | Kept                           | Required by Next.js build system  |
+| `frame-src`                 | Missing         | `'self' https://js.stripe.com` | Prevents clickjacking via iframes |
+| `frame-ancestors`           | Missing         | `'none'`                       | Prevents embedding in other sites |
+| `upgrade-insecure-requests` | Missing         | Added                          | Forces HTTPS                      |
 
 **Rationale**:
 

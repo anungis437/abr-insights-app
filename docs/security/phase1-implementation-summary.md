@@ -120,21 +120,21 @@ guardedRoute(handler, {
 
 **Table: `ai_usage_logs`**
 
-| Column | Type | Purpose |
-|--------|------|---------|
-| `id` | UUID | Primary key |
-| `user_id` | UUID | Who made the request |
-| `organization_id` | UUID | Which org (for billing) |
-| `endpoint` | TEXT | 'chat', 'coach', 'embeddings-generate', etc. |
-| `session_type` | TEXT | For coach endpoint (comprehensive, learning_path, etc.) |
-| `operation_type` | TEXT | For embeddings (cases/courses) |
-| `embedding_type` | TEXT | Type of embedding generated |
-| `batch_size` | INTEGER | For batch operations |
-| `prompt_tokens` | INTEGER | Tokens in request |
-| `completion_tokens` | INTEGER | Tokens in response |
-| `total_tokens` | INTEGER | Sum for cost calculation |
-| `model` | TEXT | Azure OpenAI model used |
-| `created_at` | TIMESTAMPTZ | When request was made |
+| Column              | Type        | Purpose                                                 |
+| ------------------- | ----------- | ------------------------------------------------------- |
+| `id`                | UUID        | Primary key                                             |
+| `user_id`           | UUID        | Who made the request                                    |
+| `organization_id`   | UUID        | Which org (for billing)                                 |
+| `endpoint`          | TEXT        | 'chat', 'coach', 'embeddings-generate', etc.            |
+| `session_type`      | TEXT        | For coach endpoint (comprehensive, learning_path, etc.) |
+| `operation_type`    | TEXT        | For embeddings (cases/courses)                          |
+| `embedding_type`    | TEXT        | Type of embedding generated                             |
+| `batch_size`        | INTEGER     | For batch operations                                    |
+| `prompt_tokens`     | INTEGER     | Tokens in request                                       |
+| `completion_tokens` | INTEGER     | Tokens in response                                      |
+| `total_tokens`      | INTEGER     | Sum for cost calculation                                |
+| `model`             | TEXT        | Azure OpenAI model used                                 |
+| `created_at`        | TIMESTAMPTZ | When request was made                                   |
 
 **Indexes Created:**
 

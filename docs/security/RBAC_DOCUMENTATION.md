@@ -186,8 +186,8 @@ CREATE INDEX idx_profiles_org_role ON profiles(organization_id, role);
 
 Migration 016 creates comprehensive test accounts:
 
-| Email                         | Role               | Full Name          | Password     |
-| ----------------------------- | ------------------ | ------------------ | ------------ |
+| Email                           | Role               | Full Name          | Password     |
+| ------------------------------- | ------------------ | ------------------ | ------------ |
 | <super_admin@abr-insights.com>  | super_admin        | Super Admin User   | TestPass123! |
 | <compliance@abr-insights.com>   | compliance_officer | Compliance Officer | TestPass123! |
 | <orgadmin@abr-insights.com>     | org_admin          | Organization Admin | TestPass123! |

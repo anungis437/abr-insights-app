@@ -52,14 +52,14 @@
 
 The following environment variables have been set in Azure:
 
-| Variable                        | Value                                                 |
-| ------------------------------- | ----------------------------------------------------- |
+| Variable                        | Value                                                   |
+| ------------------------------- | ------------------------------------------------------- |
 | `NEXT_PUBLIC_SUPABASE_URL`      | <https://your-project-ref.supabase.co>                  |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | your-supabase-anon-key (JWT token from Supabase)      |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | your-supabase-anon-key (JWT token from Supabase)        |
 | `NEXT_PUBLIC_APP_URL`           | <https://purple-ground-03d2b380f.3.azurestaticapps.net> |
-| `NEXT_PUBLIC_APP_NAME`          | ABR Insights                                          |
-| `NEXT_PUBLIC_APP_VERSION`       | 2.0.0                                                 |
-| `NODE_ENV`                      | production                                            |
+| `NEXT_PUBLIC_APP_NAME`          | ABR Insights                                            |
+| `NEXT_PUBLIC_APP_VERSION`       | 2.0.0                                                   |
+| `NODE_ENV`                      | production                                              |
 
 ---
 

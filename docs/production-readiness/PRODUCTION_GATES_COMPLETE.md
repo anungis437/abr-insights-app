@@ -408,11 +408,11 @@ SELECT archive_old_audit_logs(365);
 
 **Environments**:
 
-| Environment | Purpose | Supabase Project | API Keys |
-|-------------|---------|------------------|----------|
-| Development | Local dev | Dev | Test |
-| Staging | Pre-production | Staging | Test |
-| Production | Live users | Production | Live |
+| Environment | Purpose        | Supabase Project | API Keys |
+| ----------- | -------------- | ---------------- | -------- |
+| Development | Local dev      | Dev              | Test     |
+| Staging     | Pre-production | Staging          | Test     |
+| Production  | Live users     | Production       | Live     |
 
 **Separation Mechanisms**:
 

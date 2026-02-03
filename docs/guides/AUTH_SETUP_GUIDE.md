@@ -102,8 +102,8 @@ npx tsx scripts/test-supabase-keys.ts
 
 Once you have one working user, create others via Dashboard:
 
-| Email                       | Role               | Password     |
-| --------------------------- | ------------------ | ------------ |
+| Email                         | Role               | Password     |
+| ----------------------------- | ------------------ | ------------ |
 | <learner@abr-insights.com>    | learner            | TestPass123! |
 | <educator@abr-insights.com>   | educator           | TestPass123! |
 | <analyst@abr-insights.com>    | analyst            | TestPass123! |

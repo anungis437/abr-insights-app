@@ -29,8 +29,8 @@
 
 All passwords are: **TestPass123!**
 
-| Email                         | Role               | Purpose                       |
-| ----------------------------- | ------------------ | ----------------------------- |
+| Email                           | Role               | Purpose                       |
+| ------------------------------- | ------------------ | ----------------------------- |
 | <super_admin@abr-insights.com>  | super_admin        | Full admin access             |
 | <educator@abr-insights.com>     | educator           | Course creation & instruction |
 | <learner@abr-insights.com>      | learner            | Student account with progress |
