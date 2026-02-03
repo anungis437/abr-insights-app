@@ -1,4 +1,4 @@
-name: AI Cost Controls
+﻿name: AI Cost Controls
 
 on:
   push:
@@ -21,10 +21,10 @@ jobs:
           echo "Checking AI usage migration..."
 
           if [ ! -f "supabase/migrations/20260203_ai_usage_tracking.sql" ]; then
-            echo "❌ AI usage migration missing"
+            echo "â Œ AI usage migration missing"
             exit 1
           fi
-          echo "✅ AI usage migration exists"
+          echo "[OK] AI usage migration exists"
 
       - name: Validate schema tables
         run: |
@@ -32,17 +32,17 @@ jobs:
 
           # Check ai_usage_daily table
           if ! grep -q "CREATE TABLE.*ai_usage_daily" supabase/migrations/20260203_ai_usage_tracking.sql; then
-            echo "❌ ai_usage_daily table not defined"
+            echo "â Œ ai_usage_daily table not defined"
             exit 1
           fi
-          echo "✅ ai_usage_daily table defined"
+          echo "[OK] ai_usage_daily table defined"
 
           # Check ai_quota table
           if ! grep -q "CREATE TABLE.*ai_quota" supabase/migrations/20260203_ai_usage_tracking.sql; then
-            echo "❌ ai_quota table not defined"
+            echo "â Œ ai_quota table not defined"
             exit 1
           fi
-          echo "✅ ai_quota table defined"
+          echo "[OK] ai_quota table defined"
 
       - name: Validate required columns
         run: |
@@ -63,11 +63,11 @@ jobs:
 
           for col in "${REQUIRED_USAGE_COLUMNS[@]}"; do
             if ! grep -q "$col" "$MIGRATION_FILE"; then
-              echo "❌ Missing column: $col in ai_usage_daily"
+              echo "â Œ Missing column: $col in ai_usage_daily"
               exit 1
             fi
           done
-          echo "✅ ai_usage_daily has required columns"
+          echo "[OK] ai_usage_daily has required columns"
 
           # ai_quota columns
           REQUIRED_QUOTA_COLUMNS=(
@@ -80,11 +80,11 @@ jobs:
 
           for col in "${REQUIRED_QUOTA_COLUMNS[@]}"; do
             if ! grep -q "$col" "$MIGRATION_FILE"; then
-              echo "❌ Missing column: $col in ai_quota"
+              echo "â Œ Missing column: $col in ai_quota"
               exit 1
             fi
           done
-          echo "✅ ai_quota has required columns"
+          echo "[OK] ai_quota has required columns"
 
       - name: Validate database functions
         run: |
@@ -94,17 +94,17 @@ jobs:
 
           # Check get_monthly_ai_usage function
           if ! grep -q "CREATE.*FUNCTION get_monthly_ai_usage" "$MIGRATION_FILE"; then
-            echo "❌ get_monthly_ai_usage function not defined"
+            echo "â Œ get_monthly_ai_usage function not defined"
             exit 1
           fi
-          echo "✅ get_monthly_ai_usage function defined"
+          echo "[OK] get_monthly_ai_usage function defined"
 
           # Check check_ai_quota function
           if ! grep -q "CREATE.*FUNCTION check_ai_quota" "$MIGRATION_FILE"; then
-            echo "❌ check_ai_quota function not defined"
+            echo "â Œ check_ai_quota function not defined"
             exit 1
           fi
-          echo "✅ check_ai_quota function defined"
+          echo "[OK] check_ai_quota function defined"
 
       - name: Validate RLS policies
         run: |
@@ -114,17 +114,17 @@ jobs:
 
           # Check RLS enabled
           if ! grep -q "ENABLE ROW LEVEL SECURITY" "$MIGRATION_FILE"; then
-            echo "❌ RLS not enabled on tables"
+            echo "â Œ RLS not enabled on tables"
             exit 1
           fi
-          echo "✅ RLS enabled"
+          echo "[OK] RLS enabled"
 
           # Check policies exist
           if ! grep -q "CREATE POLICY" "$MIGRATION_FILE"; then
-            echo "❌ No RLS policies defined"
+            echo "â Œ No RLS policies defined"
             exit 1
           fi
-          echo "✅ RLS policies defined"
+          echo "[OK] RLS policies defined"
 
   validate-service:
     name: Validate AI Quota Service
@@ -148,10 +148,10 @@ jobs:
           echo "Checking AI quota service..."
 
           if [ ! -f "lib/services/ai-quota.ts" ]; then
-            echo "❌ AI quota service missing"
+            echo "â Œ AI quota service missing"
             exit 1
           fi
-          echo "✅ AI quota service exists"
+          echo "[OK] AI quota service exists"
 
       - name: Validate service exports
         run: |
@@ -170,18 +170,18 @@ jobs:
 
           for func in "${REQUIRED_FUNCTIONS[@]}"; do
             if ! grep -q "$func" "$SERVICE_FILE"; then
-              echo "❌ Missing function: $func"
+              echo "â Œ Missing function: $func"
               exit 1
             fi
           done
-          echo "✅ All required functions present"
+          echo "[OK] All required functions present"
 
           # Check aiQuota export
           if ! grep -q "export const aiQuota" "$SERVICE_FILE"; then
-            echo "❌ aiQuota not exported"
+            echo "â Œ aiQuota not exported"
             exit 1
           fi
-          echo "✅ aiQuota service exported"
+          echo "[OK] aiQuota service exported"
 
       - name: Validate cost calculation
         run: |
@@ -191,7 +191,7 @@ jobs:
 
           # Check cost constants defined
           if ! grep -q "COST_PER_1K_TOKENS" "$SERVICE_FILE"; then
-            echo "❌ Cost constants not defined"
+            echo "â Œ Cost constants not defined"
             exit 1
           fi
 
@@ -199,11 +199,11 @@ jobs:
           MODELS=("gpt-4" "gpt-3.5-turbo" "claude" "embedding")
           for model in "${MODELS[@]}"; do
             if ! grep -q "'$model'" "$SERVICE_FILE"; then
-              echo "❌ Missing pricing for model: $model"
+              echo "â Œ Missing pricing for model: $model"
               exit 1
             fi
           done
-          echo "✅ Cost calculation configured for all models"
+          echo "[OK] Cost calculation configured for all models"
 
       - name: Validate structured logging
         run: |
@@ -213,17 +213,17 @@ jobs:
 
           # Check logger import
           if ! grep -q "import.*logger.*from.*production-logger" "$SERVICE_FILE"; then
-            echo "❌ Production logger not imported"
+            echo "â Œ Production logger not imported"
             exit 1
           fi
 
           # Check no console.log
           if grep -q "console\.log" "$SERVICE_FILE"; then
-            echo "❌ Service uses console.log (must use structured logging)"
+            echo "â Œ Service uses console.log (must use structured logging)"
             exit 1
           fi
 
-          echo "✅ Structured logging used"
+          echo "[OK] Structured logging used"
 
   validate-api-endpoints:
     name: Validate API Endpoints
@@ -238,20 +238,20 @@ jobs:
           echo "Checking admin API endpoint..."
 
           if [ ! -f "app/api/admin/ai-quota/route.ts" ]; then
-            echo "❌ Admin AI quota endpoint missing"
+            echo "â Œ Admin AI quota endpoint missing"
             exit 1
           fi
-          echo "✅ Admin AI quota endpoint exists"
+          echo "[OK] Admin AI quota endpoint exists"
 
       - name: Check user endpoint exists
         run: |
           echo "Checking user API endpoint..."
 
           if [ ! -f "app/api/ai-usage/route.ts" ]; then
-            echo "❌ User AI usage endpoint missing"
+            echo "â Œ User AI usage endpoint missing"
             exit 1
           fi
-          echo "✅ User AI usage endpoint exists"
+          echo "[OK] User AI usage endpoint exists"
 
       - name: Validate endpoint contracts
         run: |
@@ -262,22 +262,22 @@ jobs:
 
           # Admin endpoint must have GET and PUT
           if ! grep -q "export async function GET" "$ADMIN_FILE"; then
-            echo "❌ Admin endpoint missing GET handler"
+            echo "â Œ Admin endpoint missing GET handler"
             exit 1
           fi
 
           if ! grep -q "export async function PUT" "$ADMIN_FILE"; then
-            echo "❌ Admin endpoint missing PUT handler"
+            echo "â Œ Admin endpoint missing PUT handler"
             exit 1
           fi
-          echo "✅ Admin endpoint has GET and PUT handlers"
+          echo "[OK] Admin endpoint has GET and PUT handlers"
 
           # User endpoint must have GET
           if ! grep -q "export async function GET" "$USER_FILE"; then
-            echo "❌ User endpoint missing GET handler"
+            echo "â Œ User endpoint missing GET handler"
             exit 1
           fi
-          echo "✅ User endpoint has GET handler"
+          echo "[OK] User endpoint has GET handler"
 
       - name: Validate authentication checks
         run: |
@@ -288,17 +288,17 @@ jobs:
 
           # Admin endpoint must check super_admin role
           if ! grep -q "super_admin" "$ADMIN_FILE"; then
-            echo "❌ Admin endpoint doesn't check super_admin role"
+            echo "â Œ Admin endpoint doesn't check super_admin role"
             exit 1
           fi
-          echo "✅ Admin endpoint checks super_admin"
+          echo "[OK] Admin endpoint checks super_admin"
 
           # User endpoint must authenticate
           if ! grep -q "getUser" "$USER_FILE"; then
-            echo "❌ User endpoint doesn't authenticate"
+            echo "â Œ User endpoint doesn't authenticate"
             exit 1
           fi
-          echo "✅ User endpoint authenticates"
+          echo "[OK] User endpoint authenticates"
 
       - name: Validate error codes
         run: |
@@ -317,11 +317,11 @@ jobs:
 
           for code in "${ERROR_CODES[@]}"; do
             if ! grep -q "code.*$code" "$ADMIN_FILE" && ! grep -q "code.*$code" "$USER_FILE"; then
-              echo "❌ Missing error code: $code"
+              echo "â Œ Missing error code: $code"
               exit 1
             fi
           done
-          echo "✅ Stable error codes present"
+          echo "[OK] Stable error codes present"
 
   summary:
     name: AI Cost Controls Summary
@@ -338,7 +338,7 @@ jobs:
           if [ "${{ needs.validate-schema.result }}" == "success" ] && \
              [ "${{ needs.validate-service.result }}" == "success" ] && \
              [ "${{ needs.validate-api-endpoints.result }}" == "success" ]; then
-            echo "✅ All AI cost control validations passed" >> $GITHUB_STEP_SUMMARY
+            echo "[OK] All AI cost control validations passed" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "- Database schema validated" >> $GITHUB_STEP_SUMMARY
             echo "- AI quota service validated" >> $GITHUB_STEP_SUMMARY
@@ -347,7 +347,7 @@ jobs:
             echo "- Stable error codes defined" >> $GITHUB_STEP_SUMMARY
             echo "- Structured logging used" >> $GITHUB_STEP_SUMMARY
           else
-            echo "❌ AI cost control validations failed" >> $GITHUB_STEP_SUMMARY
+            echo "â Œ AI cost control validations failed" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "Check the logs above for details." >> $GITHUB_STEP_SUMMARY
             exit 1
