@@ -1,0 +1,119 @@
+# Gitleaks Configuration
+# Prevents secrets from being committed to the repository
+# Docs: https://github.com/gitleaks/gitleaks
+
+title = "ABR Insights - Secret Detection"
+
+[extend]
+# Use default Gitleaks rules as baseline
+useDefault = true
+
+[allowlist]
+description = "Global allowlist for known safe patterns"
+paths = [
+  # Documentation can reference example secrets
+  '''docs/.*\.md$''',
+  '''README\.md$''',
+  
+  # Test fixtures with dummy data
+  '''tests/.*\.test\.ts$''',
+  '''tests/fixtures/.*''',
+  
+  # Package lock files contain registry URLs that look like secrets
+  '''package-lock\.json$''',
+  '''pnpm-lock\.yaml$''',
+]
+
+regexes = [
+  # Allow example/dummy secrets in docs
+  '''example\.com''',
+  '''dummy''',
+  '''fake''',
+  '''test''',
+  '''sample''',
+  '''placeholder''',
+  
+  # Allow Next.js public env vars (these are meant to be public)
+  '''NEXT_PUBLIC_''',
+]
+
+# Custom rules for ABR Insights specific secrets
+[[rules]]
+id = "supabase-service-role-key"
+description = "Supabase Service Role Key (high privilege)"
+regex = '''eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ii4{20,}'''
+tags = ["supabase", "secret", "high-privilege"]
+severity = "critical"
+
+[[rules]]
+id = "stripe-secret-key"
+description = "Stripe Secret API Key"
+regex = '''sk_live_[0-9a-zA-Z]{24,}'''
+tags = ["stripe", "secret", "payment"]
+severity = "critical"
+
+[[rules]]
+id = "stripe-restricted-key"
+description = "Stripe Restricted API Key"
+regex = '''rk_live_[0-9a-zA-Z]{24,}'''
+tags = ["stripe", "secret", "payment"]
+severity = "high"
+
+[[rules]]
+id = "stripe-webhook-secret"
+description = "Stripe Webhook Signing Secret"
+regex = '''whsec_[0-9a-zA-Z]{32,}'''
+tags = ["stripe", "secret", "webhook"]
+severity = "high"
+
+[[rules]]
+id = "azure-openai-key"
+description = "Azure OpenAI API Key"
+regex = '''[0-9a-f]{32}'''
+path = '''\.env'''
+tags = ["azure", "openai", "secret"]
+severity = "high"
+
+[[rules]]
+id = "upstash-redis-url"
+description = "Upstash Redis Connection URL"
+regex = '''redis://[a-zA-Z0-9\-]+:[A-Za-z0-9+/=]+@[a-z0-9\-]+\.upstash\.io:[0-9]+'''
+tags = ["redis", "upstash", "secret"]
+severity = "high"
+
+[[rules]]
+id = "generic-api-key"
+description = "Generic API Key Pattern"
+regex = '''(?i)(api[_-]?key|apikey|api[_-]?secret)\s*[=:]\s*['"]?[0-9a-zA-Z\-_]{32,}['"]?'''
+tags = ["api-key", "secret"]
+severity = "medium"
+
+[[rules]]
+id = "private-key"
+description = "Private Key (RSA, SSH, etc.)"
+regex = '''-----BEGIN (RSA |EC |DSA |OPENSSH )?PRIVATE KEY-----'''
+tags = ["private-key", "secret"]
+severity = "critical"
+
+[[rules]]
+id = "jwt-secret"
+description = "JWT Signing Secret"
+regex = '''(?i)jwt[_-]?secret\s*[=:]\s*['"]?[0-9a-zA-Z\-_+=]{32,}['"]?'''
+tags = ["jwt", "secret"]
+severity = "high"
+
+[[rules]]
+id = "database-url"
+description = "Database Connection String"
+regex = '''(?i)(postgres|mysql|mongodb)://[^:]+:[^@]+@[^/]+/'''
+tags = ["database", "connection-string", "secret"]
+severity = "high"
+
+# Allowlist for specific files that contain example secrets
+[[rules.allowlist]]
+paths = [
+  '''docs/PR_01_CSP_RUNTIME_ENFORCEMENT\.md''',
+  '''docs/CONTAINER_SECURITY_CONTROLS\.md''',
+  '''\.github/workflows/.*\.yml''',
+]
+description = "Documentation and CI files can contain example/dummy secrets"
