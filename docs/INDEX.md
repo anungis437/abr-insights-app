@@ -11,15 +11,15 @@ Welcome to the ABR Insights App documentation. This index will help you navigate
 
 | PR | Feature | Status | Documentation |
 |----|---------|--------|---------------|
-| PR-01 | CSP Runtime Enforcement | ✅ Complete | [PR_01_CSP_RUNTIME_ENFORCEMENT.md](PR_01_CSP_RUNTIME_ENFORCEMENT.md) |
-| PR-02 | CI Guardrails & Repo Hygiene | ✅ Complete | [PR_02_CI_GUARDRAILS.md](PR_02_CI_GUARDRAILS.md) |
-| PR-03 | Structured Logging & Correlation | ✅ Complete | [PR_03_STRUCTURED_LOGGING.md](PR_03_STRUCTURED_LOGGING.md) |
-| PR-04 | Container Health & Metrics | ✅ Complete | [PR_04_CONTAINER_HEALTH.md](PR_04_CONTAINER_HEALTH.md) |
-| PR-05 | AI Abuse & Cost Controls | ✅ Complete | [PR_05_AI_COST_CONTROLS.md](PR_05_AI_COST_CONTROLS.md) |
-| PR-06 | Data Lifecycle Management | ✅ Complete | [PR_06_DATA_LIFECYCLE.md](PR_06_DATA_LIFECYCLE.md) |
-| PR-07 | CanLII Compliance Enforcement | ✅ Complete | [PR_07_CANLII_COMPLIANCE.md](PR_07_CANLII_COMPLIANCE.md) |
-| PR-08 | Procurement & Compliance Pack | ✅ Complete | [PR_08_COMPLIANCE_PACK.md](PR_08_COMPLIANCE_PACK.md) |
-| PR-09 | E2E Smoke Tests (FINAL) | ✅ Complete | [PR_09_E2E_SMOKE_TESTS.md](PR_09_E2E_SMOKE_TESTS.md) |
+| PR-01 | CSP Runtime Enforcement | ✅ Complete | [PR_01_CSP_RUNTIME_ENFORCEMENT.md](production-readiness/PR_01_CSP_RUNTIME_ENFORCEMENT.md) |
+| PR-02 | CI Guardrails & Repo Hygiene | ✅ Complete | [PR_02_CI_GUARDRAILS.md](production-readiness/PR_02_CI_GUARDRAILS.md) |
+| PR-03 | Structured Logging & Correlation | ✅ Complete | [PR_03_STRUCTURED_LOGGING.md](production-readiness/PR_03_STRUCTURED_LOGGING.md) |
+| PR-04 | Container Health & Metrics | ✅ Complete | [PR_04_CONTAINER_HEALTH.md](production-readiness/PR_04_CONTAINER_HEALTH.md) |
+| PR-05 | AI Abuse & Cost Controls | ✅ Complete | [PR_05_AI_COST_CONTROLS.md](production-readiness/PR_05_AI_COST_CONTROLS.md) |
+| PR-06 | Data Lifecycle Management | ✅ Complete | [PR_06_DATA_LIFECYCLE.md](production-readiness/PR_06_DATA_LIFECYCLE.md) |
+| PR-07 | CanLII Compliance Enforcement | ✅ Complete | [PR_07_CANLII_COMPLIANCE.md](production-readiness/PR_07_CANLII_COMPLIANCE.md) |
+| PR-08 | Procurement & Compliance Pack | ✅ Complete | [PR_08_COMPLIANCE_PACK.md](production-readiness/PR_08_COMPLIANCE_PACK.md) |
+| PR-09 | E2E Smoke Tests (FINAL) | ✅ Complete | [PR_09_E2E_SMOKE_TESTS.md](production-readiness/PR_09_E2E_SMOKE_TESTS.md) |
 
 ### Compliance Documentation
 
@@ -57,16 +57,16 @@ Enterprise-ready compliance documentation for procurement teams:
 
 ### Testing
 - **[Testing System 100%](completion-guides/TESTING_100_COMPLETE.md)** ✅ - 198+ tests across all systems
-- **[E2E Testing Guide](E2E_TESTING_GUIDE.md)** - End-to-end testing with Playwright
-- **[E2E Smoke Tests](PR_09_E2E_SMOKE_TESTS.md)** - Critical flow validation (50+ tests)
+- **[E2E Testing Guide](development/E2E_TESTING_GUIDE.md)** - End-to-end testing with Playwright
+- **[E2E Smoke Tests](production-readiness/PR_09_E2E_SMOKE_TESTS.md)** - Critical flow validation (50+ tests)
 - **[Testing Quick Start](completion-guides/TESTING_QUICK_START.md)** - Get started with testing
 - **[Testing Strategy](development/TESTING_STRATEGY.md)** - Comprehensive testing approach
 
 ### Development Setup
 - **[Performance Optimization](development/PERFORMANCE_OPTIMIZATION.md)** ⚡ - Next.js 15 optimizations
-- **[Supabase Setup](SUPABASE_SETUP.md)** - Database configuration
-- **[Redis Setup Quickstart](REDIS_SETUP_QUICKSTART.md)** - Redis configuration
-- **[Redis Migration Complete](REDIS_MIGRATION_COMPLETE.md)** - Redis implementation status
+- **[Supabase Setup](guides/SUPABASE_SETUP.md)** - Database configuration
+- **[Redis Setup Quickstart](guides/REDIS_SETUP_QUICKSTART.md)** - Redis configuration
+- **[Redis Migration Complete](migration/REDIS_MIGRATION_COMPLETE.md)** - Redis implementation status
 
 ## 🐳 Docker & Build System
 
@@ -201,9 +201,9 @@ Enterprise-ready compliance documentation for procurement teams:
 ## 🏆 Production Readiness Achievements
 
 ### Completed Milestones
-- ✅ **Gate A**: Security & CSP Enforcement - [GATE_A_SECURITY_COMPLETE.md](GATE_A_SECURITY_COMPLETE.md)
-- ✅ **Gate B**: CanLII Compliance - [GATE_B_CANLII_COMPLIANCE_COMPLETE.md](GATE_B_CANLII_COMPLIANCE_COMPLETE.md)
-- ✅ **Gate C**: Operational Readiness - [GATE_C_OPERATIONAL_READINESS_COMPLETE.md](GATE_C_OPERATIONAL_READINESS_COMPLETE.md)
+- ✅ **Gate A**: Security & CSP Enforcement - [GATE_A_SECURITY_COMPLETE.md](production-readiness/GATE_A_SECURITY_COMPLETE.md)
+- ✅ **Gate B**: CanLII Compliance - [GATE_B_CANLII_COMPLIANCE_COMPLETE.md](production-readiness/GATE_B_CANLII_COMPLIANCE_COMPLETE.md)
+- ✅ **Gate C**: Operational Readiness - [GATE_C_OPERATIONAL_READINESS_COMPLETE.md](production-readiness/GATE_C_OPERATIONAL_READINESS_COMPLETE.md)
 
 ### Key Achievements
 - 🔒 **CSP Enforcement**: Nonce-based protection, XSS prevention
@@ -216,23 +216,95 @@ Enterprise-ready compliance documentation for procurement teams:
 - 📚 **Compliance Pack**: 8 enterprise-ready documents (~32,000 lines)
 - 🧪 **E2E Smoke Tests**: 50+ tests covering 7 critical flows
 
+## 📁 Repository Organization
+
+### Documentation Structure
+```
+docs/
+├── INDEX.md                       # This file
+├── README.md                      # Documentation overview
+├── production-readiness/          # All 9 production readiness PRs
+├── compliance/                    # Enterprise compliance docs (8 docs)
+├── architecture/                  # System architecture
+├── api/                           # API documentation
+├── deployment/                    # Deployment guides
+├── development/                   # Development guides
+├── design/                        # Design documents
+├── ingestion/                     # Data ingestion docs
+├── migration/                     # Migration documents
+├── planning/                      # Project planning
+├── guides/                        # User and developer guides
+├── security/                      # Security documentation
+├── completion-guides/             # System completion docs
+├── features/                      # Feature documentation
+├── status-reports/                # Status and monitoring reports
+└── archive/                       # Archived documentation
+```
+
+### Scripts Organization
+```
+scripts/
+├── README.md                      # Scripts documentation
+├── auth/                          # Authentication & user management scripts
+├── courses/                       # Course content management scripts
+├── database/                      # Database migrations & schema scripts
+├── gamification/                  # Gamification system scripts
+├── testing/                       # Test scripts & validation
+├── utilities/                     # General utility scripts
+├── security/                      # RLS & security scripts
+├── deployment/                    # Deployment automation
+├── logging/                       # Logging migration scripts
+├── organizations/                 # Organization setup scripts
+├── ingestion/                     # Data ingestion scripts
+├── stripe/                        # Payment integration scripts
+├── csp/                           # CSP validation scripts
+└── compliance/                    # Compliance-related scripts
+```
+
 ---
 
 **Last Updated**: February 3, 2026  
-**Status**: ✅ World-Class Production Readiness Achieved (9/9 PRs Complete)
+**Status**: ✅ World-Class Production Readiness Achieved (9/9 PRs Complete) + Repository Fully Organized
 ```
 docs/
-├── INDEX.md                    # This file
-├── README.md                   # Documentation overview
-├── architecture/               # System architecture
-├── api/                        # API documentation
-├── deployment/                 # Deployment guides
-├── development/                # Development guides
-├── design/                     # Design documents
-├── ingestion/                  # Data ingestion docs
-├── migration/                  # Migration documents
-├── planning/                   # Project planning
-└── guides/                     # User and developer guides
+├── INDEX.md                       # This file
+├── README.md                      # Documentation overview
+├── production-readiness/          # All 9 production readiness PRs
+├── compliance/                    # Enterprise compliance docs (8 docs)
+├── architecture/                  # System architecture
+├── api/                           # API documentation
+├── deployment/                    # Deployment guides
+├── development/                   # Development guides
+├── design/                        # Design documents
+├── ingestion/                     # Data ingestion docs
+├── migration/                     # Migration documents
+├── planning/                      # Project planning
+├── guides/                        # User and developer guides
+├── security/                      # Security documentation
+├── completion-guides/             # System completion docs
+├── features/                      # Feature documentation
+├── status-reports/                # Status and monitoring reports
+└── archive/                       # Archived documentation
+```
+
+### Scripts Organization
+```
+scripts/
+├── README.md                      # Scripts documentation
+├── auth/                          # Authentication & user management scripts
+├── courses/                       # Course content management scripts
+├── database/                      # Database migrations & schema scripts
+├── gamification/                  # Gamification system scripts
+├── testing/                       # Test scripts & validation
+├── utilities/                     # General utility scripts
+├── security/                      # RLS & security scripts
+├── deployment/                    # Deployment automation
+├── logging/                       # Logging migration scripts
+├── organizations/                 # Organization setup scripts
+├── ingestion/                     # Data ingestion scripts
+├── stripe/                        # Payment integration scripts
+├── csp/                           # CSP validation scripts
+└── compliance/                    # Compliance-related scripts
 ```
 
 ## 🔗 External Resources
@@ -244,6 +316,6 @@ docs/
 
 ---
 
-**Last Updated**: January 28, 2026  
-**Status**: All major systems at 100% production readiness  
+**Last Updated**: February 3, 2026  
+**Status**: ✅ World-Class Production Readiness + Repository Fully Organized (205 files organized)  
 **Maintained By**: ABR Insights Team
