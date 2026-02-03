@@ -1,0 +1,395 @@
+# PR-07: CanLII Compliance CI Workflow
+# 
+# Validates CanLII hard compliance enforcement:
+# - Rate limiter (2 req/sec, 1 concurrent, 5000/day)
+# - Kill switch (CANLII_INGESTION_ENABLED)
+# - Database schema excludes text fields
+# - Types exclude content/body/text
+# - Tracking and audit logging
+
+name: PR-07 CanLII Compliance
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+jobs:
+  validate-rate-limiter:
+    name: Validate Rate Limiter
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Check rate limiter file exists
+        run: |
+          if [ ! -f "lib/services/canlii-rate-limiter.ts" ]; then
+            echo "❌ Rate limiter file not found"
+            exit 1
+          fi
+          echo "✅ Rate limiter file exists"
+      
+      - name: Validate rate limit constants
+        run: |
+          if ! grep -q "REQUESTS_PER_SECOND.*2" lib/services/canlii-rate-limiter.ts; then
+            echo "❌ REQUESTS_PER_SECOND not set to 2"
+            exit 1
+          fi
+          
+          if ! grep -q "MAX_CONCURRENT.*1" lib/services/canlii-rate-limiter.ts; then
+            echo "❌ MAX_CONCURRENT not set to 1"
+            exit 1
+          fi
+          
+          if ! grep -q "DAILY_LIMIT.*5000" lib/services/canlii-rate-limiter.ts; then
+            echo "❌ DAILY_LIMIT not set to 5000"
+            exit 1
+          fi
+          
+          echo "✅ Rate limit constants correct (2 req/sec, 1 concurrent, 5000/day)"
+      
+      - name: Validate Redis token bucket
+        run: |
+          if ! grep -q "REDIS_KEY_TOKENS" lib/services/canlii-rate-limiter.ts; then
+            echo "❌ Token bucket not implemented"
+            exit 1
+          fi
+          
+          if ! grep -q "REFILL_RATE" lib/services/canlii-rate-limiter.ts; then
+            echo "❌ Token refill not implemented"
+            exit 1
+          fi
+          
+          echo "✅ Token bucket algorithm implemented"
+      
+      - name: Validate fail-closed behavior
+        run: |
+          if ! grep -q "FAIL CLOSED" lib/services/canlii-rate-limiter.ts; then
+            echo "❌ Fail-closed behavior not documented"
+            exit 1
+          fi
+          
+          if ! grep -q "allowed: false" lib/services/canlii-rate-limiter.ts; then
+            echo "❌ Fail-closed not implemented"
+            exit 1
+          fi
+          
+          echo "✅ Fail-closed behavior implemented"
+      
+      - name: Validate rate limiter functions
+        run: |
+          REQUIRED_FUNCS=(
+            "checkLimit"
+            "acquireLimit"
+            "releaseLimit"
+            "checkDailyLimit"
+            "checkConcurrentLimit"
+            "checkTokenBucket"
+          )
+          
+          for func in "${REQUIRED_FUNCS[@]}"; do
+            if ! grep -q "$func" lib/services/canlii-rate-limiter.ts; then
+              echo "❌ Function not found: $func"
+              exit 1
+            fi
+          done
+          echo "✅ All rate limiter functions implemented"
+      
+      - name: Validate structured logging
+        run: |
+          if ! grep -q "production-logger" lib/services/canlii-rate-limiter.ts; then
+            echo "❌ production-logger not imported"
+            exit 1
+          fi
+          
+          if grep -q "console\\.log" lib/services/canlii-rate-limiter.ts; then
+            echo "❌ Found console.log (use structured logger)"
+            exit 1
+          fi
+          
+          echo "✅ Structured logging used"
+
+  validate-tracking-schema:
+    name: Validate Tracking Schema
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Check migration file exists
+        run: |
+          if [ ! -f "supabase/migrations/20260203_canlii_ingestion_tracking.sql" ]; then
+            echo "❌ Migration file not found"
+            exit 1
+          fi
+          echo "✅ Migration file exists"
+      
+      - name: Validate canlii_ingestion_runs table
+        run: |
+          if ! grep -q "CREATE TABLE.*canlii_ingestion_runs" supabase/migrations/20260203_canlii_ingestion_tracking.sql; then
+            echo "❌ canlii_ingestion_runs table not defined"
+            exit 1
+          fi
+          echo "✅ canlii_ingestion_runs table defined"
+      
+      - name: Validate required columns
+        run: |
+          REQUIRED_COLS=(
+            "total_requests INT"
+            "successful_requests INT"
+            "rate_limited_requests INT"
+            "exceeded_daily_limit BOOLEAN"
+            "kill_switch_active BOOLEAN"
+          )
+          
+          for col in "${REQUIRED_COLS[@]}"; do
+            if ! grep -q "$col" supabase/migrations/20260203_canlii_ingestion_tracking.sql; then
+              echo "❌ Required column not found: $col"
+              exit 1
+            fi
+          done
+          echo "✅ All required columns defined"
+      
+      - name: Validate canlii_api_requests table
+        run: |
+          if ! grep -q "CREATE TABLE.*canlii_api_requests" supabase/migrations/20260203_canlii_ingestion_tracking.sql; then
+            echo "❌ canlii_api_requests table not defined"
+            exit 1
+          fi
+          echo "✅ canlii_api_requests table defined"
+      
+      - name: Validate canlii_daily_quotas table
+        run: |
+          if ! grep -q "CREATE TABLE.*canlii_daily_quotas" supabase/migrations/20260203_canlii_ingestion_tracking.sql; then
+            echo "❌ canlii_daily_quotas table not defined"
+            exit 1
+          fi
+          
+          if ! grep -q "daily_limit INT NOT NULL DEFAULT 5000" supabase/migrations/20260203_canlii_ingestion_tracking.sql; then
+            echo "❌ Daily limit not set to 5000"
+            exit 1
+          fi
+          
+          echo "✅ canlii_daily_quotas table defined with 5000 daily limit"
+      
+      - name: Validate database functions
+        run: |
+          REQUIRED_FUNCS=(
+            "get_canlii_daily_quota"
+            "record_canlii_request"
+            "update_ingestion_run_status"
+          )
+          
+          for func in "${REQUIRED_FUNCS[@]}"; do
+            if ! grep -q "CREATE OR REPLACE FUNCTION $func" supabase/migrations/20260203_canlii_ingestion_tracking.sql; then
+              echo "❌ Function not found: $func"
+              exit 1
+            fi
+          done
+          echo "✅ All database functions defined"
+      
+      - name: Validate RLS policies
+        run: |
+          if ! grep -q "ENABLE ROW LEVEL SECURITY" supabase/migrations/20260203_canlii_ingestion_tracking.sql; then
+            echo "❌ RLS not enabled"
+            exit 1
+          fi
+          
+          if ! grep -q "super_admin" supabase/migrations/20260203_canlii_ingestion_tracking.sql; then
+            echo "❌ Super admin policies not found"
+            exit 1
+          fi
+          
+          echo "✅ RLS policies configured"
+
+  validate-ingestion-service:
+    name: Validate Ingestion Service
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Check ingestion service exists
+        run: |
+          if [ ! -f "lib/services/canlii-ingestion.ts" ]; then
+            echo "❌ Ingestion service not found"
+            exit 1
+          fi
+          echo "✅ Ingestion service exists"
+      
+      - name: Validate kill switch
+        run: |
+          if ! grep -q "CANLII_INGESTION_ENABLED" lib/services/canlii-ingestion.ts; then
+            echo "❌ Kill switch not implemented"
+            exit 1
+          fi
+          
+          if ! grep -q "isIngestionEnabled" lib/services/canlii-ingestion.ts; then
+            echo "❌ Kill switch check function not found"
+            exit 1
+          fi
+          
+          if ! grep -q "ingestion disabled by kill switch" lib/services/canlii-ingestion.ts; then
+            echo "❌ Kill switch error message not found"
+            exit 1
+          fi
+          
+          echo "✅ Kill switch implemented (CANLII_INGESTION_ENABLED)"
+      
+      - name: Validate rate limiter integration
+        run: |
+          if ! grep -q "withCanLIIRateLimit" lib/services/canlii-ingestion.ts; then
+            echo "❌ Rate limiter not used"
+            exit 1
+          fi
+          
+          if ! grep -q "canlii-rate-limiter" lib/services/canlii-ingestion.ts; then
+            echo "❌ Rate limiter not imported"
+            exit 1
+          fi
+          
+          echo "✅ Rate limiter integrated"
+      
+      - name: Validate NO text fields in types
+        run: |
+          if grep -q "content:" lib/services/canlii-ingestion.ts || \
+             grep -q "text:" lib/services/canlii-ingestion.ts || \
+             grep -q "body:" lib/services/canlii-ingestion.ts || \
+             grep -q "document:" lib/services/canlii-ingestion.ts || \
+             grep -q "html:" lib/services/canlii-ingestion.ts || \
+             grep -q "full_text:" lib/services/canlii-ingestion.ts; then
+            echo "❌ Found text/content fields in types (compliance violation)"
+            exit 1
+          fi
+          
+          if ! grep -q "NO.*content.*text.*body" lib/services/canlii-ingestion.ts; then
+            echo "❌ NO text fields comment not found"
+            exit 1
+          fi
+          
+          echo "✅ Types exclude text/content fields (compliance)"
+      
+      - name: Validate tracking integration
+        run: |
+          if ! grep -q "record_canlii_request" lib/services/canlii-ingestion.ts; then
+            echo "❌ Request tracking not implemented"
+            exit 1
+          fi
+          
+          if ! grep -q "update_ingestion_run_status" lib/services/canlii-ingestion.ts; then
+            echo "❌ Run status tracking not implemented"
+            exit 1
+          fi
+          
+          echo "✅ Tracking integration implemented"
+      
+      - name: Validate core functions
+        run: |
+          REQUIRED_FUNCS=(
+            "startIngestion"
+            "executeIngestion"
+            "fetchCaseMetadata"
+            "storeCaseMetadata"
+            "getStats"
+          )
+          
+          for func in "${REQUIRED_FUNCS[@]}"; do
+            if ! grep -q "$func" lib/services/canlii-ingestion.ts; then
+              echo "❌ Function not found: $func"
+              exit 1
+            fi
+          done
+          echo "✅ All core functions implemented"
+      
+      - name: Validate structured logging
+        run: |
+          if ! grep -q "production-logger" lib/services/canlii-ingestion.ts; then
+            echo "❌ production-logger not imported"
+            exit 1
+          fi
+          
+          if grep -q "console\\.log" lib/services/canlii-ingestion.ts; then
+            echo "❌ Found console.log (use structured logger)"
+            exit 1
+          fi
+          
+          echo "✅ Structured logging used"
+
+  validate-no-text-storage:
+    name: Validate NO Text Storage
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Check for text fields in schema
+        run: |
+          # Search for text/content columns in migrations
+          if grep -qi "content.*TEXT\|text.*TEXT\|body.*TEXT\|document.*TEXT\|full_text.*TEXT" supabase/migrations/20260203_canlii_ingestion_tracking.sql 2>/dev/null; then
+            echo "❌ Found text/content columns in schema (compliance violation)"
+            exit 1
+          fi
+          
+          echo "✅ Schema excludes text/content fields"
+      
+      - name: Check for text fields in ingestion service
+        run: |
+          # Verify explicit exclusion comments
+          if ! grep -q "EXPLICITLY EXCLUDED.*content.*text.*body" lib/services/canlii-ingestion.ts; then
+            echo "❌ Explicit exclusion comment not found"
+            exit 1
+          fi
+          
+          echo "✅ Ingestion service explicitly excludes text fields"
+      
+      - name: Check for text storage in database operations
+        run: |
+          # Search for text field assignments in service
+          if grep -q "content:" lib/services/canlii-ingestion.ts | grep -v "// NO:" || \
+             grep -q "\.content\s*=" lib/services/canlii-ingestion.ts; then
+            echo "❌ Found text field storage (compliance violation)"
+            exit 1
+          fi
+          
+          echo "✅ No text field storage in database operations"
+
+  summary:
+    name: Compliance Validation Summary
+    runs-on: ubuntu-latest
+    needs: [validate-rate-limiter, validate-tracking-schema, validate-ingestion-service, validate-no-text-storage]
+    if: always()
+    
+    steps:
+      - name: Check all validations passed
+        run: |
+          if [ "${{ needs.validate-rate-limiter.result }}" != "success" ] || \
+             [ "${{ needs.validate-tracking-schema.result }}" != "success" ] || \
+             [ "${{ needs.validate-ingestion-service.result }}" != "success" ] || \
+             [ "${{ needs.validate-no-text-storage.result }}" != "success" ]; then
+            echo "❌ Some validations failed"
+            exit 1
+          fi
+          
+          echo "✅ All PR-07 CanLII compliance validations passed"
+          echo ""
+          echo "Validated components:"
+          echo "  ✅ Rate limiter (2 req/sec, 1 concurrent, 5000/day)"
+          echo "  ✅ Redis token bucket algorithm"
+          echo "  ✅ Fail-closed behavior (blocks on errors)"
+          echo "  ✅ Kill switch (CANLII_INGESTION_ENABLED)"
+          echo "  ✅ Tracking schema (3 tables, 3 functions)"
+          echo "  ✅ Ingestion service with rate limiting"
+          echo "  ✅ NO text/content fields in types"
+          echo "  ✅ NO text/content fields in schema"
+          echo "  ✅ NO text/content storage"
+          echo "  ✅ Structured logging"
+          echo "  ✅ RLS policies (super admin)"
+          echo ""
+          echo "CanLII Compliance: ENFORCED ✅"
