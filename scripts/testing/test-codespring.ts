@@ -4,7 +4,7 @@
  * Usage: npx tsx scripts/test-codespring.ts
  */
 
-import { createCodespringClient, verifyCodespringApiKey } from '../lib/services/codespring'
+import { createCodespringClient, verifyCodespringApiKey } from '../../lib/services/codespring'
 
 async function testCodespringIntegration() {
   console.log('🧪 Testing Codespring API Integration\n')

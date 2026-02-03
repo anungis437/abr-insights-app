@@ -23,7 +23,7 @@
 import {
   generateAllCaseEmbeddings,
   generateAllCourseEmbeddings,
-} from '../lib/services/embedding-service'
+} from '../../lib/services/embedding-service'
 
 async function main() {
   const args = process.argv.slice(2)

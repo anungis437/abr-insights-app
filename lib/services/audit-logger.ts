@@ -97,13 +97,13 @@ export async function logEvent(entry: AuditLogEntry): Promise<void> {
     if (error) {
       productionLogger.error('Audit log write failed', {
         error,
-        event: entry.eventType,
+        event: entry.action,
         org_id: entry.organizationId,
       })
       // Don't throw - audit logging should not break application flow
     }
   } catch (error) {
-    productionLogger.error('Audit logging exception', { error, event: entry.eventType })
+    productionLogger.error('Audit logging exception', { error, event: entry.action })
     // Don't throw - audit logging should not break application flow
   }
 }

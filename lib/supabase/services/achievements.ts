@@ -6,6 +6,9 @@
 
 import { createClient } from '@/lib/supabase/client'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { ObservabilityLogger } from '@/lib/observability/logger'
+
+const logger = new ObservabilityLogger()
 
 export type AchievementType =
   | 'course_completion'

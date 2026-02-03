@@ -422,7 +422,7 @@ export function measureRenderTime(componentName: string, callback: () => void): 
   performance.measure(measureName, startMark, endMark)
 
   const measure = performance.getEntriesByName(measureName)[0]
-  logger.performance(`${componentName} render time`, measure.duration)
+  logger.info(`${componentName} render time`, { duration: measure.duration })
 
   // Clean up marks and measures
   performance.clearMarks(startMark)
