@@ -58,30 +58,28 @@ async function checkAdminRoles() {
   if (!userRoles || userRoles.length === 0) {
     console.log('❌ No roles found in user_roles table!')
     console.log('This is why hasAdminRole() is returning false')
-    
+
     // Let's check what roles exist
     const { data: availableRoles } = await supabase
       .from('roles')
       .select('*')
       .order('level', { ascending: false })
-    
+
     console.log('\n=== Available Roles ===')
-    availableRoles?.forEach(role => {
+    availableRoles?.forEach((role) => {
       console.log(`- ${role.name} (slug: ${role.slug}, level: ${role.level}, id: ${role.id})`)
     })
-    
+
     // Check if we need to add the role
-    const superAdminRole = availableRoles?.find(r => r.slug === 'super_admin')
+    const superAdminRole = availableRoles?.find((r) => r.slug === 'super_admin')
     if (superAdminRole) {
       console.log('\n=== Adding super_admin role to user_roles ===')
-      const { error: insertError } = await supabase
-        .from('user_roles')
-        .insert({
-          user_id: profile.id,
-          organization_id: profile.organization_id,
-          role_id: superAdminRole.id,
-        })
-      
+      const { error: insertError } = await supabase.from('user_roles').insert({
+        user_id: profile.id,
+        organization_id: profile.organization_id,
+        role_id: superAdminRole.id,
+      })
+
       if (insertError) {
         console.error('❌ Error adding role:', insertError)
       } else {
@@ -90,7 +88,7 @@ async function checkAdminRoles() {
       }
     }
   } else {
-    userRoles.forEach(ur => {
+    userRoles.forEach((ur) => {
       console.log(`- Role: ${ur.roles.name} (slug: ${ur.roles.slug}, level: ${ur.roles.level})`)
       console.log(`  Organization: ${ur.organization_id}`)
       console.log(`  Is Admin? ${ur.roles.level >= 50 ? '✅ Yes' : '❌ No'}`)

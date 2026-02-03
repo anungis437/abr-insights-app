@@ -39,10 +39,7 @@ async function setupAdminUser() {
 
   if (!orgId) {
     // Look for an existing organization
-    const { data: orgs } = await supabase
-      .from('organizations')
-      .select('id, name')
-      .limit(1)
+    const { data: orgs } = await supabase.from('organizations').select('id, name').limit(1)
 
     if (orgs && orgs.length > 0) {
       orgId = orgs[0].id
@@ -110,13 +107,11 @@ async function setupAdminUser() {
   }
 
   // Add role
-  const { error: roleError } = await supabase
-    .from('user_roles')
-    .insert({
-      user_id: profiles.id,
-      organization_id: orgId,
-      role_id: superAdminRole.id,
-    })
+  const { error: roleError } = await supabase.from('user_roles').insert({
+    user_id: profiles.id,
+    organization_id: orgId,
+    role_id: superAdminRole.id,
+  })
 
   if (roleError) {
     console.error('❌ Error adding role:', roleError)
