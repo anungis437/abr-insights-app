@@ -9,6 +9,17 @@ const nextConfig = {
   // Enable standalone output for Docker/Container Apps deployment
   output: 'standalone',
 
+  // HMR configuration for localhost development
+  webpackDevMiddleware:
+    process.env.NODE_ENV === 'development'
+      ? {
+          watchOptions: {
+            poll: 1000,
+            aggregateTimeout: 300,
+          },
+        }
+      : undefined,
+
   // Next.js 15 Performance Optimizations
   experimental: {
     // Optimize package imports for faster builds
