@@ -9,7 +9,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
-import { logger } from '@/lib/observability/logger'
+import { logger } from '@/lib/utils/production-logger'
 import * as fs from 'fs/promises'
 import * as path from 'path'
 import { createWriteStream } from 'fs'
