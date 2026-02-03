@@ -233,7 +233,7 @@ const roleSpecificNavigation: Record<UserRole, NavLink[]> = {
 // User menu dropdown (appears when clicking user avatar/name)
 const userMenuItems: NavLink[] = [
   { label: 'My Profile', href: '/profile', icon: Users },
-  { label: 'Settings', href: '/profile/settings', icon: Settings },
+  { label: 'Settings', href: '/profile', icon: Settings },
   { label: 'Achievements', href: '/achievements', icon: Shield },
   { label: 'My Analytics', href: '/analytics', icon: BarChart3 },
   { label: 'Help & Support', href: '/help', icon: FileText },

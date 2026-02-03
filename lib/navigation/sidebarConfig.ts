@@ -89,7 +89,7 @@ const learnerNav: SidebarNavItem[] = [
     icon: UserCog,
     children: [
       { label: 'My Profile', href: '/profile', icon: Users },
-      { label: 'Settings', href: '/profile/settings', icon: Settings },
+      { label: 'Settings', href: '/profile', icon: Settings },
       { label: 'Certificates', href: '/certificates', icon: Award },
       { label: 'Sign Out', href: '/auth/signout', icon: LogOut },
     ],
@@ -135,7 +135,7 @@ const educatorNav: SidebarNavItem[] = [
     icon: UserCog,
     children: [
       { label: 'My Profile', href: '/profile', icon: Users },
-      { label: 'Settings', href: '/profile/settings', icon: Settings },
+      { label: 'Settings', href: '/profile', icon: Settings },
       { label: 'Sign Out', href: '/auth/signout', icon: LogOut },
     ],
   },
@@ -178,7 +178,7 @@ const analystNav: SidebarNavItem[] = [
     icon: UserCog,
     children: [
       { label: 'My Profile', href: '/profile', icon: Users },
-      { label: 'Settings', href: '/profile/settings', icon: Settings },
+      { label: 'Settings', href: '/profile', icon: Settings },
       { label: 'Sign Out', href: '/auth/signout', icon: LogOut },
     ],
   },
@@ -220,7 +220,7 @@ const investigatorNav: SidebarNavItem[] = [
     icon: UserCog,
     children: [
       { label: 'My Profile', href: '/profile', icon: Users },
-      { label: 'Settings', href: '/profile/settings', icon: Settings },
+      { label: 'Settings', href: '/profile', icon: Settings },
       { label: 'Sign Out', href: '/auth/signout', icon: LogOut },
     ],
   },
@@ -274,7 +274,7 @@ const orgAdminNav: SidebarNavItem[] = [
     icon: UserCog,
     children: [
       { label: 'My Profile', href: '/profile', icon: Users },
-      { label: 'Settings', href: '/profile/settings', icon: Settings },
+      { label: 'Settings', href: '/profile', icon: Settings },
       { label: 'Sign Out', href: '/auth/signout', icon: LogOut },
     ],
   },
@@ -317,7 +317,7 @@ const complianceNav: SidebarNavItem[] = [
     icon: UserCog,
     children: [
       { label: 'My Profile', href: '/profile', icon: Users },
-      { label: 'Settings', href: '/profile/settings', icon: Settings },
+      { label: 'Settings', href: '/profile', icon: Settings },
       { label: 'Sign Out', href: '/auth/signout', icon: LogOut },
     ],
   },
@@ -390,7 +390,7 @@ const superAdminNav: SidebarNavItem[] = [
     icon: UserCog,
     children: [
       { label: 'My Profile', href: '/profile', icon: Users },
-      { label: 'Settings', href: '/profile/settings', icon: Settings },
+      { label: 'Settings', href: '/profile', icon: Settings },
       { label: 'Sign Out', href: '/auth/signout', icon: LogOut },
     ],
   },
@@ -417,7 +417,7 @@ const viewerNav: SidebarNavItem[] = [
     icon: UserCog,
     children: [
       { label: 'My Profile', href: '/profile', icon: Users },
-      { label: 'Settings', href: '/profile/settings', icon: Settings },
+      { label: 'Settings', href: '/profile', icon: Settings },
       { label: 'Sign Out', href: '/auth/signout', icon: LogOut },
     ],
   },

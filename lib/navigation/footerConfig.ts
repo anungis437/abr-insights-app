@@ -58,7 +58,7 @@ const authenticatedFooterSections: FooterSection[] = [
       { label: 'My Learning', href: '/training' },
       { label: 'Browse Cases', href: '/cases/browse' },
       { label: 'Profile', href: '/profile' },
-      { label: 'Settings', href: '/profile/settings' },
+      { label: 'Settings', href: '/profile' },
     ],
   },
   {
