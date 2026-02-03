@@ -8,13 +8,10 @@ const supabase = createClient(
 
 async function checkTable() {
   console.log('\n=== Checking resource_permissions table ===\n')
-  
+
   // Try to query the table
-  const { data, error } = await supabase
-    .from('resource_permissions')
-    .select('*')
-    .limit(1)
-  
+  const { data, error } = await supabase.from('resource_permissions').select('*').limit(1)
+
   if (error) {
     console.log('❌ resource_permissions table does NOT exist')
     console.log('Error:', error.message)
@@ -23,14 +20,14 @@ async function checkTable() {
     console.log('✅ resource_permissions table EXISTS')
     console.log('Sample data:', data)
   }
-  
+
   // Check role_permissions instead
   console.log('\n=== Checking role_permissions table (alternative) ===\n')
   const { data: rpData, error: rpError } = await supabase
     .from('role_permissions')
     .select('*')
     .limit(3)
-  
+
   if (rpError) {
     console.log('❌ role_permissions error:', rpError.message)
   } else {

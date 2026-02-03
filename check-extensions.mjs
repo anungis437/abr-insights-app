@@ -15,13 +15,14 @@ const supabase = createClient(
 
 async function checkExtensions() {
   console.log('🔌 Checking PostgreSQL Extensions...\n')
-  
+
   const requiredExtensions = ['uuid-ossp', 'pgcrypto', 'vector']
-  
+
   for (const ext of requiredExtensions) {
-    const { data, error } = await supabase
-      .rpc('exec_sql', { sql_query: `SELECT extname FROM pg_extension WHERE extname = '${ext}';` })
-    
+    const { data, error } = await supabase.rpc('exec_sql', {
+      sql_query: `SELECT extname FROM pg_extension WHERE extname = '${ext}';`,
+    })
+
     // If we can't use exec_sql, try a different approach
     if (error && error.message.includes('does not exist')) {
       // Try querying a system table that should work
@@ -30,7 +31,7 @@ async function checkExtensions() {
         .select('name, installed_version')
         .eq('name', ext)
         .single()
-      
+
       if (extError) {
         console.log(`   ⚠️  ${ext} - Cannot verify (need dashboard access)`)
       } else if (extData?.installed_version) {
@@ -42,7 +43,7 @@ async function checkExtensions() {
       console.log(`   ✅ ${ext} - Enabled`)
     }
   }
-  
+
   console.log('\n✨ Extension check complete!')
 }
 

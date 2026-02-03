@@ -155,7 +155,7 @@ export default function PermissionsPage() {
       // TODO: resource_permissions table doesn't exist yet
       // This feature is planned for future implementation
       setResourcePermissions([])
-      
+
       // Get resource permissions with joined data
       // const { data: resPermsData, error: resPermsError } = await supabase
       //   .from('resource_permissions')
@@ -301,9 +301,11 @@ export default function PermissionsPage() {
 
   async function handleDeletePermission(id: string) {
     // TODO: resource_permissions table doesn't exist yet
-    alert('This feature is not yet implemented. The resource_permissions table needs to be created first.')
+    alert(
+      'This feature is not yet implemented. The resource_permissions table needs to be created first.'
+    )
     return
-    
+
     // if (!confirm('Delete this resource permission?')) return
 
     // try {
