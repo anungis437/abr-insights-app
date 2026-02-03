@@ -13,6 +13,8 @@ export default defineConfig({
     hookTimeout: 10000,
     teardownTimeout: 5000,
     isolate: true,
+    // Exclude Playwright E2E tests from Vitest
+    exclude: ['**/node_modules/**', '**/dist/**', '**/e2e/**', '**/*.spec.ts'],
     env: {
       // Load from actual .env files for integration tests
       NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || '',

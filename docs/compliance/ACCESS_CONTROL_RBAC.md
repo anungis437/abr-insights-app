@@ -533,6 +533,7 @@ export function CourseCard({ course }: { course: Course }) {
 1. **First User**: Auto-assigned on org creation
 2. **Additional Admins**: Existing org admin promotes via `/org/users`
 3. **Promotion**:
+
    ```typescript
    // app/api/org/users/[id]/promote/route.ts
    export async function POST(request: Request, { params }) {
