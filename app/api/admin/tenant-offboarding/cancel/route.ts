@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { cancelOffboarding } from '@/lib/services/tenant-offboarding'
 import { logAuthorizationEvent } from '@/lib/services/audit-logger'
+import { createRequestLogger } from '@/lib/observability/logger'
 
 async function verifySuperAdmin(supabase: any, userId: string): Promise<boolean> {
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', userId).single()
@@ -17,6 +18,8 @@ async function verifySuperAdmin(supabase: any, userId: string): Promise<boolean>
 }
 
 export async function POST(request: NextRequest) {
+  const logger = createRequestLogger(request)
+  
   try {
     const supabase = await createClient()
     const {
@@ -64,7 +67,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(result, { status: 200 })
   } catch (error) {
-    console.error('[API] Cancel offboarding error:', error)
+    logger.error('Cancel offboarding failed', { error, org_id: body?.organizationId })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

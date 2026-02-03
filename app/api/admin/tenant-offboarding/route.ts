@@ -20,6 +20,7 @@ import {
   type OffboardingRequest,
 } from '@/lib/services/tenant-offboarding'
 import { logAuthorizationEvent } from '@/lib/services/audit-logger'
+import { createRequestLogger, enrichLogger, sanitizeError } from '@/lib/observability/logger'
 
 /**
  * Verify super_admin role
@@ -34,6 +35,10 @@ async function verifySuperAdmin(supabase: any, userId: string): Promise<boolean>
  * POST: Initiate tenant offboarding (soft delete)
  */
 export async function POST(request: NextRequest) {
+  const startTime = Date.now()
+  const logger = createRequestLogger(request)
+  logger.logRequestStart()
+
   try {
     const supabase = await createClient()
     const {
@@ -41,8 +46,12 @@ export async function POST(request: NextRequest) {
     } = await supabase.auth.getUser()
 
     if (!user) {
+      logger.warn('Unauthorized access attempt')
+      logger.logRequestEnd(startTime, 401)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    const enrichedLogger = enrichLogger(logger, user.id)
 
     const body = await request.json()
 
@@ -50,6 +59,7 @@ export async function POST(request: NextRequest) {
     const isSuperAdmin = await verifySuperAdmin(supabase, user.id)
     if (!isSuperAdmin) {
       const { organizationId } = body
+      enrichedLogger.warn('Forbidden: super_admin required', { organizationId })
       await logAuthorizationEvent(
         organizationId || 'system',
         'tenant_offboarding_denied',
@@ -58,6 +68,7 @@ export async function POST(request: NextRequest) {
         organizationId,
         { reason: 'Attempted tenant offboarding without super_admin role' }
       )
+      logger.logRequestEnd(startTime, 403)
       return NextResponse.json({ error: 'Forbidden: super_admin required' }, { status: 403 })
     }
     const { organizationId, reason, gracePeriodDays } = body
@@ -82,27 +93,40 @@ export async function POST(request: NextRequest) {
     const result = await initiateOffboarding(offboardingRequest)
 
     if (!result.success) {
+      enrichedLogger.error('Offboarding failed', { errors: result.errors, organizationId })
+      logger.logRequestEnd(startTime, 500)
       return NextResponse.json(
         { error: 'Offboarding failed', details: result.errors },
         { status: 500 }
       )
     }
 
+    enrichedLogger.info('Tenant offboarding initiated', { organizationId })
+    logger.logRequestEnd(startTime, 200)
     return NextResponse.json(result, { status: 200 })
   } catch (error) {
-    console.error('[API] Tenant offboarding error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    const sanitized = sanitizeError(error, logger)
+    logger.logRequestEnd(startTime, 500)
+    return NextResponse.json(sanitized, { status: 500 })
   }
 }
+const startTime = Date.now()
+  const logger = createRequestLogger(request)
+  logger.logRequestStart()
 
-/**
- * DELETE: Execute hard delete (permanent removal)
- */
-export async function DELETE(request: NextRequest) {
   try {
     const supabase = await createClient()
     const {
       data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      logger.warn('Unauthorized access attempt')
+      logger.logRequestEnd(startTime, 401)
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const enrichedLogger = enrichLogger(logger, user.id) data: { user },
     } = await supabase.auth.getUser()
 
     if (!user) {
