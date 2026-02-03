@@ -285,7 +285,7 @@ export default function AuditLogsPage() {
         <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
           <p className="text-sm font-medium text-gray-600">Total Events (7 days)</p>
           <p className="mt-2 text-3xl font-bold text-gray-900">
-            {statistics?.totalEvents.toLocaleString() || '0'}
+            {statistics?.totalEvents != null ? statistics.totalEvents.toLocaleString() : '0'}
           </p>
         </div>
         <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
