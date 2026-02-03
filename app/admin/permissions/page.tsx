@@ -152,38 +152,42 @@ export default function PermissionsPage() {
         setPermissions(permsWithCategory)
       }
 
+      // TODO: resource_permissions table doesn't exist yet
+      // This feature is planned for future implementation
+      setResourcePermissions([])
+      
       // Get resource permissions with joined data
-      const { data: resPermsData, error: resPermsError } = await supabase
-        .from('resource_permissions')
-        .select(
-          `
-          *,
-          permissions (slug, name),
-          profiles (email)
-        `
-        )
-        .order('created_at', { ascending: false })
-        .limit(100)
+      // const { data: resPermsData, error: resPermsError } = await supabase
+      //   .from('resource_permissions')
+      //   .select(
+      //     `
+      //     *,
+      //     permissions (slug, name),
+      //     profiles (email)
+      //   `
+      //   )
+      //   .order('created_at', { ascending: false })
+      //   .limit(100)
 
-      if (resPermsError) {
-        logger.warn('[Permissions] Error fetching resource permissions:', {
-          resPermsError,
-          context: 'PermissionsPage',
-        })
-        setResourcePermissions([])
-        return
-      }
+      // if (resPermsError) {
+      //   logger.warn('[Permissions] Error fetching resource permissions:', {
+      //     resPermsError,
+      //     context: 'PermissionsPage',
+      //   })
+      //   setResourcePermissions([])
+      //   return
+      // }
 
-      // Flatten joined data
-      const flattenedPerms = resPermsData?.map((rp: any) => ({
-        ...rp,
-        permission_slug: (rp.permissions as unknown as { slug: string })?.slug,
-        scope_name: (rp.profiles as unknown as { email: string })?.email || rp.scope_id,
-        permissions: undefined,
-        profiles: undefined,
-      })) as ResourcePermission[]
+      // // Flatten joined data
+      // const flattenedPerms = resPermsData?.map((rp: any) => ({
+      //   ...rp,
+      //   permission_slug: (rp.permissions as unknown as { slug: string })?.slug,
+      //   scope_name: (rp.profiles as unknown as { email: string })?.email || rp.scope_id,
+      //   permissions: undefined,
+      //   profiles: undefined,
+      // })) as ResourcePermission[]
 
-      setResourcePermissions(flattenedPerms || [])
+      // setResourcePermissions(flattenedPerms || [])
     } catch (error) {
       logger.error('[Permissions] Error loading permissions:', {
         error: error,
@@ -296,18 +300,22 @@ export default function PermissionsPage() {
   }
 
   async function handleDeletePermission(id: string) {
-    if (!confirm('Delete this resource permission?')) return
+    // TODO: resource_permissions table doesn't exist yet
+    alert('This feature is not yet implemented. The resource_permissions table needs to be created first.')
+    return
+    
+    // if (!confirm('Delete this resource permission?')) return
 
-    try {
-      const { error } = await supabase.from('resource_permissions').delete().eq('id', id)
+    // try {
+    //   const { error } = await supabase.from('resource_permissions').delete().eq('id', id)
 
-      if (error) throw error
+    //   if (error) throw error
 
-      await loadPermissions()
-    } catch (error) {
-      logger.error('Error deleting permission:', { error: error, context: 'PermissionsPage' })
-      alert('Failed to delete permission')
-    }
+    //   await loadPermissions()
+    // } catch (error) {
+    //   logger.error('Error deleting permission:', { error: error, context: 'PermissionsPage' })
+    //   alert('Failed to delete permission')
+    // }
   }
 
   // Filter functions

@@ -111,6 +111,7 @@ function LoginForm() {
                     onChange={(e) => setFormState({ ...formState, email: e.target.value })}
                     className="block w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-3 text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                     placeholder="you@example.com"
+                    autoComplete="username"
                     required
                   />
                 </div>
