@@ -11,7 +11,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
-import { logger } from '@/lib/observability/logger'
+import { logger } from '@/lib/utils/production-logger'
 import { withCanLIIRateLimit, canliiRateLimiter } from './canlii-rate-limiter'
 
 // =====================================================

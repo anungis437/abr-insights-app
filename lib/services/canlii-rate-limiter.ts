@@ -13,7 +13,7 @@
  */
 
 import { createClient } from 'redis'
-import { logger } from '@/lib/observability/logger'
+import { logger } from '@/lib/utils/production-logger'
 
 // =====================================================
 // Configuration

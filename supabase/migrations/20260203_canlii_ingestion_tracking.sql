@@ -398,8 +398,21 @@ COMMENT ON TABLE canlii_daily_quotas IS
 COMMENT ON FUNCTION get_canlii_daily_quota() IS 
     'Returns current daily quota usage for CanLII API. Used by rate limiter to enforce 5000 requests/day limit.';
 
-COMMENT ON FUNCTION record_canlii_request(UUID, TEXT, TEXT, INT, INT, BOOLEAN, BOOLEAN, TEXT) IS 
+COMMENT ON FUNCTION record_canlii_request(
+    UUID,
+    TEXT,
+    TEXT,
+    INT,
+    INT,
+    BOOLEAN,
+    BOOLEAN,
+    TEXT
+) IS 
     'Records a CanLII API request and updates daily quota. Called by ingestion service after each request.';
 
-COMMENT ON FUNCTION update_ingestion_run_status(UUID, TEXT, TEXT) IS 
+COMMENT ON FUNCTION update_ingestion_run_status(
+    UUID,
+    TEXT,
+    TEXT
+) IS 
     'Updates status of a CanLII ingestion run. Used to track run lifecycle from running to completed/failed.';
