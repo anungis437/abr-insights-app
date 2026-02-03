@@ -29,26 +29,29 @@ export default function HomePage() {
 
   // Redirect authenticated users to their appropriate dashboard
   useEffect(() => {
+    // Wait for both user and profile to be loaded
+    if (user && profile && !profile.role) {
+      // Profile exists but role not loaded yet, wait
+      return
+    }
+
     if (user && profile) {
       const role = profile.role
-      
+
       // Admin users go to admin dashboard
       if (role === 'super_admin' || role === 'admin' || role === 'org_admin') {
         router.push('/admin/dashboard')
         return
       }
-      
+
       // Instructors go to instructor dashboard
       if (role === 'instructor') {
         router.push('/instructor/dashboard')
         return
       }
-      
+
       // Regular users go to learning dashboard
-      if (role === 'learner' || role === 'student') {
-        router.push('/dashboard')
-        return
-      }
+      router.push('/dashboard')
     }
   }, [user, profile, router])
 
