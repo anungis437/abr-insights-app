@@ -168,7 +168,11 @@ async function cacheFirstStrategy(request, cacheName) {
     fetch(request)
       .then((networkResponse) => {
         // Only cache successful, non-redirect responses
-        if (networkResponse && networkResponse.status === 200 && networkResponse.redirected === false) {
+        if (
+          networkResponse &&
+          networkResponse.status === 200 &&
+          networkResponse.redirected === false
+        ) {
           caches.open(cacheName).then((cache) => {
             cache.put(request, networkResponse)
           })

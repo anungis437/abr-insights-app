@@ -9,6 +9,7 @@ Configure these at: https://github.com/anungis437/abr-insights-app/settings/secr
 ## ✅ CRITICAL - Azure Static Web Apps (Currently Working)
 
 ### 1. AZURE_STATIC_WEB_APPS_API_TOKEN_PURPLE_GROUND_03D2B380F
+
 **Status**: ✅ Already configured (deployments are succeeding)
 **Value**: `[Already set in GitHub]`
 
@@ -17,22 +18,28 @@ Configure these at: https://github.com/anungis437/abr-insights-app/settings/secr
 ## ⚠️ REQUIRED - Supabase Configuration
 
 ### 2. NEXT_PUBLIC_SUPABASE_URL
+
 **Purpose**: Public Supabase project URL  
-**Current Value**: 
+**Current Value**:
+
 ```
 https://zdcmugkafbczvxcyofiz.supabase.co
 ```
 
 ### 3. NEXT_PUBLIC_SUPABASE_ANON_KEY
+
 **Purpose**: Public anonymous key for client-side access  
-**Current Value**: 
+**Current Value**:
+
 ```
 eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpkY211Z2thZmJjenZ4Y3lvZml6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxOTczMDksImV4cCI6MjA4Mzc3MzMwOX0.Q_oAL1mrscvxqTH86vcnHdDZFFm9y-Wckxsiv68-_ZM
 ```
 
 ### 4. SUPABASE_SERVICE_ROLE_KEY
+
 **Purpose**: Server-side admin key (keep secret!)  
-**Current Value**: 
+**Current Value**:
+
 ```
 eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpkY211Z2thZmJjenZ4Y3lvZml6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODE5NzMwOSwiZXhwIjoyMDgzNzczMzA5fQ.sS8oTvZoRtnGUi5TUZshHKtM7fxkTLbDAHEu14iul_4
 ```
@@ -42,22 +49,28 @@ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpkY211Z2t
 ## ⚠️ REQUIRED - Stripe Configuration
 
 ### 5. NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+
 **Purpose**: Public Stripe key for client-side  
-**Current Value**: 
+**Current Value**:
+
 ```
 pk_test_51S9nzK3z6DvwO4gqo089V50ZJJKkJ5CoMAk0OMQMtx0KF4nAb7fHOvOIo7BSyOTzPasOgYhvUnYMC2W1mjQb4pGC00oSOb01yL
 ```
 
 ### 6. STRIPE_SECRET_KEY
+
 **Purpose**: Server-side Stripe secret key  
-**Current Value**: 
+**Current Value**:
+
 ```
 sk_test_51S9nzK3z6DvwO4gqNZR4UlxDbin5uTnQMy9IMjxV09eQqyafOmZpXz7rL1BWxsxQJvevqNl0SkGnSHPQHYkKoBG100ixoX1O0t
 ```
 
 ### 7. STRIPE_WEBHOOK_SECRET
+
 **Purpose**: Webhook signature verification  
-**Current Value**: 
+**Current Value**:
+
 ```
 whsec_6ed2b62c7c702347ef54d9d9e7ab1e797ec89f873df714483119e92224cdcde3
 ```
@@ -67,16 +80,22 @@ whsec_6ed2b62c7c702347ef54d9d9e7ab1e797ec89f873df714483119e92224cdcde3
 ## 📍 REQUIRED - Application URLs
 
 ### 8. NEXT_PUBLIC_APP_URL
+
 **Purpose**: Public URL for your deployed app  
-**For Azure Static Web Apps**: 
+**For Azure Static Web Apps**:
+
 ```
 https://purple-ground-03d2b380f.5.azurestaticapps.net
 ```
+
 **For Azure Container Apps** (once configured):
+
 ```
 https://abr-insights-app.<region>.azurecontainerapps.io
 ```
+
 **For Custom Domain**:
+
 ```
 https://abrinsights.ca
 ```
@@ -86,24 +105,32 @@ https://abrinsights.ca
 ## 🔧 OPTIONAL - Azure OpenAI (For AI Features)
 
 ### 9. AZURE_OPENAI_ENDPOINT
+
 **Purpose**: Azure OpenAI resource endpoint  
-**Current Value**: 
+**Current Value**:
+
 ```
 https://your-resource.openai.azure.com
 ```
+
 **Note**: Update with your actual Azure OpenAI endpoint
 
 ### 10. AZURE_OPENAI_API_KEY
+
 **Purpose**: Azure OpenAI API key  
-**Current Value**: 
+**Current Value**:
+
 ```
 your-api-key
 ```
+
 **Note**: Get from Azure Portal → Your OpenAI Resource → Keys and Endpoint
 
 ### 11. AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT
+
 **Purpose**: Embeddings model deployment name  
-**Current Value**: 
+**Current Value**:
+
 ```
 text-embedding-ada-002
 ```
@@ -115,8 +142,10 @@ text-embedding-ada-002
 Only needed if you want to use Azure Container Apps instead of Static Web Apps.
 
 ### 12. AZURE_CREDENTIALS
+
 **Purpose**: Azure service principal credentials for authentication  
 **How to get**:
+
 ```bash
 az ad sp create-for-rbac \
   --name "abr-insights-github-actions" \
@@ -124,18 +153,23 @@ az ad sp create-for-rbac \
   --scopes /subscriptions/5d819f33-d16f-429c-a3c0-5b0e94740ba3/resourceGroups/abr-insights-rg \
   --sdk-auth
 ```
+
 **Format**: JSON object with `clientId`, `clientSecret`, `subscriptionId`, `tenantId`
 
 ### 13. ACR_USERNAME
+
 **Purpose**: Azure Container Registry username  
 **How to get**:
+
 ```bash
 az acr credential show --name abrinsightsacr --query username -o tsv
 ```
 
 ### 14. ACR_PASSWORD
+
 **Purpose**: Azure Container Registry password  
 **How to get**:
+
 ```bash
 az acr credential show --name abrinsightsacr --query passwords[0].value -o tsv
 ```
@@ -145,13 +179,16 @@ az acr credential show --name abrinsightsacr --query passwords[0].value -o tsv
 ## 🧪 OPTIONAL - Testing Environment
 
 ### 15. TEST_SUPABASE_URL
+
 **Purpose**: Separate Supabase project for testing  
 **Note**: Only if you have a dedicated test environment
 
 ### 16. TEST_SUPABASE_ANON_KEY
+
 **Purpose**: Test environment anon key
 
 ### 17. TEST_SUPABASE_SERVICE_ROLE_KEY
+
 **Purpose**: Test environment service role key
 
 ---
@@ -159,6 +196,7 @@ az acr credential show --name abrinsightsacr --query passwords[0].value -o tsv
 ## 📊 Summary by Priority
 
 ### CRITICAL (Required for Azure Static Web Apps - Current Deployment)
+
 - ✅ `AZURE_STATIC_WEB_APPS_API_TOKEN_PURPLE_GROUND_03D2B380F` (already set)
 - ⚠️ `NEXT_PUBLIC_SUPABASE_URL`
 - ⚠️ `NEXT_PUBLIC_SUPABASE_ANON_KEY`
@@ -169,16 +207,19 @@ az acr credential show --name abrinsightsacr --query passwords[0].value -o tsv
 - ⚠️ `NEXT_PUBLIC_APP_URL`
 
 ### HIGH PRIORITY (For Azure Container Apps)
+
 - `AZURE_CREDENTIALS`
 - `ACR_USERNAME`
 - `ACR_PASSWORD`
 
 ### MEDIUM PRIORITY (For AI Features)
+
 - `AZURE_OPENAI_ENDPOINT`
 - `AZURE_OPENAI_API_KEY`
 - `AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT`
 
 ### LOW PRIORITY (For Testing)
+
 - `TEST_SUPABASE_URL`
 - `TEST_SUPABASE_ANON_KEY`
 - `TEST_SUPABASE_SERVICE_ROLE_KEY`
@@ -188,6 +229,7 @@ az acr credential show --name abrinsightsacr --query passwords[0].value -o tsv
 ## 🔨 Quick Setup Commands
 
 ### Using GitHub CLI (Recommended)
+
 ```bash
 # Set Supabase secrets
 gh secret set NEXT_PUBLIC_SUPABASE_URL -b"https://zdcmugkafbczvxcyofiz.supabase.co"
@@ -204,6 +246,7 @@ gh secret set NEXT_PUBLIC_APP_URL -b"https://purple-ground-03d2b380f.5.azurestat
 ```
 
 ### Manual Setup via GitHub UI
+
 1. Go to: https://github.com/anungis437/abr-insights-app/settings/secrets/actions
 2. Click "New repository secret"
 3. Enter name and value for each secret
@@ -214,12 +257,14 @@ gh secret set NEXT_PUBLIC_APP_URL -b"https://purple-ground-03d2b380f.5.azurestat
 ## ✅ Verification
 
 After setting secrets, trigger a new deployment:
+
 ```bash
 git commit --allow-empty -m "Trigger deployment with new secrets"
 git push origin main
 ```
 
 Check deployment status:
+
 ```bash
 gh run watch
 ```

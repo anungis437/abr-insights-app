@@ -82,9 +82,10 @@ All routes except static assets.
 ### Updated Files
 
 1. **CSP_HARDENING_ROADMAP.md**
-  - Corrected architecture: middleware.ts → layout.tsx
-  - Location: "Dynamic CSP headers via Next.js middleware"
-  - Entrypoint: "middleware.ts (Next.js requirement)"
+
+- Corrected architecture: middleware.ts → layout.tsx
+- Location: "Dynamic CSP headers via Next.js middleware"
+- Entrypoint: "middleware.ts (Next.js requirement)"
 
 2. **CSP_VALIDATION_PROOF.md**
    - Added ⚠️ VALIDATION REQUIREMENT section
@@ -93,8 +94,9 @@ All routes except static assets.
    - Warning: "Until headers are captured: this describes INTENDED architecture"
 
 3. **app/layout.tsx**
-  - Updated comment: "from middleware.ts"
-  - Nonce retrieval code unchanged
+
+- Updated comment: "from middleware.ts"
+- Nonce retrieval code unchanged
 
 ---
 

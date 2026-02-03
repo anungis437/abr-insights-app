@@ -21,12 +21,12 @@ const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY)
 async function createTestUser(userType = 'learner') {
   // Map user type to valid role
   const roleMap = {
-    'admin': 'super_admin',
-    'learner': 'learner',
-    'instructor': 'educator',
-    'org_admin': 'org_admin'
+    admin: 'super_admin',
+    learner: 'learner',
+    instructor: 'educator',
+    org_admin: 'org_admin',
   }
-  
+
   const role = roleMap[userType] || userType
   const testEmail = userType === 'admin' ? 'admin@abrinsights.ca' : 'test@abrinsights.ca'
   const testPassword = 'TestPassword123!'
@@ -49,34 +49,37 @@ async function createTestUser(userType = 'learner') {
       if (authError.message.includes('already exists') || authError.code === 'email_exists') {
         console.log(`⚠ Auth user already exists: ${testEmail}`)
         console.log(`Creating missing profile...`)
-        
+
         // Get the existing user ID
-        const { data: { users }, error: getUserError } = await supabase.auth.admin.listUsers({
+        const {
+          data: { users },
+          error: getUserError,
+        } = await supabase.auth.admin.listUsers({
           filters: { email: testEmail },
-          limit: 1
+          limit: 1,
         })
-        
+
         if (getUserError || !users || users.length === 0) {
           console.error('Could not find existing user:', getUserError)
           return
         }
-        
+
         const existingUserId = users[0].id
-        
+
         // Check if profile exists
         const { data: existingProfile } = await supabase
           .from('profiles')
           .select('id')
           .eq('id', existingUserId)
           .single()
-        
+
         if (existingProfile) {
           console.log(`✓ Profile already exists, updating role to ${role}`)
           const { error: updateError } = await supabase
             .from('profiles')
             .update({ role: role })
             .eq('id', existingUserId)
-          
+
           if (updateError) {
             console.error('Could not update role:', updateError)
           } else {
@@ -99,7 +102,7 @@ async function createTestUser(userType = 'learner') {
             onboarding_completed: true,
             subscription_tier: 'enterprise',
           })
-          
+
           if (insertError) {
             console.error('Could not create profile:', insertError)
           } else {

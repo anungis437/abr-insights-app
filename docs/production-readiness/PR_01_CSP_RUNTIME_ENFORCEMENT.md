@@ -353,9 +353,10 @@ Add to deployment workflow:
 ### Updated Files
 
 1. **CONTAINER_SECURITY_CONTROLS.md** - Already complete
-  - Layer 1: Application Runtime (middleware.ts)
-   - CSP enforcement documented
-   - Validation requirements listed
+
+- Layer 1: Application Runtime (middleware.ts)
+- CSP enforcement documented
+- Validation requirements listed
 
 2. **CSP_VALIDATION_PROOF.md** - Already updated
    - Runtime validation checklist

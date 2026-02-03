@@ -63,7 +63,8 @@ export function useResponsive(): ResponsiveState {
     const breakpoint = getBreakpoint(width)
     const deviceType = getDeviceType(width)
     const orientation = width > height ? 'landscape' : 'portrait'
-    const isTouch = 'ontouchstart' in window || (typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0)
+    const isTouch =
+      'ontouchstart' in window || (typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0)
 
     return {
       width,
@@ -85,7 +86,9 @@ export function useResponsive(): ResponsiveState {
       const breakpoint = getBreakpoint(width)
       const deviceType = getDeviceType(width)
       const orientation = width > height ? 'landscape' : 'portrait'
-      const isTouch = 'ontouchstart' in window || (typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0)
+      const isTouch =
+        'ontouchstart' in window ||
+        (typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0)
 
       setState({
         width,
