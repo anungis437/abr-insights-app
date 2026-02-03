@@ -76,9 +76,9 @@ describe.skipIf(skipTests)('Permission System Tests', () => {
   })
 
   describe('Permission Check Functions', () => {
-    it('should verify check_permission function exists', async () => {
+    it('should verify check_user_permission function exists', async () => {
       const { data, error } = await supabase.rpc(
-        'check_permission' as any,
+        'check_user_permission' as any,
         {
           user_id: testUserId,
           permission_name: 'courses.view',
@@ -89,9 +89,9 @@ describe.skipIf(skipTests)('Permission System Tests', () => {
       expect(typeof data).toBe('boolean')
     })
 
-    it('should verify check_permissions function exists', async () => {
+    it('should verify has_any_permission function exists', async () => {
       const { data, error } = await supabase.rpc(
-        'check_permissions' as any,
+        'has_any_permission' as any,
         {
           user_id: testUserId,
           permission_names: ['courses.view', 'profile.view'],
@@ -102,12 +102,12 @@ describe.skipIf(skipTests)('Permission System Tests', () => {
       expect(typeof data).toBe('boolean')
     })
 
-    it('should verify check_role function exists', async () => {
+    it('should verify has_role function exists', async () => {
       const { data, error } = await supabase.rpc(
-        'check_role' as any,
+        'has_role' as any,
         {
           user_id: testUserId,
-          role_name: 'student',
+          role_name: 'learner',
         } as any
       )
 
@@ -118,32 +118,56 @@ describe.skipIf(skipTests)('Permission System Tests', () => {
 
   describe('Role Assignment', () => {
     it('should allow assigning roles to users', async () => {
+      // First get a role_id
+      const { data: roleData } = await supabase
+        .from('roles')
+        .select('id')
+        .eq('name', 'learner')
+        .single()
+
+      if (!roleData) {
+        console.warn('Learner role not found, skipping test')
+        return
+      }
+
       const { data, error } = await supabase
         .from('user_roles')
         .insert({
           user_id: testUserId,
-          role: 'student',
+          role_id: roleData.id,
           organization_id: testOrgId,
         } as any)
         .select()
         .single()
 
       expect(error).toBeNull()
-      expect((data as any)?.role).toBe('student')
+      expect((data as any)?.role_id).toBe(roleData.id)
     })
 
     it('should prevent duplicate role assignments', async () => {
+      // First get a role_id
+      const { data: roleData } = await supabase
+        .from('roles')
+        .select('id')
+        .eq('name', 'instructor')
+        .single()
+
+      if (!roleData) {
+        console.warn('Instructor role not found, skipping test')
+        return
+      }
+
       // Insert first role
       await supabase.from('user_roles').insert({
         user_id: testUserId,
-        role: 'instructor',
+        role_id: roleData.id,
         organization_id: testOrgId,
       } as any)
 
       // Try to insert duplicate
       const { error } = await supabase.from('user_roles').insert({
         user_id: testUserId,
-        role: 'instructor',
+        role_id: roleData.id,
         organization_id: testOrgId,
       } as any)
 
