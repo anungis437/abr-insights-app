@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+.next/
+out/
+build/
+dist/
+
+# Node.js utility scripts
+*.mjs
+check-*.mjs
+setup-*.mjs
+apply-*.mjs
+assign-*.mjs
+create-*.mjs
+fix-*.mjs
+sync-*.mjs
+test-*.mjs
+verify-*.mjs
+
+# Test files
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+
+# Build outputs
+.turbo/
+.vercel/
+
+# Supabase
+supabase/functions/
+supabase/migrations/
+
+# Config files
+next.config.js
+postcss.config.js
+tailwind.config.ts
+vitest.config.ts
+vitest.setup.ts
+next-env.d.ts
+
+# Documentation
+docs/
+*.md
