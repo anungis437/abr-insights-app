@@ -1,5 +1,8 @@
 name: Build and Test
 
+# Build workflow: Compiles TypeScript, lints code, runs unit tests
+# Triggers on push/PR to main and develop branches
+
 # Required secrets (configure in repository settings):
 # - NEXT_PUBLIC_SUPABASE_URL
 # - NEXT_PUBLIC_SUPABASE_ANON_KEY
