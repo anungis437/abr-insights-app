@@ -46,8 +46,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch permissions' }, { status: 500 })
     }
 
+    // Add category field derived from resource for UI compatibility
+    const permissionsWithCategory = (permissions || []).map((perm) => ({
+      ...perm,
+      category: perm.resource, // Use resource as category if category doesn't exist
+    }))
+
     // Filter by category if needed (client-side categorization)
-    let filteredPermissions = permissions || []
+    let filteredPermissions = permissionsWithCategory
     if (category) {
       filteredPermissions =
         permissions?.filter((p) => {

@@ -133,7 +133,7 @@ export default function PermissionsPage() {
 
   async function loadPermissions() {
     try {
-      // Get all permissions (try with category first, fall back to name only)
+      // Get all permissions
       const permsQuery = supabase.from('permissions').select('*')
       const { data: permsData, error: permsError } = await permsQuery.order('name')
 
@@ -144,7 +144,12 @@ export default function PermissionsPage() {
         })
         setPermissions([])
       } else {
-        setPermissions(permsData || [])
+        // Add category field if it doesn't exist
+        const permsWithCategory = (permsData || []).map((perm) => ({
+          ...perm,
+          category: perm.category || perm.resource,
+        }))
+        setPermissions(permsWithCategory)
       }
 
       // Get resource permissions with joined data
