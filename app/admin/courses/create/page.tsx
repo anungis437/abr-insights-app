@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/client'
 import { ArrowLeft, Save, Eye, Upload, Plus, X, BookOpen } from 'lucide-react'
 
 export default function CreateCoursePage() {
   const router = useRouter()
+  const supabase = createClient()
   const [user, setUser] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
