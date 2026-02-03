@@ -62,7 +62,7 @@ jobs:
             exit 1
           fi
 
-          if ! grep -q '"status": "ok"' app/api/healthz/route.ts; then
+          if ! grep -q "status: 'ok'" app/api/healthz/route.ts; then
             echo "❌ /api/healthz must return status: ok"
             exit 1
           fi
