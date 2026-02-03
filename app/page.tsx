@@ -5,6 +5,8 @@ import { logger } from '@/lib/utils/production-logger'
 import Link from 'next/link'
 import { BookOpen, Scale, Users, TrendingUp, ArrowRight, Clock, Award } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/lib/auth/AuthContext'
 import Testimonials from '@/components/shared/Testimonials'
 import {
   tribunalCasesService,
@@ -14,6 +16,8 @@ import {
 import type { Course, Testimonial } from '@/lib/supabase/services'
 
 export default function HomePage() {
+  const router = useRouter()
+  const { user, profile } = useAuth()
   const [stats, setStats] = useState({
     totalCases: 0,
     abrCases: 0,
@@ -22,6 +26,31 @@ export default function HomePage() {
   })
   const [featuredCourses, setFeaturedCourses] = useState<Course[]>([])
   const [testimonials, setTestimonials] = useState<Testimonial[]>([])
+
+  // Redirect authenticated users to their appropriate dashboard
+  useEffect(() => {
+    if (user && profile) {
+      const role = profile.role
+      
+      // Admin users go to admin dashboard
+      if (role === 'super_admin' || role === 'admin' || role === 'org_admin') {
+        router.push('/admin/dashboard')
+        return
+      }
+      
+      // Instructors go to instructor dashboard
+      if (role === 'instructor') {
+        router.push('/instructor/dashboard')
+        return
+      }
+      
+      // Regular users go to learning dashboard
+      if (role === 'learner' || role === 'student') {
+        router.push('/dashboard')
+        return
+      }
+    }
+  }, [user, profile, router])
 
   useEffect(() => {
     async function fetchData() {
