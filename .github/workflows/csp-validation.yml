@@ -25,135 +25,135 @@ jobs:
       - name: Check proxy.ts exists
         run: |
           if [ ! -f proxy.ts ]; then
-            echo "❌ FAIL: proxy.ts not found"
+            echo "  FAIL: proxy.ts not found"
             exit 1
           fi
-          echo "✅ PASS: proxy.ts exists"
+          echo "[OK] PASS: proxy.ts exists"
 
       - name: Verify proxy.ts exports default function
         run: |
           if grep -q "export default" proxy.ts; then
-            echo "✅ PASS: proxy.ts exports default function"
+            echo "[OK] PASS: proxy.ts exports default function"
           else
-            echo "❌ FAIL: proxy.ts missing default export"
+            echo "  FAIL: proxy.ts missing default export"
             exit 1
           fi
 
       - name: Verify nonce generation (Web Crypto API)
         run: |
           if grep -q "crypto.getRandomValues" proxy.ts; then
-            echo "✅ PASS: Cryptographic nonce generation found"
+            echo "[OK] PASS: Cryptographic nonce generation found"
           else
-            echo "❌ FAIL: No cryptographic nonce generation"
+            echo "  FAIL: No cryptographic nonce generation"
             exit 1
           fi
 
       - name: Verify nonce is base64 encoded
         run: |
           if grep -q "btoa" proxy.ts; then
-            echo "✅ PASS: Nonce is base64 encoded"
+            echo "[OK] PASS: Nonce is base64 encoded"
           else
-            echo "❌ FAIL: Nonce not base64 encoded"
+            echo "  FAIL: Nonce not base64 encoded"
             exit 1
           fi
 
       - name: Verify CSP header is set
         run: |
           if grep -q "Content-Security-Policy" proxy.ts; then
-            echo "✅ PASS: CSP header is set"
+            echo "[OK] PASS: CSP header is set"
           else
-            echo "❌ FAIL: CSP header not set"
+            echo "  FAIL: CSP header not set"
             exit 1
           fi
 
       - name: Verify x-nonce header is set
         run: |
           if grep -q "x-nonce" proxy.ts; then
-            echo "✅ PASS: x-nonce header is set"
+            echo "[OK] PASS: x-nonce header is set"
           else
-            echo "❌ FAIL: x-nonce header not set"
+            echo "  FAIL: x-nonce header not set"
             exit 1
           fi
 
       - name: Verify NO unsafe-inline in script-src
         run: |
           if grep -E "script-src.*unsafe-inline" proxy.ts; then
-            echo "❌ FAIL: unsafe-inline found in script-src"
+            echo "  FAIL: unsafe-inline found in script-src"
             exit 1
           fi
-          echo "✅ PASS: No unsafe-inline in script-src"
+          echo "[OK] PASS: No unsafe-inline in script-src"
 
       - name: Verify NO unsafe-inline in style-src
         run: |
           if grep -E "style-src.*unsafe-inline" proxy.ts; then
-            echo "❌ FAIL: unsafe-inline found in style-src"
+            echo "  FAIL: unsafe-inline found in style-src"
             exit 1
           fi
-          echo "✅ PASS: No unsafe-inline in style-src"
+          echo "[OK] PASS: No unsafe-inline in style-src"
 
       - name: Verify NO unsafe-eval
         run: |
           if grep -q "unsafe-eval" proxy.ts; then
-            echo "❌ FAIL: unsafe-eval found in CSP"
+            echo "  FAIL: unsafe-eval found in CSP"
             exit 1
           fi
-          echo "✅ PASS: No unsafe-eval in CSP"
+          echo "[OK] PASS: No unsafe-eval in CSP"
 
       - name: Verify nonce is used in script-src
         run: |
           if grep -E "script-src.*nonce-\\\$\{nonce\}" proxy.ts; then
-            echo "✅ PASS: Nonce is used in script-src"
+            echo "[OK] PASS: Nonce is used in script-src"
           else
-            echo "❌ FAIL: Nonce not used in script-src"
+            echo "  FAIL: Nonce not used in script-src"
             exit 1
           fi
 
       - name: Verify nonce is used in style-src
         run: |
           if grep -E "style-src.*nonce-\\\$\{nonce\}" proxy.ts; then
-            echo "✅ PASS: Nonce is used in style-src"
+            echo "[OK] PASS: Nonce is used in style-src"
           else
-            echo "❌ FAIL: Nonce not used in style-src"
+            echo "  FAIL: Nonce not used in style-src"
             exit 1
           fi
 
       - name: Verify _dev route protection
         run: |
           if grep -q "_dev" proxy.ts && grep -q "404" proxy.ts; then
-            echo "✅ PASS: _dev route protection found"
+            echo "[OK] PASS: _dev route protection found"
           else
-            echo "❌ FAIL: _dev route protection missing"
+            echo "  FAIL: _dev route protection missing"
             exit 1
           fi
 
       - name: Verify correlation ID generation
         run: |
           if grep -q "x-correlation-id" proxy.ts; then
-            echo "✅ PASS: Correlation ID header found"
+            echo "[OK] PASS: Correlation ID header found"
           else
-            echo "⚠️  WARN: Correlation ID header missing (non-critical)"
+            echo "[WARN]  WARN: Correlation ID header missing (non-critical)"
           fi
 
       - name: Check layout.tsx reads nonce
         run: |
           if [ ! -f app/layout.tsx ]; then
-            echo "❌ FAIL: app/layout.tsx not found"
+            echo "  FAIL: app/layout.tsx not found"
             exit 1
           fi
 
           if grep -q "x-nonce" app/layout.tsx; then
-            echo "✅ PASS: layout.tsx reads nonce from headers"
+            echo "[OK] PASS: layout.tsx reads nonce from headers"
           else
-            echo "❌ FAIL: layout.tsx doesn't read nonce"
+            echo "  FAIL: layout.tsx doesn't read nonce"
             exit 1
           fi
 
       - name: Verify layout.tsx uses headers() function
         run: |
           if grep -q "headers()" app/layout.tsx; then
-            echo "✅ PASS: layout.tsx uses headers() function"
+            echo "[OK] PASS: layout.tsx uses headers() function"
           else
-            echo "❌ FAIL: layout.tsx missing headers() call"
+            echo "  FAIL: layout.tsx missing headers() call"
             exit 1
           fi
 
@@ -161,7 +161,7 @@ jobs:
         run: |
           echo ""
           echo "========================================"
-          echo "✅ ALL CSP IMPLEMENTATION CHECKS PASSED"
+          echo "[OK] ALL CSP IMPLEMENTATION CHECKS PASSED"
           echo "========================================"
           echo ""
           echo "Next Steps:"
