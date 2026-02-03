@@ -32,6 +32,7 @@ interface BillingInfo {
 
 export default function BillingPage() {
   const router = useRouter()
+  const supabase = createClient()
   const { entitlements, loading } = useEntitlements()
   const [billingInfo, setBillingInfo] = useState<BillingInfo | null>(null)
   const [portalLoading, setPortalLoading] = useState(false)
