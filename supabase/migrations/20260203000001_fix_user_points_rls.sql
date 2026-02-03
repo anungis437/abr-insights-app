@@ -22,14 +22,19 @@ CREATE POLICY user_points_update ON user_points
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
 
--- Also ensure points_transactions has proper policies
-DROP POLICY IF EXISTS points_transactions_select ON points_transactions;
-DROP POLICY IF EXISTS points_transactions_insert ON points_transactions;
+-- Also ensure points_transactions has proper policies (only if table exists)
+DO $$ 
+BEGIN
+  IF EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'points_transactions') THEN
+    DROP POLICY IF EXISTS points_transactions_select ON points_transactions;
+    DROP POLICY IF EXISTS points_transactions_insert ON points_transactions;
 
-CREATE POLICY points_transactions_select ON points_transactions 
-  FOR SELECT 
-  USING (auth.uid() = user_id);
+    CREATE POLICY points_transactions_select ON points_transactions 
+      FOR SELECT 
+      USING (auth.uid() = user_id);
 
-CREATE POLICY points_transactions_insert ON points_transactions 
-  FOR INSERT 
-  WITH CHECK (auth.uid() = user_id);
+    CREATE POLICY points_transactions_insert ON points_transactions 
+      FOR INSERT 
+      WITH CHECK (auth.uid() = user_id);
+  END IF;
+END $$;
