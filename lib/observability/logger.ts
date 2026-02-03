@@ -195,7 +195,11 @@ export function createRequestLogger(request: Request): ObservabilityLogger {
 /**
  * Enhance logger with user/org context after authentication
  */
-export function enrichLogger(logger: ObservabilityLogger, userId?: string, orgId?: string): ObservabilityLogger {
+export function enrichLogger(
+  logger: ObservabilityLogger,
+  userId?: string,
+  orgId?: string
+): ObservabilityLogger {
   // Create new logger with enriched context
   const currentOptions = (logger as any).options || {}
   return new ObservabilityLogger({

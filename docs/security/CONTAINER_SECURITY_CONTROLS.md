@@ -26,20 +26,17 @@ Internet → Azure Front Door (optional) → Container Apps → Next.js App (pro
 **Controls**:
 
 1. **Content Security Policy (CSP)**
-
    - Nonce-based script/style protection
    - No `unsafe-inline` directives
    - Generated dynamically per request via Web Crypto API
    - Headers: `Content-Security-Policy`, `x-nonce`
 
 2. **Route Protection**
-
    - `/_dev/*` routes: Hard 404 in production
    - `/api/_dev/*` routes: Hard 404 in production
    - Admin routes: RBAC enforcement at layout level
 
 3. **Request Correlation**
-
    - `x-correlation-id` header injection
    - Request tracing across services
    - Log aggregation support
@@ -80,13 +77,11 @@ export default async function proxy(request: NextRequest) {
 **Controls**:
 
 1. **Ingress Configuration**
-
    - External ingress with HTTPS enforcement
    - Target port: 3000 (Next.js server)
    - Auto-scaling: 0-10 replicas (consumption-based)
 
 2. **Secret Management**
-
    - Azure Key Vault integration (planned)
    - Environment variables via Container Apps secrets
    - ACR credentials stored securely
@@ -117,14 +112,12 @@ ingress:
 **Recommended Options**:
 
 1. **Azure Application Gateway + WAF**
-
    - Layer 7 load balancing
    - OWASP Top 10 protection
    - Bot mitigation
    - Path-based routing rules
 
 2. **Azure Front Door**
-
    - Global CDN with edge caching
    - WAF at the edge
    - DDoS protection (Azure DDoS Standard)
@@ -175,17 +168,14 @@ default          → 100 req/min
 **Secret Categories**:
 
 1. **Authentication**
-
    - Supabase service role key
    - JWT signing secrets
 
 2. **Payment Processing**
-
    - Stripe API keys
    - Webhook secrets
 
 3. **Infrastructure**
-
    - Redis connection credentials
    - ACR registry passwords
    - Azure service principal
@@ -211,14 +201,12 @@ default          → 100 req/min
 **Planned Integrations**:
 
 1. **Application Insights**
-
    - Request telemetry
    - Dependency tracking
    - Exception logging
    - Custom metrics
 
 2. **Log Analytics**
-
    - Container logs (stdout/stderr)
    - Performance metrics
    - Query-based alerting
@@ -283,16 +271,16 @@ for i in {1..5}; do curl -I https://<app-url>/ | grep x-nonce; done
 
 ### What Changed
 
-| Control                 | Azure SWA                     | Azure Container Apps       |
-| ----------------------- | ----------------------------- | -------------------------- |
-| **Security Headers**    | staticwebapp.config.json      | proxy.ts (runtime)         |
-| **Route Protection**    | allowedRoles in config        | proxy.ts + layout.tsx      |
-| **CSP**                 | Static header (no nonces)     | Dynamic nonces (per req)   |
-| **Rate Limiting**       | Not available                 | Redis-backed (app-level)   |
-| **Auto-scaling**        | Not configurable              | 0-10 replicas (configurable) |
-| **Cost Model**          | Fixed $9/mo (Free tier)       | Consumption ($0-50/mo)     |
-| **Runtime Environment** | Static pre-rendered HTML      | Node.js server runtime     |
-| **Deployment**          | Oryx build (automatic)        | Docker container (custom)  |
+| Control                 | Azure SWA                 | Azure Container Apps         |
+| ----------------------- | ------------------------- | ---------------------------- |
+| **Security Headers**    | staticwebapp.config.json  | proxy.ts (runtime)           |
+| **Route Protection**    | allowedRoles in config    | proxy.ts + layout.tsx        |
+| **CSP**                 | Static header (no nonces) | Dynamic nonces (per req)     |
+| **Rate Limiting**       | Not available             | Redis-backed (app-level)     |
+| **Auto-scaling**        | Not configurable          | 0-10 replicas (configurable) |
+| **Cost Model**          | Fixed $9/mo (Free tier)   | Consumption ($0-50/mo)       |
+| **Runtime Environment** | Static pre-rendered HTML  | Node.js server runtime       |
+| **Deployment**          | Oryx build (automatic)    | Docker container (custom)    |
 
 ### What to Remove
 
@@ -444,7 +432,7 @@ Yes, same security model applies to AKS:
 
 ## Change Log
 
-| Date       | Change                                | Author |
-| ---------- | ------------------------------------- | ------ |
-| 2026-02-02 | Initial container security controls   | System |
+| Date       | Change                                    | Author |
+| ---------- | ----------------------------------------- | ------ |
+| 2026-02-02 | Initial container security controls       | System |
 | 2026-02-02 | Added `_dev` route protection to proxy.ts | System |

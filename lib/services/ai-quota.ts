@@ -1,26 +1,26 @@
 /**
  * AI Quota Enforcement Service
- * 
+ *
  * Provides quota checking and usage tracking for AI model requests.
  * Enforces daily request limits and monthly cost limits per organization.
- * 
+ *
  * Features:
  * - Pre-flight quota checking (before making AI request)
  * - Usage recording (after AI request completes)
  * - Cost estimation based on token usage
  * - Automatic quota initialization
  * - Warning threshold detection
- * 
+ *
  * Usage:
  * ```typescript
  * import { aiQuota } from '@/lib/services/ai-quota'
- * 
+ *
  * // Check quota before making request
  * const check = await aiQuota.checkQuota(orgId, 'gpt-4')
  * if (!check.allowed) {
  *   throw new Error(check.reason)
  * }
- * 
+ *
  * // Record usage after request completes
  * await aiQuota.recordUsage(orgId, {
  *   model: 'gpt-4',
@@ -177,7 +177,11 @@ async function getQuotaConfig(organizationId: string): Promise<AIQuotaConfig | n
 /**
  * Check if organization can make AI request
  */
-async function checkQuota(organizationId: string, model: AIModel, requestCount = 1): Promise<QuotaCheck> {
+async function checkQuota(
+  organizationId: string,
+  model: AIModel,
+  requestCount = 1
+): Promise<QuotaCheck> {
   try {
     const supabase = await createClient()
 
@@ -190,7 +194,7 @@ async function checkQuota(organizationId: string, model: AIModel, requestCount =
 
     if (error) {
       logger.error('Quota check failed', { error, organizationId, model })
-      
+
       // Fail open on database errors (don't block AI requests)
       return {
         allowed: true,
@@ -206,7 +210,7 @@ async function checkQuota(organizationId: string, model: AIModel, requestCount =
 
     // Check if approaching warning threshold
     const warningThreshold =
-      result.monthly_used_cents >= (result.monthly_limit_cents * 0.75) &&
+      result.monthly_used_cents >= result.monthly_limit_cents * 0.75 &&
       result.monthly_used_cents < result.monthly_limit_cents
 
     return {
@@ -220,7 +224,7 @@ async function checkQuota(organizationId: string, model: AIModel, requestCount =
     }
   } catch (error) {
     logger.error('Quota check exception', { error, organizationId, model })
-    
+
     // Fail open on exceptions (don't block AI requests)
     return {
       allowed: true,

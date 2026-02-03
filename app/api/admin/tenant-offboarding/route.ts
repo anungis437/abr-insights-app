@@ -110,7 +110,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(sanitized, { status: 500 })
   }
 }
-const startTime = Date.now()
+
+/**
+ * DELETE: Execute hard delete
+ */
+export async function DELETE(request: NextRequest) {
+  const startTime = Date.now()
   const logger = createRequestLogger(request)
   logger.logRequestStart()
 
@@ -126,12 +131,7 @@ const startTime = Date.now()
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const enrichedLogger = enrichLogger(logger, user.id) data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    const enrichedLogger = enrichLogger(logger, user.id)
 
     // Verify super_admin
     const isSuperAdmin = await verifySuperAdmin(supabase, user.id)

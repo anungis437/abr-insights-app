@@ -25,6 +25,7 @@ Implemented production-grade health check endpoints for container orchestration 
 **Purpose**: Determines if the container process is alive and should be restarted.
 
 **Contract**:
+
 - Always returns 200 if process is running
 - No dependency checks (DB, Redis, etc.)
 - Minimal computation (< 1ms target)
@@ -32,6 +33,7 @@ Implemented production-grade health check endpoints for container orchestration 
 - No caching
 
 **Response Format**:
+
 ```json
 {
   "status": "ok",
@@ -42,6 +44,7 @@ Implemented production-grade health check endpoints for container orchestration 
 ```
 
 **Azure Container Apps Configuration**:
+
 ```yaml
 livenessProbe:
   httpGet:
@@ -54,6 +57,7 @@ livenessProbe:
 ```
 
 **Behavior**:
+
 - Returns 200 immediately (process alive)
 - Container restarted after 3 consecutive failures
 - 10-second delay before first check
@@ -64,6 +68,7 @@ livenessProbe:
 **Purpose**: Determines if the container is ready to accept traffic.
 
 **Contract**:
+
 - Returns 200 if all dependencies are healthy
 - Returns 503 if any critical dependency is unavailable
 - Performs dependency checks (DB, env vars)
@@ -85,6 +90,7 @@ livenessProbe:
    - Returns unhealthy if connection fails
 
 **Response Format (Ready)**:
+
 ```json
 {
   "status": "ready",
@@ -123,6 +129,7 @@ livenessProbe:
 ```
 
 **Response Format (Not Ready)**:
+
 ```json
 {
   "status": "not_ready",
@@ -152,6 +159,7 @@ livenessProbe:
 ```
 
 **Azure Container Apps Configuration**:
+
 ```yaml
 readinessProbe:
   httpGet:
@@ -165,6 +173,7 @@ readinessProbe:
 ```
 
 **Behavior**:
+
 - Traffic routed after first successful check
 - No traffic sent if check fails 3 times
 - 5-second delay before first check
@@ -196,6 +205,7 @@ readinessProbe:
    - `AZURE_OPENAI_API_KEY`
 
 **API**:
+
 ```typescript
 interface EnvValidationResult {
   valid: boolean
@@ -209,6 +219,7 @@ function getEnvironmentInfo(): EnvironmentInfo
 ```
 
 **Usage**:
+
 ```typescript
 import { validateEnvironment } from '@/lib/utils/env-validator'
 
@@ -256,6 +267,7 @@ if (validation.warnings.length > 0) {
    - Ensures structured logging used
 
 **Triggers**:
+
 - Push to main/develop
 - Pull requests to main/develop
 - Manual workflow dispatch
@@ -319,18 +331,21 @@ Wait initialDelaySeconds (liveness: 10s, readiness: 5s)
 ### Manual Testing
 
 1. **Test Liveness Endpoint**:
+
    ```bash
    curl http://localhost:3000/api/healthz
    # Expected: 200 OK, {"status": "ok", ...}
    ```
 
 2. **Test Readiness Endpoint (All Healthy)**:
+
    ```bash
    curl http://localhost:3000/api/readyz
    # Expected: 200 OK, {"status": "ready", "checks": [...]}
    ```
 
 3. **Test Readiness Endpoint (Missing Env)**:
+
    ```bash
    unset NEXTAUTH_SECRET
    curl http://localhost:3000/api/readyz

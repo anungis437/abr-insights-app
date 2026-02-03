@@ -63,7 +63,10 @@ export async function sendContactFormNotification(data: ContactFormData) {
 
     return { success: true }
   } catch (error) {
-    logger.error('Failed to send contact form notification', { error, recipient: CONTACT_RECIPIENT })
+    logger.error('Failed to send contact form notification', {
+      error,
+      recipient: CONTACT_RECIPIENT,
+    })
     return { success: false, error: 'Failed to send notification email' }
   }
 }
@@ -212,7 +215,11 @@ export async function sendSupportTicketNotification(data: SupportTicketData) {
 
     return { success: true }
   } catch (error) {
-    logger.error('Failed to send support ticket notification', { error, ticketId: data.ticketId, recipient: CONTACT_RECIPIENT })
+    logger.error('Failed to send support ticket notification', {
+      error,
+      ticketId: data.ticketId,
+      recipient: CONTACT_RECIPIENT,
+    })
     return { success: false, error: 'Failed to send notification email' }
   }
 }

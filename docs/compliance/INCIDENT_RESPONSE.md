@@ -9,6 +9,7 @@
 This document outlines ABR Insights App's incident response procedures for security incidents, data breaches, and operational failures. Our incident response framework follows NIST 800-61r2 guidelines and ensures 30-minute response time for critical incidents.
 
 **Key Contacts**:
+
 - **Security Team**: security@abr-insights.com
 - **On-Call Engineer**: PagerDuty escalation
 - **Compliance Officer**: compliance@abr-insights.com
@@ -19,6 +20,7 @@ This document outlines ABR Insights App's incident response procedures for secur
 ### Severity Levels
 
 #### P0 - Critical (Response: Immediate, SLA: 15 minutes)
+
 - **Data breach** (customer data exposed)
 - **Complete service outage** (all tenants affected)
 - **Active security attack** (ongoing intrusion)
@@ -27,6 +29,7 @@ This document outlines ABR Insights App's incident response procedures for secur
 **Escalation**: Immediate PagerDuty page, executive notification
 
 #### P1 - High (Response: 30 minutes)
+
 - **Partial service outage** (single tenant or feature)
 - **Security vulnerability** (unpatched critical CVE)
 - **API abuse** (rate limits bypassed, quota exhaustion)
@@ -35,6 +38,7 @@ This document outlines ABR Insights App's incident response procedures for secur
 **Escalation**: PagerDuty page, security team notification
 
 #### P2 - Medium (Response: 2 hours)
+
 - **Performance degradation** (slow response times)
 - **Failed health checks** (single instance unhealthy)
 - **CSP violations** (repeated from same source)
@@ -43,6 +47,7 @@ This document outlines ABR Insights App's incident response procedures for secur
 **Escalation**: Slack notification, incident ticket
 
 #### P3 - Low (Response: 24 hours)
+
 - **Non-critical bugs** (UI issues, cosmetic errors)
 - **Routine maintenance** (scheduled downtime)
 - **Low-volume CSP violations** (isolated incidents)
@@ -54,6 +59,7 @@ This document outlines ABR Insights App's incident response procedures for secur
 ### Phase 1: Detection & Alert
 
 **Detection Sources**:
+
 1. **Automated Monitoring**:
    - Azure Container Apps health checks
    - Supabase error alerts
@@ -73,6 +79,7 @@ This document outlines ABR Insights App's incident response procedures for secur
    - CI pipeline failures
 
 **Alert Routing**:
+
 ```
 Detection → Structured Logging → Log Aggregation → Alert Rules → PagerDuty/Slack
 ```
@@ -80,6 +87,7 @@ Detection → Structured Logging → Log Aggregation → Alert Rules → PagerDu
 ### Phase 2: Triage & Classification
 
 **On-Call Engineer Actions** (5 minutes):
+
 1. **Acknowledge Alert**:
    - PagerDuty: Acknowledge incident
    - Slack: Post in `#incidents` channel
@@ -107,6 +115,7 @@ Detection → Structured Logging → Log Aggregation → Alert Rules → PagerDu
 **Immediate Actions** (15-30 minutes):
 
 #### For Data Breaches (P0)
+
 1. **Isolate Affected Systems**:
    - Revoke compromised API keys
    - Rotate database credentials
@@ -125,6 +134,7 @@ Detection → Structured Logging → Log Aggregation → Alert Rules → PagerDu
    - Disable compromised integrations
 
 #### For Service Outages (P0/P1)
+
 1. **Failover to Backup**:
    - Switch to read-replica (if DB issue)
    - Enable maintenance mode (graceful degradation)
@@ -141,6 +151,7 @@ Detection → Structured Logging → Log Aggregation → Alert Rules → PagerDu
    - Internal Slack notification
 
 #### For Security Attacks (P0)
+
 1. **Block Attacker**:
    - IP ban (Azure Firewall)
    - Rate limit to 0 req/sec
@@ -181,6 +192,7 @@ Detection → Structured Logging → Log Aggregation → Alert Rules → PagerDu
    - Identify detection delay (time to alert)
 
 **Investigation Tools**:
+
 - Structured logs: `/api/logs?correlationId={id}`
 - Database audit: `SELECT * FROM audit_log WHERE timestamp > '...'`
 - Git history: `git log --since="2 hours ago"`
@@ -191,6 +203,7 @@ Detection → Structured Logging → Log Aggregation → Alert Rules → PagerDu
 **Remediation Actions**:
 
 #### Code Fixes
+
 1. **Deploy Hotfix**:
    - Create hotfix branch: `hotfix/incident-{id}`
    - Fix vulnerability (parameterized queries, input validation)
@@ -203,6 +216,7 @@ Detection → Structured Logging → Log Aggregation → Alert Rules → PagerDu
    - Clear caches (Redis FLUSHALL)
 
 #### Configuration Changes
+
 1. **Rotate Secrets**:
    - Database passwords
    - API keys (Stripe, OpenAI, CanLII)
@@ -214,6 +228,7 @@ Detection → Structured Logging → Log Aggregation → Alert Rules → PagerDu
    - Increase logging verbosity (DEBUG level)
 
 #### Database Cleanup
+
 1. **Remove Malicious Data**:
    - Delete injected records
    - Restore from backup (point-in-time recovery)
@@ -254,6 +269,7 @@ Detection → Structured Logging → Log Aggregation → Alert Rules → PagerDu
 **Post-Mortem** (within 48 hours):
 
 **Blameless Review**:
+
 - What happened? (timeline)
 - Why did it happen? (root cause)
 - How was it detected? (alert source)
@@ -262,12 +278,14 @@ Detection → Structured Logging → Log Aggregation → Alert Rules → PagerDu
 - Action items (preventive measures)
 
 **Documentation**:
+
 - Create post-mortem doc: `docs/incidents/YYYY-MM-DD-{title}.md`
 - Share with engineering team
 - Update runbook if needed
 - Add to incident knowledge base
 
 **Follow-Up Actions**:
+
 - Implement preventive measures (CI checks, better validation)
 - Schedule training (if process gap)
 - Update monitoring (better alerts)
@@ -280,6 +298,7 @@ Detection → Structured Logging → Log Aggregation → Alert Rules → PagerDu
 **Purpose**: Emergency stop for CanLII API ingestion (compliance)
 
 **Activation**:
+
 ```bash
 # Set environment variable
 export CANLII_INGESTION_ENABLED=false
@@ -292,12 +311,14 @@ az containerapp revision restart --name abr-insights-app
 ```
 
 **Effect**:
+
 - All ingestion runs blocked
 - In-progress runs stopped mid-execution
 - Status set to 'killed' in database
 - Audit log records kill switch activation
 
 **Reactivation**:
+
 ```bash
 export CANLII_INGESTION_ENABLED=true
 az containerapp revision restart --name abr-insights-app
@@ -308,16 +329,19 @@ az containerapp revision restart --name abr-insights-app
 **Purpose**: Stop AI abuse (cost attack, quota exhaustion)
 
 **Activation** (via admin dashboard):
+
 1. Navigate to `/admin/ai-quotas`
 2. Set org quota to 0: `Monthly Quota: 0`
 3. Click "Update Quota"
 
 **Effect**:
+
 - All AI requests blocked immediately
 - Users see "AI quota exceeded" message
 - Existing requests complete (no interruption)
 
 **Reactivation**:
+
 - Restore quota to normal value (e.g., 10,000/month)
 
 ### 3. CSP Report-Only Mode
@@ -325,19 +349,22 @@ az containerapp revision restart --name abr-insights-app
 **Purpose**: Investigate CSP violations without blocking requests
 
 **Activation**:
+
 ```typescript
 // middleware.ts
 const cspHeader = `
   Content-Security-Policy-Report-Only: ...
-`; // Change from Content-Security-Policy
+` // Change from Content-Security-Policy
 ```
 
 **Effect**:
+
 - CSP violations reported but not enforced
 - Scripts/styles still execute (even if violating)
 - Violations logged for investigation
 
 **Reactivation**:
+
 - Change back to `Content-Security-Policy` (enforce mode)
 
 ## Communication Templates
@@ -450,6 +477,7 @@ Thank you for your patience.
 **Notify**: Privacy regulator in customer's jurisdiction
 
 **Information Required**:
+
 1. Nature of breach (what happened)
 2. Categories of data affected (PII, payment, health)
 3. Approximate number of affected individuals
@@ -464,6 +492,7 @@ Thank you for your patience.
 **Notify**: California Attorney General (if > 500 residents affected)
 
 **Information Required**:
+
 1. Name and contact of reporting entity
 2. Type of breach (unauthorized access, disclosure)
 3. Number of California residents affected
@@ -483,10 +512,10 @@ Thank you for your patience.
 
 ### Incident Log (2026)
 
-| Date | ID | Severity | Type | MTTR | Root Cause | Preventive Action |
-|------|------|----------|------|------|------------|-------------------|
-| 2026-02-01 | INC-001 | P2 | Performance | 1.5h | Slow query | Add index on courses.created_at |
-| 2026-02-02 | INC-002 | P1 | Availability | 30m | DB connection pool | Increase max connections |
+| Date                                   | ID      | Severity | Type         | MTTR | Root Cause         | Preventive Action               |
+| -------------------------------------- | ------- | -------- | ------------ | ---- | ------------------ | ------------------------------- |
+| 2026-02-01                             | INC-001 | P2       | Performance  | 1.5h | Slow query         | Add index on courses.created_at |
+| 2026-02-02                             | INC-002 | P1       | Availability | 30m  | DB connection pool | Increase max connections        |
 | (Future incidents will be logged here) |
 
 ## Training & Drills
@@ -496,6 +525,7 @@ Thank you for your patience.
 **Frequency**: Quarterly
 
 **Topics**:
+
 - Incident classification (P0-P3)
 - Kill switch activation
 - Evidence preservation
@@ -503,6 +533,7 @@ Thank you for your patience.
 - Regulatory compliance
 
 **Drills**:
+
 - Simulated data breach (tabletop exercise)
 - Service outage simulation (chaos engineering)
 - CSP violation investigation
@@ -513,6 +544,7 @@ Thank you for your patience.
 **Schedule**: 1-week rotations, 24/7 coverage
 
 **Responsibilities**:
+
 - Acknowledge incidents within 5 minutes
 - Triage and classify severity
 - Execute containment procedures
@@ -520,6 +552,7 @@ Thank you for your patience.
 - Document incident timeline
 
 **On-Call Checklist**:
+
 - [ ] PagerDuty app installed and notifications enabled
 - [ ] VPN access configured (remote troubleshooting)
 - [ ] Admin access to Azure, Supabase, Stripe
@@ -535,4 +568,5 @@ Thank you for your patience.
 ---
 
 **Document History**:
+
 - v1.0 (2026-02-03): Initial version (PR-08 compliance pack)

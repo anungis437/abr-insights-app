@@ -99,6 +99,7 @@
     "@playwright/test": "^1.41.1",
     "@testing-library/jest-dom": "^6.2.0",
     "@testing-library/react": "^14.1.2",
+    "@types/archiver": "^7.0.0",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20.11.5",
     "@types/pg": "^8.16.0",

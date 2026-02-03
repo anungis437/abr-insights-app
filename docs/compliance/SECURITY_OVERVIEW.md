@@ -9,6 +9,7 @@
 ABR Insights App is a multi-tenant legal education SaaS platform built with world-class security controls. This document provides a comprehensive overview of our security architecture, threat model, and implemented controls for enterprise procurement teams.
 
 **Security Posture**:
+
 - ✅ Content Security Policy (CSP) with runtime enforcement
 - ✅ Role-Based Access Control (RBAC) with row-level security (RLS)
 - ✅ Structured logging with request correlation
@@ -22,22 +23,26 @@ ABR Insights App is a multi-tenant legal education SaaS platform built with worl
 ### Technology Stack
 
 **Frontend**:
+
 - Next.js 14 (App Router)
 - React 18
 - TypeScript
 - TailwindCSS
 
 **Backend**:
+
 - Next.js API Routes (Edge Runtime)
 - Supabase (PostgreSQL + Auth)
 - Redis (rate limiting, caching)
 
 **Infrastructure**:
+
 - Azure Container Apps (containerized deployment)
 - Azure Cosmos DB (future state for global distribution)
 - GitHub Actions (CI/CD)
 
 **Third-Party Services**:
+
 - Stripe (payment processing)
 - CanLII API (legal case data)
 - OpenAI API (AI features)
@@ -92,14 +97,15 @@ ABR Insights App is a multi-tenant legal education SaaS platform built with worl
    - Users can only access data from their organization
 
 2. **RLS Policy Example**:
+
    ```sql
    CREATE POLICY "Users can only see their org's data"
    ON courses
    FOR SELECT
    USING (
      organization_id IN (
-       SELECT organization_id 
-       FROM profiles 
+       SELECT organization_id
+       FROM profiles
        WHERE id = auth.uid()
      )
    );
@@ -119,6 +125,7 @@ ABR Insights App is a multi-tenant legal education SaaS platform built with worl
 **Threat**: Unauthorized access to tenant data
 
 **Mitigations**:
+
 - ✅ Supabase Auth with JWT tokens (short-lived)
 - ✅ Row-Level Security (RLS) at database level
 - ✅ RBAC middleware enforces role checks
@@ -128,6 +135,7 @@ ABR Insights App is a multi-tenant legal education SaaS platform built with worl
 **Threat**: Privilege escalation (user → admin)
 
 **Mitigations**:
+
 - ✅ Role assignment via secure database functions only
 - ✅ Super admin role restricted to specific users
 - ✅ All role changes audit logged
@@ -139,6 +147,7 @@ ABR Insights App is a multi-tenant legal education SaaS platform built with worl
 **Threat**: Cross-tenant data leakage
 
 **Mitigations**:
+
 - ✅ RLS enforced on all tenant data tables
 - ✅ Organization ID required on all queries
 - ✅ Database-level isolation (PostgreSQL RLS)
@@ -147,6 +156,7 @@ ABR Insights App is a multi-tenant legal education SaaS platform built with worl
 **Threat**: Data exfiltration
 
 **Mitigations**:
+
 - ✅ Rate limiting on data exports
 - ✅ Super admin only access to bulk export
 - ✅ All exports audit logged with user ID
@@ -156,6 +166,7 @@ ABR Insights App is a multi-tenant legal education SaaS platform built with worl
 **Threat**: Data retention violations (GDPR, CCPA)
 
 **Mitigations**:
+
 - ✅ User-initiated data deletion (GDPR Right to Erasure)
 - ✅ Organization offboarding cascade deletes
 - ✅ 90-day retention policy for audit logs
@@ -167,6 +178,7 @@ ABR Insights App is a multi-tenant legal education SaaS platform built with worl
 **Threat**: SQL injection
 
 **Mitigations**:
+
 - ✅ Supabase client uses parameterized queries
 - ✅ No raw SQL from user input
 - ✅ TypeScript type safety
@@ -175,6 +187,7 @@ ABR Insights App is a multi-tenant legal education SaaS platform built with worl
 **Threat**: XSS (Cross-Site Scripting)
 
 **Mitigations**:
+
 - ✅ Content Security Policy (CSP) with strict directives
 - ✅ Nonce-based script execution (random per request)
 - ✅ React auto-escapes user content
@@ -186,6 +199,7 @@ ABR Insights App is a multi-tenant legal education SaaS platform built with worl
 **Threat**: AI quota exhaustion (cost attack)
 
 **Mitigations**:
+
 - ✅ Per-user daily AI quotas (100 messages/day)
 - ✅ Per-org monthly AI quotas (10,000 messages/month)
 - ✅ Real-time quota tracking in Redis
@@ -196,6 +210,7 @@ ABR Insights App is a multi-tenant legal education SaaS platform built with worl
 **Threat**: CanLII API abuse (terms violation)
 
 **Mitigations**:
+
 - ✅ Global rate limiter: 2 req/sec, 1 concurrent, 5000/day
 - ✅ Redis token bucket (distributed across instances)
 - ✅ Fail-closed enforcement (blocks on errors)
@@ -208,6 +223,7 @@ ABR Insights App is a multi-tenant legal education SaaS platform built with worl
 **Threat**: Resource exhaustion
 
 **Mitigations**:
+
 - ✅ Rate limiting on all API routes
 - ✅ Request size limits (1MB body, 10MB file uploads)
 - ✅ Database connection pooling
@@ -218,6 +234,7 @@ ABR Insights App is a multi-tenant legal education SaaS platform built with worl
 **Threat**: Container crash loops
 
 **Mitigations**:
+
 - ✅ Health checks (`/api/health`)
 - ✅ Readiness checks (DB + Redis connectivity)
 - ✅ Graceful SIGTERM handling
@@ -229,6 +246,7 @@ ABR Insights App is a multi-tenant legal education SaaS platform built with worl
 **Threat**: Stripe webhook tampering
 
 **Mitigations**:
+
 - ✅ Webhook signature verification (Stripe SDK)
 - ✅ Idempotency keys prevent replay attacks
 - ✅ IP allowlisting (Stripe webhook IPs)
@@ -237,6 +255,7 @@ ABR Insights App is a multi-tenant legal education SaaS platform built with worl
 **Threat**: OpenAI API key exposure
 
 **Mitigations**:
+
 - ✅ Keys stored in environment variables (not in code)
 - ✅ Key rotation process documented
 - ✅ Usage monitoring (cost alerts)
@@ -249,6 +268,7 @@ ABR Insights App is a multi-tenant legal education SaaS platform built with worl
 **Implementation**: PR-01
 
 **Directives**:
+
 ```
 default-src 'self'
 script-src 'self' 'nonce-{random}'
@@ -263,6 +283,7 @@ upgrade-insecure-requests
 ```
 
 **Protection**:
+
 - ❌ Inline scripts (requires nonce)
 - ❌ Inline styles (requires nonce)
 - ❌ `eval()` and `Function()` constructor
@@ -270,6 +291,7 @@ upgrade-insecure-requests
 - ❌ Clickjacking (frame-ancestors 'none')
 
 **Monitoring**:
+
 - CSP violation reports sent to `/api/csp-report`
 - Violations logged with structured logging
 - Alerts on repeated violations from same IP
@@ -279,18 +301,21 @@ upgrade-insecure-requests
 **Implementation**: PR-02 + existing RBAC
 
 **Roles**:
+
 - **Super Admin**: Platform-wide access, all organizations
 - **Org Admin**: Organization management, user invites, billing
 - **Instructor**: Course authoring, student management
 - **Student**: Course enrollment, quiz submission
 
 **Enforcement Layers**:
+
 1. **Middleware**: Route protection (`/admin/*`, `/instructor/*`)
 2. **Database**: RLS policies on all tenant tables
 3. **API**: Role checks in API route handlers
 4. **UI**: Conditional rendering based on role
 
 **Example Protection**:
+
 ```typescript
 // Middleware blocks /admin routes
 if (pathname.startsWith('/admin') && !user.role.includes('admin')) {
@@ -307,12 +332,14 @@ FOR ALL USING (is_admin(auth.uid()));
 **Implementation**: PR-03
 
 **Log Levels**:
+
 - `ERROR`: Application errors, failures
 - `WARN`: Degraded state, quota warnings
 - `INFO`: Request lifecycle, user actions
 - `DEBUG`: Detailed debug info (dev only)
 
 **Structured Format**:
+
 ```json
 {
   "timestamp": "2026-02-03T10:30:45.123Z",
@@ -328,6 +355,7 @@ FOR ALL USING (is_admin(auth.uid()));
 ```
 
 **Correlation**:
+
 - Unique `correlationId` per request
 - Traces requests across services
 - Enables incident investigation
@@ -337,10 +365,12 @@ FOR ALL USING (is_admin(auth.uid()));
 **Implementation**: PR-04
 
 **Endpoints**:
+
 - `/api/health`: Liveness check (app running)
 - `/api/health/ready`: Readiness check (DB + Redis up)
 
 **Graceful Shutdown**:
+
 - SIGTERM handler drains active requests
 - 30-second grace period
 - No new requests accepted during shutdown
@@ -351,17 +381,20 @@ FOR ALL USING (is_admin(auth.uid()));
 **Implementation**: PR-05
 
 **Quotas**:
+
 - **Per User**: 100 messages/day
 - **Per Org**: 10,000 messages/month
 - **Admin Override**: Configurable per org
 
 **Enforcement**:
+
 - Redis atomic increment (distributed)
 - Real-time quota check before AI call
 - Quota reset at midnight (daily) / month start (monthly)
 - Admin dashboard for quota management
 
 **Fail-Open Strategy**:
+
 - Database/Redis errors don't block AI
 - Availability priority (UX over cost)
 - Errors logged for admin review
@@ -371,6 +404,7 @@ FOR ALL USING (is_admin(auth.uid()));
 **Implementation**: PR-06
 
 **User Data Deletion**:
+
 - User-initiated: `/api/user/delete-account`
 - Cascade deletes: Profile, enrollments, quiz submissions
 - Anonymization: Name → "Deleted User {UUID}"
@@ -378,6 +412,7 @@ FOR ALL USING (is_admin(auth.uid()));
 - Audit log: Deletion event with timestamp
 
 **Organization Offboarding**:
+
 - Admin-initiated: `/api/org/offboard`
 - Cascade deletes: All org data (users, courses, billing)
 - Grace period: 30 days (soft delete, then hard delete)
@@ -385,6 +420,7 @@ FOR ALL USING (is_admin(auth.uid()));
 - Stripe subscription cancellation
 
 **Data Retention**:
+
 - Audit logs: 90 days
 - Deleted data: Anonymized immediately, removed after 30 days
 - Financial records: 7 years (compliance)
@@ -394,6 +430,7 @@ FOR ALL USING (is_admin(auth.uid()));
 **Implementation**: PR-07
 
 **CanLII Rate Limiting**:
+
 - **Limits**: 2 req/sec, 1 concurrent, 5000/day
 - **Enforcement**: Redis token bucket (distributed)
 - **Fail-Closed**: Blocks on errors (compliance priority)
@@ -446,6 +483,7 @@ FOR ALL USING (is_admin(auth.uid()));
 See [INCIDENT_RESPONSE.md](./INCIDENT_RESPONSE.md) for detailed procedures.
 
 **Quick Reference**:
+
 - Security incidents: `security@abr-insights.com`
 - On-call escalation: PagerDuty (30-minute SLA)
 - Kill switches: CSP report-only, CanLII ingestion, AI quotas
@@ -468,17 +506,20 @@ See [INCIDENT_RESPONSE.md](./INCIDENT_RESPONSE.md) for detailed procedures.
 ## Security Roadmap
 
 ### Q1 2026 (Current)
+
 - ✅ PR-01 to PR-07 complete (production ready)
 - ⏳ PR-08: Compliance documentation
 - ⏳ PR-09: E2E smoke tests
 
 ### Q2 2026
+
 - ❌ SOC 2 Type I audit
 - ❌ Penetration testing (third-party)
 - ❌ Bug bounty program
 - ❌ Security awareness training
 
 ### Q3 2026
+
 - ❌ SOC 2 Type II audit
 - ❌ ISO 27001 certification
 - ❌ Advanced threat detection (SIEM)
@@ -493,4 +534,5 @@ See [INCIDENT_RESPONSE.md](./INCIDENT_RESPONSE.md) for detailed procedures.
 ---
 
 **Document History**:
+
 - v1.0 (2026-02-03): Initial version (PR-08 compliance pack)

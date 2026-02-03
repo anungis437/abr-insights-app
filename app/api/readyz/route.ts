@@ -1,17 +1,17 @@
 /**
  * Readiness Check Endpoint
- * 
+ *
  * Returns 200 if the application is ready to accept traffic.
  * Used by container orchestrators (Azure Container Apps, Kubernetes) to determine
  * when to start sending traffic to the container.
- * 
+ *
  * CONTRACT:
  * - Returns 200 if all dependencies are healthy
  * - Returns 503 if any critical dependency is unavailable
  * - Checks: Database connection, environment variables
  * - Response time target: < 500ms
  * - Must handle errors gracefully (never crash)
- * 
+ *
  * Azure Container Apps Configuration:
  * ```yaml
  * readinessProbe:
@@ -24,12 +24,12 @@
  *   successThreshold: 1
  *   failureThreshold: 3
  * ```
- * 
+ *
  * Health Check Sequence:
  * 1. Environment validation (required vars present and valid)
  * 2. Database connectivity (Supabase connection test)
  * 3. Service dependencies (optional checks with warnings)
- * 
+ *
  * @see https://learn.microsoft.com/azure/container-apps/health-probes
  */
 

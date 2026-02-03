@@ -10,19 +10,19 @@ jobs:
   hygiene-checks:
     name: Repository Hygiene Checks
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Full history for better secret detection
-      
+          fetch-depth: 0 # Full history for better secret detection
+
       - name: Block backup files
         run: |
           echo "🔍 Checking for backup files that should never be committed..."
-          
+
           BACKUP_FILES=$(git ls-files | grep -E '\.(bak|old|backup|tmp)$' || true)
-          
+
           if [ -n "$BACKUP_FILES" ]; then
             echo ""
             echo "❌ FAIL: Backup files detected in repository:"
@@ -32,15 +32,15 @@ jobs:
             echo "Run: git rm <file> to remove them."
             exit 1
           fi
-          
+
           echo "✅ PASS: No backup files found"
-      
+
       - name: Block Supabase temp artifacts
         run: |
           echo "🔍 Checking for Supabase CLI temporary files..."
-          
+
           TEMP_FILES=$(git ls-files | grep -E 'supabase/\.temp|supabase/\.branches' || true)
-          
+
           if [ -n "$TEMP_FILES" ]; then
             echo ""
             echo "❌ FAIL: Supabase temporary files detected:"
@@ -49,15 +49,15 @@ jobs:
             echo "These are CLI artifacts and should not be committed."
             exit 1
           fi
-          
+
           echo "✅ PASS: No Supabase temp files found"
-      
+
       - name: Block editor swap files
         run: |
           echo "🔍 Checking for editor swap files..."
-          
+
           SWAP_FILES=$(git ls-files | grep -E '\.(swp|swo|swn)|~$' || true)
-          
+
           if [ -n "$SWAP_FILES" ]; then
             echo ""
             echo "❌ FAIL: Editor swap files detected:"
@@ -66,15 +66,15 @@ jobs:
             echo "These are temporary editor files and should not be committed."
             exit 1
           fi
-          
+
           echo "✅ PASS: No swap files found"
-      
+
       - name: Block log files
         run: |
           echo "🔍 Checking for log files..."
-          
+
           LOG_FILES=$(git ls-files | grep -E '\.log$' | grep -v 'docs/' || true)
-          
+
           if [ -n "$LOG_FILES" ]; then
             echo ""
             echo "⚠️  WARN: Log files detected (non-doc locations):"
@@ -85,11 +85,11 @@ jobs:
           else
             echo "✅ PASS: No unexpected log files"
           fi
-      
+
       - name: Check for large files
         run: |
           echo "🔍 Checking for unexpectedly large files (>1MB)..."
-          
+
           LARGE_FILES=$(git ls-files | while read file; do
             if [ -f "$file" ]; then
               SIZE=$(stat -f%z "$file" 2>/dev/null || stat -c%s "$file" 2>/dev/null)
@@ -98,7 +98,7 @@ jobs:
               fi
             fi
           done)
-          
+
           if [ -n "$LARGE_FILES" ]; then
             echo ""
             echo "⚠️  WARN: Large files detected (>1MB):"
@@ -109,11 +109,11 @@ jobs:
           else
             echo "✅ PASS: No unexpectedly large files"
           fi
-      
+
       - name: Verify .gitignore is comprehensive
         run: |
           echo "🔍 Verifying .gitignore coverage..."
-          
+
           REQUIRED_PATTERNS=(
             "*.backup"
             "*.old"
@@ -123,15 +123,15 @@ jobs:
             ".env"
             ".env.local"
           )
-          
+
           MISSING_PATTERNS=()
-          
+
           for pattern in "${REQUIRED_PATTERNS[@]}"; do
             if ! grep -q "$pattern" .gitignore; then
               MISSING_PATTERNS+=("$pattern")
             fi
           done
-          
+
           if [ ${#MISSING_PATTERNS[@]} -gt 0 ]; then
             echo ""
             echo "❌ FAIL: .gitignore missing required patterns:"
@@ -140,9 +140,9 @@ jobs:
             done
             exit 1
           fi
-          
+
           echo "✅ PASS: .gitignore has all required patterns"
-      
+
       - name: Summary
         if: success()
         run: |
@@ -161,13 +161,13 @@ jobs:
   secret-scanning:
     name: Secret Detection (Gitleaks)
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
+
       - name: Run Gitleaks
         uses: gitleaks/gitleaks-action@v2
         env:
@@ -177,20 +177,20 @@ jobs:
   dependency-security:
     name: Dependency Vulnerability Scan
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-      
+
       - name: Run npm audit
         run: |
           echo "🔍 Scanning dependencies for vulnerabilities..."
-          
+
           # Run audit and capture output
           if npm audit --audit-level=high; then
             echo "✅ PASS: No high or critical vulnerabilities"
@@ -203,7 +203,7 @@ jobs:
             echo ""
             exit 1
           fi
-      
+
       - name: Check for outdated dependencies
         run: |
           echo "🔍 Checking for outdated dependencies..."
@@ -215,38 +215,38 @@ jobs:
   build-validation:
     name: Build & Type Check
     runs-on: ubuntu-latest
-    
+
     env:
       # Dummy values for build (actual secrets not needed for type checking)
-      NEXT_PUBLIC_SUPABASE_URL: "https://example.supabase.co"
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
-      SUPABASE_SERVICE_ROLE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
-    
+      NEXT_PUBLIC_SUPABASE_URL: 'https://example.supabase.co'
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9'
+      SUPABASE_SERVICE_ROLE_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9'
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Type check
         run: |
           echo "🔍 Running TypeScript type check..."
           npm run type-check
           echo "✅ PASS: Type check successful"
-      
+
       - name: Lint check
         run: |
           echo "🔍 Running ESLint..."
           npm run lint
           echo "✅ PASS: Lint check successful"
-      
+
       - name: Build check
         run: |
           echo "🔍 Running production build..."

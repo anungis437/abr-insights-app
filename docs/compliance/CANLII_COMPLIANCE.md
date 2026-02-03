@@ -12,6 +12,7 @@ This document demonstrates ABR Insights App's compliance with CanLII API Terms o
 **Compliance Status**: ✅ Fully Compliant
 
 **Key Measures**:
+
 - ✅ Global rate limiter (Redis token bucket)
 - ✅ 2 requests/second (burst capacity)
 - ✅ 1 concurrent request (no parallel calls)
@@ -26,11 +27,13 @@ This document demonstrates ABR Insights App's compliance with CanLII API Terms o
 ### Rate Limit Requirements
 
 **Official Limits** (from CanLII API documentation):
+
 - **Requests per Second**: 2 (burst capacity)
 - **Concurrent Requests**: 1 (no parallel calls)
 - **Daily Limit**: 5000 requests/day
 
 **Violation Consequences**:
+
 - Temporary suspension (first offense)
 - Permanent account termination (repeated violations)
 - Legal action (if terms egregiously violated)
@@ -38,12 +41,14 @@ This document demonstrates ABR Insights App's compliance with CanLII API Terms o
 ### Content Usage Restrictions
 
 **Prohibited**:
+
 - ❌ Storing full case text/content
 - ❌ Republishing case content on other platforms
 - ❌ Commercial redistribution
 - ❌ Modifying case content
 
 **Allowed**:
+
 - ✅ Storing metadata (case ID, title, citation, URL)
 - ✅ Linking to CanLII case pages
 - ✅ Educational use (non-commercial)
@@ -65,25 +70,26 @@ This document demonstrates ABR Insights App's compliance with CanLII API Terms o
 // lib/services/canlii-rate-limiter.ts
 
 // REQUESTS PER SECOND: 2 (burst capacity)
-const REQUESTS_PER_SECOND = 2;
-const MAX_TOKENS = 2; // Bucket capacity
+const REQUESTS_PER_SECOND = 2
+const MAX_TOKENS = 2 // Bucket capacity
 
 // CONCURRENT REQUESTS: 1 (no parallel calls)
-const MAX_CONCURRENT = 1;
+const MAX_CONCURRENT = 1
 
 // DAILY LIMIT: 5000 requests/day
-const DAILY_LIMIT = 5000;
+const DAILY_LIMIT = 5000
 
 // Redis keys (shared across all instances)
-const REDIS_KEY_TOKENS = 'canlii:tokens';
-const REDIS_KEY_CONCURRENT = 'canlii:concurrent';
-const REDIS_KEY_DAILY_COUNT = 'canlii:daily_count';
-const REDIS_KEY_DAILY_RESET = 'canlii:daily_reset';
+const REDIS_KEY_TOKENS = 'canlii:tokens'
+const REDIS_KEY_CONCURRENT = 'canlii:concurrent'
+const REDIS_KEY_DAILY_COUNT = 'canlii:daily_count'
+const REDIS_KEY_DAILY_RESET = 'canlii:daily_reset'
 ```
 
 ### Token Bucket Algorithm
 
 **How It Works**:
+
 1. **Bucket** holds 2 tokens (max capacity)
 2. **Refill Rate**: 2 tokens/second (0.5 seconds per token)
 3. **Request** consumes 1 token
@@ -91,6 +97,7 @@ const REDIS_KEY_DAILY_RESET = 'canlii:daily_reset';
 5. **Sustained**: Can make 2 requests/second long-term
 
 **Example Timeline**:
+
 ```
 Time    Tokens  Action
 ----    ------  ------
@@ -104,20 +111,21 @@ Time    Tokens  Action
 ```
 
 **Implementation**:
+
 ```typescript
 async checkTokenBucket(): Promise<RateLimitResult> {
   const now = Date.now();
-  
+
   // Get last request time and token count
   const lastTime = await redis.get(`${REDIS_KEY_TOKENS}:last_time`);
   let tokens = parseFloat(await redis.get(REDIS_KEY_TOKENS) || '2');
-  
+
   if (lastTime) {
     // Calculate tokens to add based on elapsed time
     const elapsed = (now - parseInt(lastTime)) / 1000; // seconds
     tokens = Math.min(MAX_TOKENS, tokens + (elapsed * REFILL_RATE));
   }
-  
+
   // Check if token available
   if (tokens >= 1) {
     return { allowed: true, currentTokens: tokens };
@@ -139,10 +147,11 @@ async checkTokenBucket(): Promise<RateLimitResult> {
 **Purpose**: Enforce max 1 concurrent request (CanLII requirement)
 
 **Implementation**:
+
 ```typescript
 async checkConcurrentLimit(): Promise<RateLimitResult> {
   const concurrent = parseInt(await redis.get(REDIS_KEY_CONCURRENT) || '0');
-  
+
   if (concurrent >= MAX_CONCURRENT) {
     return {
       allowed: false,
@@ -150,16 +159,16 @@ async checkConcurrentLimit(): Promise<RateLimitResult> {
       retryAfter: 1, // Try again in 1 second
     };
   }
-  
+
   return { allowed: true };
 }
 
 async acquireLimit(): Promise<RateLimitResult> {
   // ... (check limits)
-  
+
   // Increment concurrent counter
   await redis.incr(REDIS_KEY_CONCURRENT);
-  
+
   return { allowed: true };
 }
 
@@ -170,20 +179,21 @@ async releaseLimit(): Promise<void> {
 ```
 
 **Usage**:
+
 ```typescript
 // Acquire before request
-const limit = await canliiRateLimiter.acquireLimit();
+const limit = await canliiRateLimiter.acquireLimit()
 if (!limit.allowed) {
-  throw new Error(limit.reason);
+  throw new Error(limit.reason)
 }
 
 try {
   // Make API call
-  const response = await fetch('https://api.canlii.org/...');
-  return response;
+  const response = await fetch('https://api.canlii.org/...')
+  return response
 } finally {
   // ALWAYS release (even on error)
-  await canliiRateLimiter.releaseLimit();
+  await canliiRateLimiter.releaseLimit()
 }
 ```
 
@@ -192,17 +202,18 @@ try {
 **Purpose**: Hard stop at 5000 requests/day
 
 **Implementation**:
+
 ```typescript
 async checkDailyLimit(): Promise<RateLimitResult> {
   const dailyCount = parseInt(await redis.get(REDIS_KEY_DAILY_COUNT) || '0');
-  
+
   if (dailyCount >= DAILY_LIMIT) {
     // Calculate time until midnight (reset time)
     const now = new Date();
     const midnight = new Date(now);
     midnight.setHours(24, 0, 0, 0);
     const retryAfter = Math.ceil((midnight.getTime() - now.getTime()) / 1000);
-    
+
     return {
       allowed: false,
       reason: 'Daily limit exceeded (5000 requests/day)',
@@ -211,18 +222,18 @@ async checkDailyLimit(): Promise<RateLimitResult> {
       dailyLimit: DAILY_LIMIT,
     };
   }
-  
+
   return { allowed: true, dailyUsed: dailyCount, dailyLimit: DAILY_LIMIT };
 }
 
 async incrementDaily(): Promise<void> {
   const resetTime = await redis.get(REDIS_KEY_DAILY_RESET);
-  
+
   if (!resetTime || Date.now() >= parseInt(resetTime)) {
     // Reset daily counter at midnight
     const midnight = new Date();
     midnight.setHours(24, 0, 0, 0);
-    
+
     await redis.set(REDIS_KEY_DAILY_COUNT, '1');
     await redis.set(REDIS_KEY_DAILY_RESET, midnight.getTime().toString());
   } else {
@@ -237,27 +248,29 @@ async incrementDaily(): Promise<void> {
 **Philosophy**: Strict compliance over availability
 
 **Comparison to PR-05** (AI cost controls):
+
 - PR-05 (AI): **Fail-open** (availability priority, cost secondary)
 - PR-07 (CanLII): **Fail-closed** (compliance priority, availability secondary)
 
 **Rationale**: CanLII account termination is worse than temporary service unavailability
 
 **Implementation**:
+
 ```typescript
 async checkLimit(): Promise<RateLimitResult> {
   try {
     // Check all limits
     const dailyCheck = await this.checkDailyLimit();
     if (!dailyCheck.allowed) return dailyCheck;
-    
+
     const concurrentCheck = await this.checkConcurrentLimit();
     if (!concurrentCheck.allowed) return concurrentCheck;
-    
+
     const tokenCheck = await this.checkTokenBucket();
     if (!tokenCheck.allowed) return tokenCheck;
-    
+
     return { allowed: true };
-    
+
   } catch (error) {
     // FAIL CLOSED: Block request on ANY error
     logger.error('Rate limiter error (fail-closed)', { error });
@@ -271,6 +284,7 @@ async checkLimit(): Promise<RateLimitResult> {
 ```
 
 **Error Scenarios** (all block requests):
+
 - ❌ Redis connection failed
 - ❌ Redis command timeout
 - ❌ Redis authentication error
@@ -283,6 +297,7 @@ async checkLimit(): Promise<RateLimitResult> {
 **Emergency Stop**: Instantly disable all CanLII ingestion
 
 **Use Cases**:
+
 - CanLII reports terms violation
 - Rate limiter malfunction detected
 - Unexpected high request volume
@@ -291,31 +306,34 @@ async checkLimit(): Promise<RateLimitResult> {
 ### Implementation
 
 **Environment Variable**:
+
 ```bash
 # .env
 CANLII_INGESTION_ENABLED=false  # Kill switch activated
 ```
 
 **Default Behavior**:
+
 ```typescript
 // lib/services/canlii-ingestion.ts
 
 export function isIngestionEnabled(): boolean {
   // Default: enabled if API key present
   if (process.env.CANLII_INGESTION_ENABLED === 'false') {
-    return false; // Kill switch activated
+    return false // Kill switch activated
   }
-  
+
   // Require API key
   if (!process.env.CANLII_API_KEY) {
-    return false; // No API key configured
+    return false // No API key configured
   }
-  
-  return true; // Ingestion enabled
+
+  return true // Ingestion enabled
 }
 ```
 
 **Check Before Every Request**:
+
 ```typescript
 async executeIngestion(runId: string, options: IngestionRunOptions) {
   for (const caseId of caseIds) {
@@ -325,7 +343,7 @@ async executeIngestion(runId: string, options: IngestionRunOptions) {
       await this.updateRunStatus(runId, 'killed', 'Ingestion disabled by kill switch');
       return;
     }
-    
+
     // Proceed with request
     await this.fetchCaseMetadata(runId, caseId);
   }
@@ -333,12 +351,14 @@ async executeIngestion(runId: string, options: IngestionRunOptions) {
 ```
 
 **Activation Procedure**:
+
 1. Set environment variable: `CANLII_INGESTION_ENABLED=false`
 2. Restart container: `az containerapp revision restart`
 3. Verify: Check logs for "ingestion disabled by kill switch"
 4. In-progress runs: Stopped mid-execution, status set to 'killed'
 
 **Reactivation**:
+
 1. Set environment variable: `CANLII_INGESTION_ENABLED=true`
 2. Restart container
 3. Monitor: Watch request logs for 1 hour
@@ -351,18 +371,18 @@ async executeIngestion(runId: string, options: IngestionRunOptions) {
 // lib/services/canlii-ingestion.ts
 
 interface CanLIICaseMetadata {
-  caseId: string;
-  databaseId: string;
-  jurisdiction: string;
-  court: string;
-  decisionDate: string;
-  title?: string;
-  citation?: string;
-  url?: string;
-  judges?: string[];
-  keywords?: string[];
-  language?: string;
-  
+  caseId: string
+  databaseId: string
+  jurisdiction: string
+  court: string
+  decisionDate: string
+  title?: string
+  citation?: string
+  url?: string
+  judges?: string[]
+  keywords?: string[]
+  language?: string
+
   // EXPLICITLY EXCLUDED (compliance with CanLII terms):
   // NO: content, text, body, full_text, document, html, paragraphs, etc.
 }
@@ -375,7 +395,7 @@ interface CanLIICaseMetadata {
 
 CREATE TABLE canlii_cases (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  
+
   -- Metadata ONLY
   case_id TEXT NOT NULL UNIQUE,
   database_id TEXT NOT NULL,
@@ -388,11 +408,11 @@ CREATE TABLE canlii_cases (
   judges TEXT[],
   keywords TEXT[],
   language TEXT DEFAULT 'en',
-  
+
   -- Audit
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
-  
+
   -- EXPLICITLY EXCLUDED TEXT FIELDS (CanLII compliance):
   -- NO: content TEXT, body TEXT, full_text TEXT, document TEXT, html TEXT
 );
@@ -411,9 +431,9 @@ async fetchCaseMetadata(runId: string, caseId: string): Promise<CanLIICaseMetada
       headers: { 'Authorization': `Bearer ${this.apiKey}` },
     });
   });
-  
+
   const data = await response.json();
-  
+
   // Extract metadata ONLY (explicitly exclude text fields)
   const metadata: CanLIICaseMetadata = {
     caseId: data.caseId,
@@ -427,11 +447,11 @@ async fetchCaseMetadata(runId: string, caseId: string): Promise<CanLIICaseMetada
     judges: data.judges,
     keywords: data.keywords,
     language: data.language,
-    
+
     // EXPLICITLY EXCLUDED:
     // DO NOT store: data.content, data.text, data.body, data.html, data.document
   };
-  
+
   return metadata;
 }
 ```
@@ -453,7 +473,7 @@ validate-no-text-storage:
           exit 1
         fi
         echo "✅ No text storage columns in schema"
-    
+
     - name: Check for Explicit Exclusion Comment
       run: |
         if ! grep -q "EXPLICITLY EXCLUDED.*content.*text.*body" lib/services/canlii-ingestion.ts; then
@@ -461,7 +481,7 @@ validate-no-text-storage:
           exit 1
         fi
         echo "✅ Explicit exclusion comment found"
-    
+
     - name: Check for Text Field Assignments
       run: |
         if grep -E "(content:|\.content\s*=|text:|\.text\s*=|body:|\.body\s*=)" lib/services/canlii-ingestion.ts | grep -v "//.*NO:"; then
@@ -478,6 +498,7 @@ validate-no-text-storage:
 **Implementation**: `supabase/migrations/20260203_canlii_ingestion_tracking.sql`
 
 **Tables**:
+
 1. `canlii_ingestion_runs`: Run lifecycle tracking
 2. `canlii_api_requests`: Per-request audit log
 3. `canlii_daily_quotas`: Daily aggregates
@@ -487,6 +508,7 @@ validate-no-text-storage:
 **Table**: `canlii_ingestion_runs`
 
 **Columns**:
+
 - `id`: Run ID (UUID)
 - `status`: running, completed, failed, rate_limited, killed
 - `started_at`, `completed_at`: Timestamps
@@ -496,6 +518,7 @@ validate-no-text-storage:
 - **Compliance flags**: `exceeded_daily_limit`, `exceeded_rate_limit`, `kill_switch_active`
 
 **Example**:
+
 ```sql
 SELECT *
 FROM canlii_ingestion_runs
@@ -509,6 +532,7 @@ LIMIT 10;
 **Table**: `canlii_api_requests`
 
 **Columns**:
+
 - `run_id`: Associated ingestion run
 - `endpoint`: `/caseBrowse/{caseId}`
 - `case_id`: Case being fetched
@@ -520,6 +544,7 @@ LIMIT 10;
 - **Error**: `error_type`, `error_message`, `retry_count`
 
 **Example**:
+
 ```sql
 SELECT case_id, status_code, response_time_ms, tokens_available, daily_requests_used
 FROM canlii_api_requests
@@ -532,6 +557,7 @@ ORDER BY created_at;
 **Table**: `canlii_daily_quotas`
 
 **Columns**:
+
 - `date`: Date (YYYY-MM-DD)
 - `total_requests`, `successful_requests`, `failed_requests`, `rate_limited_requests`
 - `daily_limit` (5000), `limit_exceeded`, `limit_exceeded_at`
@@ -539,6 +565,7 @@ ORDER BY created_at;
 - `total_runs`, `successful_runs`, `failed_runs`
 
 **Example**:
+
 ```sql
 SELECT date, total_requests, daily_limit, limit_exceeded
 FROM canlii_daily_quotas
@@ -553,6 +580,7 @@ ORDER BY date DESC;
 **Dashboard**: `/admin/canlii/stats`
 
 **Metrics Displayed**:
+
 - Current daily usage: `245 / 5000 requests`
 - Current tokens: `1.5 / 2.0 tokens`
 - Concurrent requests: `0 / 1`
@@ -560,6 +588,7 @@ ORDER BY date DESC;
 - Kill switch status: `ENABLED` or `DISABLED`
 
 **Alerts**:
+
 - Daily quota >80%: Warning email to admin
 - Daily quota >95%: Urgent alert (PagerDuty)
 - Rate limit exceeded >10/hour: Investigation ticket
@@ -568,6 +597,7 @@ ORDER BY date DESC;
 ### Weekly Reports
 
 **Automated Report** (Monday 9 AM):
+
 - Total requests last week
 - Average requests/day
 - Rate limit events
@@ -579,6 +609,7 @@ ORDER BY date DESC;
 ### Compliance Verification Checklist
 
 **Monthly Review** (1st of each month):
+
 - [ ] Verify rate limiter constants unchanged (2/1/5000)
 - [ ] Check CI workflow still passing
 - [ ] Review daily quota logs (no exceeded limits)
@@ -594,6 +625,7 @@ ORDER BY date DESC;
 ### Rate Limiter Testing
 
 **Test 1: Requests Per Second**
+
 ```bash
 # Make 3 rapid requests
 curl https://abr-insights.com/api/canlii/cases/2024onca123
@@ -605,6 +637,7 @@ curl https://abr-insights.com/api/canlii/cases/2024onca125
 ```
 
 **Test 2: Concurrent Requests**
+
 ```bash
 # Make 2 parallel requests
 curl https://abr-insights.com/api/canlii/cases/2024onca123 &
@@ -615,6 +648,7 @@ curl https://abr-insights.com/api/canlii/cases/2024onca124 &
 ```
 
 **Test 3: Daily Limit**
+
 ```bash
 # Simulate 5000 requests (use test environment)
 for i in {1..5001}; do
@@ -626,6 +660,7 @@ done
 ```
 
 **Test 4: Kill Switch**
+
 ```bash
 # Activate kill switch
 export CANLII_INGESTION_ENABLED=false
@@ -640,16 +675,18 @@ curl -X POST https://abr-insights.com/api/admin/canlii/ingest
 ### Content Compliance Testing
 
 **Test 1: Type Safety**
+
 ```typescript
 // This should fail TypeScript compilation
 const metadata: CanLIICaseMetadata = {
   caseId: '2024onca123',
   // @ts-expect-error - content field should not exist
   content: 'case text here',
-};
+}
 ```
 
 **Test 2: Database Insert**
+
 ```sql
 -- This should fail (column doesn't exist)
 INSERT INTO canlii_cases (case_id, content)
@@ -665,6 +702,7 @@ VALUES ('2024onca123', 'case text here');
 **Scenario**: Daily limit exceeded (>5000 requests)
 
 **Actions**:
+
 1. **Immediate**: Kill switch activated (CANLII_INGESTION_ENABLED=false)
 2. **Investigation**: Review audit logs (who triggered, why)
 3. **Root Cause**: Rate limiter bug? Malicious actor? Misconfiguration?
@@ -677,6 +715,7 @@ VALUES ('2024onca123', 'case text here');
 **Scenario**: CanLII emails us about terms violation
 
 **Actions**:
+
 1. **Immediate**: Kill switch activated
 2. **Review**: Check audit logs for violation details
 3. **Remediation**:
@@ -695,4 +734,5 @@ VALUES ('2024onca123', 'case text here');
 ---
 
 **Document History**:
+
 - v1.0 (2026-02-03): Initial version (PR-08 compliance pack)

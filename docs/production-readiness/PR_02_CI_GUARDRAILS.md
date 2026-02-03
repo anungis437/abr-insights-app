@@ -12,7 +12,8 @@ Prevent security regressions and repository pollution through automated CI check
 ## Problem Statement
 
 **Current Risk**: Discipline-based security fails under pressure. Developers can accidentally:
-- Commit backup files (*.bak, *.old, *.backup) with sensitive data
+
+- Commit backup files (_.bak, _.old, \*.backup) with sensitive data
 - Leave editor swap files in the repo
 - Commit Supabase CLI temporary artifacts
 - Expose secrets in code (API keys, tokens, passwords)
@@ -30,6 +31,7 @@ Prevent security regressions and repository pollution through automated CI check
 **Jobs**:
 
 #### Job 1: Hygiene Checks
+
 - **Block backup files**: Fails if `*.bak`, `*.old`, `*.backup`, `*.tmp` exist in repo
 - **Block Supabase temp artifacts**: Fails if `supabase/.temp` or `supabase/.branches` committed
 - **Block editor swap files**: Fails if `.swp`, `.swo`, `~` files committed
@@ -38,6 +40,7 @@ Prevent security regressions and repository pollution through automated CI check
 - **Verify .gitignore**: Ensures all critical patterns are covered
 
 #### Job 2: Secret Detection (Gitleaks)
+
 - **Scans full git history** for secrets
 - **Custom rules** for ABR Insights:
   - Supabase service role keys (critical severity)
@@ -51,10 +54,12 @@ Prevent security regressions and repository pollution through automated CI check
   - Database connection strings (high severity)
 
 #### Job 3: Dependency Security
+
 - **npm audit**: Fails on high/critical vulnerabilities
 - **Outdated check**: Reports outdated dependencies (info only)
 
 #### Job 4: Build Validation
+
 - **TypeScript type check**: Ensures no type errors
 - **ESLint**: Ensures code style compliance
 - **Production build**: Ensures code builds successfully
@@ -64,6 +69,7 @@ Prevent security regressions and repository pollution through automated CI check
 **File**: `.gitleaks.toml`
 
 **Features**:
+
 - Uses Gitleaks default rules as baseline
 - Custom rules for ABR Insights secrets
 - Allowlist for documentation (can reference example secrets)
@@ -71,6 +77,7 @@ Prevent security regressions and repository pollution through automated CI check
 - Allowlist for `NEXT_PUBLIC_*` vars (meant to be public)
 
 **Severity Levels**:
+
 - **Critical**: Service role keys, private keys, Stripe live keys
 - **High**: Webhook secrets, Azure keys, Redis URLs, JWT secrets
 - **Medium**: Generic API keys
@@ -162,12 +169,14 @@ git reset --hard HEAD~2
 ### Risk Reduction
 
 **Before PR-02**:
+
 - Secrets could be committed (manual review required)
 - Backup files could leak data
 - Vulnerabilities could slip through
 - Broken code could be merged
 
 **After PR-02**:
+
 - Secrets are automatically blocked (CI fails)
 - Backup files are automatically blocked (CI fails)
 - Vulnerabilities are automatically blocked (CI fails)
@@ -178,6 +187,7 @@ git reset --hard HEAD~2
 ### If CI Becomes Too Strict (False Positives)
 
 1. **Adjust Gitleaks allowlist**:
+
 ```toml
 # .gitleaks.toml
 [[rules.allowlist]]
@@ -187,6 +197,7 @@ paths = [
 ```
 
 2. **Disable specific checks temporarily**:
+
 ```yaml
 # .github/workflows/repo-hygiene.yml
 # Comment out problematic job
@@ -196,6 +207,7 @@ paths = [
 ```
 
 3. **Emergency bypass** (use sparingly):
+
 ```bash
 # Skip CI checks for emergency fix
 git commit -m "fix: emergency production issue [skip ci]"
@@ -327,6 +339,7 @@ All jobs must pass before merge is allowed.
 ### Monitoring (30 days)
 
 Track in GitHub Actions:
+
 - Number of CI failures due to secrets
 - Number of CI failures due to backup files
 - Number of CI failures due to vulnerabilities
@@ -377,7 +390,8 @@ Track in GitHub Actions:
 
 ### Q: What if a secret is already in git history?
 
-**A**: 
+**A**:
+
 1. Immediately rotate the secret (change password, revoke API key)
 2. Use `git filter-repo` to remove from history
 3. Force push (coordinate with team)
@@ -392,17 +406,20 @@ Track in GitHub Actions:
 ## Sign-Off
 
 **Required Approvals**:
+
 - [ ] Security team (Gitleaks config, secret patterns)
 - [ ] DevOps team (CI/CD workflows)
 - [ ] Engineering lead (code review)
 
 **Evidence Required Before Merge**:
+
 - [ ] Screenshot of passing CI checks on clean commit
 - [ ] Screenshot of failing CI when backup file committed
 - [ ] Screenshot of failing CI when fake secret committed
 - [ ] Branch protection rules configured
 
 **Merge Conditions**:
+
 1. All CI checks pass on this PR
 2. Test validation complete (backup file, secret detection)
 3. Branch protection rules documented

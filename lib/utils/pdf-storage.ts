@@ -44,7 +44,11 @@ export async function uploadCertificatePDF(
     })
 
     if (error) {
-      logger.error('Certificate PDF upload failed', { error, filePath, certificate_id: certificate.id })
+      logger.error('Certificate PDF upload failed', {
+        error,
+        filePath,
+        certificate_id: certificate.id,
+      })
       throw error
     }
 

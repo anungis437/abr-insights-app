@@ -1,8 +1,8 @@
 /**
  * Admin API: Get AI Quota Configuration
- * 
+ *
  * GET /api/admin/ai-quota?organizationId=xxx
- * 
+ *
  * Returns AI quota configuration and current usage for an organization.
  * Super admin only.
  */
@@ -93,9 +93,9 @@ export async function GET(request: NextRequest) {
 
 /**
  * Admin API: Update AI Quota Configuration
- * 
+ *
  * PUT /api/admin/ai-quota
- * 
+ *
  * Updates AI quota configuration for an organization.
  * Super admin only.
  */

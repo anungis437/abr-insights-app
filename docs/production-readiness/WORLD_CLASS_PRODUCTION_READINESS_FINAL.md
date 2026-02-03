@@ -31,6 +31,7 @@ ABR Insights App has achieved **world-class production readiness** through the s
 **Objective**: Implement Content Security Policy to prevent XSS attacks
 
 **Implementation**:
+
 - Nonce-based CSP with 128-bit random per request
 - Strict directives: `default-src 'self'`, `frame-ancestors 'none'`
 - Violation reporting to `/api/csp-report`
@@ -38,6 +39,7 @@ ABR Insights App has achieved **world-class production readiness** through the s
 - Production evidence documented
 
 **Impact**:
+
 - ✅ XSS attacks blocked (inline scripts without nonce rejected)
 - ✅ Clickjacking prevented (`frame-ancestors 'none'`)
 - ✅ Mixed content blocked (HTTPS enforced)
@@ -52,6 +54,7 @@ ABR Insights App has achieved **world-class production readiness** through the s
 **Objective**: Automate code quality and security checks in CI/CD
 
 **Implementation**:
+
 - ESLint + TypeScript strict mode
 - Dependency scanning (`npm audit`)
 - Secret scanning (prevent credential leaks)
@@ -59,6 +62,7 @@ ABR Insights App has achieved **world-class production readiness** through the s
 - RBAC middleware checks
 
 **Impact**:
+
 - ✅ Code quality enforced (linting, type safety)
 - ✅ Vulnerable dependencies detected
 - ✅ Secrets prevented from committing
@@ -75,6 +79,7 @@ ABR Insights App has achieved **world-class production readiness** through the s
 **Objective**: Enable production troubleshooting and audit trails
 
 **Implementation**:
+
 - Winston structured logging (JSON format)
 - Correlation IDs (trace requests end-to-end)
 - Azure Monitor integration (90-day retention)
@@ -82,6 +87,7 @@ ABR Insights App has achieved **world-class production readiness** through the s
 - Security event logging (auth, RBAC, violations)
 
 **Impact**:
+
 - ✅ Rapid troubleshooting (trace by correlation ID)
 - ✅ Security audit trail (all access attempts logged)
 - ✅ Compliance evidence (GDPR, SOC 2)
@@ -96,6 +102,7 @@ ABR Insights App has achieved **world-class production readiness** through the s
 **Objective**: Ensure reliable container orchestration and monitoring
 
 **Implementation**:
+
 - Liveness probe: `/api/health` (HTTP 200 if app alive)
 - Readiness probe: `/api/health/ready` (DB + Redis checks)
 - Graceful shutdown (SIGTERM handler, 30s timeout)
@@ -103,6 +110,7 @@ ABR Insights App has achieved **world-class production readiness** through the s
 - Auto-restart on health check failure
 
 **Impact**:
+
 - ✅ Zero-downtime deployments (readiness gates)
 - ✅ Automatic recovery (unhealthy containers restarted)
 - ✅ Traffic routing (only to ready containers)
@@ -119,6 +127,7 @@ ABR Insights App has achieved **world-class production readiness** through the s
 **Objective**: Prevent AI cost runaway and quota abuse
 
 **Implementation**:
+
 - User quota: 100 messages/day (Redis tracking)
 - Org quota: 10,000 messages/month
 - Fail-open strategy (availability > cost)
@@ -127,6 +136,7 @@ ABR Insights App has achieved **world-class production readiness** through the s
 - Real-time tracking (atomic Redis operations)
 
 **Impact**:
+
 - ✅ Cost predictability ($225/org/month estimated)
 - ✅ Abuse prevention (quota enforcement)
 - ✅ User-friendly UX (grace period, email warnings)
@@ -141,6 +151,7 @@ ABR Insights App has achieved **world-class production readiness** through the s
 **Objective**: Achieve GDPR/CCPA compliance with data handling
 
 **Implementation**:
+
 - User deletion: 30-day soft delete → permanent deletion
 - Data export: JSON + PDF (GDPR portability)
 - Org offboarding: Cascade delete all users
@@ -149,6 +160,7 @@ ABR Insights App has achieved **world-class production readiness** through the s
 - Anonymization: Historical records (not deletion)
 
 **Impact**:
+
 - ✅ GDPR compliance (Right to Erasure, Portability)
 - ✅ CCPA compliance (Right to Delete, Right to Know)
 - ✅ User control (self-service export, deletion)
@@ -165,6 +177,7 @@ ABR Insights App has achieved **world-class production readiness** through the s
 **Objective**: Prevent CanLII API account termination
 
 **Implementation**:
+
 - Rate limiter: 2 req/sec (Redis token bucket)
 - Concurrent limit: Max 1 request
 - Daily quota: 5000 requests/day (midnight reset)
@@ -174,6 +187,7 @@ ABR Insights App has achieved **world-class production readiness** through the s
 - Audit trail: 3 tracking tables (runs, requests, quotas)
 
 **Impact**:
+
 - ✅ 100% CanLII terms compliance
 - ✅ Account termination risk eliminated
 - ✅ Emergency shutoff (kill switch functional)
@@ -188,6 +202,7 @@ ABR Insights App has achieved **world-class production readiness** through the s
 **Objective**: Create enterprise-ready compliance documentation
 
 **Implementation**:
+
 - 8 comprehensive documents (~32,000 lines total)
 - Security Overview: Architecture, threat model, controls
 - Incident Response: 7-phase process, kill switches, templates
@@ -199,6 +214,7 @@ ABR Insights App has achieved **world-class production readiness** through the s
 - Operations Runbook: Deployment, troubleshooting, disaster recovery
 
 **Impact**:
+
 - ✅ Enterprise procurement ready (customer-facing docs)
 - ✅ SOC 2 audit ready (controls documented)
 - ✅ GDPR/CCPA evidence (compliance verification)
@@ -207,6 +223,7 @@ ABR Insights App has achieved **world-class production readiness** through the s
 **Documentation**: [PR_08_COMPLIANCE_PACK.md](PR_08_COMPLIANCE_PACK.md)
 
 **Compliance Documents**:
+
 - [Security Overview](compliance/SECURITY_OVERVIEW.md)
 - [Incident Response](compliance/INCIDENT_RESPONSE.md)
 - [Data Retention](compliance/DATA_RETENTION.md)
@@ -223,6 +240,7 @@ ABR Insights App has achieved **world-class production readiness** through the s
 **Objective**: Validate critical flows in production-like environment
 
 **Implementation**:
+
 - 7 test suites, 50+ test cases
 - Playwright E2E framework
 - CI integration (GitHub Actions)
@@ -232,6 +250,7 @@ ABR Insights App has achieved **world-class production readiness** through the s
 - Slack notifications on failure
 
 **Test Coverage**:
+
 1. **Login Flow** (5 tests): Authentication, session persistence, logout
 2. **Billing Upgrade** (5 tests): Stripe checkout, premium features gated
 3. **Seat Enforcement** (6 tests): Team plan 5-user limit enforced
@@ -241,6 +260,7 @@ ABR Insights App has achieved **world-class production readiness** through the s
 7. **CSP Violations** (12 tests): XSS protection, nonce rotation
 
 **Impact**:
+
 - ✅ Regression detection (catch bugs before deployment)
 - ✅ Deployment gate (block bad releases)
 - ✅ Critical flow validation (all revenue-impacting flows tested)
@@ -261,16 +281,16 @@ ABR Insights App has achieved **world-class production readiness** through the s
 
 ### Security Controls Summary
 
-| Control | Implementation | Status |
-|---------|---------------|--------|
-| **CSP** | Nonce-based, strict directives | ✅ Enforced |
-| **RBAC** | 4 roles, 4-layer enforcement | ✅ Enforced |
-| **Logging** | Structured JSON, correlation IDs | ✅ Active |
-| **Health Checks** | Liveness + readiness probes | ✅ Active |
-| **AI Quotas** | 100/day, 10k/month, fail-open | ✅ Enforced |
-| **Data Lifecycle** | GDPR/CCPA, 30-day soft delete | ✅ Enforced |
-| **CanLII Compliance** | 2 req/sec, NO text storage | ✅ Enforced |
-| **E2E Tests** | 50+ tests, 7 critical flows | ✅ Active |
+| Control               | Implementation                   | Status      |
+| --------------------- | -------------------------------- | ----------- |
+| **CSP**               | Nonce-based, strict directives   | ✅ Enforced |
+| **RBAC**              | 4 roles, 4-layer enforcement     | ✅ Enforced |
+| **Logging**           | Structured JSON, correlation IDs | ✅ Active   |
+| **Health Checks**     | Liveness + readiness probes      | ✅ Active   |
+| **AI Quotas**         | 100/day, 10k/month, fail-open    | ✅ Enforced |
+| **Data Lifecycle**    | GDPR/CCPA, 30-day soft delete    | ✅ Enforced |
+| **CanLII Compliance** | 2 req/sec, NO text storage       | ✅ Enforced |
+| **E2E Tests**         | 50+ tests, 7 critical flows      | ✅ Active   |
 
 ---
 
@@ -278,14 +298,14 @@ ABR Insights App has achieved **world-class production readiness** through the s
 
 ### GDPR (General Data Protection Regulation)
 
-| Requirement | Implementation | Evidence |
-|-------------|---------------|----------|
-| Right to Access (Art. 15) | `/api/user/export-data` | [Data Retention](compliance/DATA_RETENTION.md) |
-| Right to Rectification (Art. 16) | User profile editing | [Access Control](compliance/ACCESS_CONTROL_RBAC.md) |
-| Right to Erasure (Art. 17) | 30-day soft delete → permanent | [Data Retention](compliance/DATA_RETENTION.md) |
-| Right to Portability (Art. 20) | JSON + PDF export | [Data Retention](compliance/DATA_RETENTION.md) |
-| Breach Notification (Art. 33) | 72-hour procedures | [Incident Response](compliance/INCIDENT_RESPONSE.md) |
-| Data Protection by Design (Art. 25) | RLS, RBAC, encryption | [Security Overview](compliance/SECURITY_OVERVIEW.md) |
+| Requirement                         | Implementation                 | Evidence                                             |
+| ----------------------------------- | ------------------------------ | ---------------------------------------------------- |
+| Right to Access (Art. 15)           | `/api/user/export-data`        | [Data Retention](compliance/DATA_RETENTION.md)       |
+| Right to Rectification (Art. 16)    | User profile editing           | [Access Control](compliance/ACCESS_CONTROL_RBAC.md)  |
+| Right to Erasure (Art. 17)          | 30-day soft delete → permanent | [Data Retention](compliance/DATA_RETENTION.md)       |
+| Right to Portability (Art. 20)      | JSON + PDF export              | [Data Retention](compliance/DATA_RETENTION.md)       |
+| Breach Notification (Art. 33)       | 72-hour procedures             | [Incident Response](compliance/INCIDENT_RESPONSE.md) |
+| Data Protection by Design (Art. 25) | RLS, RBAC, encryption          | [Security Overview](compliance/SECURITY_OVERVIEW.md) |
 
 **Status**: ✅ **GDPR Compliant**
 
@@ -293,11 +313,11 @@ ABR Insights App has achieved **world-class production readiness** through the s
 
 ### CCPA (California Consumer Privacy Act)
 
-| Requirement | Implementation | Evidence |
-|-------------|---------------|----------|
-| Right to Know | Data categories documented | [Data Retention](compliance/DATA_RETENTION.md) |
-| Right to Delete | User-initiated deletion | [Data Retention](compliance/DATA_RETENTION.md) |
-| Right to Opt-Out | Marketing email unsubscribe | [Data Retention](compliance/DATA_RETENTION.md) |
+| Requirement         | Implementation                          | Evidence                                             |
+| ------------------- | --------------------------------------- | ---------------------------------------------------- |
+| Right to Know       | Data categories documented              | [Data Retention](compliance/DATA_RETENTION.md)       |
+| Right to Delete     | User-initiated deletion                 | [Data Retention](compliance/DATA_RETENTION.md)       |
+| Right to Opt-Out    | Marketing email unsubscribe             | [Data Retention](compliance/DATA_RETENTION.md)       |
 | Breach Notification | >500 residents triggers AG notification | [Incident Response](compliance/INCIDENT_RESPONSE.md) |
 
 **Status**: ✅ **CCPA Compliant**
@@ -306,16 +326,16 @@ ABR Insights App has achieved **world-class production readiness** through the s
 
 ### SOC 2 Type I (Security, Availability, Confidentiality)
 
-| Trust Service Criteria | Implementation | Evidence |
-|------------------------|---------------|----------|
-| CC1: Control Environment | Documented policies, role assignments | [Access Control](compliance/ACCESS_CONTROL_RBAC.md) |
-| CC2: Communication | Incident response, customer notifications | [Incident Response](compliance/INCIDENT_RESPONSE.md) |
-| CC3: Risk Assessment | Threat model, attack scenarios | [Security Overview](compliance/SECURITY_OVERVIEW.md) |
-| CC4: Monitoring | Health checks, alerts, audit logs | [Operations Runbook](compliance/RUNBOOK.md) |
-| CC5: Control Activities | RBAC, CSP, rate limiting | [Security Overview](compliance/SECURITY_OVERVIEW.md) |
-| CC6: Logical Access | Authentication, authorization, RLS | [Access Control](compliance/ACCESS_CONTROL_RBAC.md) |
-| CC7: System Operations | Deployment, monitoring, backups | [Operations Runbook](compliance/RUNBOOK.md) |
-| A1: Availability | Health checks, auto-scaling, DR | [Operations Runbook](compliance/RUNBOOK.md) |
+| Trust Service Criteria   | Implementation                            | Evidence                                             |
+| ------------------------ | ----------------------------------------- | ---------------------------------------------------- |
+| CC1: Control Environment | Documented policies, role assignments     | [Access Control](compliance/ACCESS_CONTROL_RBAC.md)  |
+| CC2: Communication       | Incident response, customer notifications | [Incident Response](compliance/INCIDENT_RESPONSE.md) |
+| CC3: Risk Assessment     | Threat model, attack scenarios            | [Security Overview](compliance/SECURITY_OVERVIEW.md) |
+| CC4: Monitoring          | Health checks, alerts, audit logs         | [Operations Runbook](compliance/RUNBOOK.md)          |
+| CC5: Control Activities  | RBAC, CSP, rate limiting                  | [Security Overview](compliance/SECURITY_OVERVIEW.md) |
+| CC6: Logical Access      | Authentication, authorization, RLS        | [Access Control](compliance/ACCESS_CONTROL_RBAC.md)  |
+| CC7: System Operations   | Deployment, monitoring, backups           | [Operations Runbook](compliance/RUNBOOK.md)          |
+| A1: Availability         | Health checks, auto-scaling, DR           | [Operations Runbook](compliance/RUNBOOK.md)          |
 
 **Status**: ✅ **SOC 2 Type I Ready** (audit in progress)
 
@@ -323,11 +343,11 @@ ABR Insights App has achieved **world-class production readiness** through the s
 
 ### CanLII API Terms of Use
 
-| Requirement | Implementation | Evidence |
-|-------------|---------------|----------|
-| 2 requests/second | Redis token bucket (2 tokens/sec) | [CanLII Compliance](compliance/CANLII_COMPLIANCE.md) |
-| 1 concurrent request | Acquire/release pattern (max 1) | [CanLII Compliance](compliance/CANLII_COMPLIANCE.md) |
-| 5000 requests/day | Daily quota (midnight reset) | [CanLII Compliance](compliance/CANLII_COMPLIANCE.md) |
+| Requirement          | Implementation                                    | Evidence                                             |
+| -------------------- | ------------------------------------------------- | ---------------------------------------------------- |
+| 2 requests/second    | Redis token bucket (2 tokens/sec)                 | [CanLII Compliance](compliance/CANLII_COMPLIANCE.md) |
+| 1 concurrent request | Acquire/release pattern (max 1)                   | [CanLII Compliance](compliance/CANLII_COMPLIANCE.md) |
+| 5000 requests/day    | Daily quota (midnight reset)                      | [CanLII Compliance](compliance/CANLII_COMPLIANCE.md) |
 | NO full-text storage | Types exclude content, schema has NO text columns | [CanLII Compliance](compliance/CANLII_COMPLIANCE.md) |
 
 **Status**: ✅ **100% CanLII Compliant**
@@ -356,11 +376,11 @@ ABR Insights App has achieved **world-class production readiness** through the s
 
 ### Disaster Recovery
 
-| Scenario | RPO | RTO | Recovery Procedure |
-|----------|-----|-----|-------------------|
-| Database Corruption | 24 hours | 2 hours | Restore from daily backup |
-| Region Outage | 24 hours | 4 hours | Failover to Canada East |
-| Security Breach | N/A | Varies | See [Incident Response](compliance/INCIDENT_RESPONSE.md) |
+| Scenario            | RPO      | RTO     | Recovery Procedure                                       |
+| ------------------- | -------- | ------- | -------------------------------------------------------- |
+| Database Corruption | 24 hours | 2 hours | Restore from daily backup                                |
+| Region Outage       | 24 hours | 4 hours | Failover to Canada East                                  |
+| Security Breach     | N/A      | Varies  | See [Incident Response](compliance/INCIDENT_RESPONSE.md) |
 
 ---
 

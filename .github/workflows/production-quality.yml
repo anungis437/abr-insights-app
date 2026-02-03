@@ -10,15 +10,15 @@ jobs:
   ban-console-calls:
     name: Block console.* in Runtime Code
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Block console.log in runtime code
         run: |
           echo "🔍 Checking for console.log in runtime code..."
-          
+
           # Exclude allowed locations: logger implementations, development utilities
           CONSOLE_LOGS=$(git ls-files | \
             grep -E '\.(ts|tsx|js|jsx)$' | \
@@ -29,7 +29,7 @@ jobs:
             grep -v '.spec.' | \
             grep -v 'vitest' | \
             xargs grep -n 'console\.log(' 2>/dev/null || true)
-          
+
           if [ -n "$CONSOLE_LOGS" ]; then
             echo ""
             echo "❌ FAIL: console.log found in runtime code:"
@@ -40,13 +40,13 @@ jobs:
             echo "  logger.info('message', { context })"
             exit 1
           fi
-          
+
           echo "✅ PASS: No console.log in runtime code"
-      
+
       - name: Block console.error without logger
         run: |
           echo "🔍 Checking for raw console.error in runtime code..."
-          
+
           # Find console.error not in logger implementations
           CONSOLE_ERRORS=$(git ls-files | \
             grep -E '\.(ts|tsx|js|jsx)$' | \
@@ -56,7 +56,7 @@ jobs:
             grep -v '.test.' | \
             grep -v '.spec.' | \
             xargs grep -n 'console\.error(' 2>/dev/null || true)
-          
+
           if [ -n "$CONSOLE_ERRORS" ]; then
             echo ""
             echo "⚠️  WARN: console.error found in runtime code:"
@@ -68,11 +68,11 @@ jobs:
           else
             echo "✅ PASS: No raw console.error in runtime code"
           fi
-      
+
       - name: Block console.warn without logger
         run: |
           echo "🔍 Checking for raw console.warn in runtime code..."
-          
+
           CONSOLE_WARNS=$(git ls-files | \
             grep -E '\.(ts|tsx|js|jsx)$' | \
             grep -v 'lib/utils/logger.ts' | \
@@ -80,7 +80,7 @@ jobs:
             grep -v 'lib/observability/logger.ts' | \
             grep -v '.test.' | \
             xargs grep -n 'console\.warn(' 2>/dev/null || true)
-          
+
           if [ -n "$CONSOLE_WARNS" ]; then
             echo ""
             echo "⚠️  WARN: console.warn found in runtime code:"
@@ -92,7 +92,7 @@ jobs:
           else
             echo "✅ PASS: No raw console.warn in runtime code"
           fi
-      
+
       - name: Summary
         run: |
           echo ""

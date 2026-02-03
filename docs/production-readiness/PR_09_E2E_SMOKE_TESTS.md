@@ -27,6 +27,7 @@ Implemented comprehensive end-to-end smoke tests validating critical risk flows 
 **Critical Risk**: Authentication bypass, session hijacking
 
 **Test Cases**:
+
 1. ✅ Display login page (form visible, email/password fields)
 2. ✅ Reject invalid credentials (error message shown)
 3. ✅ Log in with valid credentials (redirect to dashboard)
@@ -34,6 +35,7 @@ Implemented comprehensive end-to-end smoke tests validating critical risk flows 
 5. ✅ Log out successfully (redirect to home, dashboard inaccessible)
 
 **Validation**:
+
 - User can authenticate with valid credentials
 - Invalid credentials are rejected
 - Session persists across page reloads
@@ -44,6 +46,7 @@ Implemented comprehensive end-to-end smoke tests validating critical risk flows 
 **Critical Risk**: Payment processing failure, unauthorized premium access
 
 **Test Cases**:
+
 1. ✅ Display pricing plans (Free, Basic, Team, Enterprise)
 2. ✅ Show upgrade button for current plan
 3. ✅ Redirect to Stripe checkout on upgrade (checkout.stripe.com URL)
@@ -51,6 +54,7 @@ Implemented comprehensive end-to-end smoke tests validating critical risk flows 
 5. ✅ Block premium features for free plan (upgrade prompt shown)
 
 **Validation**:
+
 - Pricing page displays all plans
 - Upgrade button redirects to Stripe
 - Premium features gated behind paywall
@@ -61,6 +65,7 @@ Implemented comprehensive end-to-end smoke tests validating critical risk flows 
 **Critical Risk**: Billing fraud, unauthorized team member additions
 
 **Test Cases**:
+
 1. ✅ Display current seat usage (e.g., "3/5 seats used")
 2. ✅ Show list of team members (table with name, email, role)
 3. ✅ Allow inviting user when under seat limit (invite form shown)
@@ -69,6 +74,7 @@ Implemented comprehensive end-to-end smoke tests validating critical risk flows 
 6. ✅ Prevent exceeding seat limit via API (403 on 6th invite)
 
 **Validation**:
+
 - Team plan enforces 5-user limit
 - Org admin cannot add 6th user
 - Error message or upgrade prompt shown
@@ -79,6 +85,7 @@ Implemented comprehensive end-to-end smoke tests validating critical risk flows 
 **Critical Risk**: Unauthorized access to admin panel, privilege escalation
 
 **Test Cases**:
+
 1. ✅ Block non-admin from /admin route (redirect to dashboard/403)
 2. ✅ Hide admin navigation for non-admin users
 3. ✅ Allow super admin access to /admin
@@ -87,6 +94,7 @@ Implemented comprehensive end-to-end smoke tests validating critical risk flows 
 6. ✅ Prevent privilege escalation via role manipulation (403 on self-promotion)
 
 **Validation**:
+
 - Non-admin users cannot access /admin
 - Middleware redirects unauthorized users
 - Admin-only UI hidden from non-admins
@@ -98,6 +106,7 @@ Implemented comprehensive end-to-end smoke tests validating critical risk flows 
 **Critical Risk**: AI cost runaway, quota bypass
 
 **Test Cases**:
+
 1. ✅ Display AI quota in dashboard (e.g., "45/100 messages used today")
 2. ✅ Allow AI request when under quota (response received)
 3. ✅ Block AI request when quota exceeded (429 response)
@@ -107,6 +116,7 @@ Implemented comprehensive end-to-end smoke tests validating critical risk flows 
 7. ✅ Prevent quota bypass via API (fake headers ignored)
 
 **Validation**:
+
 - User can use AI within 100 msg/day quota
 - User is blocked when quota exceeded
 - Error message displayed with quota info
@@ -118,6 +128,7 @@ Implemented comprehensive end-to-end smoke tests validating critical risk flows 
 **Critical Risk**: CanLII API terms violation, account termination
 
 **Test Cases**:
+
 1. ✅ Display CanLII ingestion dashboard (rate limit stats, daily quota)
 2. ✅ Show kill switch status (CANLII_INGESTION_ENABLED)
 3. ✅ Enforce 2 req/sec rate limit (3rd request in 1s blocked)
@@ -129,6 +140,7 @@ Implemented comprehensive end-to-end smoke tests validating critical risk flows 
 9. ✅ Log rate limit violations for audit
 
 **Validation**:
+
 - Rate limiter enforces 2 req/sec limit
 - Concurrent limit (max 1) enforced
 - Daily quota (5000/day) enforced
@@ -141,6 +153,7 @@ Implemented comprehensive end-to-end smoke tests validating critical risk flows 
 **Critical Risk**: XSS attacks, CSP bypass, clickjacking
 
 **Test Cases**:
+
 1. ✅ Have CSP header in all responses (Content-Security-Policy present)
 2. ✅ Include nonce in script-src directive ('nonce-...')
 3. ✅ Inject nonce into script tags (<script nonce="...">)
@@ -155,6 +168,7 @@ Implemented comprehensive end-to-end smoke tests validating critical risk flows 
 12. ✅ Display CSP report-only mode toggle (kill switch)
 
 **Validation**:
+
 - CSP header present in all responses
 - Nonce generation and injection working
 - Inline scripts without nonce blocked
@@ -169,12 +183,14 @@ Implemented comprehensive end-to-end smoke tests validating critical risk flows 
 ### Workflow: `.github/workflows/smoke-tests.yml`
 
 **Triggers**:
+
 - Push to `main` or `develop` branches
 - Pull requests to `main` or `develop`
 - Manual trigger (`workflow_dispatch`)
 - Called from deployment workflow (`workflow_call`)
 
 **Steps**:
+
 1. Checkout code
 2. Setup Node.js 20
 3. Install dependencies (`npm ci`)
@@ -187,12 +203,14 @@ Implemented comprehensive end-to-end smoke tests validating critical risk flows 
 10. Notify Slack on failure
 
 **Environment Variables**:
+
 - `PLAYWRIGHT_BASE_URL`: Test environment URL (default: http://localhost:3000)
 - `TEST_USER_EMAIL`, `TEST_USER_PASSWORD`: Regular user credentials
 - `TEST_ORG_ADMIN_EMAIL`, `TEST_ORG_ADMIN_PASSWORD`: Org admin credentials
 - `TEST_SUPER_ADMIN_EMAIL`, `TEST_SUPER_ADMIN_PASSWORD`: Super admin credentials
 
 **Notifications**:
+
 - PR comment with test results (passed/failed/skipped counts)
 - Slack alert on failure (if `SLACK_WEBHOOK_URL` configured)
 
@@ -201,6 +219,7 @@ Implemented comprehensive end-to-end smoke tests validating critical risk flows 
 ### `playwright.config.ts`
 
 **Settings**:
+
 - Test directory: `./tests/e2e`
 - Parallel execution: Enabled (except on CI)
 - Retries: 2 on CI, 0 locally
@@ -212,6 +231,7 @@ Implemented comprehensive end-to-end smoke tests validating critical risk flows 
 - Trace: On retry only
 
 **Browser Projects**:
+
 1. Chromium (Desktop)
 2. Firefox (Desktop)
 3. WebKit (Desktop Safari)
@@ -219,6 +239,7 @@ Implemented comprehensive end-to-end smoke tests validating critical risk flows 
 5. Mobile Safari (iPhone 12)
 
 **Dev Server**:
+
 - Auto-starts `npm run dev` if not running
 - Waits for http://localhost:3000 to be ready (2-minute timeout)
 - Reuses existing server on local development
@@ -226,6 +247,7 @@ Implemented comprehensive end-to-end smoke tests validating critical risk flows 
 ### Package Scripts
 
 Added to `package.json`:
+
 ```json
 {
   "test:e2e": "playwright test",
@@ -240,11 +262,13 @@ Added to `package.json`:
 ### Prerequisites
 
 1. Install dependencies:
+
    ```bash
    npm install
    ```
 
 2. Install Playwright browsers:
+
    ```bash
    npx playwright install
    ```
@@ -376,16 +400,16 @@ graph LR
 
 ## Test Coverage Summary
 
-| Flow | Test Cases | Critical Risk |
-|------|-----------|---------------|
-| Login Flow | 5 | Authentication bypass |
-| Billing Upgrade | 5 | Payment fraud |
-| Seat Enforcement | 6 | Billing fraud |
-| Admin RBAC Denial | 6 | Privilege escalation |
-| AI Quota Enforcement | 7 | Cost runaway |
-| CanLII Rate Limiting | 9 | Terms violation |
-| CSP Violations | 12 | XSS attacks |
-| **Total** | **50** | **7 critical risks** |
+| Flow                 | Test Cases | Critical Risk         |
+| -------------------- | ---------- | --------------------- |
+| Login Flow           | 5          | Authentication bypass |
+| Billing Upgrade      | 5          | Payment fraud         |
+| Seat Enforcement     | 6          | Billing fraud         |
+| Admin RBAC Denial    | 6          | Privilege escalation  |
+| AI Quota Enforcement | 7          | Cost runaway          |
+| CanLII Rate Limiting | 9          | Terms violation       |
+| CSP Violations       | 12         | XSS attacks           |
+| **Total**            | **50**     | **7 critical risks**  |
 
 ## File Structure
 
@@ -408,25 +432,30 @@ playwright.config.ts                (Test configuration)
 ## Next Steps
 
 **After PR-09**:
+
 - ✅ All 9 PRs complete (production readiness framework)
 - ✅ World-class production readiness achieved
 
 **Vision Realized**:
+
 > "After PR-09, remaining work must be product growth only — not security, compliance, or ops fundamentals. We'll have achieved world-class production readiness."
 
 ## Future Enhancements
 
 ### Short-term (Q1 2026)
+
 1. Add performance smoke tests (page load time, API latency)
 2. Add accessibility smoke tests (WCAG 2.1 AA compliance)
 3. Add mobile-specific smoke tests (touch gestures, viewport)
 
 ### Medium-term (Q2 2026)
+
 1. Visual regression testing (Percy, Chromatic)
 2. Contract testing (Pact for API contracts)
 3. Chaos engineering (simulate failures)
 
 ### Long-term (Q3 2026)
+
 1. Load testing (JMeter, k6)
 2. Penetration testing (automated security scans)
 3. Synthetic monitoring (Datadog, New Relic)
@@ -454,16 +483,19 @@ playwright.config.ts                (Test configuration)
 ### Troubleshooting
 
 **Tests failing locally but passing in CI**:
+
 - Check environment variables (`.env.test` vs GitHub secrets)
 - Verify test data exists (test users, test org)
 - Check browser version (run `npx playwright install`)
 
 **Tests failing in CI but passing locally**:
+
 - Check CI environment variables (GitHub secrets)
 - Verify test server is reachable (firewall, VPN)
 - Check for race conditions (increase timeouts)
 
 **Flaky tests**:
+
 - Add explicit waits (`await expect(...).toBeVisible()`)
 - Increase timeouts (`{ timeout: 10000 }`)
 - Use retry logic (configured in `playwright.config.ts`)

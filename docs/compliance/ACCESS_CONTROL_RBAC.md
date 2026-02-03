@@ -9,6 +9,7 @@
 ABR Insights App implements Role-Based Access Control (RBAC) with multi-layered enforcement: database-level Row-Level Security (RLS), middleware route protection, and API authorization checks. This document details our access control architecture, role definitions, and permissions matrix for enterprise security audits.
 
 **Security Layers**:
+
 1. **Database RLS**: PostgreSQL row-level security (defense in depth)
 2. **Middleware**: Route-based access control (Next.js middleware)
 3. **API**: Function-level authorization checks
@@ -31,6 +32,7 @@ Super Admin (Platform-wide)
 **Scope**: Platform-wide (all organizations)
 
 **Capabilities**:
+
 - ✅ View all organizations
 - ✅ View all users across organizations
 - ✅ Manage platform settings
@@ -42,21 +44,24 @@ Super Admin (Platform-wide)
 - ✅ Override organization limits
 
 **Assignment**:
+
 - Manual database insert only (no UI)
 - Requires email verification + 2FA
 - Limited to core team members (CEO, CTO, Security)
 
 **Audit**:
+
 - All super admin actions logged
 - Weekly review of super admin access logs
 - Annual access recertification
 
 **Database Policy**:
+
 ```sql
 CREATE FUNCTION is_super_admin(user_id UUID) RETURNS BOOLEAN AS $$
   SELECT EXISTS (
-    SELECT 1 FROM profiles 
-    WHERE id = user_id 
+    SELECT 1 FROM profiles
+    WHERE id = user_id
       AND role @> '["super_admin"]'
   );
 $$ LANGUAGE sql SECURITY DEFINER;
@@ -72,6 +77,7 @@ USING (is_super_admin(auth.uid()));
 **Scope**: Single organization
 
 **Capabilities**:
+
 - ✅ Manage organization settings
 - ✅ Invite/remove users
 - ✅ Assign roles (instructor, student)
@@ -84,20 +90,22 @@ USING (is_super_admin(auth.uid()));
 - ❌ Access platform admin dashboard
 
 **Assignment**:
+
 - First user in organization = auto-assigned org admin
 - Existing org admin can promote other users
 - Requires email verification
 
 **Database Policy**:
+
 ```sql
 CREATE POLICY "Org admins see their org"
 ON organizations
 FOR ALL
 USING (
   id IN (
-    SELECT organization_id 
-    FROM profiles 
-    WHERE id = auth.uid() 
+    SELECT organization_id
+    FROM profiles
+    WHERE id = auth.uid()
       AND role @> '["org_admin"]'
   )
 );
@@ -108,6 +116,7 @@ USING (
 **Scope**: Single organization
 
 **Capabilities**:
+
 - ✅ Create courses
 - ✅ Edit own courses
 - ✅ Publish/unpublish courses
@@ -120,10 +129,12 @@ USING (
 - ❌ Manage billing
 
 **Assignment**:
+
 - Org admin promotes student to instructor
 - Or invite user directly as instructor
 
 **Database Policy**:
+
 ```sql
 CREATE POLICY "Instructors manage their courses"
 ON courses
@@ -131,9 +142,9 @@ FOR ALL
 USING (
   instructor_id = auth.uid()
   OR organization_id IN (
-    SELECT organization_id 
-    FROM profiles 
-    WHERE id = auth.uid() 
+    SELECT organization_id
+    FROM profiles
+    WHERE id = auth.uid()
       AND role @> '["org_admin"]'
   )
 );
@@ -144,6 +155,7 @@ USING (
 **Scope**: Single organization
 
 **Capabilities**:
+
 - ✅ Browse public courses
 - ✅ Enroll in courses
 - ✅ View enrolled courses
@@ -157,10 +169,12 @@ USING (
 - ❌ Manage organization
 
 **Assignment**:
+
 - Default role for new users
 - Auto-assigned on signup
 
 **Database Policy**:
+
 ```sql
 CREATE POLICY "Students see their own data"
 ON enrollments
@@ -174,73 +188,73 @@ USING (
 
 ### Platform Administration
 
-| Permission | Super Admin | Org Admin | Instructor | Student |
-|------------|-------------|-----------|------------|---------|
-| View all organizations | ✅ | ❌ | ❌ | ❌ |
-| Create organization | ✅ | ❌ | ❌ | ❌ |
-| Delete organization | ✅ | ❌ | ❌ | ❌ |
-| View platform metrics | ✅ | ❌ | ❌ | ❌ |
-| Manage AI quotas (global) | ✅ | ❌ | ❌ | ❌ |
-| View audit logs (all) | ✅ | ❌ | ❌ | ❌ |
+| Permission                | Super Admin | Org Admin | Instructor | Student |
+| ------------------------- | ----------- | --------- | ---------- | ------- |
+| View all organizations    | ✅          | ❌        | ❌         | ❌      |
+| Create organization       | ✅          | ❌        | ❌         | ❌      |
+| Delete organization       | ✅          | ❌        | ❌         | ❌      |
+| View platform metrics     | ✅          | ❌        | ❌         | ❌      |
+| Manage AI quotas (global) | ✅          | ❌        | ❌         | ❌      |
+| View audit logs (all)     | ✅          | ❌        | ❌         | ❌      |
 
 ### Organization Management
 
-| Permission | Super Admin | Org Admin | Instructor | Student |
-|------------|-------------|-----------|------------|---------|
-| View org settings | ✅ | ✅ | ❌ | ❌ |
-| Edit org settings | ✅ | ✅ | ❌ | ❌ |
-| Invite users | ✅ | ✅ | ❌ | ❌ |
-| Remove users | ✅ | ✅ | ❌ | ❌ |
-| Assign roles | ✅ | ✅ | ❌ | ❌ |
-| View billing | ✅ | ✅ | ❌ | ❌ |
-| Manage subscription | ✅ | ✅ | ❌ | ❌ |
-| Offboard organization | ✅ | ✅ | ❌ | ❌ |
-| Export org data | ✅ | ✅ | ❌ | ❌ |
-| View org audit logs | ✅ | ✅ | ❌ | ❌ |
+| Permission            | Super Admin | Org Admin | Instructor | Student |
+| --------------------- | ----------- | --------- | ---------- | ------- |
+| View org settings     | ✅          | ✅        | ❌         | ❌      |
+| Edit org settings     | ✅          | ✅        | ❌         | ❌      |
+| Invite users          | ✅          | ✅        | ❌         | ❌      |
+| Remove users          | ✅          | ✅        | ❌         | ❌      |
+| Assign roles          | ✅          | ✅        | ❌         | ❌      |
+| View billing          | ✅          | ✅        | ❌         | ❌      |
+| Manage subscription   | ✅          | ✅        | ❌         | ❌      |
+| Offboard organization | ✅          | ✅        | ❌         | ❌      |
+| Export org data       | ✅          | ✅        | ❌         | ❌      |
+| View org audit logs   | ✅          | ✅        | ❌         | ❌      |
 
 ### Course Management
 
-| Permission | Super Admin | Org Admin | Instructor | Student |
-|------------|-------------|-----------|------------|---------|
-| Create course | ✅ | ✅ | ✅ | ❌ |
-| Edit own course | ✅ | ✅ | ✅ | ❌ |
-| Edit others' course | ✅ | ✅ | ❌ | ❌ |
-| Delete course | ✅ | ✅ | ✅ (own) | ❌ |
-| Publish course | ✅ | ✅ | ✅ (own) | ❌ |
-| View enrollments | ✅ | ✅ | ✅ (own course) | ❌ |
-| Grade submissions | ✅ | ✅ | ✅ (own course) | ❌ |
-| Issue certificates | ✅ | ✅ | ✅ (own course) | ❌ |
+| Permission          | Super Admin | Org Admin | Instructor      | Student |
+| ------------------- | ----------- | --------- | --------------- | ------- |
+| Create course       | ✅          | ✅        | ✅              | ❌      |
+| Edit own course     | ✅          | ✅        | ✅              | ❌      |
+| Edit others' course | ✅          | ✅        | ❌              | ❌      |
+| Delete course       | ✅          | ✅        | ✅ (own)        | ❌      |
+| Publish course      | ✅          | ✅        | ✅ (own)        | ❌      |
+| View enrollments    | ✅          | ✅        | ✅ (own course) | ❌      |
+| Grade submissions   | ✅          | ✅        | ✅ (own course) | ❌      |
+| Issue certificates  | ✅          | ✅        | ✅ (own course) | ❌      |
 
 ### Student Features
 
-| Permission | Super Admin | Org Admin | Instructor | Student |
-|------------|-------------|-----------|------------|---------|
-| Browse courses | ✅ | ✅ | ✅ | ✅ |
-| Enroll in course | ✅ | ✅ | ✅ | ✅ |
-| Submit quiz | ✅ | ✅ | ✅ | ✅ |
-| View own progress | ✅ | ✅ | ✅ | ✅ |
-| Download certificate | ✅ | ✅ | ✅ | ✅ |
-| View others' progress | ✅ | ✅ | ✅ (students in own course) | ❌ |
+| Permission            | Super Admin | Org Admin | Instructor                  | Student |
+| --------------------- | ----------- | --------- | --------------------------- | ------- |
+| Browse courses        | ✅          | ✅        | ✅                          | ✅      |
+| Enroll in course      | ✅          | ✅        | ✅                          | ✅      |
+| Submit quiz           | ✅          | ✅        | ✅                          | ✅      |
+| View own progress     | ✅          | ✅        | ✅                          | ✅      |
+| Download certificate  | ✅          | ✅        | ✅                          | ✅      |
+| View others' progress | ✅          | ✅        | ✅ (students in own course) | ❌      |
 
 ### Data Management
 
-| Permission | Super Admin | Org Admin | Instructor | Student |
-|------------|-------------|-----------|------------|---------|
-| Export own data | ✅ | ✅ | ✅ | ✅ |
-| Export org data | ✅ | ✅ | ❌ | ❌ |
-| Export all data | ✅ | ❌ | ❌ | ❌ |
-| Delete own account | ✅ | ✅ | ✅ | ✅ |
-| Delete other account | ✅ | ✅ (org users) | ❌ | ❌ |
+| Permission           | Super Admin | Org Admin      | Instructor | Student |
+| -------------------- | ----------- | -------------- | ---------- | ------- |
+| Export own data      | ✅          | ✅             | ✅         | ✅      |
+| Export org data      | ✅          | ✅             | ❌         | ❌      |
+| Export all data      | ✅          | ❌             | ❌         | ❌      |
+| Delete own account   | ✅          | ✅             | ✅         | ✅      |
+| Delete other account | ✅          | ✅ (org users) | ❌         | ❌      |
 
 ### AI Features
 
-| Permission | Super Admin | Org Admin | Instructor | Student |
-|------------|-------------|-----------|------------|---------|
-| Use AI assistant | ✅ | ✅ | ✅ | ✅ |
-| Manage own AI quota | ✅ | ✅ | ✅ | ✅ |
-| Manage org AI quota | ✅ | ✅ | ❌ | ❌ |
-| Manage global AI quota | ✅ | ❌ | ❌ | ❌ |
-| View AI usage stats | ✅ | ✅ (org) | ✅ (own) | ✅ (own) |
+| Permission             | Super Admin | Org Admin | Instructor | Student  |
+| ---------------------- | ----------- | --------- | ---------- | -------- |
+| Use AI assistant       | ✅          | ✅        | ✅         | ✅       |
+| Manage own AI quota    | ✅          | ✅        | ✅         | ✅       |
+| Manage org AI quota    | ✅          | ✅        | ❌         | ❌       |
+| Manage global AI quota | ✅          | ❌        | ❌         | ❌       |
+| View AI usage stats    | ✅          | ✅ (org)  | ✅ (own)   | ✅ (own) |
 
 ## Access Control Implementation
 
@@ -253,6 +267,7 @@ USING (
 **Examples**:
 
 #### Organizations Table
+
 ```sql
 -- Super admins see all
 CREATE POLICY "super_admin_all" ON organizations
@@ -262,7 +277,7 @@ FOR ALL USING (is_super_admin(auth.uid()));
 CREATE POLICY "org_admin_own" ON organizations
 FOR ALL USING (
   id IN (
-    SELECT organization_id FROM profiles 
+    SELECT organization_id FROM profiles
     WHERE id = auth.uid() AND role @> '["org_admin"]'
   )
 );
@@ -275,6 +290,7 @@ FOR SELECT USING (
 ```
 
 #### Courses Table
+
 ```sql
 -- Instructors manage their courses
 CREATE POLICY "instructor_own_courses" ON courses
@@ -284,7 +300,7 @@ FOR ALL USING (instructor_id = auth.uid());
 CREATE POLICY "org_admin_org_courses" ON courses
 FOR ALL USING (
   organization_id IN (
-    SELECT organization_id FROM profiles 
+    SELECT organization_id FROM profiles
     WHERE id = auth.uid() AND role @> '["org_admin"]'
   )
 );
@@ -295,6 +311,7 @@ FOR SELECT USING (status = 'published');
 ```
 
 #### Enrollments Table
+
 ```sql
 -- Students manage their enrollments
 CREATE POLICY "student_own_enrollments" ON enrollments
@@ -308,6 +325,7 @@ FOR SELECT USING (
 ```
 
 #### Audit Logs Table
+
 ```sql
 -- Super admins see all
 CREATE POLICY "super_admin_all_logs" ON audit_log
@@ -317,7 +335,7 @@ FOR SELECT USING (is_super_admin(auth.uid()));
 CREATE POLICY "org_admin_org_logs" ON audit_log
 FOR SELECT USING (
   organization_id IN (
-    SELECT organization_id FROM profiles 
+    SELECT organization_id FROM profiles
     WHERE id = auth.uid() AND role @> '["org_admin"]'
   )
 );
@@ -334,48 +352,50 @@ FOR SELECT USING (user_id = auth.uid());
 **Implementation**: `middleware.ts` (Next.js)
 
 **Protected Routes**:
+
 ```typescript
 const protectedRoutes = {
   '/admin': ['super_admin'],
   '/admin/*': ['super_admin'],
-  
+
   '/org/settings': ['org_admin'],
   '/org/users': ['org_admin'],
   '/org/billing': ['org_admin'],
   '/org/offboard': ['org_admin'],
-  
+
   '/instructor/courses': ['instructor', 'org_admin'],
   '/instructor/students': ['instructor', 'org_admin'],
-  
+
   '/profile': ['authenticated'], // Any authenticated user
   '/courses': ['authenticated'],
-};
+}
 ```
 
 **Middleware Logic**:
+
 ```typescript
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-  
+  const { pathname } = request.nextUrl
+
   // Get user session
-  const session = await getSession(request);
+  const session = await getSession(request)
   if (!session) {
-    return Response.redirect(new URL('/login', request.url));
+    return Response.redirect(new URL('/login', request.url))
   }
-  
+
   // Check role for protected routes
-  const requiredRoles = getRequiredRoles(pathname);
+  const requiredRoles = getRequiredRoles(pathname)
   if (requiredRoles && !hasAnyRole(session.user, requiredRoles)) {
     logger.warn('Unauthorized route access', {
       userId: session.user.id,
       pathname,
       userRoles: session.user.role,
       requiredRoles,
-    });
-    return Response.redirect(new URL('/unauthorized', request.url));
+    })
+    return Response.redirect(new URL('/unauthorized', request.url))
   }
-  
-  return NextResponse.next();
+
+  return NextResponse.next()
 }
 ```
 
@@ -386,65 +406,64 @@ export async function middleware(request: NextRequest) {
 **Implementation**: Authorization helpers in API routes
 
 **Example**:
+
 ```typescript
 // app/api/org/users/route.ts
 export async function GET(request: Request) {
-  const session = await getServerSession();
-  
+  const session = await getServerSession()
+
   // Check: Is user an org admin?
   if (!hasRole(session.user, 'org_admin')) {
-    return Response.json(
-      { error: 'Unauthorized: Org admin required' },
-      { status: 403 }
-    );
+    return Response.json({ error: 'Unauthorized: Org admin required' }, { status: 403 })
   }
-  
+
   // Get user's organization
-  const orgId = await getUserOrganization(session.user.id);
-  
+  const orgId = await getUserOrganization(session.user.id)
+
   // Fetch users (RLS automatically filters to this org)
   const { data: users, error } = await supabase
     .from('profiles')
     .select('*')
-    .eq('organization_id', orgId); // Explicit filter (defense in depth)
-  
-  return Response.json({ users });
+    .eq('organization_id', orgId) // Explicit filter (defense in depth)
+
+  return Response.json({ users })
 }
 ```
 
 **Authorization Helpers**:
+
 ```typescript
 // lib/auth/rbac.ts
 
 export function hasRole(user: User, role: Role): boolean {
-  return user.role.includes(role);
+  return user.role.includes(role)
 }
 
 export function hasAnyRole(user: User, roles: Role[]): boolean {
-  return roles.some(role => user.role.includes(role));
+  return roles.some((role) => user.role.includes(role))
 }
 
 export function isSuperAdmin(user: User): boolean {
-  return user.role.includes('super_admin');
+  return user.role.includes('super_admin')
 }
 
 export function isOrgAdmin(user: User): boolean {
-  return user.role.includes('org_admin') || isSuperAdmin(user);
+  return user.role.includes('org_admin') || isSuperAdmin(user)
 }
 
 export function canManageCourse(user: User, course: Course): boolean {
   // Super admin can manage all
-  if (isSuperAdmin(user)) return true;
-  
+  if (isSuperAdmin(user)) return true
+
   // Org admin can manage org courses
   if (isOrgAdmin(user) && course.organization_id === user.organization_id) {
-    return true;
+    return true
   }
-  
+
   // Instructor can manage own courses
-  if (course.instructor_id === user.id) return true;
-  
-  return false;
+  if (course.instructor_id === user.id) return true
+
+  return false
 }
 ```
 
@@ -455,22 +474,23 @@ export function canManageCourse(user: User, course: Course): boolean {
 **Not a Security Boundary**: Always enforce server-side
 
 **Example**:
+
 ```typescript
 // components/CourseCard.tsx
 export function CourseCard({ course }: { course: Course }) {
   const { user } = useAuth();
-  
+
   return (
     <div className="course-card">
       <h3>{course.title}</h3>
-      
+
       {/* Show edit button only to authorized users */}
       {canManageCourse(user, course) && (
         <Button href={`/instructor/courses/${course.id}/edit`}>
           Edit Course
         </Button>
       )}
-      
+
       {/* Show enroll button to students */}
       {!isInstructor(user) && (
         <Button onClick={() => enrollInCourse(course.id)}>
@@ -487,11 +507,12 @@ export function CourseCard({ course }: { course: Course }) {
 ### Super Admin Assignment
 
 **Process** (Manual, CEO approval required):
+
 1. **Request**: Email CEO with justification
 2. **Approval**: CEO approves via email
 3. **Assignment**: Database insert (SQL script):
    ```sql
-   UPDATE profiles 
+   UPDATE profiles
    SET role = role || '["super_admin"]'::jsonb
    WHERE id = '{user_id}';
    ```
@@ -500,6 +521,7 @@ export function CourseCard({ course }: { course: Course }) {
 6. **2FA**: User must enable 2FA within 24 hours
 
 **Revocation**:
+
 - Annual recertification (remove if no longer needed)
 - Immediate revocation on employee offboarding
 - Audit log review (remove if inactive for 90 days)
@@ -507,41 +529,43 @@ export function CourseCard({ course }: { course: Course }) {
 ### Organization Admin Assignment
 
 **Process** (Self-service):
+
 1. **First User**: Auto-assigned on org creation
 2. **Additional Admins**: Existing org admin promotes via `/org/users`
 3. **Promotion**:
    ```typescript
    // app/api/org/users/[id]/promote/route.ts
    export async function POST(request: Request, { params }) {
-     const session = await getServerSession();
-     
+     const session = await getServerSession()
+
      // Check: Is requester an org admin?
      if (!isOrgAdmin(session.user)) {
-       return Response.json({ error: 'Unauthorized' }, { status: 403 });
+       return Response.json({ error: 'Unauthorized' }, { status: 403 })
      }
-     
+
      // Promote user
      await supabase
        .from('profiles')
        .update({ role: ['org_admin'] })
        .eq('id', params.id)
-       .eq('organization_id', session.user.organization_id); // Prevent cross-org
-     
+       .eq('organization_id', session.user.organization_id) // Prevent cross-org
+
      // Audit log
      await logRoleAssignment({
        userId: params.id,
        role: 'org_admin',
        assignedBy: session.user.id,
        organizationId: session.user.organization_id,
-     });
-     
-     return Response.json({ success: true });
+     })
+
+     return Response.json({ success: true })
    }
    ```
 
 ### Instructor Assignment
 
 **Process** (Org admin):
+
 1. Org admin navigates to `/org/users`
 2. Select user, click "Promote to Instructor"
 3. User role updated: `['student', 'instructor']`
@@ -549,6 +573,7 @@ export function CourseCard({ course }: { course: Course }) {
 5. User gains access to `/instructor` routes
 
 **Revocation**:
+
 - Org admin clicks "Demote to Student"
 - Role updated: `['student']`
 - User courses remain (can be reassigned to another instructor)
@@ -556,6 +581,7 @@ export function CourseCard({ course }: { course: Course }) {
 ### Student Assignment
 
 **Process** (Automatic):
+
 1. User signs up via `/signup`
 2. Role auto-assigned: `['student']`
 3. Organization assigned based on invite link or manual selection
@@ -565,6 +591,7 @@ export function CourseCard({ course }: { course: Course }) {
 ### Unit Tests
 
 **Test Cases**:
+
 1. Super admin can access all organizations
 2. Org admin cannot access other organizations
 3. Instructor can edit own courses, not others'
@@ -573,30 +600,32 @@ export function CourseCard({ course }: { course: Course }) {
 6. RLS blocks cross-tenant queries
 
 **Example**:
+
 ```typescript
 // tests/rbac.test.ts
 describe('RBAC Middleware', () => {
   it('blocks non-admin from /admin', async () => {
-    const student = await createUser({ role: ['student'] });
+    const student = await createUser({ role: ['student'] })
     const response = await fetch('/admin', {
       headers: { Cookie: `session=${student.session}` },
-    });
-    expect(response.status).toBe(302); // Redirect to /unauthorized
-  });
-  
+    })
+    expect(response.status).toBe(302) // Redirect to /unauthorized
+  })
+
   it('allows org admin to access /org/settings', async () => {
-    const orgAdmin = await createUser({ role: ['org_admin'] });
+    const orgAdmin = await createUser({ role: ['org_admin'] })
     const response = await fetch('/org/settings', {
       headers: { Cookie: `session=${orgAdmin.session}` },
-    });
-    expect(response.status).toBe(200);
-  });
-});
+    })
+    expect(response.status).toBe(200)
+  })
+})
 ```
 
 ### Integration Tests
 
 **Test Cases**:
+
 1. End-to-end role assignment flow
 2. Cross-tenant data isolation (try to access other org's data)
 3. Privilege escalation attempt (student tries to promote self to admin)
@@ -605,6 +634,7 @@ describe('RBAC Middleware', () => {
 ### Penetration Testing
 
 **Attack Vectors**:
+
 1. **Horizontal Privilege Escalation**: Student A tries to access Student B's data
 2. **Vertical Privilege Escalation**: Student tries to access admin routes
 3. **Session Fixation**: Attacker sets victim's session ID
@@ -618,11 +648,13 @@ describe('RBAC Middleware', () => {
 ### Role Assignment Audit
 
 **Logged Events**:
+
 - `role.assigned`: User promoted to role
 - `role.revoked`: User demoted from role
 - `role.changed`: User role modified
 
 **Audit Log Fields**:
+
 ```typescript
 {
   event: 'role.assigned',
@@ -638,11 +670,13 @@ describe('RBAC Middleware', () => {
 ### Access Attempt Audit
 
 **Logged Events**:
+
 - `access.granted`: User accessed protected route
 - `access.denied`: User blocked from route
 - `access.unauthorized`: Unauthenticated user redirected
 
 **Audit Log Fields**:
+
 ```typescript
 {
   event: 'access.denied',
@@ -658,6 +692,7 @@ describe('RBAC Middleware', () => {
 ### Compliance Verification
 
 **SOC 2 Requirements**:
+
 - ✅ Documented role definitions
 - ✅ Principle of least privilege
 - ✅ Role assignment procedures
@@ -665,6 +700,7 @@ describe('RBAC Middleware', () => {
 - ✅ Annual access reviews
 
 **GDPR Requirements**:
+
 - ✅ Data minimization (roles limit data access)
 - ✅ Access control (prevent unauthorized access)
 - ✅ Audit trail (who accessed what, when)
@@ -678,4 +714,5 @@ describe('RBAC Middleware', () => {
 ---
 
 **Document History**:
+
 - v1.0 (2026-02-03): Initial version (PR-08 compliance pack)

@@ -26,9 +26,11 @@ Implemented comprehensive organization offboarding workflow with GDPR-compliant 
 **Tables Created**:
 
 #### `org_offboarding_requests`
+
 Tracks offboarding lifecycle from request to completion.
 
 **Key Columns**:
+
 - `organization_id`, `requested_by`, `requested_at`
 - `status`: requested, exporting_data, export_ready, cancelling_stripe, revoking_access, deletion_scheduled, completed, failed
 - **Export tracking**: `export_file_path`, `export_download_url`, `export_file_size_bytes`, `export_downloaded_at`
@@ -38,26 +40,32 @@ Tracks offboarding lifecycle from request to completion.
 - **Error tracking**: `error_message`, `retry_count`
 
 **Indexes**:
+
 - `idx_offboarding_org_id`: Organization lookup
 - `idx_offboarding_status`: Processing queue (active requests only)
 - `idx_offboarding_deletion_scheduled`: Cleanup job (pending deletions only)
 
 **RLS Policies**:
+
 - Super admins: All access
 - Org admins: View/create their org's requests
 
 #### `data_export_contents`
+
 Audit trail of data included in each export.
 
 **Columns**:
+
 - Export metadata: `total_files`, `total_size_bytes`, `export_format`
 - Data counts: `users_exported`, `courses_exported`, `enrollments_exported`, etc.
 - Verification: `file_manifest` (JSONB), `export_checksum` (SHA-256)
 
 #### `offboarding_audit_log`
+
 Detailed audit log for compliance.
 
 **Columns**:
+
 - Action: `action`, `actor_id`, `actor_role`
 - Context: `details` (JSONB), `ip_address`, `user_agent`
 - Result: `success`, `error_message`
@@ -75,6 +83,7 @@ Generates comprehensive GDPR-compliant data exports.
 **Core Function**: `generateExport(options)`
 
 **Exports Included**:
+
 - Users (profiles, roles, joined dates)
 - Courses (all course data)
 - Enrollments (status, completion dates)
@@ -87,6 +96,7 @@ Generates comprehensive GDPR-compliant data exports.
 - Audit logs (all organization actions)
 
 **Features**:
+
 - **CSV format**: Escaped commas/quotes, proper headers
 - **ZIP compression**: Level 9 compression
 - **Checksums**: SHA-256 for all files + manifest
@@ -95,6 +105,7 @@ Generates comprehensive GDPR-compliant data exports.
 - **Error handling**: Cleanup on failure
 
 **Export Manifest Structure**:
+
 ```json
 {
   "organizationId": "org_123",
@@ -159,6 +170,7 @@ Orchestrates complete offboarding workflow.
    - Log completion
 
 **Error Handling**:
+
 - Each step isolated (failures don't block subsequent steps)
 - Stripe errors don't fail offboarding
 - User disable errors logged but don't stop process
@@ -166,6 +178,7 @@ Orchestrates complete offboarding workflow.
 - Retry count tracked
 
 **Key Functions**:
+
 - `initiateOffboarding(request)`: Start workflow
 - `processOffboarding(requestId, orgId, request)`: Async orchestration
 - `getStatus(requestId)`: Get current status
@@ -174,11 +187,13 @@ Orchestrates complete offboarding workflow.
 ### 4. Admin API Endpoints
 
 #### POST `/api/admin/offboarding`
+
 Initiate organization offboarding.
 
 **Authorization**: Super admin only
 
 **Request Body**:
+
 ```json
 {
   "organizationId": "org_123",
@@ -189,6 +204,7 @@ Initiate organization offboarding.
 ```
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -203,11 +219,13 @@ Initiate organization offboarding.
 ```
 
 #### GET `/api/admin/offboarding?organizationId=org_123`
+
 Get offboarding status (by request ID or organization ID).
 
 **Authorization**: Super admin only
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -225,11 +243,13 @@ Get offboarding status (by request ID or organization ID).
 ```
 
 #### GET `/api/admin/offboarding/download/[requestId]`
+
 Download data export ZIP.
 
 **Authorization**: Super admin only
 
 **Response**:
+
 - Content-Type: `application/zip`
 - Content-Disposition: `attachment; filename="org_123_export.zip"`
 - Records download in audit log
@@ -293,22 +313,20 @@ console.log(`Offboarding initiated: ${data.requestId}`)
 ```typescript
 // Poll for status updates
 const checkStatus = async (requestId: string) => {
-  const response = await fetch(
-    `/api/admin/offboarding?requestId=${requestId}`
-  )
+  const response = await fetch(`/api/admin/offboarding?requestId=${requestId}`)
   const { data } = await response.json()
-  
+
   console.log(`Status: ${data.status}`)
   console.log(`Export ready: ${data.exportReady}`)
-  
+
   if (data.exportReady) {
     console.log(`Download URL: ${data.exportDownloadUrl}`)
   }
-  
+
   if (data.deletionScheduledAt) {
     console.log(`Deletion in ${data.daysUntilDeletion} days`)
   }
-  
+
   return data
 }
 
@@ -317,7 +335,7 @@ const pollUntilReady = async (requestId: string) => {
   while (true) {
     const status = await checkStatus(requestId)
     if (status.exportReady || status.status === 'failed') break
-    await new Promise(resolve => setTimeout(resolve, 10000))
+    await new Promise((resolve) => setTimeout(resolve, 10000))
   }
 }
 ```
@@ -327,16 +345,14 @@ const pollUntilReady = async (requestId: string) => {
 ```typescript
 // Download export ZIP
 const downloadExport = async (requestId: string) => {
-  const response = await fetch(
-    `/api/admin/offboarding/download/${requestId}`
-  )
-  
+  const response = await fetch(`/api/admin/offboarding/download/${requestId}`)
+
   if (!response.ok) {
     throw new Error('Download failed')
   }
-  
+
   const blob = await response.blob()
-  
+
   // Trigger browser download
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
@@ -390,31 +406,34 @@ completed
 
 ## Error Codes
 
-| Code | Status | Description |
-|------|--------|-------------|
-| `FORBIDDEN` | 403 | Not authorized (super admin required) |
-| `UNAUTHORIZED` | 401 | Not authenticated |
-| `MISSING_PARAMETER` | 400 | Required parameter missing |
-| `INTERNAL_ERROR` | 500 | Server error during offboarding |
-| `NOT_FOUND` | 404 | Request or organization not found |
-| `EXPORT_NOT_READY` | 400 | Export not completed yet |
-| `FILE_NOT_FOUND` | 404 | Export file missing from storage |
+| Code                | Status | Description                           |
+| ------------------- | ------ | ------------------------------------- |
+| `FORBIDDEN`         | 403    | Not authorized (super admin required) |
+| `UNAUTHORIZED`      | 401    | Not authenticated                     |
+| `MISSING_PARAMETER` | 400    | Required parameter missing            |
+| `INTERNAL_ERROR`    | 500    | Server error during offboarding       |
+| `NOT_FOUND`         | 404    | Request or organization not found     |
+| `EXPORT_NOT_READY`  | 400    | Export not completed yet              |
+| `FILE_NOT_FOUND`    | 404    | Export file missing from storage      |
 
 ## Benefits
 
 ### Compliance
+
 1. **GDPR Compliant**: 30-day retention, complete data export
 2. **Audit Trail**: All actions logged with actor, timestamp, details
 3. **Data Portability**: Standard CSV format for easy import
 4. **Right to Deletion**: Scheduled permanent deletion
 
 ### Operational
+
 1. **Automated Workflow**: Single API call initiates complete process
 2. **Stripe Integration**: Automatic subscription cancellation
 3. **Access Revocation**: Users disabled, sessions invalidated
 4. **Error Recovery**: Failures logged, retries supported
 
 ### Security
+
 1. **Super Admin Only**: Sensitive operation restricted
 2. **Checksums**: SHA-256 verification of exports
 3. **Download Tracking**: Audit log records who downloaded
@@ -425,6 +444,7 @@ completed
 ### Manual Testing
 
 1. **Initiate Offboarding**:
+
    ```bash
    curl -X POST http://localhost:3000/api/admin/offboarding \
      -H "Authorization: Bearer $ADMIN_TOKEN" \
@@ -439,6 +459,7 @@ completed
    ```
 
 2. **Check Status**:
+
    ```bash
    curl "http://localhost:3000/api/admin/offboarding?requestId=req_123" \
      -H "Authorization: Bearer $ADMIN_TOKEN"
@@ -446,6 +467,7 @@ completed
    ```
 
 3. **Download Export**:
+
    ```bash
    curl "http://localhost:3000/api/admin/offboarding/download/req_123" \
      -H "Authorization: Bearer $ADMIN_TOKEN" \
@@ -454,10 +476,11 @@ completed
    ```
 
 4. **Verify Export Contents**:
+
    ```bash
    unzip -l export.zip
    # Expected: manifest.json, users.csv, courses.csv, etc.
-   
+
    cat manifest.json
    # Expected: Complete manifest with checksums
    ```
@@ -516,13 +539,13 @@ psql $DATABASE_URL -f supabase/migrations/20260203_org_offboarding.sql
 
 ```sql
 -- Check tables exist
-SELECT table_name FROM information_schema.tables 
-WHERE table_schema = 'public' 
+SELECT table_name FROM information_schema.tables
+WHERE table_schema = 'public'
 AND table_name IN ('org_offboarding_requests', 'data_export_contents', 'offboarding_audit_log');
 
 -- Check functions exist
-SELECT routine_name FROM information_schema.routines 
-WHERE routine_schema = 'public' 
+SELECT routine_name FROM information_schema.routines
+WHERE routine_schema = 'public'
 AND routine_name IN ('get_org_offboarding_status', 'log_offboarding_action', 'update_offboarding_status');
 ```
 

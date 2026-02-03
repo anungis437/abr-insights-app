@@ -1,5 +1,15 @@
 {
   "css.lint.unknownAtRules": "ignore",
   "scss.lint.unknownAtRules": "ignore",
-  "less.lint.unknownAtRules": "ignore"
+  "less.lint.unknownAtRules": "ignore",
+  "files.associations": {
+    "**/supabase/migrations/*.sql": "postgres"
+  },
+  "mssql.tracingLevel": "Off",
+  "files.exclude": {
+    "**/supabase/migrations": false
+  },
+  "[postgres]": {
+    "editor.defaultFormatter": null
+  }
 }

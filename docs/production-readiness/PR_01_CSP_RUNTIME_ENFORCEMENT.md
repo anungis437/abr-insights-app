@@ -12,6 +12,7 @@ Ensure Content Security Policy (CSP) with dynamic nonces executes correctly in p
 ## Problem Statement
 
 While CSP logic exists in `proxy.ts`, we need to:
+
 1. Verify it executes in production container deployment
 2. Ensure nonces are available to client-side if needed
 3. Add automated validation for runtime enforcement
@@ -65,9 +66,7 @@ export default async function RootLayout({ children }) {
 
   return (
     <html>
-      <head>
-        {/* Nonce available for inline scripts if needed */}
-      </head>
+      <head>{/* Nonce available for inline scripts if needed */}</head>
       <body>{children}</body>
     </html>
   )
@@ -147,6 +146,7 @@ curl -I $BASE_URL/_dev/test-checkout  # Expected: 404
 ```
 
 **Expected Output**:
+
 ```
 ✅ PASS: CSP header present
 ✅ PASS: x-nonce header present
@@ -228,6 +228,7 @@ az containerapp revision activate --revision <previous-revision-name> --resource
 ### Zero-Downtime Rollback
 
 Azure Container Apps supports revision management:
+
 - Old revision remains available
 - Traffic can be split between revisions
 - Instant rollback by shifting traffic weight
@@ -289,10 +290,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Check proxy.ts exists
         run: test -f proxy.ts
-      
+
       - name: Verify no unsafe-inline in CSP
         run: |
           if grep -r "unsafe-inline" proxy.ts; then
@@ -300,7 +301,7 @@ jobs:
             exit 1
           fi
           echo "✅ PASS: No unsafe-inline"
-      
+
       - name: Verify nonce generation
         run: |
           if grep -q "crypto.getRandomValues" proxy.ts; then
@@ -309,7 +310,7 @@ jobs:
             echo "❌ FAIL: No nonce generation"
             exit 1
           fi
-      
+
       - name: Check layout.tsx reads nonce
         run: |
           if grep -q "x-nonce" app/layout.tsx; then
@@ -328,7 +329,7 @@ Add to deployment workflow:
 - name: Validate CSP Runtime
   run: |
     APP_URL="https://abr-insights-app.thankfulsea-568c2dd6.eastus.azurecontainerapps.io"
-    
+
     # Check CSP header
     RESPONSE=$(curl -sI $APP_URL/)
     if echo "$RESPONSE" | grep -qi "content-security-policy"; then
@@ -337,7 +338,7 @@ Add to deployment workflow:
       echo "❌ CSP header missing"
       exit 1
     fi
-    
+
     # Check nonce header
     if echo "$RESPONSE" | grep -qi "x-nonce"; then
       echo "✅ x-nonce header present"
@@ -399,7 +400,7 @@ Add to deployment workflow:
    - Dependency vulnerability scanning
 
 2. **PR-03**: Structured Logging & Request Correlation
-   - Replace console.* with logger
+   - Replace console.\* with logger
    - Add request_id to all logs
    - Sanitize error messages
 
@@ -439,17 +440,20 @@ Add to deployment workflow:
 ## Sign-Off
 
 **Required Approvals**:
+
 - [ ] Security team (CSP configuration)
 - [ ] DevOps team (container deployment)
 - [ ] Engineering lead (code review)
 
 **Evidence Required Before Merge**:
+
 - [ ] Screenshot of CSP headers from deployed container
 - [ ] Screenshot of passing validation script
 - [ ] Screenshot of working Stripe checkout
-- [ ] Screenshot of 404 on _dev route
+- [ ] Screenshot of 404 on \_dev route
 
 **Merge Conditions**:
+
 1. All CI checks pass
 2. Manual validation complete
 3. Evidence documented

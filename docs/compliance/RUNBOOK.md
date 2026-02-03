@@ -9,11 +9,13 @@
 This runbook provides operational procedures for ABR Insights App, including deployment, monitoring, troubleshooting, kill switches, and restore procedures. Intended for on-call engineers and operations team.
 
 **On-Call SLA**:
+
 - P0 (Critical): 15-minute response
 - P1 (High): 30-minute response
 - P2 (Medium): 2-hour response
 
 **Critical Contacts**:
+
 - **On-Call**: PagerDuty rotation
 - **Security**: security@abr-insights.com
 - **Engineering Lead**: +1-XXX-XXX-XXXX
@@ -58,6 +60,7 @@ This runbook provides operational procedures for ABR Insights App, including dep
 **Trigger**: Merge to `main` branch
 
 **Automated CI/CD** (GitHub Actions):
+
 ```yaml
 # .github/workflows/deploy-production.yml
 
@@ -72,6 +75,7 @@ This runbook provides operational procedures for ABR Insights App, including dep
 ```
 
 **Manual Deployment** (if CI/CD fails):
+
 ```bash
 # 1. Build image
 docker build -t abr-insights-app:v1.2.3 .
@@ -98,6 +102,7 @@ az containerapp logs show --name abr-insights-app --follow
 **Scenario**: New deployment causes errors
 
 **Quick Rollback** (automated):
+
 ```bash
 # Revert to previous revision
 az containerapp revision copy \
@@ -113,12 +118,14 @@ az containerapp revision activate \
 ```
 
 **Manual Rollback** (if automated fails):
+
 1. Identify last known good commit: `git log --oneline`
 2. Checkout: `git checkout abc123def`
 3. Force deploy: `git push origin HEAD:main --force`
 4. Wait for CI/CD to redeploy
 
 **Database Rollback** (if schema change):
+
 ```bash
 # Supabase migration rollback
 supabase db reset --db-url $DATABASE_URL
@@ -132,6 +139,7 @@ psql $DATABASE_URL -c "DROP TABLE new_table;"
 **Scenario**: Critical bug in production (P0/P1)
 
 **Fast-Track Process**:
+
 1. Create hotfix branch: `git checkout -b hotfix/urgent-fix`
 2. Fix bug, commit: `git commit -m "hotfix: fix critical bug"`
 3. Push: `git push origin hotfix/urgent-fix`
@@ -141,6 +149,7 @@ psql $DATABASE_URL -c "DROP TABLE new_table;"
 7. Backport to `develop` branch
 
 **Skip CI Checks** (emergency only):
+
 ```bash
 # Bypass CI checks (use with caution)
 git push origin main --no-verify
@@ -154,10 +163,12 @@ gh pr merge --admin --squash
 ### Health Checks
 
 **Endpoints**:
+
 - `/api/health`: Liveness (app running)
 - `/api/health/ready`: Readiness (dependencies up)
 
 **Expected Responses**:
+
 ```json
 // GET /api/health
 { "status": "ok", "timestamp": "2026-02-03T10:30:45Z" }
@@ -174,10 +185,11 @@ gh pr merge --admin --squash
 ```
 
 **Alert Rules** (Azure Monitor):
+
 ```
 Health check failed (3 consecutive failures):
   → PagerDuty alert (P1)
-  
+
 Health check latency >5 seconds:
   → Slack notification
 
@@ -188,18 +200,21 @@ Container restart loop (>3 restarts in 5 minutes):
 ### Key Metrics
 
 **Application**:
+
 - Request rate (req/sec)
 - Response time (p50, p95, p99)
 - Error rate (%)
 - Active users (concurrent)
 
 **Infrastructure**:
+
 - CPU usage (%)
 - Memory usage (%)
 - Disk I/O (MB/s)
 - Network traffic (MB/s)
 
 **Business**:
+
 - New signups (/hour)
 - Course enrollments (/hour)
 - AI messages (/hour)
@@ -218,6 +233,7 @@ Container restart loop (>3 restarts in 5 minutes):
 **Query Examples**:
 
 **Find errors in last hour**:
+
 ```kusto
 traces
 | where timestamp > ago(1h)
@@ -227,6 +243,7 @@ traces
 ```
 
 **Trace request by correlation ID**:
+
 ```kusto
 traces
 | where customDimensions.correlationId == "req_abc123"
@@ -235,6 +252,7 @@ traces
 ```
 
 **Count errors by type**:
+
 ```kusto
 traces
 | where severityLevel >= 3
@@ -249,6 +267,7 @@ traces
 **Purpose**: Emergency stop for CanLII API ingestion
 
 **Activation**:
+
 ```bash
 # Set environment variable
 az containerapp update \
@@ -263,6 +282,7 @@ az containerapp revision restart \
 ```
 
 **Verification**:
+
 ```bash
 # Check logs for kill switch message
 az containerapp logs show \
@@ -272,6 +292,7 @@ az containerapp logs show \
 ```
 
 **Reactivation**:
+
 ```bash
 az containerapp update \
   --name abr-insights-app \
@@ -285,6 +306,7 @@ az containerapp revision restart --name abr-insights-app
 **Purpose**: Stop AI costs during runaway usage
 
 **Activation** (via admin dashboard):
+
 1. Navigate to `/admin/ai-quotas`
 2. Set all org quotas to 0:
    ```sql
@@ -300,6 +322,7 @@ az containerapp revision restart --name abr-insights-app
    ```
 
 **Reactivation**:
+
 1. Restore quotas to normal values
 2. Or re-enable: `AI_FEATURES_ENABLED=true`
 
@@ -308,11 +331,12 @@ az containerapp revision restart --name abr-insights-app
 **Purpose**: Investigate CSP violations without blocking
 
 **Activation**:
+
 ```typescript
 // middleware.ts (requires code deployment)
 const cspHeader = `
   Content-Security-Policy-Report-Only: ...
-`; // Change from Content-Security-Policy
+` // Change from Content-Security-Policy
 ```
 
 **Reactivation**: Revert code change, redeploy
@@ -322,6 +346,7 @@ const cspHeader = `
 **Purpose**: Block all traffic during emergency maintenance
 
 **Activation**:
+
 ```bash
 # Enable maintenance mode
 az containerapp ingress update \
@@ -347,11 +372,13 @@ az containerapp update \
 ### Scenario 1: Database Connection Failures
 
 **Symptoms**:
+
 - `/api/health/ready` returns `database: error`
 - Logs: "ECONNREFUSED" or "ETIMEDOUT"
 - User errors: "Failed to load data"
 
 **Diagnosis**:
+
 ```bash
 # Check database status (Supabase dashboard)
 # Or test connection manually
@@ -359,33 +386,39 @@ psql $DATABASE_URL -c "SELECT 1;"
 ```
 
 **Resolution**:
+
 1. **If Supabase outage**: Wait for resolution, enable maintenance mode
 2. **If connection pool exhausted**:
+
    ```sql
    -- Check active connections
    SELECT count(*) FROM pg_stat_activity;
-   
+
    -- Kill idle connections
    SELECT pg_terminate_backend(pid)
    FROM pg_stat_activity
    WHERE state = 'idle' AND state_change < NOW() - INTERVAL '10 minutes';
    ```
+
 3. **If network issue**: Check Azure VNet, restart container
 
 ### Scenario 2: Redis Connection Failures
 
 **Symptoms**:
+
 - `/api/health/ready` returns `redis: error`
 - Rate limiting fails (CanLII, AI quotas)
 - Logs: "Redis connection lost"
 
 **Diagnosis**:
+
 ```bash
 # Test Redis connection
 redis-cli -u $REDIS_URL ping
 ```
 
 **Resolution**:
+
 1. **If Azure Redis outage**: Rate limiters fail open (CanLII blocks, AI allows)
 2. **If connection limit hit**: Restart container (clears connections)
 3. **If authentication failed**: Verify `REDIS_URL` env var
@@ -393,11 +426,13 @@ redis-cli -u $REDIS_URL ping
 ### Scenario 3: High CPU Usage
 
 **Symptoms**:
+
 - Container CPU >80%
 - Response times >5 seconds
 - Timeout errors
 
 **Diagnosis**:
+
 ```bash
 # Check container metrics
 az containerapp show \
@@ -407,6 +442,7 @@ az containerapp show \
 ```
 
 **Resolution**:
+
 1. **Scale up**: Increase CPU limit
    ```bash
    az containerapp update \
@@ -424,11 +460,13 @@ az containerapp show \
 ### Scenario 4: Memory Leak
 
 **Symptoms**:
+
 - Container memory increasing over time
 - OOM kills (Out of Memory)
 - Container restarts
 
 **Diagnosis**:
+
 ```bash
 # Check memory usage
 az containerapp logs show \
@@ -437,24 +475,28 @@ az containerapp logs show \
 ```
 
 **Resolution**:
+
 1. **Immediate**: Restart container (temporary fix)
 2. **Short-term**: Increase memory limit
 3. **Long-term**: Profile application, fix leak
+
    ```bash
    # Generate heap dump (Node.js)
    node --heapsnapshot-signal=SIGUSR2 index.js
-   
+
    # Analyze with Chrome DevTools
    ```
 
 ### Scenario 5: CSP Violations Spike
 
 **Symptoms**:
-- >100 CSP violations/hour
+
+- > 100 CSP violations/hour
 - `/api/csp-report` flooded
 - Potential XSS attack
 
 **Diagnosis**:
+
 ```bash
 # Check violation sources
 az monitor logs query \
@@ -463,6 +505,7 @@ az monitor logs query \
 ```
 
 **Resolution**:
+
 1. **If legitimate**: Update CSP policy (new CDN, script)
 2. **If attack**: Block source IPs
    ```bash
@@ -479,11 +522,13 @@ az monitor logs query \
 ### Database Backups
 
 **Automated Backups** (Supabase):
+
 - Frequency: Daily at 2 AM UTC
 - Retention: 7 days (free tier), 30 days (paid)
 - Location: Supabase-managed (S3)
 
 **Manual Backup**:
+
 ```bash
 # Full database dump
 pg_dump $DATABASE_URL > backup-$(date +%Y%m%d).sql
@@ -497,6 +542,7 @@ az storage blob upload \
 ```
 
 **Point-in-Time Recovery**:
+
 ```bash
 # Restore to specific timestamp (Supabase Pro only)
 supabase db restore --db-url $DATABASE_URL --timestamp "2026-02-03 10:30:00"
@@ -505,11 +551,13 @@ supabase db restore --db-url $DATABASE_URL --timestamp "2026-02-03 10:30:00"
 ### Redis Backups
 
 **Automated Snapshots** (Azure Redis):
+
 - Frequency: Daily
 - Retention: 7 days
 - Format: RDB (Redis Database Backup)
 
 **Manual Backup**:
+
 ```bash
 # Trigger snapshot
 az redis force-reboot \
@@ -519,6 +567,7 @@ az redis force-reboot \
 ```
 
 **Restore**:
+
 ```bash
 # Via Azure Portal → Redis → Export/Import
 # Or restore from RDB file
@@ -528,11 +577,13 @@ redis-cli -u $REDIS_URL --rdb backup.rdb
 ### File Storage Backups
 
 **User Uploads** (Azure Blob Storage):
+
 - Automatic replication (LRS - Locally Redundant Storage)
 - Soft delete: 14 days
 - Versioning: Enabled
 
 **Manual Backup**:
+
 ```bash
 # Copy container to backup
 az storage blob copy start-batch \
@@ -547,6 +598,7 @@ az storage blob copy start-batch \
 **Impact**: All data lost/corrupted
 
 **Recovery Plan**:
+
 1. **Immediate**: Enable maintenance mode (block writes)
 2. **Assess**: Check backup integrity
    ```bash
@@ -574,6 +626,7 @@ az storage blob copy start-batch \
 **Impact**: All services unavailable (Canada Central down)
 
 **Recovery Plan**:
+
 1. **Immediate**: Activate backup region (Canada East)
 2. **DNS**: Switch to backup endpoint
    ```bash
@@ -598,6 +651,7 @@ az storage blob copy start-batch \
 **Response Plan**: See [INCIDENT_RESPONSE.md](./INCIDENT_RESPONSE.md)
 
 **Recovery Steps**:
+
 1. **Isolate**: Kill switches, block attacker IPs
 2. **Investigate**: Audit logs, identify compromised data
 3. **Remediate**: Patch vulnerability, rotate secrets
@@ -613,4 +667,5 @@ az storage blob copy start-batch \
 ---
 
 **Document History**:
+
 - v1.0 (2026-02-03): Initial version (PR-08 compliance pack)

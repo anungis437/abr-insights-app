@@ -19,7 +19,7 @@ async function verifySuperAdmin(supabase: any, userId: string): Promise<boolean>
 
 export async function POST(request: NextRequest) {
   const logger = createRequestLogger(request)
-  
+
   try {
     const supabase = await createClient()
     const {

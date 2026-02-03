@@ -1,8 +1,8 @@
 /**
  * API: Get Current User's AI Usage
- * 
+ *
  * GET /api/ai-usage
- * 
+ *
  * Returns AI usage statistics for the current user's organization.
  * Available to all authenticated users.
  */

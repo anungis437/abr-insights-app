@@ -309,7 +309,11 @@ export class AzureADService {
       .single()
 
     if (profileError || !profile) {
-      logger.error('Azure AD profile creation failed', { error: profileError, email: claims.email, organizationId })
+      logger.error('Azure AD profile creation failed', {
+        error: profileError,
+        email: claims.email,
+        organizationId,
+      })
       throw new Error('Failed to create user profile')
     }
 
@@ -373,7 +377,11 @@ export class AzureADService {
       .single()
 
     if (error || !session) {
-      logger.error('Azure AD session creation failed', { error, user_id: params.userId, org_id: params.organizationId })
+      logger.error('Azure AD session creation failed', {
+        error,
+        user_id: params.userId,
+        org_id: params.organizationId,
+      })
       throw new Error('Failed to create SSO session')
     }
 

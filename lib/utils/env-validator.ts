@@ -1,6 +1,6 @@
 /**
  * Environment Variable Validation
- * 
+ *
  * Validates required environment variables for application readiness.
  * Used by /api/readyz endpoint to verify configuration before accepting traffic.
  */
@@ -35,7 +35,7 @@ const RECOMMENDED_ENV_VARS = [
 
 /**
  * Validate environment variables for application readiness
- * 
+ *
  * @returns Validation result with missing/invalid variables
  */
 export function validateEnvironment(): EnvValidationResult {

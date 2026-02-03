@@ -23,7 +23,7 @@ Use this checklist after deploying to verify CSP enforcement is active.
   - [ ] Local dev server (npm run dev)
   - [ ] Other: **\*\***\_\_\_**\*\***
 
-- [ ] **Note deployment URL**: ******\*\*\*\*******\_******\*\*\*\*******
+- [ ] **Note deployment URL**: **\*\***\*\*\*\***\*\***\_**\*\***\*\*\*\***\*\***
 
 - [ ] **Verify deployment success** - Site is accessible
 
@@ -299,11 +299,11 @@ Review the errors above and fix the CSP configuration.
 
 ## Sign-Off
 
-**Developer**: ******\*\*\*\*******\_******\*\*\*\*******  
-**Date**: ******\*\*\*\*******\_******\*\*\*\*******  
-**Deployment URL**: ******\*\*\*\*******\_******\*\*\*\*******  
+**Developer**: **\*\***\*\*\*\***\*\***\_**\*\***\*\*\*\***\*\***  
+**Date**: **\*\***\*\*\*\***\*\***\_**\*\***\*\*\*\***\*\***  
+**Deployment URL**: **\*\***\*\*\*\***\*\***\_**\*\***\*\*\*\***\*\***  
 **Validation Status**: [ ] PASS / [ ] FAIL  
-**Notes**: ******\*\*\*\*******\_******\*\*\*\*******
+**Notes**: **\*\***\*\*\*\***\*\***\_**\*\***\*\*\*\***\*\***
 
 ---
 

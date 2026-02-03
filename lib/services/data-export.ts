@@ -1,15 +1,15 @@
 /**
  * PR-06: Data Export Service
- * 
+ *
  * Generates comprehensive data exports for organization offboarding.
  * Exports all user data, course progress, billing records, and audit logs
  * in GDPR-compliant ZIP/CSV format.
- * 
+ *
  * @module lib/services/data-export
  */
 
 import { createClient } from '@/lib/supabase/server'
-import { logger } from '@/lib/observability/production-logger'
+import { logger } from '@/lib/observability/logger'
 import * as fs from 'fs/promises'
 import * as path from 'path'
 import { createWriteStream } from 'fs'
@@ -73,8 +73,6 @@ export interface DataCounts {
 // =====================================================
 
 class DataExportService {
-  private supabase = createClient()
-  
   /**
    * Generate complete data export for organization
    */
@@ -82,17 +80,17 @@ class DataExportService {
     const startTime = Date.now()
     const exportId = `export_${options.organizationId}_${Date.now()}`
     const tempDir = path.join(process.cwd(), 'temp', exportId)
-    
+
     logger.info('Starting data export', {
       organization_id: options.organizationId,
       requested_by: options.requestedBy,
       export_id: exportId,
     })
-    
+
     try {
       // Create temp directory
       await fs.mkdir(tempDir, { recursive: true })
-      
+
       // Initialize manifest
       const manifest: ExportManifest = {
         organizationId: options.organizationId,
@@ -114,7 +112,7 @@ class DataExportService {
           auditLogs: 0,
         },
       }
-      
+
       // Export all data categories
       await this.exportUsers(options.organizationId, tempDir, manifest)
       await this.exportCourses(options.organizationId, tempDir, manifest)
@@ -124,15 +122,15 @@ class DataExportService {
       await this.exportCertificates(options.organizationId, tempDir, manifest)
       await this.exportAchievements(options.organizationId, tempDir, manifest)
       await this.exportAIUsage(options.organizationId, tempDir, manifest)
-      
+
       if (options.includeBillingRecords) {
         await this.exportBillingRecords(options.organizationId, tempDir, manifest)
       }
-      
+
       if (options.includeAuditLogs) {
         await this.exportAuditLogs(options.organizationId, tempDir, manifest)
       }
-      
+
       // Write manifest
       const manifestPath = path.join(tempDir, 'manifest.json')
       await fs.writeFile(manifestPath, JSON.stringify(manifest, null, 2))
@@ -146,20 +144,20 @@ class DataExportService {
       })
       manifest.totalFiles++
       manifest.totalSizeBytes += manifestStats.size
-      
+
       // Create ZIP archive
       const zipPath = path.join(process.cwd(), 'temp', `${exportId}.zip`)
       await this.createZipArchive(tempDir, zipPath)
-      
+
       // Calculate ZIP checksum
       const zipChecksum = await this.calculateChecksum(zipPath)
       const zipStats = await fs.stat(zipPath)
-      
+
       // Clean up temp directory (keep only ZIP)
       await fs.rm(tempDir, { recursive: true, force: true })
-      
+
       const duration = Date.now() - startTime
-      
+
       logger.info('Data export completed', {
         organization_id: options.organizationId,
         export_id: exportId,
@@ -167,7 +165,7 @@ class DataExportService {
         total_files: manifest.totalFiles,
         duration_ms: duration,
       })
-      
+
       return {
         success: true,
         filePath: zipPath,
@@ -175,28 +173,27 @@ class DataExportService {
         checksum: zipChecksum,
         manifest,
       }
-      
     } catch (error) {
       logger.error('Data export failed', {
         organization_id: options.organizationId,
         export_id: exportId,
         error: error instanceof Error ? error.message : String(error),
       })
-      
+
       // Clean up on error
       try {
         await fs.rm(tempDir, { recursive: true, force: true })
       } catch (cleanupError) {
         // Ignore cleanup errors
       }
-      
+
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown export error',
       }
     }
   }
-  
+
   /**
    * Export users data
    */
@@ -205,9 +202,11 @@ class DataExportService {
     outputDir: string,
     manifest: ExportManifest
   ): Promise<void> {
-    const { data: users, error } = await this.supabase
+    const supabase = await createClient()
+    const { data: users, error } = await supabase
       .from('user_organizations')
-      .select(`
+      .select(
+        `
         user_id,
         role,
         joined_at,
@@ -217,11 +216,12 @@ class DataExportService {
           created_at,
           updated_at
         )
-      `)
+      `
+      )
       .eq('organization_id', organizationId)
-    
+
     if (error) throw error
-    
+
     const csv = this.convertToCSV(users || [], [
       'user_id',
       'role',
@@ -231,10 +231,10 @@ class DataExportService {
       'created_at',
       'updated_at',
     ])
-    
+
     const filePath = path.join(outputDir, 'users.csv')
     await fs.writeFile(filePath, csv)
-    
+
     const stats = await fs.stat(filePath)
     manifest.counts.users = users?.length || 0
     manifest.files.push({
@@ -247,7 +247,7 @@ class DataExportService {
     manifest.totalFiles++
     manifest.totalSizeBytes += stats.size
   }
-  
+
   /**
    * Export courses data
    */
@@ -256,13 +256,14 @@ class DataExportService {
     outputDir: string,
     manifest: ExportManifest
   ): Promise<void> {
-    const { data: courses, error } = await this.supabase
+    const supabase = await createClient()
+    const { data: courses, error } = await supabase
       .from('courses')
       .select('*')
       .eq('organization_id', organizationId)
-    
+
     if (error) throw error
-    
+
     const csv = this.convertToCSV(courses || [], [
       'id',
       'title',
@@ -271,10 +272,10 @@ class DataExportService {
       'created_at',
       'updated_at',
     ])
-    
+
     const filePath = path.join(outputDir, 'courses.csv')
     await fs.writeFile(filePath, csv)
-    
+
     const stats = await fs.stat(filePath)
     manifest.counts.courses = courses?.length || 0
     manifest.files.push({
@@ -287,7 +288,7 @@ class DataExportService {
     manifest.totalFiles++
     manifest.totalSizeBytes += stats.size
   }
-  
+
   /**
    * Export enrollments data
    */
@@ -296,16 +297,19 @@ class DataExportService {
     outputDir: string,
     manifest: ExportManifest
   ): Promise<void> {
-    const { data: enrollments, error } = await this.supabase
+    const supabase = await createClient()
+    const { data: enrollments, error } = await supabase
       .from('course_enrollments')
-      .select(`
+      .select(
+        `
         *,
         courses!inner(organization_id)
-      `)
+      `
+      )
       .eq('courses.organization_id', organizationId)
-    
+
     if (error) throw error
-    
+
     const csv = this.convertToCSV(enrollments || [], [
       'id',
       'user_id',
@@ -314,10 +318,10 @@ class DataExportService {
       'enrolled_at',
       'completed_at',
     ])
-    
+
     const filePath = path.join(outputDir, 'enrollments.csv')
     await fs.writeFile(filePath, csv)
-    
+
     const stats = await fs.stat(filePath)
     manifest.counts.enrollments = enrollments?.length || 0
     manifest.files.push({
@@ -330,7 +334,7 @@ class DataExportService {
     manifest.totalFiles++
     manifest.totalSizeBytes += stats.size
   }
-  
+
   /**
    * Export progress records
    */
@@ -339,16 +343,19 @@ class DataExportService {
     outputDir: string,
     manifest: ExportManifest
   ): Promise<void> {
-    const { data: progress, error } = await this.supabase
+    const supabase = await createClient()
+    const { data: progress, error } = await supabase
       .from('course_progress')
-      .select(`
+      .select(
+        `
         *,
         courses!inner(organization_id)
-      `)
+      `
+      )
       .eq('courses.organization_id', organizationId)
-    
+
     if (error) throw error
-    
+
     const csv = this.convertToCSV(progress || [], [
       'id',
       'user_id',
@@ -359,10 +366,10 @@ class DataExportService {
       'time_spent_seconds',
       'last_accessed_at',
     ])
-    
+
     const filePath = path.join(outputDir, 'progress.csv')
     await fs.writeFile(filePath, csv)
-    
+
     const stats = await fs.stat(filePath)
     manifest.counts.progressRecords = progress?.length || 0
     manifest.files.push({
@@ -375,7 +382,7 @@ class DataExportService {
     manifest.totalFiles++
     manifest.totalSizeBytes += stats.size
   }
-  
+
   /**
    * Export quiz attempts
    */
@@ -384,16 +391,19 @@ class DataExportService {
     outputDir: string,
     manifest: ExportManifest
   ): Promise<void> {
-    const { data: attempts, error } = await this.supabase
+    const supabase = await createClient()
+    const { data: attempts, error } = await supabase
       .from('quiz_attempts')
-      .select(`
+      .select(
+        `
         *,
         courses!inner(organization_id)
-      `)
+      `
+      )
       .eq('courses.organization_id', organizationId)
-    
+
     if (error) throw error
-    
+
     const csv = this.convertToCSV(attempts || [], [
       'id',
       'user_id',
@@ -403,10 +413,10 @@ class DataExportService {
       'started_at',
       'completed_at',
     ])
-    
+
     const filePath = path.join(outputDir, 'quiz_attempts.csv')
     await fs.writeFile(filePath, csv)
-    
+
     const stats = await fs.stat(filePath)
     manifest.counts.quizAttempts = attempts?.length || 0
     manifest.files.push({
@@ -419,7 +429,7 @@ class DataExportService {
     manifest.totalFiles++
     manifest.totalSizeBytes += stats.size
   }
-  
+
   /**
    * Export certificates
    */
@@ -428,16 +438,19 @@ class DataExportService {
     outputDir: string,
     manifest: ExportManifest
   ): Promise<void> {
-    const { data: certificates, error } = await this.supabase
+    const supabase = await createClient()
+    const { data: certificates, error } = await supabase
       .from('certificates')
-      .select(`
+      .select(
+        `
         *,
         courses!inner(organization_id)
-      `)
+      `
+      )
       .eq('courses.organization_id', organizationId)
-    
+
     if (error) throw error
-    
+
     const csv = this.convertToCSV(certificates || [], [
       'id',
       'user_id',
@@ -445,10 +458,10 @@ class DataExportService {
       'certificate_url',
       'issued_at',
     ])
-    
+
     const filePath = path.join(outputDir, 'certificates.csv')
     await fs.writeFile(filePath, csv)
-    
+
     const stats = await fs.stat(filePath)
     manifest.counts.certificates = certificates?.length || 0
     manifest.files.push({
@@ -461,7 +474,7 @@ class DataExportService {
     manifest.totalFiles++
     manifest.totalSizeBytes += stats.size
   }
-  
+
   /**
    * Export achievements
    */
@@ -470,26 +483,29 @@ class DataExportService {
     outputDir: string,
     manifest: ExportManifest
   ): Promise<void> {
-    const { data: achievements, error } = await this.supabase
+    const supabase = await createClient()
+    const { data: achievements, error } = await supabase
       .from('user_achievements')
-      .select(`
+      .select(
+        `
         *,
         user_organizations!inner(organization_id)
-      `)
+      `
+      )
       .eq('user_organizations.organization_id', organizationId)
-    
+
     if (error) throw error
-    
+
     const csv = this.convertToCSV(achievements || [], [
       'id',
       'user_id',
       'achievement_type',
       'earned_at',
     ])
-    
+
     const filePath = path.join(outputDir, 'achievements.csv')
     await fs.writeFile(filePath, csv)
-    
+
     const stats = await fs.stat(filePath)
     manifest.counts.achievements = achievements?.length || 0
     manifest.files.push({
@@ -502,7 +518,7 @@ class DataExportService {
     manifest.totalFiles++
     manifest.totalSizeBytes += stats.size
   }
-  
+
   /**
    * Export AI usage data
    */
@@ -511,13 +527,14 @@ class DataExportService {
     outputDir: string,
     manifest: ExportManifest
   ): Promise<void> {
-    const { data: usage, error } = await this.supabase
+    const supabase = await createClient()
+    const { data: usage, error } = await supabase
       .from('ai_usage_daily')
       .select('*')
       .eq('organization_id', organizationId)
-    
+
     if (error) throw error
-    
+
     const csv = this.convertToCSV(usage || [], [
       'id',
       'organization_id',
@@ -527,10 +544,10 @@ class DataExportService {
       'claude_requests',
       'total_cost_cents',
     ])
-    
+
     const filePath = path.join(outputDir, 'ai_usage.csv')
     await fs.writeFile(filePath, csv)
-    
+
     const stats = await fs.stat(filePath)
     manifest.counts.aiUsage = usage?.length || 0
     manifest.files.push({
@@ -543,7 +560,7 @@ class DataExportService {
     manifest.totalFiles++
     manifest.totalSizeBytes += stats.size
   }
-  
+
   /**
    * Export billing records
    */
@@ -552,13 +569,14 @@ class DataExportService {
     outputDir: string,
     manifest: ExportManifest
   ): Promise<void> {
-    const { data: billing, error } = await this.supabase
+    const supabase = await createClient()
+    const { data: billing, error } = await supabase
       .from('billing_transactions')
       .select('*')
       .eq('organization_id', organizationId)
-    
+
     if (error) throw error
-    
+
     const csv = this.convertToCSV(billing || [], [
       'id',
       'organization_id',
@@ -568,10 +586,10 @@ class DataExportService {
       'stripe_payment_intent_id',
       'created_at',
     ])
-    
+
     const filePath = path.join(outputDir, 'billing.csv')
     await fs.writeFile(filePath, csv)
-    
+
     const stats = await fs.stat(filePath)
     manifest.counts.billingRecords = billing?.length || 0
     manifest.files.push({
@@ -584,7 +602,7 @@ class DataExportService {
     manifest.totalFiles++
     manifest.totalSizeBytes += stats.size
   }
-  
+
   /**
    * Export audit logs
    */
@@ -593,14 +611,15 @@ class DataExportService {
     outputDir: string,
     manifest: ExportManifest
   ): Promise<void> {
-    const { data: logs, error } = await this.supabase
+    const supabase = await createClient()
+    const { data: logs, error } = await supabase
       .from('audit_logs')
       .select('*')
       .eq('organization_id', organizationId)
       .order('created_at', { ascending: false })
-    
+
     if (error) throw error
-    
+
     const csv = this.convertToCSV(logs || [], [
       'id',
       'organization_id',
@@ -611,10 +630,10 @@ class DataExportService {
       'ip_address',
       'created_at',
     ])
-    
+
     const filePath = path.join(outputDir, 'audit_logs.csv')
     await fs.writeFile(filePath, csv)
-    
+
     const stats = await fs.stat(filePath)
     manifest.counts.auditLogs = logs?.length || 0
     manifest.files.push({
@@ -627,7 +646,7 @@ class DataExportService {
     manifest.totalFiles++
     manifest.totalSizeBytes += stats.size
   }
-  
+
   /**
    * Convert data to CSV format
    */
@@ -635,7 +654,7 @@ class DataExportService {
     if (data.length === 0) {
       return columns.join(',') + '\n'
     }
-    
+
     const header = columns.join(',')
     const rows = data.map((row) => {
       return columns
@@ -651,10 +670,10 @@ class DataExportService {
         })
         .join(',')
     })
-    
+
     return header + '\n' + rows.join('\n')
   }
-  
+
   /**
    * Get nested value from object (e.g., 'profiles.email')
    */
@@ -667,7 +686,7 @@ class DataExportService {
     }
     return current
   }
-  
+
   /**
    * Create ZIP archive from directory
    */
@@ -675,16 +694,16 @@ class DataExportService {
     return new Promise((resolve, reject) => {
       const output = createWriteStream(outputPath)
       const archive = archiver('zip', { zlib: { level: 9 } })
-      
+
       output.on('close', () => resolve())
-      archive.on('error', (err) => reject(err))
-      
+      archive.on('error', (err: Error) => reject(err))
+
       archive.pipe(output)
       archive.directory(sourceDir, false)
       archive.finalize()
     })
   }
-  
+
   /**
    * Calculate SHA-256 checksum of file
    */

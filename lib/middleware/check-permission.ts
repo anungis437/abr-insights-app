@@ -80,7 +80,12 @@ export function withPermission(
       // Permission granted, proceed to handler
       return await handler(request)
     } catch (error) {
-      logger.error('Permission check failed (single permission)', { error, permission: permissionSlug, resourceType, resourceId })
+      logger.error('Permission check failed (single permission)', {
+        error,
+        permission: permissionSlug,
+        resourceType,
+        resourceId,
+      })
       return NextResponse.json(
         {
           error: 'Permission check failed',
@@ -151,7 +156,10 @@ export function withPermissions(
       // All permissions granted, proceed to handler
       return await handler(request)
     } catch (error) {
-      logger.error('Permission check failed (all required)', { error, permissions: permissions.map(p => p.slug) })
+      logger.error('Permission check failed (all required)', {
+        error,
+        permissions: permissions.map((p) => p.slug),
+      })
       return NextResponse.json(
         {
           error: 'Permission check failed',
@@ -226,7 +234,10 @@ export function withAnyPermission(
       // At least one permission granted, proceed to handler
       return await handler(request)
     } catch (error) {
-      logger.error('Permission check failed (any required)', { error, permissions: permissions.map(p => p.slug) })
+      logger.error('Permission check failed (any required)', {
+        error,
+        permissions: permissions.map((p) => p.slug),
+      })
       return NextResponse.json(
         {
           error: 'Permission check failed',

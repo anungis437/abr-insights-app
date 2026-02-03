@@ -26,9 +26,11 @@ Implemented comprehensive AI usage tracking and cost controls per organization t
 **Tables Created**:
 
 #### `ai_usage_daily`
+
 Tracks daily AI usage aggregates per organization.
 
 **Columns**:
+
 - `organization_id` (FK to organizations)
 - `date` (unique per org)
 - Request counts: `gpt4_requests`, `gpt35_requests`, `claude_requests`, `embedding_requests`
@@ -37,17 +39,21 @@ Tracks daily AI usage aggregates per organization.
 - Timestamps: `created_at`, `updated_at`
 
 **Indexes**:
+
 - `idx_ai_usage_daily_org_date` (organization_id, date DESC)
 - `idx_ai_usage_daily_date` (date DESC)
 
 **RLS Policies**:
+
 - Users can view their org's usage
 - Only super admins can insert/update
 
 #### `ai_quota`
+
 Quota configuration and limits per organization.
 
 **Columns**:
+
 - `organization_id` (FK to organizations, unique)
 - Daily limits: `daily_gpt4_limit`, `daily_gpt35_limit`, `daily_claude_limit`, `daily_embedding_limit`
 - Monthly limits: `monthly_cost_limit_cents`, `monthly_cost_warning_cents`
@@ -56,6 +62,7 @@ Quota configuration and limits per organization.
 - Audit: `created_by`, `updated_by`, timestamps
 
 **Defaults**:
+
 - GPT-4: 100 requests/day
 - GPT-3.5: 500 requests/day
 - Claude: 100 requests/day
@@ -64,6 +71,7 @@ Quota configuration and limits per organization.
 - Warning threshold: $75 (7,500 cents)
 
 **RLS Policies**:
+
 - Users can view their org's quota
 - Only super admins can modify quotas
 
@@ -83,6 +91,7 @@ Quota configuration and limits per organization.
 **Core Functions**:
 
 #### `checkQuota(organizationId, model, requestCount)`
+
 Pre-flight quota check before making AI request.
 
 ```typescript
@@ -93,6 +102,7 @@ if (!check.allowed) {
 ```
 
 **Returns**:
+
 - `allowed`: boolean
 - `reason`: string (if denied)
 - `dailyLimit`: number
@@ -102,6 +112,7 @@ if (!check.allowed) {
 - `warningThreshold`: boolean (if > 75% of monthly limit)
 
 **Behavior**:
+
 - Calls `check_ai_quota` database function
 - Fails open on errors (doesn't block AI requests)
 - Checks daily request limits per model
@@ -109,6 +120,7 @@ if (!check.allowed) {
 - Detects warning thresholds (75% of limit)
 
 #### `recordUsage(organizationId, usage)`
+
 Records AI usage after request completes.
 
 ```typescript
@@ -120,6 +132,7 @@ await aiQuota.recordUsage(orgId, {
 ```
 
 **Behavior**:
+
 - Calculates cost based on token usage
 - Upserts daily usage record (increments if exists)
 - Updates request counts, token usage, costs
@@ -127,25 +140,31 @@ await aiQuota.recordUsage(orgId, {
 - Logs usage with structured logging
 
 #### `getUsage(organizationId, month?)`
+
 Gets current usage for organization.
 
 **Returns**:
+
 - `totalRequests`: number
 - `totalCostCents`: number
 - `gpt4Requests`, `gpt35Requests`, `claudeRequests`, `embeddingRequests`: number
 
 #### `getQuotaConfig(organizationId)`
+
 Gets or creates quota configuration.
 
 **Behavior**:
+
 - Returns existing config
 - Creates default config if doesn't exist
 - Initializes with sensible defaults
 
 #### `calculateCost(model, inputTokens, outputTokens)`
+
 Calculates cost in cents for AI request.
 
 **Pricing** (as of Feb 2026):
+
 - GPT-4: $0.03/1K input, $0.06/1K output
 - GPT-3.5: $0.0005/1K input, $0.0015/1K output
 - Claude: $0.008/1K input, $0.024/1K output
@@ -154,11 +173,13 @@ Calculates cost in cents for AI request.
 ### 3. Admin API Endpoints
 
 #### GET `/api/admin/ai-quota?organizationId=xxx`
+
 Returns quota configuration and current usage.
 
 **Authorization**: Super admin only
 
 **Response**:
+
 ```json
 {
   "config": {
@@ -186,11 +207,13 @@ Returns quota configuration and current usage.
 ```
 
 #### PUT `/api/admin/ai-quota`
+
 Updates quota configuration.
 
 **Authorization**: Super admin only
 
 **Request Body**:
+
 ```json
 {
   "organizationId": "org_123",
@@ -202,6 +225,7 @@ Updates quota configuration.
 ```
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -212,11 +236,13 @@ Updates quota configuration.
 ### 4. User API Endpoint
 
 #### GET `/api/ai-usage`
+
 Returns current user's organization usage and quota.
 
 **Authorization**: Authenticated users
 
 **Response**:
+
 ```json
 {
   "quota": {
@@ -271,21 +297,21 @@ import { aiQuota } from '@/lib/services/ai-quota'
 
 export async function POST(request: NextRequest) {
   const logger = createRequestLogger(request)
-  
+
   // Get organization ID
   const orgId = await getOrgId(request)
-  
+
   // Check quota
   const check = await aiQuota.checkQuota(orgId, 'gpt-4')
   if (!check.allowed) {
-    logger.warn('AI quota exceeded', { 
-      org_id: orgId, 
-      reason: check.reason 
+    logger.warn('AI quota exceeded', {
+      org_id: orgId,
+      reason: check.reason
     })
-    
+
     return NextResponse.json(
-      { 
-        error: 'AI quota exceeded', 
+      {
+        error: 'AI quota exceeded',
         code: 'QUOTA_EXCEEDED',
         reason: check.reason,
         dailyLimit: check.dailyLimit,
@@ -294,17 +320,17 @@ export async function POST(request: NextRequest) {
       { status: 429 }
     )
   }
-  
+
   // Make AI request
   const response = await openai.chat.completions.create({ ... })
-  
+
   // Record usage
   await aiQuota.recordUsage(orgId, {
     model: 'gpt-4',
     inputTokens: response.usage.prompt_tokens,
     outputTokens: response.usage.completion_tokens,
   })
-  
+
   return NextResponse.json(response)
 }
 ```
@@ -316,9 +342,9 @@ export async function POST(request: NextRequest) {
 async function loadUsage() {
   const response = await fetch('/api/ai-usage')
   const data = await response.json()
-  
+
   const percentUsed = (data.usage.totalCostCents / data.quota.monthlyCostLimitCents) * 100
-  
+
   return {
     costUsed: `$${(data.usage.totalCostCents / 100).toFixed(2)}`,
     costLimit: `$${(data.quota.monthlyCostLimitCents / 100).toFixed(2)}`,
@@ -341,11 +367,11 @@ async function updateQuota(orgId: string, newLimits: Partial<AIQuotaConfig>) {
       ...newLimits,
     }),
   })
-  
+
   if (!response.ok) {
     throw new Error('Failed to update quota')
   }
-  
+
   return response.json()
 }
 ```
@@ -354,31 +380,34 @@ async function updateQuota(orgId: string, newLimits: Partial<AIQuotaConfig>) {
 
 Stable error codes for quota-related errors:
 
-| Code | Status | Description |
-|------|--------|-------------|
-| `QUOTA_EXCEEDED` | 429 | Daily request limit or monthly cost limit exceeded |
-| `FORBIDDEN` | 403 | Not authorized (admin endpoints) |
-| `UNAUTHORIZED` | 401 | Not authenticated |
-| `MISSING_PARAMETER` | 400 | Required parameter missing (organizationId) |
-| `INTERNAL_ERROR` | 500 | Server error during quota check/update |
-| `UPDATE_FAILED` | 500 | Failed to update quota configuration |
-| `NOT_FOUND` | 404 | Organization not found |
+| Code                | Status | Description                                        |
+| ------------------- | ------ | -------------------------------------------------- |
+| `QUOTA_EXCEEDED`    | 429    | Daily request limit or monthly cost limit exceeded |
+| `FORBIDDEN`         | 403    | Not authorized (admin endpoints)                   |
+| `UNAUTHORIZED`      | 401    | Not authenticated                                  |
+| `MISSING_PARAMETER` | 400    | Required parameter missing (organizationId)        |
+| `INTERNAL_ERROR`    | 500    | Server error during quota check/update             |
+| `UPDATE_FAILED`     | 500    | Failed to update quota configuration               |
+| `NOT_FOUND`         | 404    | Organization not found                             |
 
 ## Benefits
 
 ### Cost Control
+
 1. **Predictable Costs**: Monthly limits prevent runaway AI costs
 2. **Per-Org Isolation**: Each organization has independent quota
 3. **Real-Time Tracking**: Usage tracked immediately after each request
 4. **Warning Thresholds**: 75% threshold alerts before hitting hard limit
 
 ### Abuse Prevention
+
 1. **Daily Limits**: Per-model daily request limits prevent abuse
 2. **Fail-Closed**: Requests blocked when quota exceeded
 3. **Audit Trail**: All usage tracked with timestamps
 4. **Admin Controls**: Super admins can adjust limits
 
 ### Transparency
+
 1. **User Visibility**: Users can view their organization's usage
 2. **Real-Time Data**: Usage updated in real-time
 3. **Clear Error Messages**: Specific reason when quota exceeded
@@ -389,6 +418,7 @@ Stable error codes for quota-related errors:
 ### Manual Testing
 
 1. **Test Quota Check (Within Limits)**:
+
    ```bash
    # Make AI request within quota
    curl -X POST http://localhost:3000/api/ai/chat \
@@ -398,6 +428,7 @@ Stable error codes for quota-related errors:
    ```
 
 2. **Test Quota Check (Exceeded)**:
+
    ```bash
    # Make 101st GPT-4 request in a day (default limit: 100)
    curl -X POST http://localhost:3000/api/ai/chat \
@@ -407,6 +438,7 @@ Stable error codes for quota-related errors:
    ```
 
 3. **Test User Usage Endpoint**:
+
    ```bash
    curl http://localhost:3000/api/ai-usage \
      -H "Authorization: Bearer $TOKEN"
@@ -414,6 +446,7 @@ Stable error codes for quota-related errors:
    ```
 
 4. **Test Admin Quota Get**:
+
    ```bash
    curl "http://localhost:3000/api/admin/ai-quota?organizationId=org_123" \
      -H "Authorization: Bearer $ADMIN_TOKEN"
@@ -480,13 +513,13 @@ psql $DATABASE_URL -f supabase/migrations/20260203_ai_usage_tracking.sql
 
 ```sql
 -- Check tables exist
-SELECT table_name FROM information_schema.tables 
-WHERE table_schema = 'public' 
+SELECT table_name FROM information_schema.tables
+WHERE table_schema = 'public'
 AND table_name IN ('ai_usage_daily', 'ai_quota');
 
 -- Check default quotas created
-SELECT organization_id, daily_gpt4_limit, monthly_cost_limit_cents 
-FROM ai_quota 
+SELECT organization_id, daily_gpt4_limit, monthly_cost_limit_cents
+FROM ai_quota
 LIMIT 5;
 ```
 
