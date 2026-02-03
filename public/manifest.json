@@ -58,48 +58,34 @@
       "purpose": "any maskable"
     }
   ],
-  "screenshots": [
-    {
-      "src": "/screenshots/desktop-home.png",
-      "sizes": "1920x1080",
-      "type": "image/png",
-      "form_factor": "wide"
-    },
-    {
-      "src": "/screenshots/mobile-courses.png",
-      "sizes": "750x1334",
-      "type": "image/png",
-      "form_factor": "narrow"
-    }
-  ],
   "shortcuts": [
     {
       "name": "My Courses",
       "short_name": "Courses",
       "description": "Access your enrolled courses",
       "url": "/courses",
-      "icons": [{ "src": "/icons/courses-96x96.png", "sizes": "96x96" }]
+      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
     },
     {
       "name": "Course Player",
       "short_name": "Player",
       "description": "Continue learning",
       "url": "/training",
-      "icons": [{ "src": "/icons/player-96x96.png", "sizes": "96x96" }]
+      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
     },
     {
       "name": "Achievements",
       "short_name": "Badges",
       "description": "View your achievements",
       "url": "/achievements",
-      "icons": [{ "src": "/icons/badge-96x96.png", "sizes": "96x96" }]
+      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
     },
     {
       "name": "Dashboard",
       "short_name": "Home",
       "description": "Go to dashboard",
       "url": "/dashboard",
-      "icons": [{ "src": "/icons/home-96x96.png", "sizes": "96x96" }]
+      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
     }
   ],
   "share_target": {
