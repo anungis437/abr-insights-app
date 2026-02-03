@@ -36,10 +36,9 @@ Welcome to the ABR Insights App documentation. This comprehensive guide covers a
 ## Quick Links
 
 - **Project Repository**: [abr-insights-app](https://github.com/anungis437/abr-insights-app)
-- **Production URL**: TBD
-- **Staging URL**: TBD
-- **Supabase Dashboard**: TBD
-- **Azure Portal**: TBD
+- **Documentation Index**: [INDEX.md](./INDEX.md) - Complete navigation guide
+- **Quick Start**: [guides/QUICK_START.md](./guides/QUICK_START.md)
+- **Production Readiness**: [production-readiness/](./production-readiness/) - All 9 PRs complete
 
 ## Contributing
 
@@ -47,6 +46,10 @@ Please read the [Coding Standards](./development/CODING_STANDARDS.md) before con
 
 ## Version History
 
+- **v2.1.0** (2026-02) - World-Class Production Readiness (9/9 PRs Complete)
+  - CSP Runtime Enforcement, CI Guardrails, Structured Logging
+  - Container Health, AI Cost Controls, Data Lifecycle
+  - CanLII Compliance, Compliance Pack (8 docs), E2E Smoke Tests (50+ tests)
 - **v2.0.0** (2025-11) - Complete refactor with Supabase + Azure Static Web Apps
 - **v1.0.0** (Legacy) - Base44-based implementation
 

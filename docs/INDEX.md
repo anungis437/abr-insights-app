@@ -74,32 +74,32 @@ Enterprise-ready compliance documentation for procurement teams:
 - **[Docker Build Guide](docker/DOCKER_BUILD_GUIDE.md)** - Comprehensive Docker build reference
 - **[Docker Solution Overview](docker/DOCKER_SOLUTION_README.md)** - Why Docker for this project
 - **[Docker Implementation Details](docker/DOCKER_SOLUTION_COMPLETE.md)** - Complete implementation guide
-- **[Critical Assessment](CRITICAL_ASSESSMENT_FILESYSTEM_ISSUE.md)** - Filesystem issue analysis & resolution
+- **[Critical Assessment](planning/CRITICAL_ASSESSMENT_FILESYSTEM_ISSUE.md)** - Filesystem issue analysis & resolution
 
 ## 🏗️ Architecture
 
 - **[Database Schema](architecture/DATABASE_SCHEMA.md)** - Complete database design
 - **[AI/ML Architecture](architecture/AI_ML_ARCHITECTURE.md)** - AI and machine learning components
 ### Azure Container Apps
-- **[Azure Container Apps Deployment](AZURE_CONTAINER_APPS_DEPLOYMENT.md)** - Container deployment guide
-- **[Container Security Controls](CONTAINER_SECURITY_CONTROLS.md)** - Container hardening
-- **[CSP Deployment Checklist](CSP_DEPLOYMENT_CHECKLIST.md)** - Security policy deployment
+- **[Azure Container Apps Deployment](deployment/AZURE_CONTAINER_APPS_DEPLOYMENT.md)** - Container deployment guide
+- **[Container Security Controls](security/CONTAINER_SECURITY_CONTROLS.md)** - Container hardening
+- **[CSP Deployment Checklist](security/CSP_DEPLOYMENT_CHECKLIST.md)** - Security policy deployment
 - **[Azure Deployment](deployment/AZURE_DEPLOYMENT.md)** - Complete Azure setup
 - **[Azure Static Web Apps](deployment/AZURE_SWA.md)** - Static web app configuration
 
 ### CI/CD & Operations
 - **[CI/CD Pipeline](deployment/CICD.md)** - Continuous integration and deployment
-- **[Deployment Checklist](DEPLOYMENT_CHECKLIST.md)** - Pre-deployment validation
+- **[Deployment Checklist](deployment/DEPLOYMENT_CHECKLIST.md)** - Pre-deployment validation
 - **[Environment Variables](deployment/ENVIRONMENT.md)** - Configuration management
 - **[Monitoring](deployment/MONITORING.md)** - Application monitoring
 - **[Operations Runbook](compliance/RUNBOOK.md)** - Operational procedures
 
 ### Production Readiness
-- **[Production Readiness Complete](PRODUCTION_READINESS_COMPLETE.md)** - Full readiness status
-- **[World-Class Production Readiness](WORLD_CLASS_PRODUCTION_READINESS.md)** - Achievement summary
-- **[Production Hardening Complete](PRODUCTION_HARDENING_COMPLETE.md)** - Hardening checklist
-- **[Production Gates Complete](PRODUCTION_GATES_COMPLETE.md)** - All gates passed
-- **[World-Class Status](WORLD_CLASS_STATUS.md)** - Final production status
+- **[Production Readiness Complete](production-readiness/PRODUCTION_READINESS_COMPLETE.md)** - Full readiness status
+- **[World-Class Production Readiness](production-readiness/WORLD_CLASS_PRODUCTION_READINESS.md)** - Achievement summary
+- **[Production Hardening Complete](production-readiness/PRODUCTION_HARDENING_COMPLETE.md)** - Hardening checklist
+- **[Production Gates Complete](production-readiness/PRODUCTION_GATES_COMPLETE.md)** - All gates passed
+- **[World-Class Status](production-readiness/WORLD_CLASS_STATUS.md)** - Final production status
 
 - **[Azure Deployment](deployment/AZURE_DEPLOYMENT.md)** - Complete Azure setup
 - **[Azure Static Web Apps](deployment/AZURE_SWA.md)** - Static web app configuration
@@ -118,13 +118,13 @@ Enterprise-ready compliance documentation for procurement teams:
 
 ### Security Systems
 - **[Permission System 100%](../PERMISSION_SYSTEM_100_COMPLETE.md)** ✅ - Complete RBAC implementation
-- **[RBAC Documentation](RBAC_DOCUMENTATION.md)** - Access control details
+- **[RBAC Documentation](security/RBAC_DOCUMENTATION.md)** - Access control details
 - **[RBAC Governance](architecture/RBAC_GOVERNANCE.md)** - Governance model
 - **[Production Security Status](../PRODUCTION_SECURITY_STATUS.md)** - Security posture
-- **[Security Hardening Complete](SECURITY_HARDENING_COMPLETE.md)** - Hardening checklist
-- **[CSP Hardening Roadmap](CSP_HARDENING_ROADMAP.md)** - Content Security Policy implementation
-- **[CSP Wiring Complete](CSP_WIRING_COMPLETE.md)** - CSP integration status
-- **[Container Security Controls](CONTAINER_SECURITY_CONTROLS.md)** - Container hardening
+- **[Security Hardening Complete](security/SECURITY_HARDENING_COMPLETE.md)** - Hardening checklist
+- **[CSP Hardening Roadmap](security/CSP_HARDENING_ROADMAP.md)** - Content Security Policy implementation
+- **[CSP Wiring Complete](security/CSP_WIRING_COMPLETE.md)** - CSP integration status
+- **[Container Security Controls](security/CONTAINER_SECURITY_CONTROLS.md)** - Container hardening
 
 ### Compliance Documentation
 - **[Security Overview](compliance/SECURITY_OVERVIEW.md)** - System architecture and security posture
@@ -153,16 +153,16 @@ Enterprise-ready compliance documentation for procurement teams:
 - **[Migration Validation Summary](migration/MIGRATION_VALIDATION_SUMMARY.md)** - Database migration readiness
 - **[Migration Schema Analysis](migration/MIGRATION_SCHEMA_ANALYSIS.md)** - Detailed schema breakdown
 - **[Django Assessment](migration/MIGRATION_TO_DJANGO_ASSESSMENT.md)** - Alternative backend analysis
-- **[Migration Guide](MIGRATION_GUIDE.md)** - General migration procedures
-- **[Phase 10 Migration CLI](PHASE_10_MIGRATION_CLI.md)** - CLI migration tools
+- **[Migration Guide](migration/MIGRATION_GUIDE.md)** - General migration procedures
+- **[Phase 10 Migration CLI](planning/PHASE_10_MIGRATION_CLI.md)** - CLI migration tools
 - **[Phase 11 Plan](planning/PHASE_11_PLAN.md)** - Future development roadmap
 - **[Phase 11 Readiness](planning/PHASE_11_READINESS.md)** - Production readiness checklist
 
 ## 📊 Features & Enhancements
 
-- **[Courses Enhancement Plan](COURSES_ENHANCEMENT_PLAN.md)** - LMS improvements
-- **[Gamification Migration](GAMIFICATION_MIGRATION_COMPLETE.md)** - Gamification features
-- **[CodeSpring Integration](CODESPRING_INTEGRATION.md)** - Third-party integration
+- **[Courses Enhancement Plan](planning/COURSES_ENHANCEMENT_PLAN.md)** - LMS improvements
+- **[Gamification Migration](migration/GAMIFICATION_MIGRATION_COMPLETE.md)** - Gamification features
+- **[CodeSpring Integration](guides/CODESPRING_INTEGRATION.md)** - Third-party integration
 
 ## 📥 Data Ingestion
 
