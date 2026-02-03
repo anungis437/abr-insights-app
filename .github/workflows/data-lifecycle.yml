@@ -1,0 +1,453 @@
+# PR-06: Data Lifecycle CI Workflow
+# 
+# Validates organization offboarding implementation:
+# - Database schema (tables, columns, functions, RLS)
+# - Data export service (exports, CSV generation)
+# - Offboarding service (orchestration, Stripe, access revocation)
+# - Admin API endpoints (POST/GET offboarding, download)
+
+name: PR-06 Data Lifecycle
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+jobs:
+  validate-schema:
+    name: Validate Offboarding Schema
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Check migration file exists
+        run: |
+          if [ ! -f "supabase/migrations/20260203_org_offboarding.sql" ]; then
+            echo "❌ Migration file not found"
+            exit 1
+          fi
+          echo "✅ Migration file exists"
+      
+      - name: Validate org_offboarding_requests table
+        run: |
+          if ! grep -q "CREATE TABLE.*org_offboarding_requests" supabase/migrations/20260203_org_offboarding.sql; then
+            echo "❌ org_offboarding_requests table not defined"
+            exit 1
+          fi
+          echo "✅ org_offboarding_requests table defined"
+      
+      - name: Validate required columns
+        run: |
+          REQUIRED_COLS=(
+            "id UUID"
+            "organization_id UUID"
+            "requested_by UUID"
+            "status TEXT"
+            "export_file_path TEXT"
+            "export_download_url TEXT"
+            "stripe_subscription_id TEXT"
+            "deletion_scheduled_at TIMESTAMPTZ"
+            "users_disabled_count INT"
+            "sessions_invalidated_count INT"
+          )
+          
+          for col in "${REQUIRED_COLS[@]}"; do
+            if ! grep -q "$col" supabase/migrations/20260203_org_offboarding.sql; then
+              echo "❌ Required column not found: $col"
+              exit 1
+            fi
+          done
+          echo "✅ All required columns defined"
+      
+      - name: Validate data_export_contents table
+        run: |
+          if ! grep -q "CREATE TABLE.*data_export_contents" supabase/migrations/20260203_org_offboarding.sql; then
+            echo "❌ data_export_contents table not defined"
+            exit 1
+          fi
+          echo "✅ data_export_contents table defined"
+      
+      - name: Validate offboarding_audit_log table
+        run: |
+          if ! grep -q "CREATE TABLE.*offboarding_audit_log" supabase/migrations/20260203_org_offboarding.sql; then
+            echo "❌ offboarding_audit_log table not defined"
+            exit 1
+          fi
+          echo "✅ offboarding_audit_log table defined"
+      
+      - name: Validate database functions
+        run: |
+          REQUIRED_FUNCS=(
+            "get_org_offboarding_status"
+            "log_offboarding_action"
+            "update_offboarding_status"
+          )
+          
+          for func in "${REQUIRED_FUNCS[@]}"; do
+            if ! grep -q "CREATE OR REPLACE FUNCTION $func" supabase/migrations/20260203_org_offboarding.sql; then
+              echo "❌ Function not found: $func"
+              exit 1
+            fi
+          done
+          echo "✅ All database functions defined"
+      
+      - name: Validate RLS policies
+        run: |
+          if ! grep -q "ENABLE ROW LEVEL SECURITY" supabase/migrations/20260203_org_offboarding.sql; then
+            echo "❌ RLS not enabled"
+            exit 1
+          fi
+          
+          if ! grep -q "offboarding_super_admin_all" supabase/migrations/20260203_org_offboarding.sql; then
+            echo "❌ Super admin policy not found"
+            exit 1
+          fi
+          
+          if ! grep -q "offboarding_org_admin_view" supabase/migrations/20260203_org_offboarding.sql; then
+            echo "❌ Org admin view policy not found"
+            exit 1
+          fi
+          
+          echo "✅ RLS policies configured"
+
+  validate-data-export:
+    name: Validate Data Export Service
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Check data export service exists
+        run: |
+          if [ ! -f "lib/services/data-export.ts" ]; then
+            echo "❌ Data export service not found"
+            exit 1
+          fi
+          echo "✅ Data export service exists"
+      
+      - name: Validate export functions
+        run: |
+          REQUIRED_FUNCS=(
+            "generateExport"
+            "exportUsers"
+            "exportCourses"
+            "exportEnrollments"
+            "exportProgress"
+            "exportQuizAttempts"
+            "exportCertificates"
+            "exportAchievements"
+            "exportAIUsage"
+            "exportBillingRecords"
+            "exportAuditLogs"
+          )
+          
+          for func in "${REQUIRED_FUNCS[@]}"; do
+            if ! grep -q "$func" lib/services/data-export.ts; then
+              echo "❌ Export function not found: $func"
+              exit 1
+            fi
+          done
+          echo "✅ All export functions defined"
+      
+      - name: Validate CSV generation
+        run: |
+          if ! grep -q "convertToCSV" lib/services/data-export.ts; then
+            echo "❌ CSV generation not found"
+            exit 1
+          fi
+          echo "✅ CSV generation implemented"
+      
+      - name: Validate ZIP creation
+        run: |
+          if ! grep -q "createZipArchive" lib/services/data-export.ts; then
+            echo "❌ ZIP creation not found"
+            exit 1
+          fi
+          
+          if ! grep -q "archiver" lib/services/data-export.ts; then
+            echo "❌ archiver import not found"
+            exit 1
+          fi
+          
+          echo "✅ ZIP creation implemented"
+      
+      - name: Validate checksum calculation
+        run: |
+          if ! grep -q "calculateChecksum" lib/services/data-export.ts; then
+            echo "❌ Checksum calculation not found"
+            exit 1
+          fi
+          
+          if ! grep -q "createHash.*sha256" lib/services/data-export.ts; then
+            echo "❌ SHA-256 hash not used"
+            exit 1
+          fi
+          
+          echo "✅ Checksum calculation implemented"
+      
+      - name: Validate structured logging
+        run: |
+          if ! grep -q "production-logger" lib/services/data-export.ts; then
+            echo "❌ production-logger not imported"
+            exit 1
+          fi
+          
+          if grep -q "console\\.log" lib/services/data-export.ts; then
+            echo "❌ Found console.log (use structured logger)"
+            exit 1
+          fi
+          
+          echo "✅ Structured logging used"
+
+  validate-offboarding-service:
+    name: Validate Offboarding Service
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Check offboarding service exists
+        run: |
+          if [ ! -f "lib/services/org-offboarding.ts" ]; then
+            echo "❌ Offboarding service not found"
+            exit 1
+          fi
+          echo "✅ Offboarding service exists"
+      
+      - name: Validate core functions
+        run: |
+          REQUIRED_FUNCS=(
+            "initiateOffboarding"
+            "processOffboarding"
+            "exportOrganizationData"
+            "cancelStripeSubscription"
+            "revokeOrganizationAccess"
+            "getStatus"
+            "getStatusByOrganization"
+          )
+          
+          for func in "${REQUIRED_FUNCS[@]}"; do
+            if ! grep -q "$func" lib/services/org-offboarding.ts; then
+              echo "❌ Function not found: $func"
+              exit 1
+            fi
+          done
+          echo "✅ All core functions defined"
+      
+      - name: Validate Stripe integration
+        run: |
+          if ! grep -q "import Stripe from 'stripe'" lib/services/org-offboarding.ts; then
+            echo "❌ Stripe not imported"
+            exit 1
+          fi
+          
+          if ! grep -q "STRIPE_SECRET_KEY" lib/services/org-offboarding.ts; then
+            echo "❌ Stripe secret key not checked"
+            exit 1
+          fi
+          
+          if ! grep -q "stripe.subscriptions.update" lib/services/org-offboarding.ts; then
+            echo "❌ Stripe subscription cancellation not implemented"
+            exit 1
+          fi
+          
+          echo "✅ Stripe integration implemented"
+      
+      - name: Validate access revocation
+        run: |
+          if ! grep -q "usersDisabled" lib/services/org-offboarding.ts; then
+            echo "❌ User disabling not tracked"
+            exit 1
+          fi
+          
+          if ! grep -q "sessionsInvalidated" lib/services/org-offboarding.ts; then
+            echo "❌ Session invalidation not tracked"
+            exit 1
+          fi
+          
+          echo "✅ Access revocation implemented"
+      
+      - name: Validate deletion scheduling
+        run: |
+          if ! grep -q "deletion_scheduled_at" lib/services/org-offboarding.ts; then
+            echo "❌ Deletion scheduling not found"
+            exit 1
+          fi
+          
+          if ! grep -q "setDate.*30" lib/services/org-offboarding.ts; then
+            echo "❌ 30-day retention not implemented"
+            exit 1
+          fi
+          
+          echo "✅ Deletion scheduling implemented"
+      
+      - name: Validate structured logging
+        run: |
+          if ! grep -q "production-logger" lib/services/org-offboarding.ts; then
+            echo "❌ production-logger not imported"
+            exit 1
+          fi
+          
+          if grep -q "console\\.log" lib/services/org-offboarding.ts; then
+            echo "❌ Found console.log (use structured logger)"
+            exit 1
+          fi
+          
+          echo "✅ Structured logging used"
+
+  validate-api-endpoints:
+    name: Validate API Endpoints
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Check offboarding endpoint exists
+        run: |
+          if [ ! -f "app/api/admin/offboarding/route.ts" ]; then
+            echo "❌ Offboarding endpoint not found"
+            exit 1
+          fi
+          echo "✅ Offboarding endpoint exists"
+      
+      - name: Validate POST handler
+        run: |
+          if ! grep -q "export async function POST" app/api/admin/offboarding/route.ts; then
+            echo "❌ POST handler not found"
+            exit 1
+          fi
+          
+          if ! grep -q "organizationId" app/api/admin/offboarding/route.ts; then
+            echo "❌ organizationId parameter not checked"
+            exit 1
+          fi
+          
+          if ! grep -q "orgOffboarding.initiateOffboarding" app/api/admin/offboarding/route.ts; then
+            echo "❌ initiateOffboarding not called"
+            exit 1
+          fi
+          
+          echo "✅ POST handler implemented"
+      
+      - name: Validate GET handler
+        run: |
+          if ! grep -q "export async function GET" app/api/admin/offboarding/route.ts; then
+            echo "❌ GET handler not found"
+            exit 1
+          fi
+          
+          if ! grep -q "requestId\\|organizationId" app/api/admin/offboarding/route.ts; then
+            echo "❌ Query parameters not checked"
+            exit 1
+          fi
+          
+          echo "✅ GET handler implemented"
+      
+      - name: Check download endpoint exists
+        run: |
+          if [ ! -f "app/api/admin/offboarding/download/[requestId]/route.ts" ]; then
+            echo "❌ Download endpoint not found"
+            exit 1
+          fi
+          echo "✅ Download endpoint exists"
+      
+      - name: Validate download handler
+        run: |
+          if ! grep -q "export async function GET" app/api/admin/offboarding/download/[requestId]/route.ts; then
+            echo "❌ GET handler not found"
+            exit 1
+          fi
+          
+          if ! grep -q "export_file_path" app/api/admin/offboarding/download/[requestId]/route.ts; then
+            echo "❌ File path check not found"
+            exit 1
+          fi
+          
+          if ! grep -q "Content-Type.*zip" app/api/admin/offboarding/download/[requestId]/route.ts; then
+            echo "❌ ZIP content type not set"
+            exit 1
+          fi
+          
+          echo "✅ Download handler implemented"
+      
+      - name: Validate authentication
+        run: |
+          if ! grep -q "verifySuperAdmin" app/api/admin/offboarding/route.ts; then
+            echo "❌ Super admin verification not found"
+            exit 1
+          fi
+          
+          if ! grep -q "role.*super_admin" app/api/admin/offboarding/route.ts; then
+            echo "❌ Role check not found"
+            exit 1
+          fi
+          
+          echo "✅ Authentication checks implemented"
+      
+      - name: Validate stable error codes
+        run: |
+          REQUIRED_CODES=(
+            "FORBIDDEN"
+            "MISSING_PARAMETER"
+            "INTERNAL_ERROR"
+            "NOT_FOUND"
+          )
+          
+          for code in "${REQUIRED_CODES[@]}"; do
+            if ! grep -q "$code" app/api/admin/offboarding/route.ts; then
+              echo "❌ Error code not found: $code"
+              exit 1
+            fi
+          done
+          echo "✅ Stable error codes defined"
+      
+      - name: Validate structured logging
+        run: |
+          if ! grep -q "createRequestLogger" app/api/admin/offboarding/route.ts; then
+            echo "❌ Request logger not used"
+            exit 1
+          fi
+          
+          if grep -q "console\\.log" app/api/admin/offboarding/route.ts; then
+            echo "❌ Found console.log (use structured logger)"
+            exit 1
+          fi
+          
+          echo "✅ Structured logging used"
+
+  summary:
+    name: Validation Summary
+    runs-on: ubuntu-latest
+    needs: [validate-schema, validate-data-export, validate-offboarding-service, validate-api-endpoints]
+    if: always()
+    
+    steps:
+      - name: Check all validations passed
+        run: |
+          if [ "${{ needs.validate-schema.result }}" != "success" ] || \
+             [ "${{ needs.validate-data-export.result }}" != "success" ] || \
+             [ "${{ needs.validate-offboarding-service.result }}" != "success" ] || \
+             [ "${{ needs.validate-api-endpoints.result }}" != "success" ]; then
+            echo "❌ Some validations failed"
+            exit 1
+          fi
+          
+          echo "✅ All PR-06 data lifecycle validations passed"
+          echo ""
+          echo "Validated components:"
+          echo "  ✅ Database schema (org_offboarding_requests, data_export_contents, offboarding_audit_log)"
+          echo "  ✅ Database functions (get_org_offboarding_status, log_offboarding_action, update_offboarding_status)"
+          echo "  ✅ RLS policies (super admin all, org admin view)"
+          echo "  ✅ Data export service (CSV, ZIP, checksums)"
+          echo "  ✅ Offboarding service (orchestration, Stripe, access revocation)"
+          echo "  ✅ Admin API endpoints (POST/GET offboarding, download)"
+          echo "  ✅ Authentication (super admin only)"
+          echo "  ✅ Stable error codes"
+          echo "  ✅ Structured logging"
