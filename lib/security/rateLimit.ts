@@ -290,8 +290,10 @@ export function withMultipleRateLimits(
 ) {
   return async (request: NextRequest, context?: any): Promise<NextResponse> => {
     // Check all rate limits
+    const results: RateLimitResult[] = []
     for (const config of configs) {
       const result = await checkRateLimit(request, config, context)
+      results.push(result)
 
       if (!result.allowed) {
         return createRateLimitResponse(result)
@@ -302,7 +304,7 @@ export function withMultipleRateLimits(
     const response = await Promise.resolve(handler(request, context))
 
     // Add most restrictive limit headers (reuse results from check above)
-    const mostRestrictive = results.reduce((prev, curr) =>
+    const mostRestrictive = results.reduce((prev: RateLimitResult, curr: RateLimitResult) =>
       curr.remaining < prev.remaining ? curr : prev
     )
 
