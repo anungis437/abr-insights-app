@@ -149,6 +149,7 @@ export default function PermissionsPage() {
           ...perm,
           category: perm.category || perm.resource,
         }))
+        console.log('[Permissions] Loaded permissions:', permsWithCategory.length)
         setPermissions(permsWithCategory)
       }
 
