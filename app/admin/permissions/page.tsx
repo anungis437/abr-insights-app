@@ -366,9 +366,9 @@ export default function PermissionsPage() {
           >
             <div className="flex items-center gap-2">
               <Key className="h-5 w-5" />
-              <span className="font-medium">Resource Permissions</span>
+              <span className="font-medium">Permissions</span>
               <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
-                {resourcePermissions.length}
+                {permissions.length}
               </span>
             </div>
           </button>
@@ -404,33 +404,19 @@ export default function PermissionsPage() {
         </nav>
       </div>
 
-      {/* Resource Permissions Tab */}
+      {/* Permissions Tab */}
       {activeTab === 'permissions' && (
         <div className="space-y-4">
-          {/* Filters */}
-          <div className="flex gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search permissions..."
-                className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <select
-              value={filterScope}
-              onChange={(e) => setFilterScope(e.target.value)}
-              className="rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-              aria-label="Filter by permission scope"
-            >
-              <option value="all">All Scopes</option>
-              <option value="user">User</option>
-              <option value="role">Role</option>
-              <option value="organization">Organization</option>
-              <option value="public">Public</option>
-            </select>
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search permissions by name, slug, or category..."
+              className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+            />
           </div>
 
           {/* Permissions List */}
@@ -442,73 +428,49 @@ export default function PermissionsPage() {
                     Permission
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    Scope
+                    Category
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    Resource
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    Expires
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
-                    Actions
+                    Description
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {filteredResourcePermissions.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
-                      No resource permissions found
-                    </td>
-                  </tr>
-                ) : (
-                  filteredResourcePermissions.map((rp) => (
-                    <tr key={rp.id} className="hover:bg-gray-50">
+                {permissions
+                  .filter(
+                    (p) =>
+                      !searchQuery ||
+                      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                      p.slug.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                      p.category?.toLowerCase().includes(searchQuery.toLowerCase())
+                  )
+                  .map((perm) => (
+                    <tr key={perm.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <Key className="h-4 w-4 text-gray-400" />
-                          <span className="font-medium text-gray-900">{rp.permission_slug}</span>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <Key className="h-4 w-4 text-gray-400" />
+                            <span className="font-medium text-gray-900">{perm.name}</span>
+                          </div>
+                          <span className="ml-6 text-xs text-gray-500">{perm.slug}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={`rounded px-2 py-1 text-xs font-medium ${
-                              rp.scope_type === 'user'
-                                ? 'bg-blue-100 text-blue-700'
-                                : rp.scope_type === 'role'
-                                  ? 'bg-purple-100 text-purple-700'
-                                  : rp.scope_type === 'organization'
-                                    ? 'bg-green-100 text-green-700'
-                                    : 'bg-gray-100 text-gray-700'
-                            }`}
-                          >
-                            {rp.scope_type}
-                          </span>
-                          <span className="text-sm text-gray-600">{rp.scope_name}</span>
-                        </div>
+                        <span className="rounded bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700">
+                          {perm.category || 'General'}
+                        </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600">
-                        {rp.resource_type && rp.resource_id
-                          ? `${rp.resource_type} #${rp.resource_id.slice(0, 8)}`
-                          : '-'}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
-                        {rp.expires_at ? new Date(rp.expires_at).toLocaleDateString() : 'Never'}
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <button
-                          onClick={() => handleDeletePermission(rp.id)}
-                          className="text-red-600 hover:text-red-800"
-                          aria-label="Delete permission"
-                          title="Delete permission"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
+                        {perm.description || '-'}
                       </td>
                     </tr>
-                  ))
+                  ))}
+                {permissions.length === 0 && (
+                  <tr>
+                    <td colSpan={3} className="px-6 py-12 text-center text-gray-500">
+                      No permissions found
+                    </td>
+                  </tr>
                 )}
               </tbody>
             </table>
