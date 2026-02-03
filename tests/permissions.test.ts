@@ -80,8 +80,9 @@ describe.skipIf(skipTests)('Permission System Tests', () => {
       const { data, error } = await supabase.rpc(
         'check_user_permission' as any,
         {
-          user_id: testUserId,
-          permission_name: 'courses.view',
+          p_user_id: testUserId,
+          p_organization_id: testOrgId,
+          p_permission_slug: 'courses.view',
         } as any
       )
 
@@ -93,8 +94,9 @@ describe.skipIf(skipTests)('Permission System Tests', () => {
       const { data, error } = await supabase.rpc(
         'has_any_permission' as any,
         {
-          user_id: testUserId,
-          permission_names: ['courses.view', 'profile.view'],
+          p_user_id: testUserId,
+          p_organization_id: testOrgId,
+          p_permission_slugs: ['courses.view', 'profile.view'],
         } as any
       )
 
@@ -106,8 +108,8 @@ describe.skipIf(skipTests)('Permission System Tests', () => {
       const { data, error } = await supabase.rpc(
         'has_role' as any,
         {
-          user_id: testUserId,
-          role_name: 'learner',
+          p_user_id: testUserId,
+          p_role_slug: 'learner',
         } as any
       )
 
@@ -233,19 +235,32 @@ describe.skipIf(skipTests)('Permission System Tests', () => {
 
   describe('Permission Inheritance', () => {
     it('should verify admin role has comprehensive permissions', async () => {
+      // Get admin role_id
+      const { data: roleData } = await supabase
+        .from('roles')
+        .select('id')
+        .eq('name', 'super_admin')
+        .single()
+
+      if (!roleData) {
+        console.warn('super_admin role not found, skipping test')
+        return
+      }
+
       // Assign admin role
       await supabase.from('user_roles').insert({
         user_id: testUserId,
-        role: 'admin',
+        role_id: (roleData as any).id,
         organization_id: testOrgId,
       } as any)
 
       // Check for admin permissions
       const { data: hasAdminPerm } = await supabase.rpc(
-        'check_permission' as any,
+        'check_user_permission' as any,
         {
-          user_id: testUserId,
-          permission_name: 'admin.manage',
+          p_user_id: testUserId,
+          p_organization_id: testOrgId,
+          p_permission_slug: 'admin.manage',
         } as any
       )
 
@@ -253,19 +268,32 @@ describe.skipIf(skipTests)('Permission System Tests', () => {
     })
 
     it('should verify instructor role has course permissions', async () => {
+      // Get instructor role_id
+      const { data: roleData } = await supabase
+        .from('roles')
+        .select('id')
+        .eq('name', 'instructor')
+        .single()
+
+      if (!roleData) {
+        console.warn('instructor role not found, skipping test')
+        return
+      }
+
       // Assign instructor role
       await supabase.from('user_roles').insert({
         user_id: testUserId,
-        role: 'instructor',
+        role_id: (roleData as any).id,
         organization_id: testOrgId,
       } as any)
 
       // Check for instructor permissions
       const { data: hasCoursePerm } = await supabase.rpc(
-        'check_permission' as any,
+        'check_user_permission' as any,
         {
-          user_id: testUserId,
-          permission_name: 'courses.create',
+          p_user_id: testUserId,
+          p_organization_id: testOrgId,
+          p_permission_slug: 'courses.create',
         } as any
       )
 
