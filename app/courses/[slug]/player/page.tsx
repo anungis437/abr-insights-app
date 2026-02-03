@@ -414,7 +414,6 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
                 <div className="h-2 w-full rounded-full bg-gray-200">
                   <div
                     className="h-2 rounded-full bg-gradient-to-r from-teal-500 to-teal-600 transition-all duration-500"
-                    // eslint-disable-next-line react/forbid-dom-props
                     style={{ width: `${progressPercentage}%` }}
                   />
                 </div>

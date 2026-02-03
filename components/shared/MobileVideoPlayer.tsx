@@ -336,13 +336,11 @@ export default function MobileVideoPlayer({
             <div className="absolute inset-0 h-1 rounded-full bg-white/20">
               <div
                 className="h-full rounded-full bg-white/40 transition-all"
-                // eslint-disable-next-line react/forbid-dom-props
                 style={{ width: `${buffered}%` }}
               />
             </div>
 
             {/* Watched Progress */}
-            {/* eslint-disable-next-line react/forbid-dom-props */}
             <input
               type="range"
               min="0"
