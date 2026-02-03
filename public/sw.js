@@ -85,6 +85,12 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
+  // Skip auth routes - don't cache redirects
+  if (url.pathname.startsWith('/auth/') || url.pathname.startsWith('/api/auth/')) {
+    event.respondWith(networkFirstStrategy(request, API_CACHE))
+    return
+  }
+
   // API requests - Network First, then Cache
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(networkFirstStrategy(request, API_CACHE))
@@ -128,8 +134,8 @@ async function networkFirstStrategy(request, cacheName) {
   try {
     const networkResponse = await fetch(request)
 
-    // Cache successful responses
-    if (networkResponse && networkResponse.status === 200) {
+    // Cache successful, non-redirect responses
+    if (networkResponse && networkResponse.status === 200 && networkResponse.redirected === false) {
       const cache = await caches.open(cacheName)
       cache.put(request, networkResponse.clone())
     }
@@ -161,7 +167,8 @@ async function cacheFirstStrategy(request, cacheName) {
     // Update cache in background
     fetch(request)
       .then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200) {
+        // Only cache successful, non-redirect responses
+        if (networkResponse && networkResponse.status === 200 && networkResponse.redirected === false) {
           caches.open(cacheName).then((cache) => {
             cache.put(request, networkResponse)
           })
@@ -177,7 +184,8 @@ async function cacheFirstStrategy(request, cacheName) {
   try {
     const networkResponse = await fetch(request)
 
-    if (networkResponse && networkResponse.status === 200) {
+    // Only cache successful, non-redirect responses
+    if (networkResponse && networkResponse.status === 200 && networkResponse.redirected === false) {
       const cache = await caches.open(cacheName)
       cache.put(request, networkResponse.clone())
     }
