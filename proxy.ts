@@ -15,6 +15,13 @@ import { updateSession } from '@/lib/supabase/middleware'
 export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
+  // Block _dev routes in production (P0 security)
+  if (pathname.startsWith('/_dev') || pathname.startsWith('/api/_dev')) {
+    if (process.env.NODE_ENV === 'production') {
+      return new NextResponse(null, { status: 404 })
+    }
+  }
+
   // Generate correlation ID for request tracing (P0 observability)
   const correlationId = request.headers.get('x-correlation-id') || crypto.randomUUID()
 
@@ -47,9 +54,7 @@ export default async function proxy(request: NextRequest) {
     form-action 'self';
     frame-ancestors 'none';
     upgrade-insecure-requests;
-  `
-    .replace(/\s{2,}/g, ' ')
-    .trim()
+  `.replace(/\s{2,}/g, ' ').trim()
 
   // Set security headers
   response.headers.set('Content-Security-Policy', cspHeader)
