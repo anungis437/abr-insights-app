@@ -347,7 +347,7 @@ export default function CompliancePage() {
                           <span className="font-medium">Reason:</span> {exp.export_reason}
                         </p>
                         <p className="mt-1 text-xs text-gray-500">
-                          Requested: {new Date(exp.created_at).toLocaleString()}
+                          Requested: {exp.created_at ? new Date(exp.created_at).toLocaleString() : 'Unknown'}
                         </p>
                       </div>
                       <div className="ml-4 flex gap-2">
@@ -466,7 +466,7 @@ export default function CompliancePage() {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-900">
-                      {report.event_count.toLocaleString()}
+                      {report.event_count != null ? report.event_count.toLocaleString() : '0'}
                     </td>
                     <td className="px-6 py-4">
                       <span
@@ -497,7 +497,7 @@ export default function CompliancePage() {
                       </span>
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600">
-                      {new Date(report.created_at).toLocaleDateString()}
+                      {report.created_at ? new Date(report.created_at).toLocaleDateString() : 'Unknown'}
                     </td>
                     <td className="px-6 py-4 text-right">
                       <button
