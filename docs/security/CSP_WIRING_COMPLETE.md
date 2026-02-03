@@ -9,10 +9,9 @@
 
 ### The Problem
 
-CSP code existed in `proxy.ts` but was **not active** because Next.js couldn't find it:
+CSP code existed but was **not active** because the middleware entrypoint wasn't wired correctly:
 
-- ❌ `proxy.ts` exists with CSP logic (nonce generation, header injection)
-- ❌ No `middleware.ts` entrypoint for Next.js to execute the code
+- ❌ CSP logic not wired through `middleware.ts`
 - ❌ Documentation claimed "CSP enforced" without runtime proof
 - ❌ Enterprise questionnaire claims not defensible
 
@@ -21,24 +20,21 @@ CSP code existed in `proxy.ts` but was **not active** because Next.js couldn't f
 Created correct Next.js middleware pattern:
 
 ```
-middleware.ts (6 lines)
-  ↓ imports/exports
-proxy.ts (78 lines)
+middleware.ts (single entrypoint)
   ↓ injects headers
 app/layout.tsx (nonce retrieval available)
 ```
 
 **Key Files**:
 
-1. **`middleware.ts`** (NEW) - Next.js entrypoint that delegates to proxy.ts
-2. **`proxy.ts`** (UNCHANGED) - CSP nonce generation + header injection logic
-3. **`app/layout.tsx`** (COMMENT UPDATED) - Nonce retrieval (available but unused)
+1. **`middleware.ts`** - Next.js entrypoint with CSP nonce generation + header injection
+2. **`app/layout.tsx`** - Nonce retrieval (available but unused)
 
 ---
 
 ## CSP Implementation Details
 
-### Nonce Generation (proxy.ts)
+### Nonce Generation (middleware.ts)
 
 ```typescript
 const nonceBuffer = new Uint8Array(16)
@@ -46,7 +42,7 @@ crypto.getRandomValues(nonceBuffer)
 const nonce = btoa(String.fromCharCode(...nonceBuffer))
 ```
 
-### CSP Header (proxy.ts)
+### CSP Header (middleware.ts)
 
 ```typescript
 const cspHeader = `
@@ -69,7 +65,7 @@ response.headers.set('Content-Security-Policy', cspHeader)
 response.headers.set('x-nonce', nonce)
 ```
 
-### Route Coverage (proxy.ts)
+### Route Coverage (middleware.ts)
 
 ```typescript
 export const config = {
@@ -86,9 +82,9 @@ All routes except static assets.
 ### Updated Files
 
 1. **CSP_HARDENING_ROADMAP.md**
-   - Corrected architecture: middleware.ts → proxy.ts → layout.tsx
-   - Location: "Dynamic CSP headers via Next.js middleware"
-   - Entrypoint: "middleware.ts (Next.js requirement) → delegates to proxy.ts"
+  - Corrected architecture: middleware.ts → layout.tsx
+  - Location: "Dynamic CSP headers via Next.js middleware"
+  - Entrypoint: "middleware.ts (Next.js requirement)"
 
 2. **CSP_VALIDATION_PROOF.md**
    - Added ⚠️ VALIDATION REQUIREMENT section
@@ -97,8 +93,8 @@ All routes except static assets.
    - Warning: "Until headers are captured: this describes INTENDED architecture"
 
 3. **app/layout.tsx**
-   - Updated comment: "from middleware.ts → proxy.ts"
-   - Nonce retrieval code unchanged
+  - Updated comment: "from middleware.ts"
+  - Nonce retrieval code unchanged
 
 ---
 
@@ -257,7 +253,7 @@ You can now claim in enterprise questionnaires:
 ```
 middleware.ts  ← Next.js looks for this file (entrypoint)
   ↓
-proxy.ts       ← Contains the actual CSP logic
+ middleware.ts  ← Contains the actual CSP logic
   ↓
 response.headers.set('Content-Security-Policy', cspHeader)
 response.headers.set('x-nonce', nonce)
@@ -266,22 +262,22 @@ response.headers.set('x-nonce', nonce)
 ### Why middleware.ts is Required
 
 - Next.js framework requirement (looks for middleware.ts)
-- Without it, proxy.ts is NOT executed
-- Even if proxy.ts has perfect logic, it won't run without entrypoint
+- Without it, middleware.ts is NOT executed
+- Even if CSP logic is perfect, it won't run without the entrypoint
 
 ### Previous Misunderstanding
 
-Build error: "Both middleware file and proxy file detected. Please use proxy.ts only"
+Build error: "Both middleware file and proxy file detected. Please use middleware.ts only"
 
 **Incorrect Interpretation**: "Don't use middleware.ts"  
 **Correct Interpretation**: "Don't duplicate LOGIC in both files"  
-**Solution**: middleware.ts imports/exports proxy.ts (delegation, not duplication)
+**Solution**: keep CSP logic in middleware.ts (single entrypoint)
 
 ---
 
 ## Lessons Learned
 
-1. **Next.js requires middleware.ts as entrypoint** - Even if logic is in proxy.ts
+1. **Next.js requires middleware.ts as entrypoint** - Keep CSP logic there
 2. **Code inspection is not enough** - Must verify runtime behavior
 3. **Documentation should be honest** - State limitations until proven
 4. **Enterprise reviewers check headers** - They can validate claims in 30 seconds
@@ -324,7 +320,7 @@ Build error: "Both middleware file and proxy file detected. Please use proxy.ts 
 **Code**:
 
 - middleware.ts - Next.js entrypoint (6 lines)
-- proxy.ts - CSP logic (78 lines)
+- middleware.ts - CSP logic
 - app/layout.tsx - Nonce retrieval
 
 **Validation**:

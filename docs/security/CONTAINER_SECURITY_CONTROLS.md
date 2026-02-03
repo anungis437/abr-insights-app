@@ -11,15 +11,15 @@ This document outlines the security controls for the containerized deployment on
 ## Architecture
 
 ```
-Internet → Azure Front Door (optional) → Container Apps → Next.js App (proxy.ts)
+Internet → Azure Front Door (optional) → Container Apps → Next.js App (middleware.ts)
            └─ WAF policies              └─ Ingress rules   └─ Runtime security
 ```
 
 ## Security Layers
 
-### Layer 1: Application Runtime (Next.js proxy.ts)
+### Layer 1: Application Runtime (Next.js middleware.ts)
 
-**Location**: `proxy.ts` (repo root)  
+**Location**: `middleware.ts` (repo root)  
 **Execution**: Every HTTP request in Node.js server runtime  
 **Status**: ✅ Active
 
@@ -49,8 +49,8 @@ Internet → Azure Front Door (optional) → Container Apps → Next.js App (pro
 **Code Reference**:
 
 ```typescript
-// proxy.ts - Security header injection
-export default async function proxy(request: NextRequest) {
+// middleware.ts - Security header injection
+export async function middleware(request: NextRequest) {
   // Block dev routes in production
   if (pathname.startsWith('/_dev') && process.env.NODE_ENV === 'production') {
     return new NextResponse(null, { status: 404 })

@@ -93,7 +93,7 @@ export const metadata: Metadata = {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  // Get CSP nonce from proxy.ts (available for future inline script/style use if needed)
+  // Get CSP nonce from middleware.ts (available for future inline script/style use if needed)
   const headersList = await headers()
   const nonce = headersList.get('x-nonce') || undefined
 

@@ -11,7 +11,7 @@ Ensure Content Security Policy (CSP) with dynamic nonces executes correctly in p
 
 ## Problem Statement
 
-While CSP logic exists in `proxy.ts`, we need to:
+While CSP logic exists in `middleware.ts`, we need to:
 
 1. Verify it executes in production container deployment
 2. Ensure nonces are available to client-side if needed
@@ -20,15 +20,15 @@ While CSP logic exists in `proxy.ts`, we need to:
 
 ## Implementation Details
 
-### Architecture: Next.js 16 Proxy Pattern
+### Architecture: Next.js Middleware Entrypoint
 
-**Critical Note**: Next.js 16 uses `proxy.ts` as the middleware entrypoint (NOT `middleware.ts`). Creating both files causes build error: "Both middleware file and proxy file are detected."
+**Critical Note**: Next.js uses `middleware.ts` as the middleware entrypoint. Keep CSP logic here to ensure it executes on every request.
 
 **Current Implementation** (Already Complete):
 
 ```typescript
-// proxy.ts - Executes on every HTTP request
-export default async function proxy(request: NextRequest) {
+// middleware.ts - Executes on every HTTP request
+export async function middleware(request: NextRequest) {
   // 1. Block _dev routes in production
   if (pathname.startsWith('/_dev') && process.env.NODE_ENV === 'production') {
     return new NextResponse(null, { status: 404 })
@@ -75,7 +75,7 @@ export default async function RootLayout({ children }) {
 
 ### Files Changed
 
-1. **proxy.ts** - ✅ Already implemented (78 lines)
+1. **middleware.ts** - ✅ Already implemented (78 lines)
    - CSP nonce generation
    - Header injection
    - Route protection
@@ -104,7 +104,7 @@ export default async function RootLayout({ children }) {
 
 ### Automated Tests
 
-- [x] `proxy.ts` exports default function
+- [x] `middleware.ts` exports middleware function
 - [x] CSP header includes nonce placeholders
 - [x] x-nonce header is set
 - [x] No unsafe-inline or unsafe-eval in CSP
@@ -202,7 +202,7 @@ curl -I $BASE_URL/_dev/test-checkout  # Expected: 404
 ### If CSP Breaks Stripe/Supabase
 
 ```typescript
-// proxy.ts - Temporarily disable CSP
+// middleware.ts - Temporarily disable CSP
 export default async function proxy(request: NextRequest) {
   const response = await updateSession(request)
   // Comment out CSP logic
@@ -214,7 +214,7 @@ export default async function proxy(request: NextRequest) {
 ### If CSP Breaks Custom Scripts
 
 1. Identify the script source domain
-2. Add to `script-src` directive in proxy.ts
+2. Add to `script-src` directive in middleware.ts
 3. Redeploy container
 
 ### Emergency Rollback (Complete)
@@ -291,12 +291,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check proxy.ts exists
-        run: test -f proxy.ts
+      - name: Check middleware.ts exists
+        run: test -f middleware.ts
 
       - name: Verify no unsafe-inline in CSP
         run: |
-          if grep -r "unsafe-inline" proxy.ts; then
+          if grep -r "unsafe-inline" middleware.ts; then
             echo "❌ FAIL: unsafe-inline found in CSP"
             exit 1
           fi
@@ -304,7 +304,7 @@ jobs:
 
       - name: Verify nonce generation
         run: |
-          if grep -q "crypto.getRandomValues" proxy.ts; then
+          if grep -q "crypto.getRandomValues" middleware.ts; then
             echo "✅ PASS: Cryptographic nonce generation found"
           else
             echo "❌ FAIL: No nonce generation"
@@ -353,7 +353,7 @@ Add to deployment workflow:
 ### Updated Files
 
 1. **CONTAINER_SECURITY_CONTROLS.md** - Already complete
-   - Layer 1: Application Runtime (proxy.ts)
+  - Layer 1: Application Runtime (middleware.ts)
    - CSP enforcement documented
    - Validation requirements listed
 
@@ -413,7 +413,7 @@ Add to deployment workflow:
 
 ### Q: Why not use middleware.ts?
 
-**A**: Next.js 16 renamed middleware.ts to proxy.ts. Using both causes build error. proxy.ts IS the middleware.
+**A**: Next.js uses middleware.ts as the entrypoint. Keep CSP logic there to avoid drift.
 
 ### Q: How do we know CSP executes?
 

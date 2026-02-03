@@ -33,13 +33,13 @@ Implemented production-grade structured logging with request correlation IDs for
 
 - Request-aware logger for API routes
 - Functions: `createRequestLogger(request)`, `enrichLogger()`, `sanitizeError()`
-- Extracts correlation ID from `x-correlation-id` header (injected by proxy.ts)
+- Extracts correlation ID from `x-correlation-id` header (injected by middleware.ts)
 - All logs include: `request_id`, `org_id`, `user_id`, `route`, `method`
 - Usage: `const logger = createRequestLogger(request)`
 
 ### Request Correlation Flow
 
-1. **Entry Point** (`proxy.ts`):
+1. **Entry Point** (`middleware.ts`):
    - Generates `x-correlation-id` header via `crypto.randomUUID()`
    - Injects header into all incoming requests
 

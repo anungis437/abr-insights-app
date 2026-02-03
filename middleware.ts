@@ -59,18 +59,42 @@ export async function middleware(request: NextRequest) {
     .replace(/\s{2,}/g, ' ')
     .trim()
 
-  // Set security headers
-  response.headers.set('Content-Security-Policy', cspHeader)
-  response.headers.set('x-nonce', nonce)
-
-  // Inject correlation ID into response headers (P0 observability)
-  response.headers.set('x-correlation-id', correlationId)
-
-  // Make correlation ID available to API routes via request headers
+  // Make correlation ID and nonce available to server components via request headers
   const requestHeaders = new Headers(request.headers)
   requestHeaders.set('x-correlation-id', correlationId)
+  requestHeaders.set('x-nonce', nonce)
 
-  return response
+  const isRedirect = response.status >= 300 && response.status < 400
+  if (isRedirect) {
+    response.headers.set('Content-Security-Policy', cspHeader)
+    response.headers.set('x-nonce', nonce)
+    response.headers.set('x-correlation-id', correlationId)
+    return response
+  }
+
+  const finalResponse = NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  })
+
+  response.cookies.getAll().forEach((cookie) => {
+    finalResponse.cookies.set(cookie)
+  })
+
+  response.headers.forEach((value, key) => {
+    if (key.toLowerCase() === 'set-cookie') return
+    finalResponse.headers.set(key, value)
+  })
+
+  // Set security headers
+  finalResponse.headers.set('Content-Security-Policy', cspHeader)
+  finalResponse.headers.set('x-nonce', nonce)
+
+  // Inject correlation ID into response headers (P0 observability)
+  finalResponse.headers.set('x-correlation-id', correlationId)
+
+  return finalResponse
 }
 
 export const config = {

@@ -5,7 +5,7 @@
 **Platform**: Azure Container Apps (Node.js server runtime)  
 **Container URL**: `https://abr-insights-app.thankfulsea-568c2dd6.eastus.azurecontainerapps.io`  
 **Runtime**: Next.js standalone server in Docker container  
-**CSP Implementation**: proxy.ts executes on every HTTP request
+**CSP Implementation**: middleware.ts executes on every HTTP request
 
 See: [CONTAINER_SECURITY_CONTROLS.md](./CONTAINER_SECURITY_CONTROLS.md) for complete security architecture
 
@@ -15,14 +15,14 @@ See: [CONTAINER_SECURITY_CONTROLS.md](./CONTAINER_SECURITY_CONTROLS.md) for comp
 
 ### Current CSP Configuration
 
-**Location**: Dynamic CSP headers via Next.js 16 proxy pattern
+**Location**: Dynamic CSP headers via Next.js middleware
 
-**Entrypoint**: `proxy.ts` (Next.js 16 uses proxy.ts as middleware entrypoint)
+**Entrypoint**: `middleware.ts`
 
 **Implementation**: Nonce-based CSP with per-request cryptographic nonces
 
 ```typescript
-// Generated dynamically per request in proxy.ts
+// Generated dynamically per request in middleware.ts
 Content-Security-Policy:
   default-src 'self';
   script-src 'self' 'nonce-<random-per-request>' https://js.stripe.com https://cdn.jsdelivr.net;
@@ -44,13 +44,13 @@ Content-Security-Policy:
 
 - ✅ NO `unsafe-inline` in script-src or style-src
 - ✅ Cryptographic nonces generated per request (Web Crypto API)
-- ✅ CSP enforced dynamically at proxy middleware layer
+- ✅ CSP enforced dynamically at middleware layer
 - ✅ Meets enterprise security standards (SOC2, OWASP)
 - ✅ Dev routes (`/_dev`) blocked in production
 
 **Architecture**:
 
-- `proxy.ts` - Next.js 16 entrypoint with CSP nonce generation + header injection
+- `middleware.ts` - Entrypoint with CSP nonce generation + header injection
 - `app/layout.tsx` - Nonce retrieval (available for inline usage if needed)
 
 **Current State**:

@@ -12,7 +12,7 @@
 
 **Evidence**: Awaiting first application deployment and header capture
 
-**Wiring**: `proxy.ts` (Next.js 16 entrypoint) → CSP generation → All routes covered
+**Wiring**: `middleware.ts` → CSP generation → All routes covered
 
 **See**: [CONTAINER_SECURITY_CONTROLS.md](CONTAINER_SECURITY_CONTROLS.md) for complete security architecture
 
@@ -61,11 +61,11 @@ x-correlation-id: <uuid>
 
 ### ✅ Condition 1: CSP Header on Every HTML Response
 
-**Implementation**: proxy.ts (Next.js 16 proxy pattern)
+**Implementation**: middleware.ts (Next.js middleware)
 
-**Entrypoint**: proxy.ts is the Next.js 16 entrypoint that replaced middleware.ts
+**Entrypoint**: middleware.ts is the Next.js middleware entrypoint
 
-**Scope**: proxy.ts lines 63-78 define matcher that covers **ALL routes** except static assets:
+**Scope**: middleware.ts lines 63-78 define matcher that covers **ALL routes** except static assets:
 
 ```typescript
 export const config = {
@@ -109,11 +109,11 @@ export const config = {
 
 **Key Observation**: ✅ **No `Content-Security-Policy` defined in static config**
 
-**Result**: Dynamic CSP from `proxy.ts` is NOT overwritten. Edge headers are complementary, not conflicting.
+**Result**: Dynamic CSP from `middleware.ts` is NOT overwritten. Edge headers are complementary, not conflicting.
 
 **Azure SWA Header Precedence**: When a header is set by both:
 
-1. Application code (proxy.ts) - **Takes precedence**
+1. Application code (middleware.ts) - **Takes precedence**
 2. Static config (staticwebapp.config.json) - Used as fallback
 
 Since we don't define CSP in static config, the dynamic header always wins.
@@ -122,7 +122,7 @@ Since we don't define CSP in static config, the dynamic header always wins.
 
 ### ✅ Condition 3: Nonce Propagation is Real (End-to-End)
 
-**Step 1: Generation** (`proxy.ts` lines 20-23)
+**Step 1: Generation** (`middleware.ts` lines 20-23)
 
 ```typescript
 const nonceBuffer = new Uint8Array(16)
@@ -134,7 +134,7 @@ const nonce = btoa(String.fromCharCode(...nonceBuffer))
 - 16 bytes = 128 bits of entropy
 - Base64 encoded for header transmission
 
-**Step 2: CSP Header** (`proxy.ts` lines 33-51)
+**Step 2: CSP Header** (`middleware.ts` lines 33-51)
 
 ```typescript
 const cspHeader = `
@@ -220,7 +220,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
 ### ✅ Condition 5: Stripe/Supabase/Connect-src Complete
 
-**Current CSP Connect-src** (`proxy.ts` line 42):
+**Current CSP Connect-src** (`middleware.ts` line 42):
 
 ```typescript
 connect-src 'self' https://*.supabase.co https://*.upstash.io https://api.stripe.com;
@@ -354,7 +354,7 @@ For auditors who prefer browser-based proof:
 To prove CSP violations are caught in production, you can add a `report-uri` directive:
 
 ```typescript
-// In proxy.ts, add to cspHeader:
+// In middleware.ts, add to cspHeader:
 report-uri https://yourdomain.com/api/csp-violations;
 ```
 
@@ -421,7 +421,7 @@ This demonstrates **active CSP monitoring** for questionnaires asking "How do yo
 ## References
 
 - **Primary Documentation**: `CSP_HARDENING_ROADMAP.md` (implementation details, migration timeline)
-- **Implementation**: `proxy.ts` lines 1-78 (CSP generation and header injection)
+- **Implementation**: `middleware.ts` lines 1-78 (CSP generation and header injection)
 - **Consumption**: `app/layout.tsx` lines 95-103 (nonce retrieval)
 - **Configuration**: `staticwebapp.config.json` (static headers, no CSP conflict)
 
