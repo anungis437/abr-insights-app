@@ -151,6 +151,7 @@ export async function POST(request: NextRequest) {
    ```
 
 4. **Test code analysis:**
+
    ```bash
    curl -X POST http://localhost:3000/api/codespring/analyze \
      -H "Content-Type: application/json" \

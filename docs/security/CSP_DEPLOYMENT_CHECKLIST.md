@@ -116,9 +116,9 @@ Example documentation update:
 **Evidence**:
 ```
 
-$ curl -I https://purple-ground-03d2b380f.5.azurestaticapps.net/
+$ curl -I <https://purple-ground-03d2b380f.5.azurestaticapps.net/>
 HTTP/2 200
-content-security-policy: default-src 'self'; script-src 'self' 'nonce-ABC123XYZ...' https://js.stripe.com; ...
+content-security-policy: default-src 'self'; script-src 'self' 'nonce-ABC123XYZ...' <https://js.stripe.com>; ...
 x-nonce: ABC123XYZ...
 x-correlation-id: 12345678-1234-1234-1234-123456789abc
 

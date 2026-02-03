@@ -10,7 +10,7 @@ Login failing with 401 error: "Failed to load resource: the server responded wit
 
 ### Step 1: Verify/Update API Keys
 
-1. Go to Supabase Dashboard: https://supabase.com/dashboard/project/zdcmugkafbczvxcyofiz
+1. Go to Supabase Dashboard: <https://supabase.com/dashboard/project/zdcmugkafbczvxcyofiz>
 
 2. Click **Settings** → **API** in left sidebar
 
@@ -20,6 +20,7 @@ Login failing with 401 error: "Failed to load resource: the server responded wit
    - **.\* secret**: JWT token starting with `eyJ...`
 
 4. Update `.env.local` if keys are different:
+
    ```env
    NEXT_PUBLIC_SUPABASE_URL=***REMOVED***
    NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ... (your actual anon key)
@@ -30,7 +31,7 @@ Login failing with 401 error: "Failed to load resource: the server responded wit
 
 **Option A: Via Supabase Dashboard (Easiest)**
 
-1. Go to: https://supabase.com/dashboard/project/zdcmugkafbczvxcyofiz/auth/users
+1. Go to: <https://supabase.com/dashboard/project/zdcmugkafbczvxcyofiz/auth/users>
 
 2. Click **"Add User"** button (top right)
 
@@ -56,7 +57,7 @@ After creating the user, we need to create a matching profile:
 npx tsx --env-file=.env.local scripts/create-profile-for-user.ts super_admin@abr-insights.com super_admin
 ```
 
-Or manually via SQL Editor (https://supabase.com/dashboard/project/zdcmugkafbczvxcyofiz/sql/new):
+Or manually via SQL Editor (<https://supabase.com/dashboard/project/zdcmugkafbczvxcyofiz/sql/new>):
 
 ```sql
 -- Get the user ID from auth.users
@@ -82,7 +83,7 @@ npm run dev
 
 ### Step 5: Test Login
 
-1. Open: http://localhost:3001/auth/login
+1. Open: <http://localhost:3001/auth/login>
 2. Login with:
    - Email: `super_admin@abr-insights.com`
    - Password: `TestPass123!`
@@ -103,10 +104,10 @@ Once you have one working user, create others via Dashboard:
 
 | Email                       | Role               | Password     |
 | --------------------------- | ------------------ | ------------ |
-| learner@abr-insights.com    | learner            | TestPass123! |
-| educator@abr-insights.com   | educator           | TestPass123! |
-| analyst@abr-insights.com    | analyst            | TestPass123! |
-| compliance@abr-insights.com | compliance_officer | TestPass123! |
+| <learner@abr-insights.com>    | learner            | TestPass123! |
+| <educator@abr-insights.com>   | educator           | TestPass123! |
+| <analyst@abr-insights.com>    | analyst            | TestPass123! |
+| <compliance@abr-insights.com> | compliance_officer | TestPass123! |
 
 **Important**: Always enable **"Auto Confirm User"** when creating test users!
 

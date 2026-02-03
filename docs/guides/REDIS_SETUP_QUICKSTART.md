@@ -6,7 +6,7 @@
 
 Upstash is **free** for up to 10,000 requests/day and works perfectly with serverless deployments like Azure Static Web Apps.
 
-1. Visit https://upstash.com/
+1. Visit <https://upstash.com/>
 2. Sign up for free account
 3. Click "Create Database"
 4. Choose a name (e.g., `abr-insights-rate-limit`)
@@ -108,7 +108,7 @@ curl -I https://abrinsights.ca/api/ai/chat \
 
 ### Upstash Dashboard
 
-Visit https://console.upstash.com/ to see:
+Visit <https://console.upstash.com/> to see:
 
 - Total requests
 - Cache hit rate
@@ -187,6 +187,6 @@ REDIS_PASSWORD=your-primary-key
 
 ## Support
 
-- **Upstash Docs**: https://docs.upstash.com/
+- **Upstash Docs**: <https://docs.upstash.com/>
 - **Rate Limiting Details**: [REDIS_RATE_LIMITING_SETUP.md](REDIS_RATE_LIMITING_SETUP.md)
 - **Production Checklist**: [PRODUCTION_READINESS_FINAL.md](PRODUCTION_READINESS_FINAL.md)

@@ -58,10 +58,12 @@ if (!seatCheck.allowed) {
    - Returns `{ allowed: false, reason: "Seat limit reached" }`
 4. Line 85: `if (!seatCheck.allowed)` is TRUE
 5. Line 86-89: Error thrown with message:
+
    ```
    Your organization has reached its seat limit (10 members).
    Please upgrade your plan to add more team members.
    ```
+
 6. **Line 108 NEVER EXECUTES** - `profile.organization_id` is NOT updated
 7. User sees error message in UI
 8. Invite blocked successfully ✅

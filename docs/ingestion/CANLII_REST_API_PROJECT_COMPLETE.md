@@ -218,7 +218,7 @@ CanLII REST API (api.canlii.org/v1)
 
 ### ✅ Official REST API Integration
 
-- Uses CanLII REST API v1 (https://api.canlii.org/v1)
+- Uses CanLII REST API v1 (<https://api.canlii.org/v1>)
 - Eliminates fragile HTML parsing
 - Structured JSON responses with typed interfaces
 - Future-proof against website changes
@@ -467,7 +467,7 @@ runDatabaseDiscovery().then(mappings => console.table(mappings));
 1. Support team (documentation, known issues)
 2. Development team (code issues, API questions)
 3. DevOps team (environment, deployment issues)
-4. CanLII support (https://www.canlii.org/en/info/feedback)
+4. CanLII support (<https://www.canlii.org/en/info/feedback>)
 
 ### Contact Information
 

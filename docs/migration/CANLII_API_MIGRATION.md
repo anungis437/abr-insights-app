@@ -382,6 +382,7 @@ fs.writeFileSync('canlii-database-mapping.json', JSON.stringify(configMap, null,
    ```
 
 3. Verify all error codes work:
+
    ```bash
    npm run test:unit -- tests/ingestion-validation.spec.ts
    ```
@@ -548,6 +549,7 @@ Log levels:
    ```
 
 3. **Parallel Requests**
+
    ```typescript
    // Fetch from multiple tribunals in parallel
    const results = await Promise.all([
@@ -645,9 +647,9 @@ CanLII REST API not working?
 
 ### Support Channels
 
-- CanLII Feedback: https://www.canlii.org/en/info/feedback
+- CanLII Feedback: <https://www.canlii.org/en/info/feedback>
 - GitHub Issues: Report bugs or request features
-- Email: support@canlii.org (for API support)
+- Email: <support@canlii.org> (for API support)
 
 ---
 

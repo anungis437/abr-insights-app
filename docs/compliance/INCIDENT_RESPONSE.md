@@ -10,10 +10,10 @@ This document outlines ABR Insights App's incident response procedures for secur
 
 **Key Contacts**:
 
-- **Security Team**: security@abr-insights.com
+- **Security Team**: <security@abr-insights.com>
 - **On-Call Engineer**: PagerDuty escalation
-- **Compliance Officer**: compliance@abr-insights.com
-- **Legal**: legal@abr-insights.com
+- **Compliance Officer**: <compliance@abr-insights.com>
+- **Legal**: <legal@abr-insights.com>
 
 ## Incident Classification
 

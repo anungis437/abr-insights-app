@@ -14,7 +14,7 @@ The original migration 021 tried to create functions in the `auth` schema, but S
 
 ### 1. Open Supabase SQL Editor
 
-Go to: **https://supabase.com/dashboard/project/zdcmugkafbczvxcyofiz/sql**
+Go to: **<https://supabase.com/dashboard/project/zdcmugkafbczvxcyofiz/sql>**
 
 ### 2. Apply Migration 021 V2 (Permission Functions)
 
@@ -236,7 +236,7 @@ Expected: **29 tests pass** ✅
 npm run dev
 ```
 
-Visit: **http://localhost:3000/admin/permissions-management**
+Visit: **<http://localhost:3000/admin/permissions-management>**
 
 - ✓ Permission matrix loads
 - ✓ Search and filter work

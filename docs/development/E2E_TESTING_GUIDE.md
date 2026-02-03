@@ -56,7 +56,7 @@ npm run dev
 
 ### Step 1: Verify Current State (FREE tier)
 
-1. Navigate to http://localhost:3000/test-checkout
+1. Navigate to <http://localhost:3000/test-checkout>
 2. Confirm current entitlements show:
    - Tier: FREE
    - AI Assistant: ❌ No
@@ -65,8 +65,8 @@ npm run dev
    - Max Courses: 3
 
 3. Try accessing restricted features:
-   - http://localhost:3000/ai-assistant → Should redirect to /pricing
-   - http://localhost:3000/admin/risk-heatmap → Export buttons disabled
+   - <http://localhost:3000/ai-assistant> → Should redirect to /pricing
+   - <http://localhost:3000/admin/risk-heatmap> → Export buttons disabled
 
 ### Step 2: Test Professional Upgrade
 
@@ -88,6 +88,7 @@ npm run dev
    ```
 
 5. Check webhook processing logs in Terminal 2 for:
+
    ```
    [WEBHOOK] Event received: checkout.session.completed
    [WEBHOOK] Creating organization subscription...
@@ -97,7 +98,7 @@ npm run dev
 
 ### Step 3: Verify Database Updates
 
-#### Check organization_subscriptions table:
+#### Check organization_subscriptions table
 
 ```sql
 SELECT
@@ -122,7 +123,7 @@ LIMIT 1;
 - seats_used: `1`
 - stripe_subscription_id: `sub_xxxxx`
 
-#### Check seat_allocations table:
+#### Check seat_allocations table
 
 ```sql
 SELECT
@@ -178,7 +179,7 @@ curl -H "Authorization: Bearer YOUR_TOKEN" \
 
 ### Step 5: Verify UI Feature Unlocks
 
-Refresh http://localhost:3000/test-checkout and verify:
+Refresh <http://localhost:3000/test-checkout> and verify:
 
 - ✅ Tier shows: PROFESSIONAL
 - ✅ AI Assistant: ✅ Yes

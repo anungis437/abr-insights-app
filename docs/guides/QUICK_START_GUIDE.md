@@ -8,7 +8,7 @@ The **500 Internal Server Error** during login is because database migrations ha
 
 #### Option A: Using Supabase Dashboard (Recommended)
 
-1. Go to your Supabase dashboard: https://supabase.com/dashboard
+1. Go to your Supabase dashboard: <https://supabase.com/dashboard>
 2. Select your project: `YOUR-PROJECT-REF`
 3. Navigate to **SQL Editor**
 4. Run migrations in order:
@@ -98,7 +98,7 @@ This is a Next.js 15 deprecation warning. Can be fixed later by moving `themeCol
 ## Testing the ML Features
 
 1. **Login** with `super_admin@abr-insights.com` / `TestPass123!`
-2. **Navigate to** http://localhost:3000/admin/ml
+2. **Navigate to** <http://localhost:3000/admin/ml>
 3. **Verify** all 4 tabs load:
    - Embeddings Management
    - Semantic Search Test
@@ -106,6 +106,7 @@ This is a Next.js 15 deprecation warning. Can be fixed later by moving `themeCol
    - Analytics Dashboard
 
 4. **Generate embeddings:**
+
    ```powershell
    npx tsx --env-file=.env.local scripts/generate-initial-embeddings.ts --type=all
    ```

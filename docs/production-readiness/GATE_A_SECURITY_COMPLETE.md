@@ -154,7 +154,7 @@ git log --all --full-history -S "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
 
 **Required Steps**:
 
-1. Login to Supabase Dashboard: https://supabase.com/dashboard
+1. Login to Supabase Dashboard: <https://supabase.com/dashboard>
 2. Navigate to: Project Settings → API
 3. Click "Generate New JWT Secret"
 4. Regenerate both keys:

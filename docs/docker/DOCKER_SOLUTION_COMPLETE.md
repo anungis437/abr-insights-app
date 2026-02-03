@@ -23,6 +23,7 @@
 **Windows PowerShell**:
 
 - [docker-build.ps1](docker-build.ps1) - One-command build script
+
   ```powershell
   .\docker-build.ps1 -Clean -Extract
   ```
@@ -30,6 +31,7 @@
 **Linux/macOS/WSL**:
 
 - [docker-build.sh](docker-build.sh) - Cross-platform bash script
+
   ```bash
   ./docker-build.sh --clean --extract
   ```

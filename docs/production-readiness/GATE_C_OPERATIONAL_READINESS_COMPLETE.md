@@ -409,9 +409,9 @@ env: {
 
 | Environment     | Purpose                | URL                            | Supabase Project   |
 | --------------- | ---------------------- | ------------------------------ | ------------------ |
-| **Development** | Local dev              | http://localhost:3000          | Dev project        |
-| **Staging**     | Pre-production testing | https://staging.abrinsights.ca | Staging project    |
-| **Production**  | Live users             | https://app.abrinsights.ca     | Production project |
+| **Development** | Local dev              | <http://localhost:3000>          | Dev project        |
+| **Staging**     | Pre-production testing | <https://staging.abrinsights.ca> | Staging project    |
+| **Production**  | Live users             | <https://app.abrinsights.ca>     | Production project |
 
 ### Separation Mechanisms
 

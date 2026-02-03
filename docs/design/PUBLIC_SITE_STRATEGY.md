@@ -24,7 +24,7 @@ This document defines the visual design strategy, asset sourcing, typography, co
 
 **Font Family**: Poppins (Google Fonts)
 **License**: Open Font License (OFL) - Free for commercial use
-**Source**: https://fonts.google.com/specimen/Poppins
+**Source**: <https://fonts.google.com/specimen/Poppins>
 
 **Rationale**:
 
@@ -150,21 +150,21 @@ body {
 
 **Primary Sources**:
 
-1. **Unsplash** (https://unsplash.com)
+1. **Unsplash** (<https://unsplash.com>)
    - License: Unsplash License (Free for commercial use)
    - Focus: High-quality, professional photos
    - Categories to search: diversity, education, workplace, collaboration, justice, learning
 
-2. **Pexels** (https://pexels.com)
+2. **Pexels** (<https://pexels.com>)
    - License: Pexels License (Free for commercial use)
    - Focus: Diverse, inclusive imagery
    - Categories: business, education, diversity, teamwork, professional
 
-3. **Pixabay** (https://pixabay.com)
+3. **Pixabay** (<https://pixabay.com>)
    - License: Pixabay License (Free for commercial use)
    - Good for: Illustrations, graphics, supplementary images
 
-4. **StockSnap.io** (https://stocksnap.io)
+4. **StockSnap.io** (<https://stocksnap.io>)
    - License: CC0 Public Domain
    - Focus: Modern, clean imagery
 
@@ -180,18 +180,18 @@ body {
 
 ### Iconography
 
-**Primary Icon Library**: Heroicons (https://heroicons.com)
+**Primary Icon Library**: Heroicons (<https://heroicons.com>)
 
 - **License**: MIT License (Free for commercial use)
 - **Styles**: Outline (default), Solid (emphasis)
 - **Format**: SVG
 - **Usage**: Navigation, feature lists, UI elements
 
-**Alternative**: Lucide Icons (https://lucide.dev) - MIT License
+**Alternative**: Lucide Icons (<https://lucide.dev>) - MIT License
 
 ### Illustrations
 
-**Primary Source**: unDraw (https://undraw.co)
+**Primary Source**: unDraw (<https://undraw.co>)
 
 - **License**: Open-source, free for commercial use
 - **Customization**: Recolor to match brand colors
@@ -199,9 +199,9 @@ body {
 
 **Alternative Sources**:
 
-- **Storyset** (https://storyset.com) - Free with attribution
-- **DrawKit** (https://drawkit.com) - Free & paid options
-- **Blush** (https://blush.design) - Free & paid collections
+- **Storyset** (<https://storyset.com>) - Free with attribution
+- **DrawKit** (<https://drawkit.com>) - Free & paid options
+- **Blush** (<https://blush.design>) - Free & paid collections
 
 ---
 
@@ -457,7 +457,7 @@ xl: 1280px  /* Extra large devices */
 
 ### Scroll Animations
 
-**Library**: AOS (Animate On Scroll) - https://michalsnik.github.io/aos/
+**Library**: AOS (Animate On Scroll) - <https://michalsnik.github.io/aos/>
 
 - **License**: MIT
 - **Usage**: Fade-in, slide-in effects for content sections
@@ -572,18 +572,18 @@ All text meets minimum contrast ratios:
 
 ### Static Site Generator
 
-**Next.js** (https://nextjs.org)
+**Next.js** (<https://nextjs.org>)
 
 - Static site generation (SSG) for marketing pages
 - Image optimization built-in
 - Fast performance
 - SEO-friendly
 
-**Alternative**: Astro (https://astro.build) - Ultra-fast, component-agnostic
+**Alternative**: Astro (<https://astro.build>) - Ultra-fast, component-agnostic
 
 ### Styling
 
-**Tailwind CSS** (https://tailwindcss.com)
+**Tailwind CSS** (<https://tailwindcss.com>)
 
 - Utility-first CSS framework
 - Poppins integration via config
@@ -767,27 +767,27 @@ public/
 
 ### Fonts
 
-- **Poppins**: https://fonts.google.com/specimen/Poppins (OFL License)
+- **Poppins**: <https://fonts.google.com/specimen/Poppins> (OFL License)
 
 ### Images
 
-- **Unsplash**: https://unsplash.com (Free license)
-- **Pexels**: https://pexels.com (Free license)
-- **Pixabay**: https://pixabay.com (Free license)
+- **Unsplash**: <https://unsplash.com> (Free license)
+- **Pexels**: <https://pexels.com> (Free license)
+- **Pixabay**: <https://pixabay.com> (Free license)
 
 ### Icons
 
-- **Heroicons**: https://heroicons.com (MIT License)
-- **Lucide**: https://lucide.dev (MIT License)
+- **Heroicons**: <https://heroicons.com> (MIT License)
+- **Lucide**: <https://lucide.dev> (MIT License)
 
 ### Illustrations
 
-- **unDraw**: https://undraw.co (Open-source)
-- **Storyset**: https://storyset.com (Free with attribution)
+- **unDraw**: <https://undraw.co> (Open-source)
+- **Storyset**: <https://storyset.com> (Free with attribution)
 
 ### Animations
 
-- **AOS**: https://michalsnik.github.io/aos/ (MIT License)
+- **AOS**: <https://michalsnik.github.io/aos/> (MIT License)
 
 ---
 

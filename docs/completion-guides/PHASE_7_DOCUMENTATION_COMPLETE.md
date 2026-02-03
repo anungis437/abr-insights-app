@@ -355,7 +355,7 @@ A: Yes! See "Phased Rollout" in `DEPLOYMENT_CHECKLIST.md` - test one tribunal fi
 A: No. Web scraper remains available as fallback. Both can run in parallel. See "Gradual Migration Support".
 
 **Q6: How do I report API issues?**
-A: Contact CanLII support: https://www.canlii.org/en/info/feedback
+A: Contact CanLII support: <https://www.canlii.org/en/info/feedback>
 
 **Q7: How often should we run health checks?**
 A: Daily in production. See "Monitoring" section in `DEPLOYMENT_CHECKLIST.md`.
@@ -493,9 +493,9 @@ A: Daily in production. See "Monitoring" section in `DEPLOYMENT_CHECKLIST.md`.
 
 ### CanLII Resources
 
-- API Documentation: https://api.canlii.org/docs
-- CanLII Website: https://www.canlii.org
-- Feedback/Support: https://www.canlii.org/en/info/feedback
+- API Documentation: <https://api.canlii.org/docs>
+- CanLII Website: <https://www.canlii.org>
+- Feedback/Support: <https://www.canlii.org/en/info/feedback>
 
 ### Internal Resources
 

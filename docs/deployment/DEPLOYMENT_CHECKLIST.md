@@ -4,7 +4,7 @@
 
 ### Environment Setup (15 minutes)
 
-- [ ] Request CanLII API key from https://www.canlii.org/en/info/feedback
+- [ ] Request CanLII API key from <https://www.canlii.org/en/info/feedback>
 - [ ] Receive API key confirmation email
 - [ ] Verify key format (alphanumeric string, typically 32+ characters)
 - [ ] Add key to `.env.local` for local testing
@@ -28,26 +28,37 @@
 ### Testing (1 hour)
 
 - [ ] Unit tests pass locally
+
   ```bash
   npm run test:unit tests/ingestion-*.spec.ts
   ```
+
 - [ ] TypeScript compilation passes
+
   ```bash
   npm run type-check
   ```
+
 - [ ] No ESLint errors
+
   ```bash
   npm run lint
   ```
+
 - [ ] Live API tests pass with valid key
+
   ```bash
   CANLII_API_KEY=your-key npm run test:unit tests/ingestion-canlii-api.spec.ts
   ```
+
 - [ ] Database discovery works
+
   ```bash
   CANLII_API_KEY=your-key node scripts/discover-canlii-databases.mjs
   ```
+
 - [ ] Health check passes
+
   ```bash
   CANLII_API_KEY=your-key npm run ingest -- --health-check
   ```
@@ -85,6 +96,7 @@
 - [ ] Set `CANLII_API_ENABLED=true` in staging
 - [ ] Set other ENV variables in staging
 - [ ] Verify environment configuration
+
   ```bash
   npm run ingest -- --validate-config
   ```
@@ -93,6 +105,7 @@
 
 - [ ] Select one tribunal for initial test (e.g., HRTO - `onhrt`)
 - [ ] Configure source to use REST API mode
+
   ```typescript
   {
     apiMode: 'rest',
@@ -100,10 +113,13 @@
     enabled: true,
   }
   ```
+
 - [ ] Run ingestion pipeline
+
   ```bash
   npm run ingest -- onhrt --source-type canlii
   ```
+
 - [ ] Verify case discovery
   - [ ] Cases discovered successfully
   - [ ] Correct number of cases (compare with legacy scraper)
@@ -113,9 +129,11 @@
 ### Data Validation
 
 - [ ] Check database for new cases
+
   ```sql
   SELECT COUNT(*) FROM decisions WHERE source = 'canlii_api'
   ```
+
 - [ ] Compare metadata with web scraper results
   - [ ] Titles match
   - [ ] Citations match
@@ -129,9 +147,11 @@
 ### Performance Testing
 
 - [ ] Measure ingestion time
+
   ```bash
   time npm run ingest -- onhrt --source-type canlii
   ```
+
 - [ ] Monitor memory usage
   - [ ] Should not exceed 500MB
   - [ ] Should not have memory leaks (run multiple times)
@@ -185,6 +205,7 @@
   - [ ] No data loss on rollback
 - [ ] Document rollback steps
 - [ ] Test rollback procedure in staging
+
   ```typescript
   apiMode: 'scrape',  // Switch back
   listingUrl: 'https://www.canlii.org/en/on/onhr/'
@@ -221,17 +242,21 @@ For each tribunal, complete the following steps:
   - [ ] No ESLint errors
   - [ ] All modules load correctly
 - [ ] Run health check
+
   ```bash
   npm run ingest -- --health-check
   ```
+
 - [ ] Expected: ✅ All checks pass
 
 **Step 2: Initial Data Sync (1-2 hours)**
 
 - [ ] Run first ingestion
+
   ```bash
   npm run ingest -- {tribunal} --source-type canlii
   ```
+
 - [ ] Monitor ingestion process
   - [ ] Check logs for errors
   - [ ] Verify case discovery
@@ -263,6 +288,7 @@ For each tribunal, complete the following steps:
 
 - [ ] Verify REST API working well for 24+ hours
 - [ ] Update configuration
+
   ```typescript
   apiMode: 'rest',  // Use REST API
   enabled: true,
@@ -270,6 +296,7 @@ For each tribunal, complete the following steps:
   // apiMode: 'scrape',
   // listingUrl: ...,
   ```
+
 - [ ] Deploy changes
 - [ ] Verify no regression
 - [ ] Expected: ✅ Using only REST API
@@ -387,6 +414,7 @@ For each tribunal, complete the following steps:
    ```
 
 4. **Verify**
+
    ```bash
    npm run ingest -- --health-check
    ```

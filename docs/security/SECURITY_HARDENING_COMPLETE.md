@@ -62,7 +62,7 @@ if (!allowedRoles.includes(profile.role)) {
 **Risk**: Production code would fail for real tenants, audit compliance issues  
 **Solution**: Replaced all placeholders with authenticated session context
 
-#### Files Updated:
+#### Files Updated
 
 1. **app/admin/evidence-bundles/page.tsx**
    - Before: `const orgId = 'demo-org-id'`
@@ -118,7 +118,7 @@ const { data: profile } = await supabase
 **Risk**: Logs not dev-suppressed, potential PII leakage, audit trail gaps  
 **Solution**: Replaced `console.*` with `logger.*` in critical services
 
-#### Services Updated:
+#### Services Updated
 
 - **lib/services/audit-logger.ts**: `console.error` → `logger.error`
 - **lib/services/ce-credits.ts**: Added logger import + replaced all `console.*`
@@ -161,14 +161,14 @@ logger.debug('[Service Name] Debug:', details) // Dev-only
 
 ## Compliance Impact
 
-### PIPEDA/SOC2 Compliance:
+### PIPEDA/SOC2 Compliance
 
 - ✅ **Access Control**: Server-side RBAC enforcement at route level
 - ✅ **Data Isolation**: No demo IDs, real tenant context everywhere
 - ✅ **Audit Trail**: Structured logging with dev suppression
 - ✅ **Least Privilege**: Service-role client protected from client bundle
 
-### Security Review Readiness:
+### Security Review Readiness
 
 - ✅ **No exposed dev surfaces**: All `_dev` routes gated
 - ✅ **RBAC at every layer**: API + Route + RLS
@@ -179,21 +179,21 @@ logger.debug('[Service Name] Debug:', details) // Dev-only
 
 ## Verification
 
-### TypeScript Compilation:
+### TypeScript Compilation
 
 ```bash
 npm run type-check
 # ✅ PASS (no errors)
 ```
 
-### Prettier Formatting:
+### Prettier Formatting
 
 ```bash
 npm run format -- --write
 # ✅ PASS (CI-ready)
 ```
 
-### Production Readiness:
+### Production Readiness
 
 - ✅ Dev routes return 404 in `NODE_ENV=production`
 - ✅ Admin layout blocks unauthorized roles
@@ -239,7 +239,7 @@ npm run format -- --write
 1. Test `/app/_dev/test-checkout` in production → Should redirect to 404
 2. Test admin access as non-admin user → Should redirect to dashboard
 3. Test evidence bundles page → Should use real org ID (no demo-org-id)
-4. Check production logs → Should only see logger._ output (no console._)
+4. Check production logs → Should only see logger._output (no console._)
 
 ✅ **Monitoring**:
 

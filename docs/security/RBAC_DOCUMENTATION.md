@@ -188,15 +188,15 @@ Migration 016 creates comprehensive test accounts:
 
 | Email                         | Role               | Full Name          | Password     |
 | ----------------------------- | ------------------ | ------------------ | ------------ |
-| super_admin@abr-insights.com  | super_admin        | Super Admin User   | TestPass123! |
-| compliance@abr-insights.com   | compliance_officer | Compliance Officer | TestPass123! |
-| orgadmin@abr-insights.com     | org_admin          | Organization Admin | TestPass123! |
-| analyst@abr-insights.com      | analyst            | Data Analyst       | TestPass123! |
-| investigator@abr-insights.com | investigator       | Case Investigator  | TestPass123! |
-| educator@abr-insights.com     | educator           | Course Educator    | TestPass123! |
-| learner@abr-insights.com      | learner            | Student Learner    | TestPass123! |
-| viewer@abr-insights.com       | viewer             | Read Only Viewer   | TestPass123! |
-| guest@abr-insights.com        | guest              | Guest User         | TestPass123! |
+| <super_admin@abr-insights.com>  | super_admin        | Super Admin User   | TestPass123! |
+| <compliance@abr-insights.com>   | compliance_officer | Compliance Officer | TestPass123! |
+| <orgadmin@abr-insights.com>     | org_admin          | Organization Admin | TestPass123! |
+| <analyst@abr-insights.com>      | analyst            | Data Analyst       | TestPass123! |
+| <investigator@abr-insights.com> | investigator       | Case Investigator  | TestPass123! |
+| <educator@abr-insights.com>     | educator           | Course Educator    | TestPass123! |
+| <learner@abr-insights.com>      | learner            | Student Learner    | TestPass123! |
+| <viewer@abr-insights.com>       | viewer             | Read Only Viewer   | TestPass123! |
+| <guest@abr-insights.com>        | guest              | Guest User         | TestPass123! |
 
 **Note:** Test accounts must be created via Supabase Dashboard Auth panel or by running migration 016.
 

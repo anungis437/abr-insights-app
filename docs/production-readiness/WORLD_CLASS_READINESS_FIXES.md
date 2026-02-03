@@ -16,15 +16,19 @@ This document tracks the resolution of all P0 (Priority Zero) issues identified 
 **Root Cause**: Next.js requires middleware to be named `middleware.ts` (not `proxy.ts`) and export a function named `middleware` (not `proxy`).
 
 **Fix Applied**:
+
 1. ✅ Renamed `proxy.ts` → `middleware.ts`
 2. ✅ Changed export signature:
+
    ```typescript
    // Before: export default async function proxy(request: NextRequest)
    // After:  export async function middleware(request: NextRequest)
    ```
+
 3. ✅ Kept existing `export const config` matcher
 
 **Runtime Verification Checklist**:
+
 - [ ] Content-Security-Policy header present on HTML responses
 - [ ] x-nonce header present in responses
 - [ ] x-correlation-id header present in responses
@@ -44,18 +48,23 @@ Session management, CSP enforcement, correlation IDs, and route protection are n
 **Root Cause**: Mismatch between container orchestration expectations and actual API endpoints.
 
 **Fix Applied**:
+
 1. ✅ Updated `Dockerfile` HEALTHCHECK:
+
    ```dockerfile
    # Before: /api/health
    # After:  /api/healthz
    ```
+
 2. ✅ Updated `docker-compose.yml` healthcheck:
+
    ```yaml
    # Before: /api/health
    # After:  /api/healthz
    ```
 
 **Container Orchestration Guidance**:
+
 - **Liveness Probe**: Use `/api/healthz` (fast, process-alive check)
 - **Readiness Probe**: Use `/api/readyz` (includes DB/Redis checks)
 
@@ -68,19 +77,24 @@ Containers will no longer be incorrectly marked unhealthy or restarted when appl
 
 **Issue**: CSP includes `nonce-...` directives, but inline scripts/styles without nonces would be blocked.
 
-**Current State**: 
+**Current State**:
+
 - ✅ Middleware generates unique nonce per request
 - ✅ Nonce injected into CSP header
 - ✅ Nonce available via `x-nonce` header
 - ⚠️  **Action Required**: Validate no inline scripts/styles without nonce attributes
 
 **Next Steps**:
+
 1. Audit all pages for inline `<script>` or `<style>` tags
 2. Ensure Next.js `<Script>` components use nonce if needed:
+
    ```tsx
    <Script nonce={headers().get('x-nonce') || undefined}>
    ```
+
 3. Consider report-only mode during rollout:
+
    ```typescript
    // In middleware.ts, temporarily use:
    response.headers.set('Content-Security-Policy-Report-Only', cspHeader)
@@ -98,6 +112,7 @@ Nonce infrastructure is operational; runtime validation needed to confirm no bre
 **Issue**: `withMultipleRateLimits()` called `checkRateLimit()` twice - once for validation, once for headers - burning tokens twice.
 
 **Fix Applied**:
+
 ```typescript
 // Before: Re-checked limits after handler execution
 const results = await Promise.all(
@@ -120,6 +135,7 @@ In-memory rate limiting now correctly consumes tokens only once. Note: Productio
 **Issue**: `guardedRoute` comments suggested rate limiting support, but it was never implemented.
 
 **Fix Applied**:
+
 ```typescript
 /**
  * Composeable guard with all options
@@ -146,10 +162,12 @@ Documentation now accurately reflects implementation.
 ### P1-3: Middleware vs next.config.js Security Headers ✅
 
 **Current Strategy**:
+
 - ✅ **Static headers** (HSTS, X-Frame-Options, Referrer-Policy) → `next.config.js`
 - ✅ **Dynamic headers** (CSP with nonce, correlation ID) → `middleware.ts`
 
-**Rationale**: 
+**Rationale**:
+
 - Static headers are predictable and benefit from Next.js optimization
 - CSP requires per-request nonce generation (must be in middleware)
 
@@ -163,6 +181,7 @@ Current approach is architecturally sound.
 **Issue**: `staticwebapp.config.json` exists but is marked deprecated; could confuse team.
 
 **Current State**:
+
 - File contains deprecation notice
 - Team has migrated to Azure Container Apps
 - Config is not actively processed
@@ -178,14 +197,17 @@ Not a blocker; housekeeping improvement.
 ## P2 Enhancements (Future)
 
 ### 1. CSP Report Endpoint
+
 **Status**: Not implemented  
 **Recommendation**: Add `/api/csp-report` for CSP violation monitoring during rollout.
 
 ### 2. Dependency Scanning
+
 **Status**: Partial (npm audit in workflows)  
 **Recommendation**: Add OSV-Scanner or Dependabot for comprehensive CVE tracking.
 
 ### 3. Distributed Tracing
+
 **Status**: Correlation IDs implemented  
 **Recommendation**: Integrate Sentry or OpenTelemetry for production observability.
 
@@ -194,6 +216,7 @@ Not a blocker; housekeeping improvement.
 ## Verification Commands
 
 ### Local Development
+
 ```bash
 # Verify middleware is active
 npm run dev
@@ -205,6 +228,7 @@ curl http://localhost:3000/api/readyz
 ```
 
 ### Container Verification
+
 ```bash
 # Build and test container
 docker build -t abr-insights-app:test .
@@ -215,6 +239,7 @@ docker inspect --format='{{.State.Health.Status}}' <container-id>
 ```
 
 ### Production Smoke Tests
+
 ```bash
 # After deployment, verify security headers
 curl -I https://your-production-domain.com | grep Content-Security-Policy

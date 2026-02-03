@@ -267,6 +267,7 @@ logger.error('Failed to send notification email', {
 ```
 
 **Changes**:
+
 | Directive | Before | After | Impact |
 |-----------|--------|-------|--------|
 | `script-src` | `'unsafe-eval'` | Removed | Blocks arbitrary code execution |

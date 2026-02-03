@@ -117,9 +117,11 @@ Continuing Phase 3 implementation - integrating permission-based RLS policies in
 
 1. Added `PermissionGate` import
 2. Wrapped "Create Course" button with:
+
    ```tsx
    <PermissionGate permissions={['courses.create', 'courses.manage']}>
    ```
+
 3. Wrapped course action buttons:
    - Edit button: `permissions={['courses.update', 'courses.manage']}`
    - Publish/Unpublish button: `permissions={['courses.publish', 'courses.manage']}`
@@ -133,10 +135,13 @@ Continuing Phase 3 implementation - integrating permission-based RLS policies in
 1. Added `PermissionGate` import from `@/components/shared/PermissionGate`
 2. Removed legacy permission system (50+ lines of hardcoded DEFAULT_PERMISSIONS)
 3. Wrapped "Edit Role" button with:
+
    ```tsx
    <PermissionGate permissions={['roles.update', 'users.manage']}>
    ```
+
 4. Wrapped user action buttons (Suspend/Activate):
+
    ```tsx
    <PermissionGate permissions={['users.manage', 'roles.update']}>
    ```

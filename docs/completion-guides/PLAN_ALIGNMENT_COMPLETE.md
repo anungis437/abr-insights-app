@@ -130,6 +130,7 @@ if (!seatCheck.allowed) {
 1. **User visits** `/pricing`
 2. **Clicks** "Get Started" on Professional plan
 3. **PricingCard calls** `/api/stripe/checkout`:
+
    ```json
    {
      "tier": "PROFESSIONAL",
@@ -138,6 +139,7 @@ if (!seatCheck.allowed) {
      "billing_email": "user@example.com"
    }
    ```
+
 4. **Redirected** to Stripe Checkout
 5. **Completes payment** → Webhook fires
 6. **Webhook creates:**
@@ -151,6 +153,7 @@ if (!seatCheck.allowed) {
 1. **Org admin visits** `/pricing`
 2. **Clicks** "Get Started" on Business plan
 3. **PricingCard calls** `/api/stripe/checkout`:
+
    ```json
    {
      "tier": "BUSINESS",
@@ -159,6 +162,7 @@ if (!seatCheck.allowed) {
      "billing_email": "admin@company.com"
    }
    ```
+
 4. **Checkout validates** org admin role
 5. **Rest of flow** same as individual (webhook creates org subscription)
 

@@ -119,6 +119,7 @@ guardedRoute(handler, {
 **Purpose:** Track all AI endpoint usage for cost attribution and audit compliance
 
 **Table: `ai_usage_logs`**
+
 | Column | Type | Purpose |
 |--------|------|---------|
 | `id` | UUID | Primary key |

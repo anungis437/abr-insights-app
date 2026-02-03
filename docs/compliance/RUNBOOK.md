@@ -17,7 +17,7 @@ This runbook provides operational procedures for ABR Insights App, including dep
 **Critical Contacts**:
 
 - **On-Call**: PagerDuty rotation
-- **Security**: security@abr-insights.com
+- **Security**: <security@abr-insights.com>
 - **Engineering Lead**: +1-XXX-XXX-XXXX
 
 ## System Architecture Overview
@@ -220,7 +220,7 @@ Container restart loop (>3 restarts in 5 minutes):
 - AI messages (/hour)
 - Stripe payments (/hour)
 
-**Dashboard**: https://portal.azure.com → Application Insights
+**Dashboard**: <https://portal.azure.com> → Application Insights
 
 ### Log Aggregation
 
@@ -309,12 +309,15 @@ az containerapp revision restart --name abr-insights-app
 
 1. Navigate to `/admin/ai-quotas`
 2. Set all org quotas to 0:
+
    ```sql
    UPDATE ai_quota_overrides
    SET monthly_limit = 0
    WHERE organization_id IS NOT NULL;
    ```
+
 3. Or disable AI globally:
+
    ```bash
    az containerapp update \
      --name abr-insights-app \
@@ -444,17 +447,21 @@ az containerapp show \
 **Resolution**:
 
 1. **Scale up**: Increase CPU limit
+
    ```bash
    az containerapp update \
      --name abr-insights-app \
      --cpu 2.0 --memory 4.0Gi
    ```
+
 2. **Scale out**: Increase replica count
+
    ```bash
    az containerapp update \
      --name abr-insights-app \
      --min-replicas 5 --max-replicas 10
    ```
+
 3. **Investigate**: Check slow queries (pg_stat_statements)
 
 ### Scenario 4: Memory Leak
@@ -508,6 +515,7 @@ az monitor logs query \
 
 1. **If legitimate**: Update CSP policy (new CDN, script)
 2. **If attack**: Block source IPs
+
    ```bash
    az containerapp ingress access-restriction add \
      --name abr-insights-app \
@@ -515,6 +523,7 @@ az monitor logs query \
      --ip-address 1.2.3.4/32 \
      --action Deny
    ```
+
 3. **If unsure**: Enable CSP report-only mode (investigate)
 
 ## Backup & Restore
@@ -601,20 +610,26 @@ az storage blob copy start-batch \
 
 1. **Immediate**: Enable maintenance mode (block writes)
 2. **Assess**: Check backup integrity
+
    ```bash
    pg_restore --list backup-latest.sql
    ```
+
 3. **Restore**: Latest backup
+
    ```bash
    psql $DATABASE_URL < backup-latest.sql
    ```
+
 4. **Verify**: Run data integrity checks
+
    ```sql
    -- Check row counts
    SELECT 'profiles', COUNT(*) FROM profiles
    UNION ALL
    SELECT 'courses', COUNT(*) FROM courses;
    ```
+
 5. **Reactivate**: Disable maintenance mode
 6. **Communicate**: Email users (data loss notification)
 
@@ -629,6 +644,7 @@ az storage blob copy start-batch \
 
 1. **Immediate**: Activate backup region (Canada East)
 2. **DNS**: Switch to backup endpoint
+
    ```bash
    az network dns record-set a update \
      --name @ \
@@ -636,6 +652,7 @@ az storage blob copy start-batch \
      --resource-group abr-insights-rg \
      --set aRecords[0].ipv4Address=<backup-ip>
    ```
+
 3. **Database**: Restore from backup to new Supabase project (Canada East)
 4. **Redeploy**: Deploy containers to Canada East
 5. **Verify**: Health checks pass

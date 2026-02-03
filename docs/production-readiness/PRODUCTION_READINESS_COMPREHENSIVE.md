@@ -26,6 +26,7 @@ This document assesses the application's readiness for production across 7 criti
 
 - **Location**: `lib/services/ai-verification.ts`, `app/api/*/route.ts`
 - **Implementation**:
+
   ```typescript
   // Example: AI endpoint with fallback
   try {
@@ -37,6 +38,7 @@ This document assesses the application's readiness for production across 7 criti
     }, { status: 503 })
   }
   ```
+
 - **Status**: ✅ All critical paths have user-friendly error messages
 - **Admin Codes**: Errors logged with actionable context (userId, orgId, operation)
 
@@ -55,7 +57,7 @@ This document assesses the application's readiness for production across 7 criti
   - Development-suppressed debug logs
   - Automatic error stack capture
   - Type-safe context objects
-- **Usage**: 46 commits replacing console._ with logger._
+- **Usage**: 46 commits replacing console._with logger._
 - **Integration Points**: Ready for Sentry/DataDog/Azure App Insights
 
 ### 🟡 **GAPS - NEEDS IMPLEMENTATION**
@@ -180,6 +182,7 @@ az monitor metrics alert create \
 - ✅ 7 API routes sanitized (no internal error details leaked)
 - ✅ Generic client messages, full context logged internally
 - **Pattern**:
+
   ```typescript
   logger.error('Operation failed', error, { userId, errorMessage: error.message })
   return NextResponse.json({ error: 'Failed to process request' }, { status: 500 })
@@ -891,14 +894,14 @@ export default function SupportPage() {
 
 **Current**:
 
-- ✅ Privacy: privacy@abrinsights.ca (in Cookie Policy)
+- ✅ Privacy: <privacy@abrinsights.ca> (in Cookie Policy)
 - ✅ Contact form: `/contact` (rate-limited)
 
 **Missing**:
 
-- [ ] Support email: support@abrinsights.ca
-- [ ] Billing email: billing@abrinsights.ca
-- [ ] Security email: security@abrinsights.ca (for vulnerability reports)
+- [ ] Support email: <support@abrinsights.ca>
+- [ ] Billing email: <billing@abrinsights.ca>
+- [ ] Security email: <security@abrinsights.ca> (for vulnerability reports)
 
 ---
 

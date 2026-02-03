@@ -505,6 +505,7 @@ Status: 🚫 Blocked until midnight (18 hours)
    ```
 
 4. **Test NO Text Storage**:
+
    ```typescript
    // Verify types don't include text fields
    const metadata: CanLIICaseMetadata = {

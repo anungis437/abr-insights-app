@@ -1,4 +1,4 @@
-# 🎉 ABR Insights App - Setup Complete!
+# 🎉 ABR Insights App - Setup Complete
 
 ## ✅ What's Been Done
 
@@ -31,15 +31,15 @@ All passwords are: **TestPass123!**
 
 | Email                         | Role               | Purpose                       |
 | ----------------------------- | ------------------ | ----------------------------- |
-| super_admin@abr-insights.com  | super_admin        | Full admin access             |
-| educator@abr-insights.com     | educator           | Course creation & instruction |
-| learner@abr-insights.com      | learner            | Student account with progress |
-| org_admin@abr-insights.com    | org_admin          | Organization management       |
-| compliance@abr-insights.com   | compliance_officer | Compliance & legal            |
-| analyst@abr-insights.com      | analyst            | Data analysis                 |
-| investigator@abr-insights.com | investigator       | Case investigations           |
-| viewer@abr-insights.com       | viewer             | Read-only access              |
-| guest@abr-insights.com        | guest              | Limited guest access          |
+| <super_admin@abr-insights.com>  | super_admin        | Full admin access             |
+| <educator@abr-insights.com>     | educator           | Course creation & instruction |
+| <learner@abr-insights.com>      | learner            | Student account with progress |
+| <org_admin@abr-insights.com>    | org_admin          | Organization management       |
+| <compliance@abr-insights.com>   | compliance_officer | Compliance & legal            |
+| <analyst@abr-insights.com>      | analyst            | Data analysis                 |
+| <investigator@abr-insights.com> | investigator       | Case investigations           |
+| <viewer@abr-insights.com>       | viewer             | Read-only access              |
+| <guest@abr-insights.com>        | guest              | Limited guest access          |
 
 ---
 
@@ -51,13 +51,13 @@ All passwords are: **TestPass123!**
 pnpm run dev
 ```
 
-- Opens on: http://localhost:3002 (3000/3001 in use)
+- Opens on: <http://localhost:3002> (3000/3001 in use)
 - Hot reload enabled
 - Turbopack for fast builds
 
 ### Login
 
-1. Go to http://localhost:3002/auth/login
+1. Go to <http://localhost:3002/auth/login>
 2. Use any test account above
 3. Explore the dashboard!
 
@@ -157,7 +157,7 @@ These are **normal** for a fresh setup with empty tables:
 
 ### 1. Add Stripe (for payments)
 
-Get keys from https://dashboard.stripe.com/test/apikeys
+Get keys from <https://dashboard.stripe.com/test/apikeys>
 
 Edit `.env.local`:
 

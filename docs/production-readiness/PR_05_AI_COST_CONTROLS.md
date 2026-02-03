@@ -454,6 +454,7 @@ Stable error codes for quota-related errors:
    ```
 
 5. **Test Admin Quota Update**:
+
    ```bash
    curl -X PUT http://localhost:3000/api/admin/ai-quota \
      -H "Authorization: Bearer $ADMIN_TOKEN" \

@@ -175,7 +175,7 @@ await createSavedSearch(user.id, orgId, ...)
 
 ## Validation Checklist
 
-### Before Using in Production:
+### Before Using in Production
 
 1. **Environment Variables:**
 

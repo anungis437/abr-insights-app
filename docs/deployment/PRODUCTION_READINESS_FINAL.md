@@ -44,7 +44,7 @@ npm install @upstash/redis
 
 **Step 2**: Create Upstash account and database
 
-- Visit: https://upstash.com/
+- Visit: <https://upstash.com/>
 - Create new Redis database
 - Copy REST URL and token
 
@@ -492,9 +492,9 @@ git revert <commit-hash>
 
 Contact DevOps team or refer to:
 
-- Upstash Documentation: https://docs.upstash.com/
-- Azure Cache for Redis: https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/
-- Application Insights Logging: https://learn.microsoft.com/en-us/azure/azure-monitor/logs/
+- Upstash Documentation: <https://docs.upstash.com/>
+- Azure Cache for Redis: <https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/>
+- Application Insights Logging: <https://learn.microsoft.com/en-us/azure/azure-monitor/logs/>
 
 ---
 

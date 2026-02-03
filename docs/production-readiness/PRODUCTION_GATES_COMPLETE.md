@@ -407,6 +407,7 @@ SELECT archive_old_audit_logs(365);
 #### 4. Environment Separation
 
 **Environments**:
+
 | Environment | Purpose | Supabase Project | API Keys |
 |-------------|---------|------------------|----------|
 | Development | Local dev | Dev | Test |
@@ -710,9 +711,11 @@ git push origin main
 ### Monthly
 
 - Archive old audit logs:
+
   ```sql
   SELECT archive_old_audit_logs(365);
   ```
+
 - Review alert thresholds
 - Update dependencies
 - Compliance report generation

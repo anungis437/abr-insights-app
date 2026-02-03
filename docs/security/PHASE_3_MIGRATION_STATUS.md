@@ -86,10 +86,10 @@ ERROR: permission denied for schema auth
 
 **Solution:** Apply via Supabase Dashboard SQL Editor
 
-#### Manual Steps:
+#### Manual Steps
 
 1. **Go to Supabase Dashboard SQL Editor:**
-   - URL: https://supabase.com/dashboard/project/zdcmugkafbczvxcyofiz/sql
+   - URL: <https://supabase.com/dashboard/project/zdcmugkafbczvxcyofiz/sql>
    - Login with your Supabase account
 
 2. **Open Migration File:**
@@ -307,7 +307,7 @@ Expected: 29 tests pass
 npm run dev
 ```
 
-Then visit: http://localhost:3000/admin/permissions-management
+Then visit: <http://localhost:3000/admin/permissions-management>
 
 - Verify permission matrix loads
 - Test permission toggling
@@ -356,7 +356,7 @@ Then visit: http://localhost:3000/admin/permissions-management
 
 - [PHASE_3_COMPLETE.md](./PHASE_3_COMPLETE.md) - Full documentation
 - [phase3-progress-summary.md](./phase3-progress-summary.md) - Progress tracking
-- Supabase Dashboard: https://supabase.com/dashboard/project/zdcmugkafbczvxcyofiz
+- Supabase Dashboard: <https://supabase.com/dashboard/project/zdcmugkafbczvxcyofiz>
 
 ---
 

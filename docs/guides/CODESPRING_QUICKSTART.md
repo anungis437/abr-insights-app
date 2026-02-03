@@ -194,7 +194,7 @@ Full documentation: `docs/CODESPRING_INTEGRATION.md`
 ✅ Complete documentation
 ✅ Security best practices
 
-## 🎉 You're All Set!
+## 🎉 You're All Set
 
 The Codespring API is fully integrated and ready to use. Just update the base URL and endpoints based on the actual API documentation, and you're good to go!
 

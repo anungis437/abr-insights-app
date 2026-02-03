@@ -38,6 +38,7 @@
 
 - Changed `requirePermission`, `requireAnyPermission`, `requireAllPermissions` to return `NextResponse | null`
 - Updated all call sites to use the corrected pattern:
+
   ```typescript
   const denial = await requireAnyPermission([...]);
   if (denial) return denial;

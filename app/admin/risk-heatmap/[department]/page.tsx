@@ -337,6 +337,7 @@ export default function DepartmentUserRiskPage() {
                     <div className="h-2 overflow-hidden rounded-full bg-gray-200">
                       <div
                         className="h-full bg-blue-500"
+                        // eslint-disable-next-line react/forbid-dom-props
                         style={{ width: `${user.completion_percentage}%` }}
                       />
                     </div>

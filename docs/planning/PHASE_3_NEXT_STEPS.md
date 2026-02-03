@@ -31,7 +31,7 @@
 
 All server actions and API routes need to respect the new permission system:
 
-#### Files to Update:
+#### Files to Update
 
 ```
 lib/actions/
@@ -44,7 +44,7 @@ lib/actions/
 └── ai-usage.ts          - Add permission checks to AI operations
 ```
 
-#### Example Implementation:
+#### Example Implementation
 
 ```typescript
 // lib/actions/courses.ts
@@ -78,7 +78,7 @@ export async function updateCourse(courseId: string, updates: CourseUpdate) {
 
 **Estimated Time:** 1 day
 
-#### Files to Create:
+#### Files to Create
 
 ```typescript
 // lib/hooks/usePermissions.ts
@@ -144,7 +144,7 @@ export function usePermissionCheck(permission: string) {
 
 **Estimated Time:** 2-3 days
 
-#### Components to Update:
+#### Components to Update
 
 ```
 components/
@@ -163,7 +163,7 @@ components/
         └── Sidebar.tsx            - Show/hide nav items based on permissions
 ```
 
-#### Example Implementation:
+#### Example Implementation
 
 ```typescript
 // components/courses/CourseActions.tsx
@@ -194,7 +194,7 @@ export function CourseActions({ course }) {
 
 **Estimated Time:** 2 days
 
-#### New Admin Pages to Create:
+#### New Admin Pages to Create
 
 ```
 app/admin/
@@ -208,7 +208,7 @@ app/admin/
     └── create/page.tsx            - Create new role
 ```
 
-#### Features to Implement:
+#### Features to Implement
 
 - **Permission Browser**: View all 106 permissions grouped by category
 - **User Permission Assignment**: Assign permissions to specific users
@@ -221,7 +221,7 @@ app/admin/
 
 **Estimated Time:** 2 days
 
-#### Test Scenarios:
+#### Test Scenarios
 
 **Multi-Tenant Isolation:**
 
@@ -293,7 +293,7 @@ test('ownership - instructor cannot update others course', async () => {
 })
 ```
 
-#### Test Files to Create:
+#### Test Files to Create
 
 ```
 tests/integration/
@@ -316,7 +316,7 @@ tests/integration/
 
 **Estimated Time:** 1 day
 
-#### Documentation to Create:
+#### Documentation to Create
 
 ```markdown
 docs/security/
@@ -326,7 +326,7 @@ docs/security/
 └── PERMISSION_BEST_PRACTICES.md - Guidelines for assigning permissions
 ```
 
-#### Permission Matrix Example:
+#### Permission Matrix Example
 
 ```markdown
 ## Courses Permissions
@@ -347,7 +347,7 @@ docs/security/
 
 **Estimated Time:** 1 day
 
-#### Database Indexes to Add:
+#### Database Indexes to Add
 
 ```sql
 -- User permission lookups (most frequent)
@@ -373,7 +373,7 @@ CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_study_groups_creator
   ON course_study_groups(created_by);
 ```
 
-#### Query Optimization:
+#### Query Optimization
 
 - Profile permission check queries with EXPLAIN ANALYZE
 - Add query result caching where appropriate
@@ -383,14 +383,14 @@ CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_study_groups_creator
 
 **Estimated Time:** 1 day
 
-#### Metrics to Track:
+#### Metrics to Track
 
 - Permission check latency
 - Failed permission checks (security events)
 - Permission grant/revoke operations
 - RLS policy execution time
 
-#### Logging to Add:
+#### Logging to Add
 
 ```typescript
 // Log all permission denials
@@ -441,7 +441,7 @@ Once Phase 3 implementation is complete, proceed with Phase 11 tasks:
 
 ## Success Checklist
 
-### Phase 3 Implementation Complete When:
+### Phase 3 Implementation Complete When
 
 - [ ] All backend actions use permission checks
 - [ ] All UI components respect user permissions
@@ -452,7 +452,7 @@ Once Phase 3 implementation is complete, proceed with Phase 11 tasks:
 - [ ] Performance benchmarks met (<100ms permission checks)
 - [ ] Monitoring and logging in place
 
-### Ready for Phase 11 When:
+### Ready for Phase 11 When
 
 - [ ] All Phase 3 implementation checklist items ✅
 - [ ] Zero permission-related bugs in staging
@@ -500,14 +500,14 @@ ALTER TABLE courses DISABLE ROW LEVEL SECURITY;
 
 ## Team Communication
 
-### Updates to Share:
+### Updates to Share
 
 1. Phase 3 database migrations complete ✅
 2. Permission system operational
 3. Implementation work starting
 4. Estimated 1-2 weeks for full implementation
 
-### Questions for Product/Stakeholders:
+### Questions for Product/Stakeholders
 
 1. Priority order for permission-protected features?
 2. Should we implement permission groups immediately?

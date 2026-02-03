@@ -353,6 +353,7 @@ Wait initialDelaySeconds (liveness: 10s, readiness: 5s)
    ```
 
 4. **Test Readiness Endpoint (DB Down)**:
+
    ```bash
    # Stop Supabase or set invalid URL
    curl http://localhost:3000/api/readyz

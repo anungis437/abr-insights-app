@@ -18,7 +18,7 @@
 ✅ Docker Desktop installed and running  
 ✅ Project on D:\ drive (exFAT)
 
-**Install Docker Desktop**: https://www.docker.com/products/docker-desktop
+**Install Docker Desktop**: <https://www.docker.com/products/docker-desktop>
 
 ---
 

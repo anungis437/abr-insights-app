@@ -511,11 +511,13 @@ export function CourseCard({ course }: { course: Course }) {
 1. **Request**: Email CEO with justification
 2. **Approval**: CEO approves via email
 3. **Assignment**: Database insert (SQL script):
+
    ```sql
    UPDATE profiles
    SET role = role || '["super_admin"]'::jsonb
    WHERE id = '{user_id}';
    ```
+
 4. **Notification**: User notified via email
 5. **Audit**: Logged in `role_assignments` table
 6. **2FA**: User must enable 2FA within 24 hours

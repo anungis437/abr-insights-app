@@ -13,7 +13,7 @@ Prevent security regressions and repository pollution through automated CI check
 
 **Current Risk**: Discipline-based security fails under pressure. Developers can accidentally:
 
-- Commit backup files (_.bak, _.old, \*.backup) with sensitive data
+- Commit backup files (_.bak,_.old, \*.backup) with sensitive data
 - Leave editor swap files in the repo
 - Commit Supabase CLI temporary artifacts
 - Expose secrets in code (API keys, tokens, passwords)

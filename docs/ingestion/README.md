@@ -194,7 +194,7 @@ npm run ingest -- --source canlii_chrt --limit 50
 
 ### Reviewing Cases
 
-1. Navigate to **http://localhost:3000/admin/ingestion** (in development)
+1. Navigate to **<http://localhost:3000/admin/ingestion>** (in development)
 2. Filter by status: Pending Review | Approved | Rejected | All
 3. Click on a case to view details:
    - Classification results (rule-based, AI, combined)

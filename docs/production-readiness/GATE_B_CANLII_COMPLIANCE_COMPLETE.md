@@ -343,7 +343,7 @@ databaseId: onhrt
 
 ### Production Deployment
 
-1. Obtain CanLII API key: https://www.canlii.org/en/info/feedback
+1. Obtain CanLII API key: <https://www.canlii.org/en/info/feedback>
 2. Add key to `.env.local` and deployment environment
 3. Set `CANLII_API_ENABLED=true`
 4. Run test ingestion: `npm run ingest -- --source canlii_hrto --limit 10`

@@ -8,7 +8,7 @@ The anon key in `.env.test` is invalid for the Supabase project.
 
 You need to get the correct anon key from your Supabase project dashboard:
 
-1. Go to https://supabase.com/dashboard/project/zdcmugkafbczvxcyofiz/settings/api
+1. Go to <https://supabase.com/dashboard/project/zdcmugkafbczvxcyofiz/settings/api>
 2. Copy the "anon" / "public" key from the "Project API keys" section
 3. Update `.env.test` with the new key:
 

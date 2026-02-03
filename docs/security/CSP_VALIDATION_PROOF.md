@@ -426,8 +426,8 @@ This demonstrates **active CSP monitoring** for questionnaires asking "How do yo
 - **Configuration**: `staticwebapp.config.json` (static headers, no CSP conflict)
 
 - **Standards**:
-  - MDN CSP Reference: https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP
-  - OWASP CSP Cheat Sheet: https://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html
+  - MDN CSP Reference: <https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP>
+  - OWASP CSP Cheat Sheet: <https://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html>
 
 ---
 

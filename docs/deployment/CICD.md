@@ -522,7 +522,7 @@ feature/* (preview environments)
 ### 1. Development (Local)
 
 - **Branch:** Any feature branch
-- **URL:** http://localhost:3000
+- **URL:** <http://localhost:3000>
 - **Supabase:** Local or shared dev instance
 - **Purpose:** Local development and testing
 
@@ -537,7 +537,7 @@ feature/* (preview environments)
 ### 3. Staging (Develop Branch)
 
 - **Branch:** develop
-- **URL:** https://staging.abrinsights.ca
+- **URL:** <https://staging.abrinsights.ca>
 - **Supabase:** Staging instance
 - **Purpose:** Pre-production testing
 - **Auto-deploy:** Yes
@@ -545,7 +545,7 @@ feature/* (preview environments)
 ### 4. Production (Main Branch)
 
 - **Branch:** main
-- **URL:** https://app.abrinsights.ca
+- **URL:** <https://app.abrinsights.ca>
 - **Supabase:** Production instance
 - **Purpose:** Live application
 - **Auto-deploy:** Yes (with approval gates)

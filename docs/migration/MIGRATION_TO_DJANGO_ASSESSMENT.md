@@ -967,7 +967,7 @@ module "app_service" {
 
 ## 📝 Recommendations
 
-### If proceeding with migration:
+### If proceeding with migration
 
 1. **Start with Proof of Concept (2 weeks)**:
    - Build one complete feature end-to-end (e.g., course progress)

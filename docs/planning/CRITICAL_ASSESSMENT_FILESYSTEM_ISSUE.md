@@ -243,6 +243,7 @@ docker run --rm -v ${PWD}/.next:/app/.next abr-build
    - All routes compile properly
 
 4. **Update Git Remote** (if needed):
+
    ```bash
    # From new location
    git remote -v  # Verify remote is still correct

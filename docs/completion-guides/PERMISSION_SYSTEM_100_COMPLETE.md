@@ -386,6 +386,7 @@ When adding new protected features:
    ```
 
 5. **Add RLS Policy** if new table
+
    ```sql
    CREATE POLICY "policy_name"
      ON new_table AS RESTRICTIVE

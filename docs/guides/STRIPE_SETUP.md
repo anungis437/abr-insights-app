@@ -4,7 +4,7 @@
 
 ### 1. Get Your Stripe Keys
 
-1. Go to https://dashboard.stripe.com/test/apikeys
+1. Go to <https://dashboard.stripe.com/test/apikeys>
 2. Copy these keys:
    - **Publishable key** (starts with `pk_test_`)
    - **Secret key** (starts with `sk_test_`)
@@ -87,7 +87,7 @@ Use these test cards in your app:
 
 ### Via Dashboard
 
-1. Go to https://dashboard.stripe.com/test/products
+1. Go to <https://dashboard.stripe.com/test/products>
 2. Click "Add product"
 3. Name it (e.g., "Professional Plan")
 4. Set recurring price (e.g., $29.99/month)
@@ -160,12 +160,12 @@ When deploying to production:
 
 ## Useful Stripe Dashboard Links
 
-- **API Keys**: https://dashboard.stripe.com/test/apikeys
-- **Products**: https://dashboard.stripe.com/test/products
-- **Subscriptions**: https://dashboard.stripe.com/test/subscriptions
-- **Webhooks**: https://dashboard.stripe.com/test/webhooks
-- **Customers**: https://dashboard.stripe.com/test/customers
-- **Payments**: https://dashboard.stripe.com/test/payments
+- **API Keys**: <https://dashboard.stripe.com/test/apikeys>
+- **Products**: <https://dashboard.stripe.com/test/products>
+- **Subscriptions**: <https://dashboard.stripe.com/test/subscriptions>
+- **Webhooks**: <https://dashboard.stripe.com/test/webhooks>
+- **Customers**: <https://dashboard.stripe.com/test/customers>
+- **Payments**: <https://dashboard.stripe.com/test/payments>
 
 ---
 

@@ -32,7 +32,7 @@ Open `create_tables.sql` and copy everything (Ctrl+A, Ctrl+C)
 
 ### Step 2: Paste in Supabase
 
-1. Go to: https://app.supabase.com/project/YOUR-PROJECT-REF/sql/new
+1. Go to: <https://app.supabase.com/project/YOUR-PROJECT-REF/sql/new>
 2. Paste the SQL (Ctrl+V)
 3. Click **"Run"** button (bottom right)
 

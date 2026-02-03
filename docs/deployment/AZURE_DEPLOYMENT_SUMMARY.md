@@ -1,6 +1,6 @@
 # Azure Static Web App - Deployment Summary
 
-## ✅ Successfully Created!
+## ✅ Successfully Created
 
 **Date:** November 6, 2025  
 **Created via:** Azure CLI
@@ -19,12 +19,12 @@
 
 ### URLs
 
-- **Production URL:** https://purple-ground-03d2b380f.3.azurestaticapps.net
-- **Content Distribution:** https://content-eus2.infrastructure.3.azurestaticapps.net
+- **Production URL:** <https://purple-ground-03d2b380f.3.azurestaticapps.net>
+- **Content Distribution:** <https://content-eus2.infrastructure.3.azurestaticapps.net>
 
 ### GitHub Integration
 
-- **Repository:** https://github.com/anungis437/abr-insights-app
+- **Repository:** <https://github.com/anungis437/abr-insights-app>
 - **Branch:** main
 - **App Location:** /
 - **Output Location:** .next
@@ -54,9 +54,9 @@ The following environment variables have been set in Azure:
 
 | Variable                        | Value                                                 |
 | ------------------------------- | ----------------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`      | https://your-project-ref.supabase.co                  |
+| `NEXT_PUBLIC_SUPABASE_URL`      | <https://your-project-ref.supabase.co>                  |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | your-supabase-anon-key (JWT token from Supabase)      |
-| `NEXT_PUBLIC_APP_URL`           | https://purple-ground-03d2b380f.3.azurestaticapps.net |
+| `NEXT_PUBLIC_APP_URL`           | <https://purple-ground-03d2b380f.3.azurestaticapps.net> |
 | `NEXT_PUBLIC_APP_NAME`          | ABR Insights                                          |
 | `NEXT_PUBLIC_APP_VERSION`       | 2.0.0                                                 |
 | `NODE_ENV`                      | production                                            |
@@ -127,16 +127,16 @@ git push origin main
 
 ### 3. Monitor Deployment
 
-- **GitHub Actions:** https://github.com/anungis437/abr-insights-app/actions
-- **Azure Portal:** https://portal.azure.com → Search "abr-insights-app"
+- **GitHub Actions:** <https://github.com/anungis437/abr-insights-app/actions>
+- **Azure Portal:** <https://portal.azure.com> → Search "abr-insights-app"
 
 ### 4. Verify Deployment
 
 Once deployment completes (5-10 minutes):
 
-- Visit: https://purple-ground-03d2b380f.3.azurestaticapps.net
-- Test auth flow: https://purple-ground-03d2b380f.3.azurestaticapps.net/auth/login
-- Check dashboard: https://purple-ground-03d2b380f.3.azurestaticapps.net/dashboard
+- Visit: <https://purple-ground-03d2b380f.3.azurestaticapps.net>
+- Test auth flow: <https://purple-ground-03d2b380f.3.azurestaticapps.net/auth/login>
+- Check dashboard: <https://purple-ground-03d2b380f.3.azurestaticapps.net/dashboard>
 
 ---
 
@@ -253,15 +253,15 @@ az staticwebapp hostname show \
 
 ## Support
 
-- **Azure Documentation:** https://docs.microsoft.com/azure/static-web-apps/
-- **GitHub Issues:** https://github.com/anungis437/abr-insights-app/issues
-- **Azure Support:** https://portal.azure.com/#blade/Microsoft_Azure_Support/HelpAndSupportBlade
+- **Azure Documentation:** <https://docs.microsoft.com/azure/static-web-apps/>
+- **GitHub Issues:** <https://github.com/anungis437/abr-insights-app/issues>
+- **Azure Support:** <https://portal.azure.com/#blade/Microsoft_Azure_Support/HelpAndSupportBlade>
 
 ---
 
 ## Created By
 
-- **User:** support@onelabtech.com
+- **User:** <support@onelabtech.com>
 - **Organization:** One Lab Technologies Corp.
 - **Date:** November 6, 2025
 - **Method:** Azure CLI (az staticwebapp create)

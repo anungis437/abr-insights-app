@@ -229,6 +229,7 @@ gpg --decrypt secrets-backup.enc.txt
    ```
 
 3. **Verify Upload**
+
    ```bash
    supabase storage list evidence-bundles --recursive | wc -l
    # Should match pre-incident count
@@ -247,7 +248,7 @@ gpg --decrypt secrets-backup.enc.txt
 **Steps:**
 
 1. **Assess Outage Scope**
-   - Check Supabase status: https://status.supabase.com
+   - Check Supabase status: <https://status.supabase.com>
    - Estimate downtime duration
 
 2. **If Outage > 4 hours: Migrate to Backup Instance**
@@ -321,9 +322,9 @@ gpg --decrypt secrets-backup.enc.txt
 
 | Role                 | Contact | Phone           | Email                              |
 | -------------------- | ------- | --------------- | ---------------------------------- |
-| **On-Call Engineer** | TBD     | +1-XXX-XXX-XXXX | oncall@abrinsights.com             |
-| **CTO**              | TBD     | +1-XXX-XXX-XXXX | cto@abrinsights.com                |
-| **Supabase Support** | N/A     | N/A             | support@supabase.com               |
+| **On-Call Engineer** | TBD     | +1-XXX-XXX-XXXX | <oncall@abrinsights.com>             |
+| **CTO**              | TBD     | +1-XXX-XXX-XXXX | <cto@abrinsights.com>                |
+| **Supabase Support** | N/A     | N/A             | <support@supabase.com>               |
 | **Azure Support**    | N/A     | N/A             | [Portal](https://portal.azure.com) |
 
 ### Escalation Path

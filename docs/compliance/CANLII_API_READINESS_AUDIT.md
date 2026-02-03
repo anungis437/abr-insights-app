@@ -74,7 +74,7 @@ canlii_nthr: 'https://www.canlii.org/en/nt/nthr/'
 
 **Current Data Model:**
 
-- `SourceSystem` - 26 types (13 canlii\__, 13 _\_direct placeholders)
+- `SourceSystem` - 26 types (13 canlii\__, 13_\_direct placeholders)
 - `SourceConfig` - HTML selector-based configuration
 - `DecisionLink` - Link metadata from listing pages
 - `DecisionContent` - Full case content extracted from HTML
@@ -192,13 +192,16 @@ Provincial HRCs: Need to verify for each province
 
 **Action:**
 
-1. Send feedback to CanLII: https://www.canlii.org/en/feedback/feedback.html
+1. Send feedback to CanLII: <https://www.canlii.org/en/feedback/feedback.html>
 2. Request API key for "ABR Insights - Educational Research"
 3. Add to `.env.local`:
+
    ```
    CANLII_API_KEY=your-key-here
    ```
+
 4. Add to [ingestion/src/config/index.ts](ingestion/src/config/index.ts):
+
    ```typescript
    CANLII_API_KEY: process.env.CANLII_API_KEY || '',
    ```

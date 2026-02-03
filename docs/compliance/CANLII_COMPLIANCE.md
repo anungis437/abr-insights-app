@@ -604,7 +604,7 @@ ORDER BY date DESC;
 - Failed requests (with error types)
 - Compliance summary (any violations)
 
-**Sent To**: engineering@abr-insights.com, compliance@abr-insights.com
+**Sent To**: <engineering@abr-insights.com>, <compliance@abr-insights.com>
 
 ### Compliance Verification Checklist
 

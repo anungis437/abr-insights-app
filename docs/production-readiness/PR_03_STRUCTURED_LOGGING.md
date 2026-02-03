@@ -60,6 +60,7 @@ Implemented production-grade structured logging with request correlation IDs for
 3. **Service Layer**:
    - Use production-logger singleton
    - Correlation ID available via `globalThis` if set
+
    ```typescript
    logger.error('Service operation failed', { error, operation: 'processData' })
    ```

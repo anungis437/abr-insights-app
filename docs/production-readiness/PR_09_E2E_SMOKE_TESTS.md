@@ -204,7 +204,7 @@ Implemented comprehensive end-to-end smoke tests validating critical risk flows 
 
 **Environment Variables**:
 
-- `PLAYWRIGHT_BASE_URL`: Test environment URL (default: http://localhost:3000)
+- `PLAYWRIGHT_BASE_URL`: Test environment URL (default: <http://localhost:3000>)
 - `TEST_USER_EMAIL`, `TEST_USER_PASSWORD`: Regular user credentials
 - `TEST_ORG_ADMIN_EMAIL`, `TEST_ORG_ADMIN_PASSWORD`: Org admin credentials
 - `TEST_SUPER_ADMIN_EMAIL`, `TEST_SUPER_ADMIN_PASSWORD`: Super admin credentials
@@ -241,7 +241,7 @@ Implemented comprehensive end-to-end smoke tests validating critical risk flows 
 **Dev Server**:
 
 - Auto-starts `npm run dev` if not running
-- Waits for http://localhost:3000 to be ready (2-minute timeout)
+- Waits for <http://localhost:3000> to be ready (2-minute timeout)
 - Reuses existing server on local development
 
 ### Package Scripts
@@ -274,6 +274,7 @@ Added to `package.json`:
    ```
 
 3. Set test credentials in `.env.test`:
+
    ```env
    TEST_USER_EMAIL=user@example.com
    TEST_USER_PASSWORD=password123

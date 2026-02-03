@@ -93,7 +93,7 @@ CanLIIApiClient  CaseDiscovery
 
 ### ✨ Official REST API Integration
 
-- Uses CanLII REST API v1 (https://api.canlii.org/v1)
+- Uses CanLII REST API v1 (<https://api.canlii.org/v1>)
 - Eliminates fragile HTML parsing
 - Structured JSON responses
 - Future-proof against website changes

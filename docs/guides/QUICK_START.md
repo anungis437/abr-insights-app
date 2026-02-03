@@ -174,7 +174,7 @@ Benefits:
 
 **Email Support:**
 
-- support@abrinsights.ca
+- <support@abrinsights.ca>
 - Response within 1-3 business days
 
 **Video Tutorials:**

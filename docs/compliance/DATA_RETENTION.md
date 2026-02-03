@@ -492,7 +492,7 @@ WHERE created_at < NOW() - INTERVAL '7 years';
 **Channels**:
 
 - Self-service: Profile settings (`/profile/privacy`)
-- Email: privacy@abr-insights.com
+- Email: <privacy@abr-insights.com>
 - Phone: +1-XXX-XXX-XXXX (business hours)
 
 **Response Time**:

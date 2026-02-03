@@ -83,5 +83,5 @@ After any build (via CI/CD, WSL2, or Docker):
 
 ## Related Issues
 
-- Next.js webpack EISDIR on Windows: https://github.com/vercel/next.js/issues/48748
-- Webpack symlink handling: https://github.com/webpack/webpack/issues/15662
+- Next.js webpack EISDIR on Windows: <https://github.com/vercel/next.js/issues/48748>
+- Webpack symlink handling: <https://github.com/webpack/webpack/issues/15662>

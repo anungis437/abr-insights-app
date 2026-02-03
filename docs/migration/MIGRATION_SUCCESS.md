@@ -71,15 +71,15 @@ Successfully applied **38 migrations** to PostgreSQL 17.6 database on Supabase, 
 
 | Role               | Email                         | Description                  |
 | ------------------ | ----------------------------- | ---------------------------- |
-| Super Admin        | super_admin@abr-insights.com  | Full system access           |
-| Org Admin          | orgadmin@abr-insights.com     | Organization management      |
-| Compliance Officer | compliance@abr-insights.com   | Compliance & auditing        |
-| Educator           | educator@abr-insights.com     | Course creation & management |
-| Learner            | learner@abr-insights.com      | Student with progress data   |
-| Analyst            | analyst@abr-insights.com      | Data analysis access         |
-| Investigator       | investigator@abr-insights.com | Case investigation           |
-| Viewer             | viewer@abr-insights.com       | Read-only access             |
-| Guest              | guest@abr-insights.com        | Limited guest access         |
+| Super Admin        | <super_admin@abr-insights.com>  | Full system access           |
+| Org Admin          | <orgadmin@abr-insights.com>     | Organization management      |
+| Compliance Officer | <compliance@abr-insights.com>   | Compliance & auditing        |
+| Educator           | <educator@abr-insights.com>     | Course creation & management |
+| Learner            | <learner@abr-insights.com>      | Student with progress data   |
+| Analyst            | <analyst@abr-insights.com>      | Data analysis access         |
+| Investigator       | <investigator@abr-insights.com> | Case investigation           |
+| Viewer             | <viewer@abr-insights.com>       | Read-only access             |
+| Guest              | <guest@abr-insights.com>        | Limited guest access         |
 
 ### 4. Demo Data Seeded ✅
 
@@ -301,4 +301,4 @@ npx tsx --env-file=.env.local scripts/generate-initial-embeddings.ts
 🚀 **Your application is ready for development and testing!**  
 📚 **125 tables, 9 test users, 6 courses, full feature set enabled!**
 
-**Next**: Open http://localhost:3001 and login with `super_admin@abr-insights.com` / `TestPass123!`
+**Next**: Open <http://localhost:3001> and login with `super_admin@abr-insights.com` / `TestPass123!`

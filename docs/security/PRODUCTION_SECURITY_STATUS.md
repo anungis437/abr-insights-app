@@ -2,7 +2,7 @@
 
 **Date:** January 13, 2026  
 **Session:** Phase 1 Implementation Complete  
-**Repository:** https://github.com/anungis437/abr-insights-app  
+**Repository:** <https://github.com/anungis437/abr-insights-app>  
 **Commit:** `11d7f97` - feat(security): Phase 1 - Critical API Protection & AI Governance
 
 ---
@@ -428,7 +428,7 @@
 
 ## 🚀 Quick Start for Next Developer
 
-### To Continue Phase 2:
+### To Continue Phase 2
 
 ```bash
 # 1. Pull latest changes
@@ -444,7 +444,7 @@ touch lib/security/rateLimit.ts
 # See: Phase 2: Rate Limiting & Remaining Routes section above
 ```
 
-### To Test Current Security:
+### To Test Current Security
 
 ```bash
 # Test unauthenticated request (should return 401)
@@ -461,7 +461,7 @@ curl http://localhost:3001/api/ai/chat \
   -d '{"message":"test"}'
 ```
 
-### To View AI Usage Logs:
+### To View AI Usage Logs
 
 ```sql
 -- Via Supabase Dashboard SQL Editor
@@ -488,7 +488,7 @@ LIMIT 50;
 - API Protection Matrix: `/docs/security/api-protection-matrix.md`
 - Phase 1 Summary: `/docs/security/phase1-implementation-summary.md`
 
-**Repository:** https://github.com/anungis437/abr-insights-app  
+**Repository:** <https://github.com/anungis437/abr-insights-app>  
 **Latest Commit:** `11d7f97` (Phase 1 Complete)
 
 **Next Session:** Focus on Phase 2 (Rate Limiting)

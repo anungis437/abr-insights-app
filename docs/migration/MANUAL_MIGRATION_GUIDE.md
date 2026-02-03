@@ -8,7 +8,7 @@ PowerShell scripts are failing due to emoji encoding and psql authentication iss
 
 ### Step 1: Access SQL Editor
 
-1. Go to: https://supabase.com/dashboard/project/zdcmugkafbczvxcyofiz
+1. Go to: <https://supabase.com/dashboard/project/zdcmugkafbczvxcyofiz>
 2. Navigate to "SQL Editor" in the left sidebar
 3. Click "New query"
 
@@ -56,7 +56,7 @@ Expected: ~100 tables including:
 
 Once migrations are applied:
 
-1. Refresh your app at http://localhost:3001
+1. Refresh your app at <http://localhost:3001>
 2. Errors should be gone
 3. Data should load correctly
 
@@ -80,4 +80,4 @@ npx supabase db push
 - Skip any files prefixed with `SKIP_` - these are deprecated
 - Some migrations may report "already exists" - this is OK
 - The comprehensive_demo_seed migration will create test data
-- Default admin account: super_admin@abr-insights.com / TestPass123!
+- Default admin account: <super_admin@abr-insights.com> / TestPass123!

@@ -162,12 +162,12 @@ Widespread use of `console.log/error/warn` throughout codebase:
 
 **Tool:** `scripts/migrate-console-logs.ts`  
 **Files Migrated:** 31 admin pages  
-**Replacements:** 82 console._ calls → logger._
+**Replacements:** 82 console._calls → logger._
 
 #### Phase 2 - Components & Remaining
 
 **Files Migrated:** 23 components + 3 hooks  
-**Replacements:** 53 console._ calls → logger._
+**Replacements:** 53 console._calls → logger._
 
 #### Total Migration
 

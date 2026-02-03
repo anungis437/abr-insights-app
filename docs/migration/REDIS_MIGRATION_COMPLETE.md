@@ -44,7 +44,7 @@ Successfully migrated **4 high-priority API endpoints** from in-memory to Redis-
 
 ### Step 1: Create Upstash Account (5 minutes)
 
-1. Visit https://upstash.com/
+1. Visit <https://upstash.com/>
 2. Sign up (free - no credit card required)
 3. Create database: "Create Database" → Name it `abr-insights-rate-limit`
 4. Copy credentials:
@@ -66,7 +66,7 @@ UPSTASH_REDIS_REST_TOKEN=AXxxxxxxxxxxxxxxxxxxxxxxxE=
 npm run dev
 ```
 
-Visit http://localhost:3000 and test an API endpoint. Check response headers:
+Visit <http://localhost:3000> and test an API endpoint. Check response headers:
 
 - `X-RateLimit-Limit` - Maximum requests
 - `X-RateLimit-Remaining` - Requests left
@@ -143,7 +143,7 @@ az staticwebapp appsettings set \
 
 ### Upstash Dashboard
 
-Visit https://console.upstash.com/ to monitor:
+Visit <https://console.upstash.com/> to monitor:
 
 - Total requests
 - Latency (p50, p99)

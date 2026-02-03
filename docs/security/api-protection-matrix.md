@@ -444,7 +444,7 @@ export const POST = guardedRoute(portalHandler, {
 
 ## Testing Checklist
 
-### For Each Protected Route:
+### For Each Protected Route
 
 - ✅ Unauthenticated request returns `401` (all protected routes)
 - ✅ Authenticated user without permission returns `403` (all protected routes)

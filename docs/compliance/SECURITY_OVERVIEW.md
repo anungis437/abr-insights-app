@@ -527,9 +527,9 @@ See [INCIDENT_RESPONSE.md](./INCIDENT_RESPONSE.md) for detailed procedures.
 
 ## Contact
 
-**Security Team**: security@abr-insights.com  
-**Responsible Disclosure**: security@abr-insights.com  
-**PGP Key**: Available at https://abr-insights.com/.well-known/pgp-key.txt
+**Security Team**: <security@abr-insights.com>  
+**Responsible Disclosure**: <security@abr-insights.com>  
+**PGP Key**: Available at <https://abr-insights.com/.well-known/pgp-key.txt>
 
 ---
 
