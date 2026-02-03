@@ -48,7 +48,7 @@ export async function middleware(request: NextRequest) {
     style-src 'self' 'nonce-${nonce}' https://fonts.googleapis.com;
     font-src 'self' https://fonts.gstatic.com data:;
     img-src 'self' data: https: blob:;
-    connect-src 'self' https://*.supabase.co https://*.upstash.io https://api.stripe.com;
+    connect-src 'self' https://*.supabase.co https://*.upstash.io https://api.stripe.com https://*.sentry.io https://*.ingest.sentry.io;
     frame-src 'self' https://js.stripe.com;
     object-src 'none';
     base-uri 'self';
