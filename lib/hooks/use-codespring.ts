@@ -37,7 +37,7 @@ export interface CodespringVerifyState {
  * @example
  * const { analyzeCode, data, isLoading, error } = useCodespringAnalyze();
  *
- * await analyzeCode('console.log("hello")', 'javascript');
+ * await analyzeCode('console.info("hello")', 'javascript');
  */
 export function useCodespringAnalyze(options?: UseCodespringAnalyzeOptions) {
   const [state, setState] = useState<CodespringAnalyzeState>({
