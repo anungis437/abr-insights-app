@@ -134,14 +134,14 @@ describe.skipIf(skipTests)('Permission System Tests', () => {
         .from('user_roles')
         .insert({
           user_id: testUserId,
-          role_id: roleData.id,
+          role_id: (roleData as any).id,
           organization_id: testOrgId,
         } as any)
         .select()
         .single()
 
       expect(error).toBeNull()
-      expect((data as any)?.role_id).toBe(roleData.id)
+      expect((data as any)?.role_id).toBe((roleData as any).id)
     })
 
     it('should prevent duplicate role assignments', async () => {
@@ -160,14 +160,14 @@ describe.skipIf(skipTests)('Permission System Tests', () => {
       // Insert first role
       await supabase.from('user_roles').insert({
         user_id: testUserId,
-        role_id: roleData.id,
+        role_id: (roleData as any).id,
         organization_id: testOrgId,
       } as any)
 
       // Try to insert duplicate
       const { error } = await supabase.from('user_roles').insert({
         user_id: testUserId,
-        role_id: roleData.id,
+        role_id: (roleData as any).id,
         organization_id: testOrgId,
       } as any)
 
