@@ -32,7 +32,7 @@ import {
 
 interface AuditLog {
   id: string
-  timestamp: string
+  created_at: string
   organization_id: string
   user_id: string
   user_email: string
@@ -109,7 +109,7 @@ export default function AuditLogsPage() {
         .from('audit_logs')
         .select('*, profiles(email)')
         .eq('organization_id', profile.organization_id)
-        .order('timestamp', { ascending: false })
+        .order('created_at', { ascending: false })
         .limit(100)
 
       if (filterCategory !== 'all') {
@@ -122,10 +122,10 @@ export default function AuditLogsPage() {
         query = query.eq('compliance_level', filterComplianceLevel)
       }
       if (dateRange.start) {
-        query = query.gte('timestamp', dateRange.start)
+        query = query.gte('created_at', dateRange.start)
       }
       if (dateRange.end) {
-        query = query.lte('timestamp', dateRange.end)
+        query = query.lte('created_at', dateRange.end)
       }
 
       const { data: logsData } = await query
@@ -407,7 +407,7 @@ export default function AuditLogsPage() {
                 filteredLogs.map((log) => (
                   <tr key={log.id} className="hover:bg-gray-50">
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
-                      {new Date(log.timestamp).toLocaleString()}
+                      {new Date(log.created_at).toLocaleString()}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-900">{log.user_email}</td>
                     <td className="px-6 py-4">
