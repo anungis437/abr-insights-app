@@ -109,8 +109,7 @@ regex = '''(?i)(postgres|mysql|mongodb)://[^:]+:[^@]+@[^/]+/'''
 tags = ["database", "connection-string", "secret"]
 severity = "high"
 
-# Allowlist for specific files that contain example secrets
-[[rules.allowlist]]
+[rules.allowlist]
 paths = [
   '''docs/PR_01_CSP_RUNTIME_ENFORCEMENT\.md''',
   '''docs/CONTAINER_SECURITY_CONTROLS\.md''',
