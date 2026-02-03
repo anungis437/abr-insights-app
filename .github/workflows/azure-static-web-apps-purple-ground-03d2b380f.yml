@@ -35,11 +35,6 @@ jobs:
       - name: Install dependencies
         run: npm ci --include=dev
 
-      - name: Build Next.js app
-        run: npm run build
-        env:
-          NODE_ENV: production
-
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
@@ -51,11 +46,16 @@ jobs:
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
           app_location: '/' # App source code path
           api_location: '' # No API
-          output_location: '' # Next.js handles output internally
-          skip_app_build: true # We already built above with correct Node version
+          output_location: '.next' # Next.js output directory
+          skip_app_build: false # Let Azure build with correct environment
           ###### End of Repository/Build Configurations ######
         env:
-          NODE_VERSION: '20'
+          NODE_VERSION: '22'
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
+          NEXT_PUBLIC_APP_NAME: 'ABR Insights'
+          NEXT_PUBLIC_APP_VERSION: '2.0.0'
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
