@@ -68,3 +68,6 @@ supabase/migrations/ALL_MIGRATIONS.sql
 # Supabase CLI local state (contains sensitive infrastructure metadata)
 supabase/.temp/
 supabase/**/.temp/
+
+# Sentry Config File
+.env.sentry-build-plugin
