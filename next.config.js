@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 
+const { withSentryConfig } = require('@sentry/nextjs')
+
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
@@ -184,4 +186,12 @@ const nextConfig = {
   },
 }
 
-module.exports = nextConfig
+module.exports = withSentryConfig(
+  nextConfig,
+  {
+    silent: true,
+  },
+  {
+    hideSourceMaps: true,
+  }
+)
