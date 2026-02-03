@@ -103,14 +103,14 @@ export class AchievementsService {
       if (error) {
         // Handle table not found gracefully
         if (error.code === 'PGRST301' || error.code === '42P01' || error.code === 'PGRST205') {
-          console.warn('[Achievements] user_achievements table not found, returning empty array')
+          logger.warn('user_achievements table not found', { userId, error_code: error.code })
           return []
         }
         throw error
       }
       return data
     } catch (error) {
-      console.error('[Achievements] Error fetching user achievements:', error)
+      logger.error('Failed to fetch user achievements', { error, userId })
       return []
     }
   }
@@ -185,7 +185,7 @@ export class AchievementsService {
           error.code === 'PGRST205' ||
           error.code === 'PGRST204'
         ) {
-          console.warn('[Achievements] user_points table not found, returning default')
+          logger.warn('user_points table not found', { userId, error_code: error.code })
           return {
             user_id: userId,
             total_points: 0,
@@ -204,7 +204,7 @@ export class AchievementsService {
 
       return data as UserPoints
     } catch (error) {
-      console.error('[Achievements] Error fetching user points:', error)
+      logger.error('Failed to fetch user points', { error, userId })
       return {
         user_id: userId,
         total_points: 0,

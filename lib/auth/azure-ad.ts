@@ -22,7 +22,7 @@ import {
 } from '@azure/msal-node'
 import * as jwt from 'jsonwebtoken'
 import { createClient } from '@/lib/supabase/server'
-import { logger } from '@/lib/utils/logger'
+import { logger } from '@/lib/utils/production-logger'
 
 // Types for Azure AD user info
 interface AzureADUserInfo {
@@ -165,7 +165,7 @@ export class AzureADService {
       const response = await this.msalClient.acquireTokenByCode(tokenRequest)
       return response
     } catch (error) {
-      console.error('[Azure AD] Token acquisition error:', error)
+      logger.error('Azure AD token acquisition failed', { error, redirectUri })
       throw new Error('Failed to acquire access token from Azure AD')
     }
   }
@@ -184,7 +184,7 @@ export class AzureADService {
 
       return decoded
     } catch (error) {
-      console.error('[Azure AD] Token validation error:', error)
+      logger.error('Azure AD token validation failed', { error })
       throw new Error('Failed to validate ID token')
     }
   }
@@ -284,7 +284,7 @@ export class AzureADService {
     })
 
     if (authError || !authUser.user) {
-      console.error('[Azure AD] User creation error:', authError)
+      logger.error('Azure AD user creation failed', { error: authError, email: claims.email })
       throw new Error('Failed to create user account')
     }
 
@@ -309,7 +309,7 @@ export class AzureADService {
       .single()
 
     if (profileError || !profile) {
-      console.error('[Azure AD] Profile creation error:', profileError)
+      logger.error('Azure AD profile creation failed', { error: profileError, email: claims.email, organizationId })
       throw new Error('Failed to create user profile')
     }
 
@@ -373,7 +373,7 @@ export class AzureADService {
       .single()
 
     if (error || !session) {
-      console.error('[Azure AD] Session creation error:', error)
+      logger.error('Azure AD session creation failed', { error, user_id: params.userId, org_id: params.organizationId })
       throw new Error('Failed to create SSO session')
     }
 

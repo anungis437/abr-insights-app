@@ -10,7 +10,7 @@
  * - Bundle size analysis integration
  */
 
-import { logger } from './logger'
+import { logger } from './production-logger'
 
 // =====================================================
 // Lazy Loading Utilities
@@ -118,7 +118,7 @@ export async function dynamicImport<T>(
     onProgress?.(100)
     return loadedModule.default
   } catch (error) {
-    console.error('[Dynamic Import] Failed to load module:', error)
+    logger.error('Dynamic module import failed', { error })
     throw error
   }
 }
@@ -130,13 +130,13 @@ export function preloadModule(importFn: () => Promise<any>): void {
   if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
     requestIdleCallback(() => {
       importFn().catch((error) => {
-        console.error('[Preload] Failed to preload module:', error)
+        logger.error('Module preload failed', { error, method: 'requestIdleCallback' })
       })
     })
   } else {
     setTimeout(() => {
       importFn().catch((error) => {
-        console.error('[Preload] Failed to preload module:', error)
+        logger.error('Module preload failed', { error, method: 'setTimeout' })
       })
     }, 1)
   }
@@ -381,7 +381,7 @@ export function measureWebVitals(
     })
     clsObserver.observe({ entryTypes: ['layout-shift'] })
   } catch (error) {
-    console.error('[Performance Monitoring] Error:', error)
+    logger.error('Performance monitoring error', { error })
   }
 }
 

@@ -2,6 +2,7 @@ import { Resend } from 'resend'
 import { render } from '@react-email/render'
 import ContactConfirmationEmail from '@/emails/contact-confirmation'
 import NewsletterWelcomeEmail from '@/emails/newsletter-welcome'
+import { logger } from '@/lib/utils/production-logger'
 
 // Lazy initialization to prevent build errors when API key is not available
 let resendInstance: Resend | null = null
@@ -37,7 +38,7 @@ export async function sendContactFormNotification(data: ContactFormData) {
   const resend = getResendClient()
 
   if (!resend) {
-    console.warn('RESEND_API_KEY not configured, skipping email')
+    logger.warn('RESEND_API_KEY not configured', { operation: 'sendContactFormNotification' })
     return { success: false, error: 'Email service not configured' }
   }
 
@@ -62,7 +63,7 @@ export async function sendContactFormNotification(data: ContactFormData) {
 
     return { success: true }
   } catch (error) {
-    console.error('Failed to send contact form notification:', error)
+    logger.error('Failed to send contact form notification', { error, recipient: CONTACT_RECIPIENT })
     return { success: false, error: 'Failed to send notification email' }
   }
 }
@@ -74,7 +75,7 @@ export async function sendContactFormConfirmation(data: ContactFormData) {
   const resend = getResendClient()
 
   if (!resend) {
-    console.warn('RESEND_API_KEY not configured, skipping email')
+    logger.warn('RESEND_API_KEY not configured', { operation: 'sendContactFormConfirmation' })
     return { success: false, error: 'Email service not configured' }
   }
 
@@ -95,7 +96,7 @@ export async function sendContactFormConfirmation(data: ContactFormData) {
 
     return { success: true }
   } catch (error) {
-    console.error('Failed to send contact confirmation email:', error)
+    logger.error('Failed to send contact confirmation email', { error, recipient: data.email })
     return { success: false, error: 'Failed to send confirmation email' }
   }
 }
@@ -107,7 +108,7 @@ export async function sendNewsletterWelcome(data: NewsletterData) {
   const resend = getResendClient()
 
   if (!resend) {
-    console.warn('RESEND_API_KEY not configured, skipping email')
+    logger.warn('RESEND_API_KEY not configured', { operation: 'sendNewsletterWelcome' })
     return { success: false, error: 'Email service not configured' }
   }
 
@@ -127,7 +128,7 @@ export async function sendNewsletterWelcome(data: NewsletterData) {
 
     return { success: true }
   } catch (error) {
-    console.error('Failed to send newsletter welcome email:', error)
+    logger.error('Failed to send newsletter welcome email', { error, recipient: data.email })
     return { success: false, error: 'Failed to send welcome email' }
   }
 }
@@ -149,7 +150,7 @@ export async function sendEmail({
   const resend = getResendClient()
 
   if (!resend) {
-    console.warn('RESEND_API_KEY not configured, skipping email')
+    logger.warn('RESEND_API_KEY not configured', { operation: 'sendEmail', recipient: to })
     return { success: false, error: 'Email service not configured' }
   }
 
@@ -164,7 +165,7 @@ export async function sendEmail({
 
     return { success: true }
   } catch (error) {
-    console.error('Failed to send email:', error)
+    logger.error('Failed to send email', { error, recipient: to, subject })
     return { success: false, error: 'Failed to send email' }
   }
 }
@@ -186,7 +187,7 @@ export async function sendSupportTicketNotification(data: SupportTicketData) {
   const resend = getResendClient()
 
   if (!resend) {
-    console.warn('RESEND_API_KEY not configured, skipping support ticket email')
+    logger.warn('RESEND_API_KEY not configured', { operation: 'sendSupportTicketNotification' })
     return { success: false, error: 'Email service not configured' }
   }
 
@@ -211,7 +212,7 @@ export async function sendSupportTicketNotification(data: SupportTicketData) {
 
     return { success: true }
   } catch (error) {
-    console.error('Failed to send support ticket notification:', error)
+    logger.error('Failed to send support ticket notification', { error, ticketId: data.ticketId, recipient: CONTACT_RECIPIENT })
     return { success: false, error: 'Failed to send notification email' }
   }
 }

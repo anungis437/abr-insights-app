@@ -12,6 +12,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
+import { logger as productionLogger } from '@/lib/utils/production-logger'
 import { logger } from '@/lib/utils/logger'
 
 // Event categories
@@ -94,11 +95,11 @@ export async function logEvent(entry: AuditLogEntry): Promise<void> {
     })
 
     if (error) {
-      console.error('[Audit Logger] Failed to log event:', error)
+      productionLogger.error('Audit log write failed', { error, event: entry.eventType, org_id: entry.organizationId })
       // Don't throw - audit logging should not break application flow
     }
   } catch (error) {
-    console.error('[Audit Logger] Exception logging event:', error)
+    productionLogger.error('Audit logging exception', { error, event: entry.eventType })
     // Don't throw - audit logging should not break application flow
   }
 }

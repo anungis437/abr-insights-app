@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { Certificate } from '@/lib/services/certificates'
 import { generateCertificatePDF } from '@/components/certificates/CertificatePDF'
+import { logger } from '@/lib/utils/production-logger'
 
 /**
  * Upload certificate PDF to Supabase Storage
@@ -43,7 +44,7 @@ export async function uploadCertificatePDF(
     })
 
     if (error) {
-      console.error('Error uploading certificate PDF:', error)
+      logger.error('Certificate PDF upload failed', { error, filePath, certificate_id: certificate.id })
       throw error
     }
 
@@ -55,7 +56,7 @@ export async function uploadCertificatePDF(
       pdf_file_path: data.path,
     }
   } catch (error) {
-    console.error('Failed to upload certificate PDF:', error)
+    logger.error('Certificate PDF upload exception', { error, certificate_id: certificate.id })
     return {
       pdf_url: '',
       pdf_file_path: '',
@@ -77,13 +78,13 @@ export async function deleteCertificatePDF(filePath: string): Promise<boolean> {
     const { error } = await supabase.storage.from('certificates').remove([filePath])
 
     if (error) {
-      console.error('Error deleting certificate PDF:', error)
+      logger.error('Certificate PDF deletion failed', { error, filePath })
       return false
     }
 
     return true
   } catch (error) {
-    console.error('Failed to delete certificate PDF:', error)
+    logger.error('Certificate PDF deletion exception', { error, filePath })
     return false
   }
 }
@@ -100,7 +101,7 @@ export async function ensureCertificatesBucket(): Promise<boolean> {
     const { data: buckets, error: listError } = await supabase.storage.listBuckets()
 
     if (listError) {
-      console.error('Error listing buckets:', listError)
+      logger.error('Storage bucket listing failed', { error: listError })
       return false
     }
 
@@ -118,13 +119,13 @@ export async function ensureCertificatesBucket(): Promise<boolean> {
     })
 
     if (createError) {
-      console.error('Error creating certificates bucket:', createError)
+      logger.error('Certificates bucket creation failed', { error: createError })
       return false
     }
 
     return true
   } catch (error) {
-    console.error('Failed to ensure certificates bucket:', error)
+    logger.error('Failed to ensure certificates bucket', { error })
     return false
   }
 }
