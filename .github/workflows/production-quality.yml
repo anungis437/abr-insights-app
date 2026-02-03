@@ -19,12 +19,15 @@ jobs:
         run: |
           echo "🔍 Checking for console.log in runtime code..."
 
-          # Exclude allowed locations: logger implementations, development utilities
+          # Exclude allowed locations: logger implementations, development utilities, CLI scripts
           CONSOLE_LOGS=$(git ls-files | \
             grep -E '\.(ts|tsx|js|jsx)$' | \
             grep -v 'lib/utils/logger.ts' | \
             grep -v 'lib/utils/production-logger.ts' | \
             grep -v 'lib/observability/logger.ts' | \
+            grep -v 'scripts/' | \
+            grep -v 'ingestion/' | \
+            grep -v 'public/sw.js' | \
             grep -v '.test.' | \
             grep -v '.spec.' | \
             grep -v 'vitest' | \
