@@ -149,7 +149,10 @@ export default function PermissionsPage() {
           ...perm,
           category: perm.category || perm.resource,
         }))
-        console.log('[Permissions] Loaded permissions:', permsWithCategory.length)
+        logger.info('[Permissions] Loaded permissions', {
+          count: permsWithCategory.length,
+          context: 'PermissionsPage',
+        })
         setPermissions(permsWithCategory)
       }
 
@@ -461,9 +464,7 @@ export default function PermissionsPage() {
                           {perm.category || 'General'}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
-                        {perm.description || '-'}
-                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-600">{perm.description || '-'}</td>
                     </tr>
                   ))}
                 {permissions.length === 0 && (
