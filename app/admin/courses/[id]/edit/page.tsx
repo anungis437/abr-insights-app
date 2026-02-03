@@ -2,12 +2,13 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/client'
 import { ArrowLeft, Save, Eye, Plus, X, BookOpen, Loader2 } from 'lucide-react'
 
 export default function EditCoursePage() {
   const router = useRouter()
   const params = useParams()
+  const supabase = createClient()
   const courseId = params.id as string
 
   const [user, setUser] = useState<any>(null)

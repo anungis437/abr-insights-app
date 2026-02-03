@@ -5,7 +5,7 @@ import { logger } from '@/lib/utils/production-logger'
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/client'
 import { PermissionGate } from '@/components/shared/PermissionGate'
 import {
   Users,
@@ -24,6 +24,7 @@ import { checkSeatAvailability } from './actions'
 
 export default function TeamManagementPage() {
   const router = useRouter()
+  const supabase = createClient()
   const [user, setUser] = useState<any>(null)
   const [organization, setOrganization] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)

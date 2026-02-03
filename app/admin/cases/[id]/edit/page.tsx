@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { Plus, X, Save, ArrowLeft, AlertCircle } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/client'
 
 interface CaseFormData {
   case_number: string
@@ -73,6 +73,7 @@ const PROVINCES = [
 export default function EditCasePage() {
   const router = useRouter()
   const params = useParams()
+  const supabase = createClient()
   const caseId = params.id as string
   const [user, setUser] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
