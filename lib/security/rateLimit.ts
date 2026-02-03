@@ -301,11 +301,7 @@ export function withMultipleRateLimits(
     // All limits passed, execute handler
     const response = await Promise.resolve(handler(request, context))
 
-    // Add most restrictive limit headers
-    const results = await Promise.all(
-      configs.map((config) => checkRateLimit(request, config, context))
-    )
-
+    // Add most restrictive limit headers (reuse results from check above)
     const mostRestrictive = results.reduce((prev, curr) =>
       curr.remaining < prev.remaining ? curr : prev
     )

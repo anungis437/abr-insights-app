@@ -164,6 +164,10 @@ export function withAnyPermission(
 
 /**
  * Composeable guard with all options
+ * 
+ * Note: Rate limiting is intentionally NOT included here.
+ * Apply rate limits separately using withRateLimit or withMultipleRateLimits
+ * from lib/security/rateLimit.ts for better composability.
  */
 export interface GuardOptions {
   requireAuth?: boolean

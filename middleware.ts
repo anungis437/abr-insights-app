@@ -2,17 +2,18 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
 
 /**
- * Global Proxy/Middleware
+ * Global Next.js Middleware
  * Handles:
  * - Session management (Supabase)
  * - CSP nonce generation (security)
  * - Request correlation IDs (observability)
  * - Route redirects
+ * - _dev route blocking in production
  *
  * Note: Using Web Crypto API (Edge Runtime compatible)
  */
 
-export default async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Block _dev routes in production (P0 security)
