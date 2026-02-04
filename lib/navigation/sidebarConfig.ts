@@ -446,6 +446,14 @@ const guestNav: SidebarNavItem[] = [
       { label: 'Public Cases', href: '/cases/browse', icon: FileText },
     ],
   },
+  {
+    label: 'Profile',
+    icon: UserCog,
+    children: [
+      { label: 'My Profile', href: '/profile', icon: Users },
+      { label: 'Sign Out', href: '/auth/signout', icon: LogOut },
+    ],
+  },
 ]
 
 // Export role-specific navigation
