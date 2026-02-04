@@ -7,6 +7,8 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { logger } from '@/lib/utils/logger'
 import { PermissionGate } from '@/components/shared/PermissionGate'
+import { ROLE_CONFIG, isInternalRole, getRoleDisplayName } from '@/lib/types/roles'
+import type { UserRole } from '@/lib/types/roles'
 import {
   Users,
   Search,
@@ -536,11 +538,28 @@ export default function AdminUsersPage() {
                     className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                     title="Select new role"
                   >
-                    <option value="Super Admin">Super Admin</option>
-                    <option value="Admin">Admin</option>
-                    <option value="Analyst">Analyst</option>
-                    <option value="Viewer">Viewer</option>
+                    {Object.values(ROLE_CONFIG)
+                      .sort((a, b) => b.level - a.level)
+                      .map((roleConfig) => (
+                        <option key={roleConfig.slug} value={roleConfig.name}>
+                          {roleConfig.name}
+                          {roleConfig.isInternal ? ' (Internal)' : ''}
+                          {roleConfig.isSystem ? ' (System)' : ''}
+                        </option>
+                      ))}
                   </select>
+                  {newRole && (
+                    <div className="mt-2 space-y-1">
+                      {isInternalRole(
+                        Object.values(ROLE_CONFIG).find((r) => r.name === newRole)?.slug as UserRole
+                      ) && (
+                        <div className="flex items-center gap-2 text-xs text-orange-600">
+                          <AlertCircle className="h-3 w-3" />
+                          <span>Internal role - not available for public subscription</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
                 {/* Permission Preview */}
                 {newRole && (
