@@ -29,24 +29,42 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized', code: 'UNAUTHORIZED' }, { status: 401 })
     }
 
-    // Get user's organization
+    // Get user's organization (null for individual users)
     const { data: profile } = await supabase
       .from('profiles')
       .select('organization_id')
       .eq('id', user.id)
       .single()
 
-    if (!profile?.organization_id) {
-      return NextResponse.json(
-        { error: 'Organization not found', code: 'NOT_FOUND' },
-        { status: 404 }
-      )
+    const organizationId = profile?.organization_id || null
+
+    // Individual users have unlimited AI quota (no org limits)
+    if (!organizationId) {
+      logger.info('AI usage retrieved for individual user', { userId: user.id })
+      return NextResponse.json({
+        quota: {
+          dailyGpt4Limit: 999999,
+          dailyGpt35Limit: 999999,
+          dailyClaudeLimit: 999999,
+          dailyEmbeddingLimit: 999999,
+          monthlyCostLimitCents: 999999999,
+          monthlyCostWarningCents: 999999999,
+        },
+        usage: {
+          dailyGpt4Count: 0,
+          dailyGpt35Count: 0,
+          dailyClaudeCount: 0,
+          dailyEmbeddingCount: 0,
+          monthlyCostCents: 0,
+        },
+        isIndividual: true,
+      })
     }
 
-    // Get quota config and usage
+    // Get quota config and usage for organization users
     const [config, usage] = await Promise.all([
-      aiQuota.getQuotaConfig(profile.organization_id),
-      aiQuota.getUsage(profile.organization_id),
+      aiQuota.getQuotaConfig(organizationId),
+      aiQuota.getUsage(organizationId),
     ])
 
     if (!config) {
@@ -56,7 +74,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    logger.info('AI usage retrieved', { organizationId: profile.organization_id, userId: user.id })
+    logger.info('AI usage retrieved', { organizationId, userId: user.id })
 
     return NextResponse.json({
       quota: {
@@ -75,6 +93,7 @@ export async function GET(request: NextRequest) {
         claudeRequests: 0,
         embeddingRequests: 0,
       },
+      isIndividual: false,
     })
   } catch (error) {
     logger.error('Failed to get AI usage', { error })
