@@ -118,7 +118,7 @@ export default function TrainingHubPage() {
         course.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         course.description?.toLowerCase().includes(searchTerm.toLowerCase())
 
-      const matchesCategory = selectedCategory === 'all' || course.category === selectedCategory
+      const matchesCategory = selectedCategory === 'all'
       const matchesLevel = selectedLevel === 'all' || course.level === selectedLevel
 
       return matchesSearch && matchesCategory && matchesLevel
@@ -159,7 +159,7 @@ export default function TrainingHubPage() {
   }
 
   const categories = useMemo(() => {
-    return [...new Set(courses.map((c) => c.category))].sort()
+    return []
   }, [courses])
 
   const levels = ['Introductory', 'Intermediate', 'Advanced', 'Specialized']
@@ -410,14 +410,7 @@ export default function TrainingHubPage() {
                           {course.description || 'No description available'}
                         </p>
 
-                        {course.instructor_name && (
-                          <div className="mb-4 flex items-center gap-2">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-teal-500 to-teal-600 text-sm font-bold text-white">
-                              {course.instructor_name.charAt(0)}
-                            </div>
-                            <span className="text-sm text-gray-600">{course.instructor_name}</span>
-                          </div>
-                        )}
+
 
                         {progress > 0 && (
                           <div className="mb-4">
