@@ -36,6 +36,7 @@ function LoginForm() {
 
       // Get user role to determine redirect
       const { createClient } = await import('@/lib/supabase/client')
+      const { getDefaultLandingPage } = await import('@/lib/types/roles')
       const supabase = createClient()
       const {
         data: { user },
@@ -48,12 +49,7 @@ function LoginForm() {
 
       // Determine redirect path
       const redirectTo = searchParams.get('redirect')
-      let redirectPath = redirectTo || '/dashboard'
-
-      // Learners go to homepage unless explicitly redirected elsewhere
-      if (profile?.role === 'learner' && !redirectTo) {
-        redirectPath = '/'
-      }
+      const redirectPath = redirectTo || getDefaultLandingPage(profile?.role || null)
 
       router.push(redirectPath)
     } catch (err) {
