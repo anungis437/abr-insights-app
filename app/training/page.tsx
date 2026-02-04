@@ -89,6 +89,20 @@ export default function TrainingHubPage() {
           .order('created_at', { ascending: false })
 
         if (error) throw error
+
+        logger.info('Courses fetched successfully', {
+          context: 'TrainingHubPage',
+          courseCount: data?.length || 0,
+          sampleCourse: data?.[0]
+            ? {
+                id: data[0].id,
+                title: data[0].title,
+                slug: data[0].slug,
+                hasSlug: !!data[0].slug,
+              }
+            : null,
+        })
+
         setCourses(data || [])
       } catch (error) {
         logger.error('Error fetching courses:', { error: error, context: 'TrainingHubPage' })
@@ -211,6 +225,25 @@ export default function TrainingHubPage() {
   }
 
   const handleCourseClick = (course: Course, hasAccess: boolean) => {
+    logger.info('Course card clicked', {
+      context: 'TrainingHubPage',
+      courseId: course.id,
+      courseTitle: course.title,
+      courseSlug: course.slug,
+      hasSlug: !!course.slug,
+      hasAccess,
+    })
+
+    if (!course.slug) {
+      logger.error('Course missing slug, cannot navigate', {
+        context: 'TrainingHubPage',
+        courseId: course.id,
+        courseTitle: course.title,
+      })
+      alert(`Error: Course "${course.title}" is missing a slug. Please contact support.`)
+      return
+    }
+
     if (hasAccess) {
       logger.info('Navigating to course player', {
         context: 'TrainingHubPage',
