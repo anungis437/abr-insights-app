@@ -25,6 +25,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import {
   requireSession,
   requireOrgContext,
+  getOptionalOrgContext,
   requirePermission,
   requireAnyPermission,
   AuthError,
@@ -197,7 +198,7 @@ export function withAnyPermission(
 export interface GuardOptions {
   requireAuth?: boolean
   requireOrg?: boolean
-  optionalOrg?: boolean // Allow org context but don't require it (for individual users)
+  optionalOrg?: boolean  // Allow org context but don't require it (for individual users)
   permissions?: string[]
   anyPermissions?: string[] // OR logic for permissions
 }
