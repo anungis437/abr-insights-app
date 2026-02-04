@@ -8,10 +8,7 @@ const supabase = createClient(
 
 console.log('🔍 Checking RLS policies on enrollments table...\n')
 
-const { data, error } = await supabase
-  .from('enrollments')
-  .select('*')
-  .limit(0)
+const { data, error } = await supabase.from('enrollments').select('*').limit(0)
 
 if (error) {
   console.log('❌ Error:', error)

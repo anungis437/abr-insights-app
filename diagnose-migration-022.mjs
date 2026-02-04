@@ -11,7 +11,7 @@ console.log('🔍 Diagnostic: Checking migration 022 application status\n')
 // Check if organization_id is nullable by querying records with NULL values
 console.log('📊 Schema Check (testing NULL values):')
 
-const { data: testRead, error: readError} = await serviceClient
+const { data: testRead, error: readError } = await serviceClient
   .from('enrollments')
   .select('id, organization_id')
   .is('organization_id', null)
@@ -39,7 +39,9 @@ if (indivError) {
 } else {
   console.log(`   Found ${individualEnrollments.length} enrollment(s) with NULL organization_id:`)
   individualEnrollments.forEach((e, i) => {
-    console.log(`   ${i + 1}. User: ${e.user_id.substring(0, 8)}..., Course: ${e.course_id.substring(0, 8)}...`)
+    console.log(
+      `   ${i + 1}. User: ${e.user_id.substring(0, 8)}..., Course: ${e.course_id.substring(0, 8)}...`
+    )
   })
 }
 

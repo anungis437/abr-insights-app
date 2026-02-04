@@ -90,11 +90,7 @@ interface QuizQuestion {
   explanation?: string
 }
 
-export default function CoursePlayerPage({
-  params,
-}: {
-  params: Promise<{ slug: string }> | { slug: string }
-}) {
+export default function CoursePlayerPage({ params }: { params: Promise<{ slug: string }> | { slug: string } }) {
   const router = useRouter()
   const supabase = createClient()
   const { entitlements, loading: entitlementsLoading } = useEntitlements()
@@ -206,9 +202,18 @@ export default function CoursePlayerPage({
           .select('*')
           .eq('user_id', user.id)
           .eq('course_id', courseData.id)
-          .single()
+          .maybeSingle()
 
-        if (enrollmentError && enrollmentError.code !== 'PGRST116') throw enrollmentError
+        // Handle any errors except "not found" (PGRST116)
+        if (enrollmentError && enrollmentError.code !== 'PGRST116') {
+          logger.error('Error fetching enrollment', {
+            context: 'CoursePlayerPage',
+            error: enrollmentError,
+            userId: user.id,
+            courseId: courseData.id,
+          })
+          throw enrollmentError
+        }
 
         let enrollmentData = initialEnrollmentData
 
@@ -220,7 +225,7 @@ export default function CoursePlayerPage({
             .eq('id', user.id)
             .single()
 
-          // Create enrollment
+          // Create enrollment (supports both individual and organization users)
           const { data: newEnrollment, error: createError } = await supabase
             .from('enrollments')
             .insert({
@@ -234,15 +239,43 @@ export default function CoursePlayerPage({
             .single()
 
           if (createError) {
-            logger.error('Failed to create enrollment', {
-              context: 'CoursePlayerPage',
-              error: createError,
-              userId: user.id,
-              courseId: courseData.id,
-            })
-            throw createError
+            // Handle duplicate key error gracefully
+            if (createError.code === '23505') {
+              logger.warn('Enrollment already exists, retrying fetch', {
+                context: 'CoursePlayerPage',
+                userId: user.id,
+                courseId: courseData.id,
+              })
+              // Retry fetching the enrollment
+              const { data: retryEnrollment, error: retryError } = await supabase
+                .from('enrollments')
+                .select('*')
+                .eq('user_id', user.id)
+                .eq('course_id', courseData.id)
+                .maybeSingle()
+
+              if (retryError || !retryEnrollment) {
+                logger.error('Failed to fetch enrollment after duplicate error', {
+                  context: 'CoursePlayerPage',
+                  error: retryError,
+                  userId: user.id,
+                  courseId: courseData.id,
+                })
+                throw retryError || new Error('Enrollment exists but cannot be fetched')
+              }
+              enrollmentData = retryEnrollment
+            } else {
+              logger.error('Failed to create enrollment', {
+                context: 'CoursePlayerPage',
+                error: createError,
+                userId: user.id,
+                courseId: courseData.id,
+              })
+              throw createError
+            }
+          } else {
+            enrollmentData = newEnrollment
           }
-          enrollmentData = newEnrollment
         }
 
         setEnrollment(enrollmentData)
@@ -431,10 +464,14 @@ export default function CoursePlayerPage({
               <Lock className="h-12 w-12 text-yellow-600" />
             </div>
           </div>
-          <h1 className="mb-3 text-center text-2xl font-bold text-gray-900">Upgrade Required</h1>
+          <h1 className="mb-3 text-center text-2xl font-bold text-gray-900">
+            Upgrade Required
+          </h1>
           <p className="mb-4 text-center text-gray-600">
             This course requires a{' '}
-            <strong className="text-gray-900">{course.required_tier.toUpperCase()}</strong>{' '}
+            <strong className="text-gray-900">
+              {course.required_tier.toUpperCase()}
+            </strong>{' '}
             subscription or higher.
           </p>
           <div className="mb-6 rounded-lg bg-gray-50 p-4">
