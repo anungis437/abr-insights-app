@@ -102,8 +102,37 @@ COMMENT ON FUNCTION public.user_org_or_null IS
 -- UPDATE RLS POLICIES TO SUPPORT INDIVIDUAL USERS
 -- ============================================================================
 
--- Enrollments: Update policies to allow individual users
-DROP POLICY IF EXISTS "Users can view own enrollments" ON enrollments;
+-- Drop ALL existing policies on these tables first to avoid conflicts
+DO $$ 
+DECLARE
+    pol RECORD;
+BEGIN
+    -- Drop all enrollments policies
+    FOR pol IN 
+        SELECT policyname FROM pg_policies 
+        WHERE schemaname = 'public' AND tablename = 'enrollments'
+    LOOP
+        EXECUTE format('DROP POLICY IF EXISTS %I ON enrollments', pol.policyname);
+    END LOOP;
+    
+    -- Drop all user_achievements policies
+    FOR pol IN 
+        SELECT policyname FROM pg_policies 
+        WHERE schemaname = 'public' AND tablename = 'user_achievements'
+    LOOP
+        EXECUTE format('DROP POLICY IF EXISTS %I ON user_achievements', pol.policyname);
+    END LOOP;
+    
+    -- Drop all ai_usage_logs policies
+    FOR pol IN 
+        SELECT policyname FROM pg_policies 
+        WHERE schemaname = 'public' AND tablename = 'ai_usage_logs'
+    LOOP
+        EXECUTE format('DROP POLICY IF EXISTS %I ON ai_usage_logs', pol.policyname);
+    END LOOP;
+END $$;
+
+-- Enrollments: Create clean policies for individual users
 CREATE POLICY "Users can view own enrollments"
 ON enrollments FOR SELECT
 USING (
@@ -114,7 +143,6 @@ USING (
   )
 );
 
-DROP POLICY IF EXISTS "Users can insert own enrollments" ON enrollments;
 CREATE POLICY "Users can insert own enrollments"
 ON enrollments FOR INSERT
 WITH CHECK (
@@ -125,7 +153,6 @@ WITH CHECK (
   )
 );
 
-DROP POLICY IF EXISTS "Users can update own enrollments" ON enrollments;
 CREATE POLICY "Users can update own enrollments"
 ON enrollments FOR UPDATE
 USING (
@@ -136,8 +163,12 @@ USING (
   )
 );
 
--- User Achievements: Update policies for individual users
-DROP POLICY IF EXISTS "Users can view own achievements" ON user_achievements;
+CREATE POLICY "Service role bypass for enrollments"
+ON enrollments FOR ALL
+USING (auth.jwt() ->> 'role' = 'service_role')
+WITH CHECK (auth.jwt() ->> 'role' = 'service_role');
+
+-- User Achievements: Create clean policies for individual users
 CREATE POLICY "Users can view own achievements"
 ON user_achievements FOR SELECT
 USING (
@@ -148,7 +179,6 @@ USING (
   )
 );
 
-DROP POLICY IF EXISTS "System can insert achievements" ON user_achievements;
 CREATE POLICY "System can insert achievements"
 ON user_achievements FOR INSERT
 WITH CHECK (
@@ -163,8 +193,12 @@ WITH CHECK (
   )
 );
 
--- AI Usage Logs: Update policies for individual users
-DROP POLICY IF EXISTS "Users can view own AI usage" ON ai_usage_logs;
+CREATE POLICY "Service role bypass for achievements"
+ON user_achievements FOR ALL
+USING (auth.jwt() ->> 'role' = 'service_role')
+WITH CHECK (auth.jwt() ->> 'role' = 'service_role');
+
+-- AI Usage Logs: Create clean policies for individual users
 CREATE POLICY "Users can view own AI usage"
 ON ai_usage_logs FOR SELECT
 USING (
@@ -176,7 +210,6 @@ USING (
   )
 );
 
-DROP POLICY IF EXISTS "System can insert AI usage logs" ON ai_usage_logs;
 CREATE POLICY "System can insert AI usage logs"
 ON ai_usage_logs FOR INSERT
 WITH CHECK (
@@ -190,6 +223,11 @@ WITH CHECK (
     )
   )
 );
+
+CREATE POLICY "Service role bypass for AI logs"
+ON ai_usage_logs FOR ALL
+USING (auth.jwt() ->> 'role' = 'service_role')
+WITH CHECK (auth.jwt() ->> 'role' = 'service_role');
 
 -- ============================================================================
 -- VERIFICATION QUERIES
