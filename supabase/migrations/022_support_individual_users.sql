@@ -52,7 +52,7 @@ WHERE organization_id IS NULL;
 -- ============================================================================
 
 -- Update user_organization_id to return NULL instead of failing
-CREATE OR REPLACE FUNCTION auth.user_organization_id()
+CREATE OR REPLACE FUNCTION public.user_organization_id()
 RETURNS UUID AS $$
 BEGIN
     -- Returns NULL for individual users instead of failing
@@ -64,11 +64,11 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
 
-COMMENT ON FUNCTION auth.user_organization_id IS 
+COMMENT ON FUNCTION public.user_organization_id IS 
 'Get the organization ID for the current user. Returns NULL for individual users.';
 
 -- Function to check if user is an individual (not part of organization)
-CREATE OR REPLACE FUNCTION auth.is_individual_user(p_user_id UUID)
+CREATE OR REPLACE FUNCTION public.is_individual_user(p_user_id UUID)
 RETURNS BOOLEAN AS $$
 BEGIN
     RETURN NOT EXISTS (
@@ -80,11 +80,11 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
 
-COMMENT ON FUNCTION auth.is_individual_user IS 
+COMMENT ON FUNCTION public.is_individual_user IS 
 'Check if user is an individual user (no organization). Returns true if user has no organization_id in profile.';
 
 -- Function to get user's organization or null for individuals
-CREATE OR REPLACE FUNCTION auth.user_org_or_null()
+CREATE OR REPLACE FUNCTION public.user_org_or_null()
 RETURNS UUID AS $$
 BEGIN
     RETURN (
@@ -95,7 +95,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
 
-COMMENT ON FUNCTION auth.user_org_or_null IS 
+COMMENT ON FUNCTION public.user_org_or_null IS 
 'Get user organization ID or NULL for individual users. Does not throw error if no org.';
 
 -- ============================================================================
@@ -110,7 +110,7 @@ USING (
   user_id = auth.uid()
   OR (
     organization_id IS NOT NULL 
-    AND organization_id = auth.user_organization_id()
+    AND organization_id = public.user_organization_id()
   )
 );
 
@@ -121,7 +121,7 @@ WITH CHECK (
   user_id = auth.uid()
   AND (
     organization_id IS NULL  -- Individual users can enroll
-    OR organization_id = auth.user_organization_id()  -- Org users in their org
+    OR organization_id = public.user_organization_id()  -- Org users in their org
   )
 );
 
@@ -132,7 +132,7 @@ USING (
   user_id = auth.uid()
   OR (
     organization_id IS NOT NULL 
-    AND organization_id = auth.user_organization_id()
+    AND organization_id = public.user_organization_id()
   )
 );
 
@@ -144,7 +144,7 @@ USING (
   user_id = auth.uid()
   OR (
     organization_id IS NOT NULL 
-    AND organization_id = auth.user_organization_id()
+    AND organization_id = public.user_organization_id()
   )
 );
 
@@ -158,7 +158,7 @@ WITH CHECK (
     user_id = auth.uid()
     AND (
       organization_id IS NULL  -- Individual users
-      OR organization_id = auth.user_organization_id()  -- Org users
+      OR organization_id = public.user_organization_id()  -- Org users
     )
   )
 );
@@ -171,8 +171,8 @@ USING (
   user_id = auth.uid()
   OR (
     organization_id IS NOT NULL 
-    AND organization_id = auth.user_organization_id()
-    AND auth.has_permission(auth.uid(), organization_id, 'admin.view_analytics')
+    AND organization_id = public.user_organization_id()
+    AND public.has_permission(auth.uid(), organization_id, 'admin.view_analytics')
   )
 );
 
@@ -186,7 +186,7 @@ WITH CHECK (
     user_id = auth.uid()
     AND (
       organization_id IS NULL  -- Individual users
-      OR organization_id = auth.user_organization_id()  -- Org users
+      OR organization_id = public.user_organization_id()  -- Org users
     )
   )
 );
