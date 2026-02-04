@@ -175,7 +175,6 @@ const analystNav: SidebarNavItem[] = [
     children: [
       { label: 'My Profile', href: '/profile', icon: Users },
       { label: 'Settings', href: '/profile', icon: Settings },
-      { label: 'Billing', href: '/dashboard/billing', icon: CreditCard },
       { label: 'Sign Out', href: '/auth/signout', icon: LogOut },
     ],
   },
@@ -218,7 +217,6 @@ const investigatorNav: SidebarNavItem[] = [
     children: [
       { label: 'My Profile', href: '/profile', icon: Users },
       { label: 'Settings', href: '/profile', icon: Settings },
-      { label: 'Billing', href: '/dashboard/billing', icon: CreditCard },
       { label: 'Sign Out', href: '/auth/signout', icon: LogOut },
     ],
   },
@@ -317,7 +315,6 @@ const complianceNav: SidebarNavItem[] = [
     children: [
       { label: 'My Profile', href: '/profile', icon: Users },
       { label: 'Settings', href: '/profile', icon: Settings },
-      { label: 'Billing', href: '/dashboard/billing', icon: CreditCard },
       { label: 'Sign Out', href: '/auth/signout', icon: LogOut },
     ],
   },
@@ -391,7 +388,6 @@ const superAdminNav: SidebarNavItem[] = [
     children: [
       { label: 'My Profile', href: '/profile', icon: Users },
       { label: 'Settings', href: '/profile', icon: Settings },
-      { label: 'Billing', href: '/dashboard/billing', icon: CreditCard },
       { label: 'Sign Out', href: '/auth/signout', icon: LogOut },
     ],
   },
