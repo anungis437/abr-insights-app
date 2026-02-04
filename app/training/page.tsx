@@ -102,7 +102,7 @@ export default function TrainingHubPage() {
     const fetchCategories = async () => {
       try {
         const { data, error } = await supabase
-          .from('course_categories')
+          .from('content_categories')
           .select('id, name')
           .order('name')
 
@@ -403,9 +403,10 @@ export default function TrainingHubPage() {
                   const isCompleted = progress === 100
 
                   return (
-                    <div
+                    <Link
                       key={course.id}
-                      className="group cursor-pointer overflow-hidden rounded-lg bg-white shadow-md transition-all hover:shadow-xl"
+                      href={hasAccess ? `/courses/${course.slug}/player` : '/pricing'}
+                      className="group overflow-hidden rounded-lg bg-white shadow-md transition-all hover:shadow-xl"
                     >
                       <div className="relative">
                         {course.thumbnail_url ? (
@@ -469,31 +470,27 @@ export default function TrainingHubPage() {
                         )}
 
                         {hasAccess ? (
-                          <Link href={`/courses/${course.slug}/player`}>
-                            <button className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-teal-500 to-teal-600 px-4 py-2 font-medium text-white transition-colors hover:from-teal-600 hover:to-teal-700">
-                              {progress > 0 ? (
-                                <>
-                                  <Play className="h-4 w-4" />
-                                  Continue Course
-                                </>
-                              ) : (
-                                <>
-                                  <Play className="h-4 w-4" />
-                                  Start Course
-                                </>
-                              )}
-                            </button>
-                          </Link>
+                          <button className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-teal-500 to-teal-600 px-4 py-2 font-medium text-white transition-colors hover:from-teal-600 hover:to-teal-700">
+                            {progress > 0 ? (
+                              <>
+                                <Play className="h-4 w-4" />
+                                Continue Course
+                              </>
+                            ) : (
+                              <>
+                                <Play className="h-4 w-4" />
+                                Start Course
+                              </>
+                            )}
+                          </button>
                         ) : (
-                          <Link href="/pricing">
-                            <button className="flex w-full items-center justify-center gap-2 rounded-lg bg-gray-300 px-4 py-2 font-medium text-gray-600 transition-colors hover:bg-gray-400">
-                              <Lock className="h-4 w-4" />
-                              Upgrade to {course.required_tier.toUpperCase()}
-                            </button>
-                          </Link>
+                          <button className="flex w-full items-center justify-center gap-2 rounded-lg bg-gray-300 px-4 py-2 font-medium text-gray-600 transition-colors hover:bg-gray-400">
+                            <Lock className="h-4 w-4" />
+                            Upgrade to {course.required_tier.toUpperCase()}
+                          </button>
                         )}
                       </div>
-                    </div>
+                    </Link>
                   )
                 })}
               </div>
