@@ -1,6 +1,6 @@
 /**
  * Role Configuration and Metadata
- * 
+ *
  * This file defines role types, metadata, and access patterns
  * for the ABR Insights application.
  */
@@ -33,13 +33,13 @@ export interface RoleMetadata {
 
 /**
  * Comprehensive role configuration
- * 
+ *
  * Internal Roles (isInternal: true):
  * - super_admin: Platform administration
  * - compliance_officer: Legal/compliance oversight
  * - investigator: Internal case investigation (NOT for public subscription)
  * - analyst: Internal data analysis (NOT for public subscription)
- * 
+ *
  * Public Roles (isInternal: false):
  * - org_admin: Organization administrators (available via subscription)
  * - educator: Course creators (available via subscription)

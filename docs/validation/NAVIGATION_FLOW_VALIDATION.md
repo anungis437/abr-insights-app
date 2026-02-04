@@ -6,6 +6,7 @@
 ## Validation Results
 
 ### ✅ PASS: Learner
+
 - **Role Type:** Public (subscription)
 - **Default Landing Page:** `/` (homepage)
 - **Sidebar Home Link:** `/dashboard`
@@ -16,6 +17,7 @@
 ---
 
 ### ✅ PASS: Educator
+
 - **Role Type:** Public (subscription)
 - **Default Landing Page:** `/instructor/dashboard`
 - **Sidebar Home Link:** `/instructor/dashboard`
@@ -25,6 +27,7 @@
 ---
 
 ### ⚠️ MISMATCH: Analyst
+
 - **Role Type:** Internal (staff)
 - **Default Landing Page:** `/analytics`
 - **Sidebar Home Link:** `/dashboard`
@@ -35,6 +38,7 @@
 ---
 
 ### ⚠️ MISMATCH: Investigator
+
 - **Role Type:** Internal (staff)
 - **Default Landing Page:** `/analytics`
 - **Sidebar Home Link:** `/dashboard`
@@ -45,6 +49,7 @@
 ---
 
 ### ✅ PASS: Org Admin
+
 - **Role Type:** Public (subscription customer)
 - **Default Landing Page:** `/org/dashboard`
 - **Sidebar Home Link:** `/org/dashboard`
@@ -54,6 +59,7 @@
 ---
 
 ### ✅ PASS: Compliance Officer
+
 - **Role Type:** Internal (staff)
 - **Default Landing Page:** `/admin/compliance`
 - **Sidebar Home Link:** `/admin/compliance`
@@ -63,6 +69,7 @@
 ---
 
 ### ✅ PASS: Super Admin
+
 - **Role Type:** Internal (system)
 - **Default Landing Page:** `/admin/dashboard`
 - **Sidebar Home Link:** `/admin/dashboard`
@@ -72,6 +79,7 @@
 ---
 
 ### ✅ PASS: Viewer
+
 - **Role Type:** Public (read-only)
 - **Default Landing Page:** `/dashboard`
 - **Sidebar Home Link:** `/dashboard`
@@ -81,6 +89,7 @@
 ---
 
 ### ✅ PASS: Guest
+
 - **Role Type:** Public (temporary)
 - **Default Landing Page:** `/`
 - **Sidebar Home Link:** `/dashboard`
@@ -93,6 +102,7 @@
 ## Summary
 
 ### Consistent Roles (5/9)
+
 1. ✅ Educator - `/instructor/dashboard`
 2. ✅ Org Admin - `/org/dashboard`
 3. ✅ Compliance Officer - `/admin/compliance`
@@ -100,6 +110,7 @@
 5. ✅ Viewer - `/dashboard`
 
 ### Inconsistent Roles (4/9)
+
 1. ⚠️ Learner - defaultLandingPage: `/` vs sidebar: `/dashboard`
 2. ⚠️ Analyst - defaultLandingPage: `/analytics` vs sidebar: `/dashboard`
 3. ⚠️ Investigator - defaultLandingPage: `/analytics` vs sidebar: `/dashboard`
@@ -108,7 +119,9 @@
 ## Recommended Fixes
 
 ### Fix 1: Analyst Navigation
+
 **Option A (Recommended):** Use analytics-focused homepage
+
 ```typescript
 // lib/navigation/sidebarConfig.ts
 const analystNav: SidebarNavItem[] = [
@@ -122,6 +135,7 @@ const analystNav: SidebarNavItem[] = [
 ```
 
 **Option B:** Use generic dashboard
+
 ```typescript
 // lib/types/roles.ts
 analyst: {
@@ -134,7 +148,9 @@ analyst: {
 ---
 
 ### Fix 2: Investigator Navigation
+
 **Option A (Recommended):** Use analytics-focused homepage
+
 ```typescript
 // lib/navigation/sidebarConfig.ts
 const investigatorNav: SidebarNavItem[] = [
@@ -148,6 +164,7 @@ const investigatorNav: SidebarNavItem[] = [
 ```
 
 **Option B:** Use generic dashboard
+
 ```typescript
 // lib/types/roles.ts
 investigator: {
@@ -160,7 +177,9 @@ investigator: {
 ---
 
 ### Fix 3: Learner Navigation
+
 **Recommended:** Use learner dashboard consistently
+
 ```typescript
 // lib/types/roles.ts
 learner: {
@@ -173,7 +192,9 @@ learner: {
 ---
 
 ### Fix 4: Guest Navigation
+
 **Recommended:** Use public homepage consistently
+
 ```typescript
 // lib/navigation/sidebarConfig.ts
 const guestNav: SidebarNavItem[] = [
@@ -193,25 +214,28 @@ const guestNav: SidebarNavItem[] = [
 ## Navigation Flow Map
 
 ### Internal Staff Roles
-| Role | Landing Page | Purpose |
-|------|--------------|---------|
-| Super Admin | `/admin/dashboard` | System administration |
-| Compliance Officer | `/admin/compliance` | Legal & compliance oversight |
-| Analyst | `/analytics` ⚠️ `/dashboard` | Data analysis & reporting |
-| Investigator | `/analytics` ⚠️ `/dashboard` | Case investigation |
+
+| Role               | Landing Page                 | Purpose                      |
+| ------------------ | ---------------------------- | ---------------------------- |
+| Super Admin        | `/admin/dashboard`           | System administration        |
+| Compliance Officer | `/admin/compliance`          | Legal & compliance oversight |
+| Analyst            | `/analytics` ⚠️ `/dashboard` | Data analysis & reporting    |
+| Investigator       | `/analytics` ⚠️ `/dashboard` | Case investigation           |
 
 ### Subscription Customer Roles
-| Role | Landing Page | Purpose |
-|------|--------------|---------|
-| Org Admin | `/org/dashboard` | Organization management |
-| Educator | `/instructor/dashboard` | Course creation & teaching |
-| Learner | `/` ⚠️ `/dashboard` | Course enrollment & learning |
+
+| Role      | Landing Page            | Purpose                      |
+| --------- | ----------------------- | ---------------------------- |
+| Org Admin | `/org/dashboard`        | Organization management      |
+| Educator  | `/instructor/dashboard` | Course creation & teaching   |
+| Learner   | `/` ⚠️ `/dashboard`     | Course enrollment & learning |
 
 ### Public Roles
-| Role | Landing Page | Purpose |
-|------|--------------|---------|
-| Viewer | `/dashboard` | Read-only content access |
-| Guest | `/` ⚠️ `/dashboard` | Temporary public access |
+
+| Role   | Landing Page        | Purpose                  |
+| ------ | ------------------- | ------------------------ |
+| Viewer | `/dashboard`        | Read-only content access |
+| Guest  | `/` ⚠️ `/dashboard` | Temporary public access  |
 
 ⚠️ = Inconsistency detected
 
@@ -220,10 +244,12 @@ const guestNav: SidebarNavItem[] = [
 ## Implementation Priority
 
 ### High Priority (User-Facing Issues)
+
 1. **Analyst** - Internal staff using analytics tools daily
 2. **Investigator** - Internal staff doing case research
 
 ### Medium Priority (Edge Cases)
+
 3. **Learner** - Public users, affects onboarding experience
 4. **Guest** - Temporary users, minimal impact
 
