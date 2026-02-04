@@ -90,7 +90,11 @@ interface QuizQuestion {
   explanation?: string
 }
 
-export default function CoursePlayerPage({ params }: { params: Promise<{ slug: string }> | { slug: string } }) {
+export default function CoursePlayerPage({
+  params,
+}: {
+  params: Promise<{ slug: string }> | { slug: string }
+}) {
   const router = useRouter()
   const supabase = createClient()
   const { entitlements, loading: entitlementsLoading } = useEntitlements()
@@ -464,14 +468,10 @@ export default function CoursePlayerPage({ params }: { params: Promise<{ slug: s
               <Lock className="h-12 w-12 text-yellow-600" />
             </div>
           </div>
-          <h1 className="mb-3 text-center text-2xl font-bold text-gray-900">
-            Upgrade Required
-          </h1>
+          <h1 className="mb-3 text-center text-2xl font-bold text-gray-900">Upgrade Required</h1>
           <p className="mb-4 text-center text-gray-600">
             This course requires a{' '}
-            <strong className="text-gray-900">
-              {course.required_tier.toUpperCase()}
-            </strong>{' '}
+            <strong className="text-gray-900">{course.required_tier.toUpperCase()}</strong>{' '}
             subscription or higher.
           </p>
           <div className="mb-6 rounded-lg bg-gray-50 p-4">
