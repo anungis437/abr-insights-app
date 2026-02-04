@@ -62,7 +62,7 @@ const learnerNav: SidebarNavItem[] = [
     children: [
       { label: 'My Courses', href: '/training', icon: BookOpen },
       { label: 'Browse Catalog', href: '/courses', icon: Search },
-      { label: 'My Progress', href: '/dashboard/progress', icon: TrendingUp },
+      { label: 'My Progress', href: '/dashboard', icon: TrendingUp },
       { label: 'Achievements', href: '/achievements', icon: Award },
     ],
   },
