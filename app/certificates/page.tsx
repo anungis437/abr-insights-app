@@ -20,10 +20,12 @@ interface Certificate {
   certificate_number: string
   issued_at: string
   expires_at: string | null
-  course: {
-    title: string
-    description: string | null
-  }[] | null
+  course:
+    | {
+        title: string
+        description: string | null
+      }[]
+    | null
 }
 
 export default function CertificatesPage() {
@@ -35,7 +37,7 @@ export default function CertificatesPage() {
   useEffect(() => {
     const loadCertificates = async () => {
       const supabase = createClient()
-      
+
       // Check auth
       const {
         data: { user },
@@ -52,7 +54,8 @@ export default function CertificatesPage() {
         // Fetch user's certificates
         const { data, error } = await supabase
           .from('certificates')
-          .select(`
+          .select(
+            `
             id,
             user_id,
             course_id,
@@ -60,7 +63,8 @@ export default function CertificatesPage() {
             issued_at,
             expires_at,
             course:courses(title, description)
-          `)
+          `
+          )
           .eq('user_id', user.id)
           .order('issued_at', { ascending: false })
 
@@ -233,9 +237,7 @@ export default function CertificatesPage() {
                 <li>• Certificates are issued upon successful course completion</li>
                 <li>• Each certificate has a unique verification number</li>
                 <li>• Download certificates as PDF for your records or sharing</li>
-                <li>
-                  • Use the verify link to allow others to confirm certificate authenticity
-                </li>
+                <li>• Use the verify link to allow others to confirm certificate authenticity</li>
               </ul>
             </div>
           )}
