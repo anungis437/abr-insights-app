@@ -143,7 +143,7 @@ export default function DataExplorer() {
           setSavedSearches([])
           return
         }
-        
+
         if (error) throw error
         setSavedSearches(data || [])
       } catch (error) {

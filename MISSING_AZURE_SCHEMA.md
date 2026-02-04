@@ -12,6 +12,7 @@
 **Method:** Direct psql execution to production database
 
 ### Successfully Applied Migrations:
+
 1. ✅ `20250129000003_case_alerts.sql` - saved_searches, case_alerts tables
 2. ✅ `20250129000004_organization_subscriptions.sql` - subscription_invoices table
 3. ✅ `20250130000001_ai_interaction_logs.sql` - ai_interaction_logs table
@@ -20,6 +21,7 @@
 6. ✅ `20260203_org_offboarding.sql` - org_offboarding_requests, related tables
 
 ### Verification Results:
+
 ```
 saved_searches                 ✅ EXISTS
 case_alerts                    ✅ EXISTS
@@ -31,6 +33,7 @@ org_offboarding_requests       ✅ EXISTS
 ```
 
 ### Known Issues (Non-Critical):
+
 - Some RLS policies reference `user_organizations` table which doesn't exist
 - `organization_members` table references in policies need future cleanup
 - These don't affect core functionality
@@ -41,7 +44,8 @@ org_offboarding_requests       ✅ EXISTS
 
 The production database was missing **7 tables** defined in recent migrations (Jan 29 - Feb 3, 2026). **All migrations have now been applied successfully.**
 
-**Current Status:** 
+**Current Status:**
+
 - ✅ Case alerts feature functional
 - ✅ AI usage tracking operational
 - ✅ CanLII ingestion monitoring available
@@ -53,6 +57,7 @@ The production database was missing **7 tables** defined in recent migrations (J
 ## Tables Status
 
 ### ✅ Exists in Production
+
 - `achievements` (has `points_value` column - correct)
 - `lesson_progress` (correct table name)
 - `risk_score_history`
@@ -63,6 +68,7 @@ The production database was missing **7 tables** defined in recent migrations (J
 - `quiz_sessions`
 
 ### ✅ Now Exists in Production (Newly Applied)
+
 - `saved_searches` ✅
 - `case_alerts` ✅
 - `ai_interaction_logs` ✅
@@ -77,6 +83,7 @@ The production database was missing **7 tables** defined in recent migrations (J
 ## Code Fixes Applied
 
 ### ✅ Fixed (Commit 859aef1)
+
 1. **Table Name:** Changed `course_progress` → `lesson_progress` in:
    - `app/training/page.tsx`
    - `app/admin/team/page.tsx`
@@ -95,6 +102,7 @@ The production database was missing **7 tables** defined in recent migrations (J
 The following migration files need to be applied to production:
 
 ### Priority 1: User-Facing Features (Apply Immediately)
+
 ```sql
 20250129000003_case_alerts.sql          -- saved_searches, case_alerts
 20250115000004_certificates.sql         -- digital_badges
@@ -102,6 +110,7 @@ The following migration files need to be applied to production:
 ```
 
 ### Priority 2: Admin/Monitoring Features
+
 ```sql
 20250130000001_ai_interaction_logs.sql  -- ai_interaction_logs
 20260203_ai_usage_tracking.sql          -- ai_usage_daily, ai_quota
@@ -114,6 +123,7 @@ The following migration files need to be applied to production:
 ## Deployment Commands
 
 ### Option 1: Apply Missing Migrations via Supabase CLI
+
 ```bash
 # Link to production project
 supabase link --project-ref zdcmugkafbczvxcyofiz
@@ -126,6 +136,7 @@ supabase migration list --remote
 ```
 
 ### Option 2: Apply Specific Migrations
+
 ```bash
 # Apply each migration individually
 supabase db execute --file supabase/migrations/20250129000003_case_alerts.sql
@@ -138,6 +149,7 @@ supabase db execute --file supabase/migrations/20260203_org_offboarding.sql
 ```
 
 ### Option 3: Manual SQL Execution (Supabase Dashboard)
+
 1. Go to https://supabase.com/dashboard/project/zdcmugkafbczvxcyofiz/sql/new
 2. Copy/paste contents of each migration file
 3. Execute in order (sorted by filename)
@@ -149,30 +161,27 @@ supabase db execute --file supabase/migrations/20260203_org_offboarding.sql
 After applying migrations, run this to verify:
 
 ```javascript
-const { createClient } = require('@supabase/supabase-js');
-const supabase = createClient(
-  'https://zdcmugkafbczvxcyofiz.supabase.co',
-  'YOUR_SERVICE_ROLE_KEY'
-);
+const { createClient } = require('@supabase/supabase-js')
+const supabase = createClient('https://zdcmugkafbczvxcyofiz.supabase.co', 'YOUR_SERVICE_ROLE_KEY')
 
 const requiredTables = [
   'saved_searches',
-  'case_alerts', 
+  'case_alerts',
   'digital_badges',
   'ce_credit_awards',
   'ai_interaction_logs',
   'ai_usage_daily',
   'ai_quota',
   'canlii_ingestion_runs',
-  'org_offboarding_requests'
-];
+  'org_offboarding_requests',
+]
 
-(async () => {
+;(async () => {
   for (const table of requiredTables) {
-    const { error } = await supabase.from(table).select('id').limit(1);
-    console.log(`${table}: ${error ? '❌ MISSING' : '✅ EXISTS'}`);
+    const { error } = await supabase.from(table).select('id').limit(1)
+    console.log(`${table}: ${error ? '❌ MISSING' : '✅ EXISTS'}`)
   }
-})();
+})()
 ```
 
 ---
@@ -180,11 +189,13 @@ const requiredTables = [
 ## Root Cause Analysis
 
 **Why This Happened:**
+
 - Local migrations created but not pushed to production database
 - No automated migration deployment in CI/CD pipeline
 - Development continued with local schema ahead of production
 
 **Prevention:**
+
 1. Add migration deployment step to Azure Static Web Apps workflow
 2. Run `supabase db push` during deployment
 3. Add pre-deployment schema validation checks
@@ -202,16 +213,19 @@ const requiredTables = [
 ## Impact on Current Users
 
 **Before Migration:**
+
 - ❌ "Discussions" page shows errors (trying to query non-existent tables)
 - ❌ Case explore page logs errors for saved searches
 - ❌ Achievements page fails to load
 - ❌ Training page can't load user progress
 
 **After Code Fixes (Commit 859aef1):**
+
 - ✅ Pages load without errors (code now uses correct table/column names)
 - ⚠️ Some features disabled until migrations applied (saved searches, case alerts, badges, CE credits)
 
 **After Migration Deployment:**
+
 - ✅ All features fully functional
 - ✅ No console errors
 - ✅ Complete feature parity between local and production
