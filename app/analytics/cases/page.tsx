@@ -1,224 +1,459 @@
-import { Metadata } from 'next'
-import { FileText, TrendingUp, Clock, Users, AlertCircle, CheckCircle } from 'lucide-react'
+'use client'
 
-export const metadata: Metadata = {
-  title: 'Case Analytics | Analytics | ABR Insights',
-  description: 'Analyze case processing and outcomes',
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
+import { FileText, TrendingUp, Clock, Users, AlertCircle, CheckCircle, Scale } from 'lucide-react'
+
+interface CaseStats {
+  totalCases: number
+  raceRelatedCases: number
+  antiBlackCases: number
+  avgResolutionDays: number
+  upheldRate: number
+  activeInvestigations: number
+}
+
+interface OutcomeData {
+  outcome: string
+  count: number
+  percentage: number
+  color: string
+}
+
+interface TribunalData {
+  tribunal: string
+  cases: number
+  upheld: number
+  percentage: number
+}
+
+interface ProtectedGroundData {
+  ground: string
+  count: number
+  percentage: number
+}
+
+interface RecentActivity {
+  id: string
+  caseNumber: string
+  title: string
+  tribunal: string
+  action: string
+  time: string
+  status: string
 }
 
 export default function CaseAnalyticsPage() {
-  // Mock data - replace with real data fetching
-  const stats = [
-    { label: 'Total Cases', value: '3,429', change: '+15%', icon: FileText, trend: 'up' },
-    { label: 'Avg Resolution Time', value: '4.2 days', change: '-8%', icon: Clock, trend: 'down' },
-    { label: 'Active Cases', value: '247', change: '+3%', icon: TrendingUp, trend: 'up' },
-    { label: 'Cases per Analyst', value: '12.4', change: '+5%', icon: Users, trend: 'up' },
-  ]
+  const router = useRouter()
+  const supabase = createClient()
+  const [loading, setLoading] = useState(true)
+  const [stats, setStats] = useState<CaseStats>({
+    totalCases: 0,
+    raceRelatedCases: 0,
+    antiBlackCases: 0,
+    avgResolutionDays: 0,
+    upheldRate: 0,
+    activeInvestigations: 0,
+  })
+  const [outcomesByStatus, setOutcomesByStatus] = useState<OutcomeData[]>([])
+  const [topTribunals, setTopTribunals] = useState<TribunalData[]>([])
+  const [protectedGrounds, setProtectedGrounds] = useState<ProtectedGroundData[]>([])
+  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([])
 
-  const casesByStatus = [
-    { status: 'Open', count: 147, percentage: 43, color: 'bg-blue-500' },
-    { status: 'In Progress', count: 100, percentage: 29, color: 'bg-yellow-500' },
-    { status: 'Resolved', count: 2847, percentage: 83, color: 'bg-green-500' },
-    { status: 'Closed', count: 335, percentage: 10, color: 'bg-gray-500' },
-  ]
+  useEffect(() => {
+    const checkAuth = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
 
-  const topCategories = [
-    { category: 'Financial Crime', cases: 1247, percentage: 36 },
-    { category: 'Drug Offenses', cases: 856, percentage: 25 },
-    { category: 'Cybercrime', cases: 542, percentage: 16 },
-    { category: 'Organized Crime', cases: 398, percentage: 12 },
-    { category: 'Other', cases: 386, percentage: 11 },
-  ]
+      if (!user) {
+        router.push('/auth/login')
+        return
+      }
 
-  const recentActivity = [
-    {
-      id: 1,
-      caseId: 'CASE-2847',
-      title: 'Financial fraud investigation',
-      analyst: 'Jane Smith',
-      action: 'Case closed',
-      time: '5 minutes ago',
-      status: 'success',
-    },
-    {
-      id: 2,
-      caseId: 'CASE-2846',
-      title: 'Drug trafficking network',
-      analyst: 'John Doe',
-      action: 'Evidence added',
-      time: '15 minutes ago',
-      status: 'progress',
-    },
-    {
-      id: 3,
-      caseId: 'CASE-2845',
-      title: 'Identity theft ring',
-      analyst: 'Mike Johnson',
-      action: 'Case assigned',
-      time: '1 hour ago',
-      status: 'progress',
-    },
-    {
-      id: 4,
-      caseId: 'CASE-2844',
-      title: 'Organized crime operation',
-      analyst: 'Sarah Williams',
-      action: 'Investigation started',
-      time: '2 hours ago',
-      status: 'progress',
-    },
-  ]
+      await loadAnalytics()
+    }
 
-  const performanceMetrics = [
-    { metric: 'Cases Opened (30d)', value: '342', target: '300', status: 'above' },
-    { metric: 'Cases Closed (30d)', value: '298', target: '280', status: 'above' },
-    { metric: 'Avg Response Time', value: '2.1h', target: '3h', status: 'above' },
-    { metric: 'Case Backlog', value: '89', target: '<100', status: 'above' },
-  ]
+    checkAuth()
+  }, [])
+
+  const loadAnalytics = async () => {
+    setLoading(true)
+    try {
+      // Fetch all non-deleted cases
+      const { data: cases, error } = await supabase
+        .from('tribunal_cases')
+        .select('*')
+        .is('deleted_at', null)
+
+      if (error) throw error
+
+      if (!cases || cases.length === 0) {
+        setLoading(false)
+        return
+      }
+
+      // Calculate stats
+      const totalCases = cases.length
+      const raceRelatedCases = cases.filter((c: any) => c.is_race_related === true).length
+      
+      // Count anti-Black cases from summary/title
+      const antiBlackCases = cases.filter(
+        (c: any) =>
+          c.summary?.toLowerCase().includes('anti-black') ||
+          c.summary?.toLowerCase().includes('anti black') ||
+          c.title?.toLowerCase().includes('anti-black') ||
+          c.title?.toLowerCase().includes('anti black')
+      ).length
+
+      // Calculate average resolution time (using created_at and decision_date as proxy)
+      const casesWithDates = cases.filter(
+        (c: any) => c.decision_date && c.created_at
+      )
+      let avgResolutionDays = 0
+      if (casesWithDates.length > 0) {
+        const totalDays = casesWithDates.reduce((sum: number, c: any) => {
+          const start = new Date(c.created_at)
+          const end = new Date(c.decision_date)
+          const days = Math.abs((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
+          return sum + days
+        }, 0)
+        avgResolutionDays = Math.round(totalDays / casesWithDates.length)
+      }
+
+      // Calculate upheld rate
+      const casesWithOutcome = cases.filter((c: any) => c.outcome)
+      const upheldCases = casesWithOutcome.filter(
+        (c: any) => c.outcome?.includes('Upheld')
+      ).length
+      const upheldRate = casesWithOutcome.length > 0 
+        ? Math.round((upheldCases / casesWithOutcome.length) * 100) 
+        : 0
+
+      setStats({
+        totalCases,
+        raceRelatedCases,
+        antiBlackCases,
+        avgResolutionDays,
+        upheldRate,
+        activeInvestigations: 0, // Would need separate tracking
+      })
+
+      // Outcomes by status
+      const outcomeCounts: Record<string, number> = {}
+      cases.forEach((c: any) => {
+        const outcome = c.outcome || 'Unknown'
+        outcomeCounts[outcome] = (outcomeCounts[outcome] || 0) + 1
+      })
+
+      const outcomeData: OutcomeData[] = Object.entries(outcomeCounts)
+        .map(([outcome, count]) => ({
+          outcome,
+          count,
+          percentage: Math.round((count / totalCases) * 100),
+          color: getOutcomeColor(outcome),
+        }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5)
+
+      setOutcomesByStatus(outcomeData)
+
+      // Top tribunals
+      const tribunalCounts: Record<string, { total: number; upheld: number }> = {}
+      cases.forEach((c: any) => {
+        const tribunal = c.tribunal || 'Unknown'
+        if (!tribunalCounts[tribunal]) {
+          tribunalCounts[tribunal] = { total: 0, upheld: 0 }
+        }
+        tribunalCounts[tribunal].total += 1
+        if (c.outcome?.includes('Upheld')) {
+          tribunalCounts[tribunal].upheld += 1
+        }
+      })
+
+      const tribunalData: TribunalData[] = Object.entries(tribunalCounts)
+        .map(([tribunal, data]) => ({
+          tribunal,
+          cases: data.total,
+          upheld: data.upheld,
+          percentage: Math.round((data.total / totalCases) * 100),
+        }))
+        .sort((a, b) => b.cases - a.cases)
+        .slice(0, 5)
+
+      setTopTribunals(tribunalData)
+
+      // Protected grounds analysis (from key_themes)
+      const groundCounts: Record<string, number> = {}
+      cases.forEach((c: any) => {
+        if (c.key_themes && Array.isArray(c.key_themes)) {
+          c.key_themes.forEach((theme: string) => {
+            groundCounts[theme] = (groundCounts[theme] || 0) + 1
+          })
+        }
+      })
+
+      const groundData: ProtectedGroundData[] = Object.entries(groundCounts)
+        .map(([ground, count]) => ({
+          ground,
+          count,
+          percentage: Math.round((count / totalCases) * 100),
+        }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5)
+
+      setProtectedGrounds(groundData)
+
+      // Recent activity (last 10 cases)
+      const recent = cases
+        .sort((a: any, b: any) => {
+          const dateA = new Date(a.decision_date || a.created_at)
+          const dateB = new Date(b.decision_date || b.created_at)
+          return dateB.getTime() - dateA.getTime()
+        })
+        .slice(0, 10)
+        .map((c: any) => ({
+          id: c.id,
+          caseNumber: c.case_number || 'N/A',
+          title: c.title?.substring(0, 60) + '...' || 'Untitled',
+          tribunal: c.tribunal || 'Unknown',
+          action: c.outcome ? `Decision: ${c.outcome}` : 'Case filed',
+          time: formatTimeAgo(c.decision_date || c.created_at),
+          status: c.outcome?.includes('Upheld') ? 'success' : 'progress',
+        }))
+
+      setRecentActivity(recent)
+    } catch (error) {
+      console.error('Error loading analytics:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const getOutcomeColor = (outcome: string): string => {
+    if (outcome.includes('Upheld')) return 'bg-green-500'
+    if (outcome === 'Dismissed') return 'bg-red-500'
+    if (outcome === 'Withdrawn') return 'bg-gray-500'
+    if (outcome === 'Settled') return 'bg-purple-500'
+    return 'bg-blue-500'
+  }
+
+  const formatTimeAgo = (dateString: string): string => {
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffMs = now.getTime() - date.getTime()
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+
+    if (diffDays === 0) return 'Today'
+    if (diffDays === 1) return 'Yesterday'
+    if (diffDays < 7) return `${diffDays} days ago`
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`
+    if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`
+    return `${Math.floor(diffDays / 365)} years ago`
+  }
+
+  if (loading) {
+    return (
+      <div className="container-custom py-8">
+        <div className="flex items-center justify-center py-20">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-600 border-t-transparent" />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="container-custom py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Case Analytics</h1>
-        <p className="mt-2 text-gray-600">Analyze case processing, trends, and outcomes</p>
+        <p className="mt-2 text-gray-600">
+          Analyze tribunal case processing, trends, and outcomes
+        </p>
       </div>
 
       {/* Stats Grid */}
       <div className="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => {
-          const Icon = stat.icon
-          return (
-            <div
-              key={stat.label}
-              className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">{stat.label}</p>
-                  <p className="mt-2 text-3xl font-bold text-gray-900">{stat.value}</p>
-                  <p
-                    className={`mt-1 text-sm ${
-                      stat.trend === 'up' ? 'text-green-600' : 'text-red-600'
-                    }`}
-                  >
-                    {stat.change} from last month
-                  </p>
-                </div>
-                <div className="rounded-full bg-gray-50 p-3">
-                  <Icon className="h-6 w-6 text-primary-600" />
-                </div>
-              </div>
+        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Total Cases</p>
+              <p className="mt-2 text-3xl font-bold text-gray-900">{stats.totalCases}</p>
+              <p className="mt-1 text-sm text-green-600">All tribunal cases</p>
             </div>
-          )
-        })}
+            <div className="rounded-full bg-gray-50 p-3">
+              <FileText className="h-6 w-6 text-primary-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Race-Related</p>
+              <p className="mt-2 text-3xl font-bold text-gray-900">{stats.raceRelatedCases}</p>
+              <p className="mt-1 text-sm text-gray-600">
+                {stats.totalCases > 0
+                  ? Math.round((stats.raceRelatedCases / stats.totalCases) * 100)
+                  : 0}
+                % of total
+              </p>
+            </div>
+            <div className="rounded-full bg-gray-50 p-3">
+              <Scale className="h-6 w-6 text-primary-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Anti-Black Specific</p>
+              <p className="mt-2 text-3xl font-bold text-gray-900">{stats.antiBlackCases}</p>
+              <p className="mt-1 text-sm text-gray-600">
+                {stats.totalCases > 0
+                  ? Math.round((stats.antiBlackCases / stats.totalCases) * 100)
+                  : 0}
+                % of total
+              </p>
+            </div>
+            <div className="rounded-full bg-gray-50 p-3">
+              <AlertCircle className="h-6 w-6 text-primary-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Upheld Rate</p>
+              <p className="mt-2 text-3xl font-bold text-gray-900">{stats.upheldRate}%</p>
+              <p className="mt-1 text-sm text-green-600">Success rate</p>
+            </div>
+            <div className="rounded-full bg-gray-50 p-3">
+              <TrendingUp className="h-6 w-6 text-primary-600" />
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="mb-8 grid gap-8 lg:grid-cols-2">
-        {/* Cases by Status */}
+        {/* Outcomes by Status */}
         <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-xl font-semibold text-gray-900">Cases by Status</h2>
+          <h2 className="mb-4 text-xl font-semibold text-gray-900">Cases by Outcome</h2>
           <div className="space-y-4">
-            {casesByStatus.map((item) => (
-              <div key={item.status}>
-                <div className="mb-1 flex items-center justify-between text-sm">
-                  <span className="font-medium text-gray-900">{item.status}</span>
-                  <span className="text-gray-600">{item.count} cases</span>
-                </div>
-                <div className="h-3 w-full rounded-full bg-gray-100">
-                  <div
-                    className={`h-3 rounded-full ${item.color}`}
-                    style={{ width: `${item.percentage}%` }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Top Categories */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-xl font-semibold text-gray-900">Top Case Categories</h2>
-          <div className="space-y-4">
-            {topCategories.map((item) => (
-              <div key={item.category} className="flex items-center justify-between">
-                <div className="flex-1">
+            {outcomesByStatus.length > 0 ? (
+              outcomesByStatus.map((item) => (
+                <div key={item.outcome}>
                   <div className="mb-1 flex items-center justify-between text-sm">
-                    <span className="font-medium text-gray-900">{item.category}</span>
+                    <span className="font-medium text-gray-900">{item.outcome}</span>
                     <span className="text-gray-600">
-                      {item.cases} ({item.percentage}%)
+                      {item.count} cases ({item.percentage}%)
                     </span>
                   </div>
-                  <div className="h-2 w-full rounded-full bg-gray-100">
+                  <div className="h-3 w-full rounded-full bg-gray-100">
                     <div
-                      className="h-2 rounded-full bg-primary-600"
-                      style={{ width: `${item.percentage * 3}%` }}
+                      className={`h-3 rounded-full ${item.color}`}
+                      style={{ width: `${item.percentage}%` }}
                     />
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="text-sm text-gray-500">No outcome data available</p>
+            )}
+          </div>
+        </div>
+
+        {/* Top Tribunals */}
+        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+          <h2 className="mb-4 text-xl font-semibold text-gray-900">Top Tribunals</h2>
+          <div className="space-y-4">
+            {topTribunals.length > 0 ? (
+              topTribunals.map((item) => (
+                <div key={item.tribunal} className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="mb-1 flex items-center justify-between text-sm">
+                      <span className="font-medium text-gray-900">{item.tribunal}</span>
+                      <span className="text-gray-600">
+                        {item.cases} cases ({item.percentage}%)
+                      </span>
+                    </div>
+                    <div className="h-2 w-full rounded-full bg-gray-100">
+                      <div
+                        className="h-2 rounded-full bg-primary-600"
+                        style={{ width: `${item.percentage * 3}%` }}
+                      />
+                    </div>
+                    <p className="mt-1 text-xs text-gray-500">
+                      {item.upheld} upheld ({item.cases > 0 ? Math.round((item.upheld / item.cases) * 100) : 0}% success)
+                    </p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-gray-500">No tribunal data available</p>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Performance Metrics */}
-      <div className="mb-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="mb-4 text-xl font-semibold text-gray-900">Performance Metrics</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {performanceMetrics.map((metric) => (
-            <div key={metric.metric} className="rounded-lg border border-gray-100 p-4">
-              <div className="mb-2 flex items-center justify-between">
-                <p className="text-sm font-medium text-gray-600">{metric.metric}</p>
-                {metric.status === 'above' ? (
-                  <CheckCircle className="h-5 w-5 text-green-600" />
-                ) : (
-                  <AlertCircle className="h-5 w-5 text-red-600" />
-                )}
+      {/* Protected Grounds */}
+      {protectedGrounds.length > 0 && (
+        <div className="mb-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+          <h2 className="mb-4 text-xl font-semibold text-gray-900">Key Themes & Protected Grounds</h2>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            {protectedGrounds.map((item) => (
+              <div key={item.ground} className="rounded-lg border border-gray-100 p-4">
+                <p className="text-sm font-medium text-gray-600">{item.ground}</p>
+                <p className="mt-2 text-2xl font-bold text-gray-900">{item.count}</p>
+                <p className="mt-1 text-xs text-gray-500">{item.percentage}% of cases</p>
               </div>
-              <p className="text-2xl font-bold text-gray-900">{metric.value}</p>
-              <p className="mt-1 text-xs text-gray-500">Target: {metric.target}</p>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Recent Activity */}
       <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
         <h2 className="mb-4 text-xl font-semibold text-gray-900">Recent Case Activity</h2>
         <div className="space-y-4">
-          {recentActivity.map((activity) => (
-            <div
-              key={activity.id}
-              className="flex items-center justify-between border-b border-gray-100 pb-4 last:border-0"
-            >
-              <div className="flex items-center gap-4">
-                <div
-                  className={`rounded-full p-2 ${
-                    activity.status === 'success' ? 'bg-green-100' : 'bg-blue-100'
-                  }`}
-                >
-                  <FileText
-                    className={`h-5 w-5 ${
-                      activity.status === 'success' ? 'text-green-600' : 'text-blue-600'
+          {recentActivity.length > 0 ? (
+            recentActivity.map((activity) => (
+              <div
+                key={activity.id}
+                className="flex items-center justify-between border-b border-gray-100 pb-4 last:border-0"
+              >
+                <div className="flex items-center gap-4">
+                  <div
+                    className={`rounded-full p-2 ${
+                      activity.status === 'success' ? 'bg-green-100' : 'bg-blue-100'
                     }`}
-                  />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-sm font-medium text-primary-600">
-                      {activity.caseId}
-                    </span>
-                    <span className="text-sm text-gray-600">•</span>
-                    <span className="text-sm text-gray-900">{activity.title}</span>
+                  >
+                    <FileText
+                      className={`h-5 w-5 ${
+                        activity.status === 'success' ? 'text-green-600' : 'text-blue-600'
+                      }`}
+                    />
                   </div>
-                  <p className="mt-1 text-sm text-gray-600">
-                    {activity.action} by {activity.analyst}
-                  </p>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-sm font-medium text-primary-600">
+                        {activity.caseNumber}
+                      </span>
+                      <span className="text-sm text-gray-600">•</span>
+                      <span className="text-sm text-gray-600">{activity.tribunal}</span>
+                    </div>
+                    <p className="mt-1 text-sm text-gray-900">{activity.title}</p>
+                    <p className="mt-1 text-xs text-gray-500">{activity.action}</p>
+                  </div>
                 </div>
+                <span className="text-sm text-gray-500">{activity.time}</span>
               </div>
-              <span className="text-sm text-gray-500">{activity.time}</span>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p className="text-sm text-gray-500">No recent activity</p>
+          )}
         </div>
       </div>
     </div>
