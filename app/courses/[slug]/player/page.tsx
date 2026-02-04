@@ -90,12 +90,13 @@ interface QuizQuestion {
   explanation?: string
 }
 
-export default function CoursePlayerPage({ params }: { params: { slug: string } }) {
+export default function CoursePlayerPage({ params }: { params: Promise<{ slug: string }> | { slug: string } }) {
   const router = useRouter()
   const supabase = createClient()
   const { entitlements, loading: entitlementsLoading } = useEntitlements()
 
   // State
+  const [slug, setSlug] = useState<string | null>(null)
   const [user, setUser] = useState<User | null>(null)
   const [course, setCourse] = useState<Course | null>(null)
   const [lessons, setLessons] = useState<Lesson[]>([])
@@ -110,21 +111,37 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
   const [quizScore, setQuizScore] = useState<number | null>(null)
   const [accessDenied, setAccessDenied] = useState(false)
 
+  // Resolve params (Next.js 15+ compatibility)
+  useEffect(() => {
+    const resolveParams = async () => {
+      const resolvedParams = await Promise.resolve(params)
+      setSlug(resolvedParams.slug)
+    }
+    resolveParams()
+  }, [params])
+
   // Load user
   useEffect(() => {
+    if (!slug) return
+    
     const loadUser = async () => {
       const {
         data: { user: currentUser },
       } = await supabase.auth.getUser()
-      if (!currentUser) {
-        router.push(`/auth/login?redirect=/courses/${params.slug}/player`)
-        return
-      }
-      setUser(currentUser)
-    }
-    loadUser()
-  }, [supabase.auth, params.slug, router])
+      if (!cu || !slug) return
 
+    const loadCourse = async () => {
+      try {
+        logger.info('Loading course in player', {
+          context: 'CoursePlayerPage',
+          slug,
+        })
+        
+        // Get course
+        const { data: courseData, error: courseError } = await supabase
+          .from('courses')
+          .select('*')
+          .eq('slug', 
   // Load course and lessons
   useEffect(() => {
     if (!user) return
@@ -240,7 +257,7 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
     }
 
     loadCourse()
-  }, [user, params.slug, supabase, router])
+  }, [user, slug, supabase, router, entitlementsLoading, entitlements])
 
   // Helper functions
   const currentLesson = lessons[currentLessonIndex]
@@ -396,10 +413,14 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
               <Lock className="h-12 w-12 text-yellow-600" />
             </div>
           </div>
-          <h1 className="mb-3 text-center text-2xl font-bold text-gray-900">Upgrade Required</h1>
+          <h1 className="mb-3 text-center text-2xl font-bold text-gray-900">
+            Upgrade Required
+          </h1>
           <p className="mb-4 text-center text-gray-600">
             This course requires a{' '}
-            <strong className="text-gray-900">{course.required_tier.toUpperCase()}</strong>{' '}
+            <strong className="text-gray-900">
+              {course.required_tier.toUpperCase()}
+            </strong>{' '}
             subscription or higher.
           </p>
           <div className="mb-6 rounded-lg bg-gray-50 p-4">
