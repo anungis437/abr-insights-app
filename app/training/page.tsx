@@ -228,6 +228,12 @@ export default function TrainingHubPage() {
     }
   }
 
+  const getCategoryName = (categoryId: string): string => {
+    if (categoryId === 'all') return 'All Courses'
+    const category = categories.find((cat) => cat.id === categoryId)
+    return category ? category.name : 'Unknown Category'
+  }
+
   const levels = ['Beginner', 'Intermediate', 'Advanced', 'Expert']
 
   const inProgressCourses = getInProgressCourses()
@@ -403,7 +409,7 @@ export default function TrainingHubPage() {
 
           <div className="mb-8">
             <h2 className="mb-6 text-2xl font-bold text-gray-900">
-              {selectedCategory === 'all' ? 'All Courses' : selectedCategory}
+              {getCategoryName(selectedCategory)}
             </h2>
             {loading ? (
               <div className="py-12 text-center">
