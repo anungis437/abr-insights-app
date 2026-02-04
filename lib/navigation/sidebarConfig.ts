@@ -286,7 +286,6 @@ const complianceNav: SidebarNavItem[] = [
     children: [
       { label: 'Dashboard', href: '/admin/compliance', icon: LayoutDashboard },
       { label: 'Audit Logs', href: '/admin/audit-logs', icon: FileText },
-      { label: 'Flagged Cases', href: '/cases/flagged', icon: Shield },
       { label: 'Reports', href: '/admin/compliance/reports', icon: FileSpreadsheet },
       { label: 'Team Activity', href: '/admin/team-activity', icon: Activity },
     ],
@@ -297,13 +296,18 @@ const complianceNav: SidebarNavItem[] = [
     children: [
       { label: 'All Cases', href: '/cases/browse', icon: FileText },
       { label: 'Flagged Cases', href: '/cases/flagged', icon: Shield },
-      { label: 'Tribunal Cases', href: '/tribunal-cases', icon: Briefcase },
+      { label: 'Tribunal Cases', href: '/cases/browse?filter=tribunal', icon: Briefcase },
     ],
   },
   {
     label: 'Analytics',
-    href: '/analytics',
     icon: BarChart3,
+    children: [
+      { label: 'Dashboard', href: '/analytics', icon: LayoutDashboard },
+      { label: 'Case Analysis', href: '/analytics/cases', icon: FileText },
+      { label: 'Data Explorer', href: '/analytics/explore', icon: Search },
+      { label: 'Trends', href: '/analytics/trends', icon: TrendingUp },
+    ],
   },
   {
     label: 'Profile',

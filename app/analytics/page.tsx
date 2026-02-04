@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth/AuthContext'
 import { useEntitlements } from '@/hooks/use-entitlements'
+import { isInternalRole } from '@/lib/types/roles'
 import { BarChart3, Lock, Sparkles, CheckCircle, ArrowRight } from 'lucide-react'
 
 type PlanTier = 'free' | 'professional' | 'enterprise'
@@ -13,6 +14,49 @@ export default function AnalyticsPage() {
   const { entitlements, loading: entitlementsLoading } = useEntitlements()
   const userPlan: PlanTier = (entitlements?.tier.toLowerCase() as PlanTier) || 'free'
   const hasAdvancedAnalytics = entitlements?.features.advancedAnalytics || false
+
+  // Internal staff roles should always see analytics
+  const isInternalStaff = profile?.role && isInternalRole(profile.role)
+
+  // Redirect internal staff to main analytics dashboard
+  if (isInternalStaff) {
+    return (
+      <div className="min-h-screen bg-gray-50 pt-16">
+        <div className="container-custom py-8">
+          <div className="mx-auto max-w-4xl text-center">
+            <h1 className="mb-4 text-3xl font-bold text-gray-900">Analytics Hub</h1>
+            <p className="mb-8 text-gray-600">Choose an analytics view to get started</p>
+            <div className="grid gap-6 md:grid-cols-3">
+              <Link
+                href="/analytics/cases"
+                className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+              >
+                <BarChart3 className="mx-auto mb-4 h-12 w-12 text-blue-600" />
+                <h3 className="mb-2 text-lg font-semibold">Case Analysis</h3>
+                <p className="text-sm text-gray-600">Tribunal metrics and outcomes</p>
+              </Link>
+              <Link
+                href="/analytics/explore"
+                className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+              >
+                <BarChart3 className="mx-auto mb-4 h-12 w-12 text-green-600" />
+                <h3 className="mb-2 text-lg font-semibold">Data Explorer</h3>
+                <p className="text-sm text-gray-600">Query and export case data</p>
+              </Link>
+              <Link
+                href="/analytics/trends"
+                className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+              >
+                <BarChart3 className="mx-auto mb-4 h-12 w-12 text-purple-600" />
+                <h3 className="mb-2 text-lg font-semibold">Trends</h3>
+                <p className="text-sm text-gray-600">Temporal patterns and insights</p>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 pt-16">
