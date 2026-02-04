@@ -162,8 +162,8 @@ export default function OrgDashboardPage() {
           course_id,
           completion_score,
           issued_at,
-          profiles!inner(full_name),
-          courses!inner(title)
+          recipient_name,
+          courses(title)
         `
         )
         .in('user_id', memberIds)
@@ -177,8 +177,8 @@ export default function OrgDashboardPage() {
         course_id: cert.course_id,
         completion_score: cert.completion_score,
         issued_at: cert.issued_at,
-        user_name: (cert.profiles as any)?.full_name || 'Unknown',
-        course_title: (cert.courses as any)?.title || 'Unknown Course',
+        user_name: cert.recipient_name || 'Unknown',
+        course_title: cert.courses?.title || 'Unknown Course',
       }))
       setCertificates(formattedCerts)
 
