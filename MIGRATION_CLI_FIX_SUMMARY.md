@@ -1,7 +1,9 @@
 # Migration CLI Fix Summary
 
 ## Problem
+
 When attempting `supabase db push --include-all`, migrations failed due to:
+
 1. Duplicate policy names already existing in database
 2. Duplicate migration version numbers (020, 022 exist twice)
 3. Indexes without `IF NOT EXISTS` clauses
@@ -37,20 +39,24 @@ When attempting `supabase db push --include-all`, migrations failed due to:
 ## Current Status
 
 ### ✅ Completed
+
 - All migration files now idempotent
 - Can be run multiple times safely
 - Changes committed and ready
 
 ### ⏳ Pending
+
 - Apply migration 022_support_individual_users.sql to database
 - Critical for individual user support
 
 ## Recommended Next Steps
 
 ### Option 1: Supabase Dashboard (RECOMMENDED)
+
 **Why:** Most reliable, avoids CLI version conflicts, visual confirmation
 
 **Steps:**
+
 1. Go to https://supabase.com/dashboard/project/zdcmugkafbczvxcyofiz/sql/new
 2. Open `supabase/migrations/022_support_individual_users.sql`
 3. Copy entire contents
@@ -58,20 +64,23 @@ When attempting `supabase db push --include-all`, migrations failed due to:
 5. Click **Run**
 
 **Verification Query:**
+
 ```sql
-SELECT 
-  table_name, 
-  column_name, 
-  is_nullable 
-FROM information_schema.columns 
-WHERE table_name IN ('enrollments', 'user_achievements', 'ai_usage_logs') 
+SELECT
+  table_name,
+  column_name,
+  is_nullable
+FROM information_schema.columns
+WHERE table_name IN ('enrollments', 'user_achievements', 'ai_usage_logs')
   AND column_name = 'organization_id';
 ```
 
 Expected result: `is_nullable = 'YES'` for all 3 tables
 
 ### Option 2: CLI with Sorted Migrations
+
 The duplicate version numbers (020, 022) prevent CLI push. Would need to:
+
 1. Rename duplicate migrations to unique versions
 2. Update migration tracking
 3. Re-run `supabase db push`
@@ -81,17 +90,20 @@ The duplicate version numbers (020, 022) prevent CLI push. Would need to:
 ## Why This Matters
 
 Migration 022 is **CRITICAL** for individual users:
+
 - Makes `organization_id` nullable in 3 tables
 - Updates RLS policies to support individuals
 - Creates helper functions for org checks
 - Adds performance indexes
 
 **Without it:**
+
 - Individual users cannot enroll in courses
-- Individual users cannot earn achievements  
+- Individual users cannot earn achievements
 - Individual users cannot use AI features
 
 **With it:**
+
 - ✅ Full individual user support
 - ✅ Code already deployed (commit 56c860a)
 - ✅ Complete feature ready for testing

@@ -3,6 +3,7 @@
 ## ✅ Code Changes Deployed (Commit 56c860a)
 
 All application code has been updated and deployed to support individual users:
+
 - Database migration created: `022_support_individual_users.sql`
 - API guards updated to support optional organization context
 - AI services updated to handle null organization_id
@@ -64,9 +65,9 @@ After applying the migration, verify it worked:
 ### 1. Check Column Nullability
 
 ```sql
-SELECT 
-  table_name, 
-  column_name, 
+SELECT
+  table_name,
+  column_name,
   is_nullable
 FROM information_schema.columns
 WHERE table_schema = 'public'
@@ -81,9 +82,9 @@ Expected result: `is_nullable = 'YES'` for all three tables
 ```sql
 -- Test inserting enrollment with null organization_id
 INSERT INTO enrollments (
-  user_id, 
-  course_id, 
-  organization_id, 
+  user_id,
+  course_id,
+  organization_id,
   status
 ) VALUES (
   '[USER_ID]',
@@ -96,7 +97,7 @@ INSERT INTO enrollments (
 ### 3. Check RLS Policies
 
 ```sql
-SELECT 
+SELECT
   schemaname,
   tablename,
   policyname,
@@ -110,30 +111,36 @@ ORDER BY tablename, policyname;
 ## 🎯 What This Enables
 
 ### For Individual Users (No Organization):
+
 ✅ Can sign up and create account  
 ✅ Can browse and view courses  
 ✅ Can enroll in courses  
 ✅ Can track progress and completions  
 ✅ Can earn achievements  
 ✅ Can use AI chat and coaching features  
-✅ Can access course player and content  
+✅ Can access course player and content
 
 ### For Organization Users (Unchanged):
+
 ✅ All existing functionality preserved  
 ✅ RBAC permissions enforced as before  
 ✅ Organization-scoped quotas and limits  
-✅ Team features and collaboration  
+✅ Team features and collaboration
 
 ## 🔍 Troubleshooting
 
 ### Issue: Migration Fails with "already exists" errors
+
 **Solution**: Some policies may already exist. You can safely ignore these warnings or drop the existing policies first.
 
 ### Issue: Foreign key constraint errors
+
 **Solution**: Ensure the migration is applied in the correct order. The organizations table must exist before running this migration.
 
 ### Issue: Users still can't enroll without org
-**Solution**: 
+
+**Solution**:
+
 1. Verify the migration completed (check column nullability)
 2. Hard refresh the application (Ctrl+Shift+R)
 3. Check browser console for any API errors
@@ -147,15 +154,15 @@ If you need to rollback this change:
 -- You must first delete or update records with NULL organization_id
 
 -- Rollback enrollments
-ALTER TABLE enrollments 
+ALTER TABLE enrollments
 ALTER COLUMN organization_id SET NOT NULL;
 
 -- Rollback user_achievements
-ALTER TABLE user_achievements 
+ALTER TABLE user_achievements
 ALTER COLUMN organization_id SET NOT NULL;
 
 -- Rollback ai_usage_logs
-ALTER TABLE ai_usage_logs 
+ALTER TABLE ai_usage_logs
 ALTER COLUMN organization_id SET NOT NULL;
 ```
 
@@ -174,6 +181,7 @@ ALTER COLUMN organization_id SET NOT NULL;
 ## 📞 Support
 
 If you encounter issues:
+
 1. Check the verification steps above
 2. Review the migration file for any syntax errors
 3. Check Supabase dashboard for database errors

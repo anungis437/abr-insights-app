@@ -73,7 +73,7 @@ async function applyMigration() {
         try {
           await supabase.from('_migrations').select('*').limit(1) // Test connection
           console.log('✅ Statement executed (connection verified)')
-        } catch (err: any) {
+        } catch (err) {
           console.warn('⚠️  Could not verify statement execution:', err.message)
         }
       }
@@ -131,7 +131,7 @@ async function applyMigration() {
     console.log('   - Enroll in courses without an organization')
     console.log('   - Earn achievements as individuals')
     console.log('   - Access AI features without organization membership')
-  } catch (error: any) {
+  } catch (error) {
     console.error('\n❌ Migration failed:', error.message)
 
     if (error.code) {

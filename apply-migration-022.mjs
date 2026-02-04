@@ -27,7 +27,12 @@ async function applyMigration022() {
   console.log('🚀 Applying Migration 022: Support Individual Users\n')
 
   try {
-    const migrationPath = join(__dirname, 'supabase', 'migrations', '022_support_individual_users.sql')
+    const migrationPath = join(
+      __dirname,
+      'supabase',
+      'migrations',
+      '022_support_individual_users.sql'
+    )
     const migrationSQL = readFileSync(migrationPath, 'utf8')
 
     console.log('📝 Migration: Make organization_id nullable for individual users\n')
@@ -35,8 +40,8 @@ async function applyMigration022() {
     // Split into individual statements
     const statements = migrationSQL
       .split(';')
-      .map(s => s.trim())
-      .filter(s => s.length > 0 && !s.startsWith('--') && !s.match(/^\/\*/))
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0 && !s.startsWith('--') && !s.match(/^\/\*/))
 
     let successCount = 0
     let skipCount = 0
@@ -44,10 +49,12 @@ async function applyMigration022() {
 
     for (let i = 0; i < statements.length; i++) {
       const statement = statements[i]
-      
+
       // Skip DO blocks and comments
-      if (statement.toLowerCase().startsWith('do $$') || 
-          statement.toLowerCase().includes('raise notice')) {
+      if (
+        statement.toLowerCase().startsWith('do $$') ||
+        statement.toLowerCase().includes('raise notice')
+      ) {
         console.log(`⏭️  Skipping informational block ${i + 1}/${statements.length}`)
         skipCount++
         continue
@@ -56,7 +63,7 @@ async function applyMigration022() {
       try {
         // Execute via RPC if available, otherwise log for manual execution
         const { error } = await supabase.rpc('exec_sql', { sql: statement + ';' })
-        
+
         if (error) {
           // If already exists, it's ok
           if (error.message?.includes('already exists')) {
@@ -123,7 +130,6 @@ async function applyMigration022() {
       console.log(`   1. Go to Supabase Dashboard → SQL Editor`)
       console.log(`   2. Execute: supabase/migrations/022_support_individual_users.sql`)
     }
-
   } catch (error) {
     console.error('\n❌ Migration failed:', error.message)
     process.exit(1)
