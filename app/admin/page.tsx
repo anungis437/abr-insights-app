@@ -377,7 +377,9 @@ export default function AdminDashboard() {
                               <p className="mt-1 text-xs text-gray-600">{activity.user}</p>
                             )}
                             <p className="mt-1 text-xs text-gray-500">
-                              {activity.timestamp ? new Date(activity.timestamp).toLocaleString() : 'Unknown date'}
+                              {activity.timestamp
+                                ? new Date(activity.timestamp).toLocaleString()
+                                : 'Unknown date'}
                             </p>
                           </div>
                         </div>

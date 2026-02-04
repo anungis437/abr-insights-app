@@ -82,7 +82,7 @@ export default function AnalyticsReportsPage() {
       // TODO: Implement report generation
       // This would create a report in a reports table and trigger background job
       await new Promise((resolve) => setTimeout(resolve, 2000)) // Simulate generation
-      
+
       logger.info('Report generation requested', {
         reportType,
         dateRange,
@@ -160,12 +160,11 @@ export default function AnalyticsReportsPage() {
           <div className="grid gap-6 md:grid-cols-2">
             {/* Report Type */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700">
-                Report Type
-              </label>
+              <label className="mb-2 block text-sm font-medium text-gray-700">Report Type</label>
               <select
                 value={reportType}
                 onChange={(e) => setReportType(e.target.value)}
+                aria-label="Report Type"
                 className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-primary-500 focus:ring-2 focus:ring-primary-500"
               >
                 {reportTypes.map((type) => (
@@ -178,14 +177,13 @@ export default function AnalyticsReportsPage() {
 
             {/* Date Range */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700">
-                Date Range
-              </label>
+              <label className="mb-2 block text-sm font-medium text-gray-700">Date Range</label>
               <div className="flex gap-2">
                 <input
                   type="date"
                   value={dateRange.start}
                   onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
+                  aria-label="Start Date"
                   className="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:border-primary-500 focus:ring-2 focus:ring-primary-500"
                 />
                 <span className="flex items-center text-gray-500">to</span>
@@ -193,6 +191,7 @@ export default function AnalyticsReportsPage() {
                   type="date"
                   value={dateRange.end}
                   onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
+                  aria-label="End Date"
                   className="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:border-primary-500 focus:ring-2 focus:ring-primary-500"
                 />
               </div>
