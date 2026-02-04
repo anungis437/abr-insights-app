@@ -47,14 +47,17 @@ interface TribunalCase {
 interface SavedSearch {
   id: string
   user_id: string
-  name: string
-  search_type: string
-  query_text: string | null
-  filters: Record<string, any> | null
-  is_favorite: boolean
-  last_used_at: string | null
-  use_count: number
+  organization_id: string
+  search_name: string
+  search_query: string
+  search_filters: Record<string, any>
+  alert_enabled: boolean
+  alert_frequency?: string | null
+  last_checked_at: string | null
+  last_used_at?: string | null
   created_at: string
+  updated_at: string
+  deleted_at?: string | null
 }
 
 interface FilterState {
@@ -133,9 +136,7 @@ export default function DataExplorer() {
           .from('saved_searches')
           .select('*')
           .eq('user_id', user.id)
-          .eq('search_type', 'tribunal_cases')
           .is('deleted_at', null)
-          .order('last_used_at', { ascending: false, nullsFirst: false })
           .order('created_at', { ascending: false })
 
         // Silently handle missing table - feature not yet deployed
@@ -143,7 +144,7 @@ export default function DataExplorer() {
           setSavedSearches([])
           return
         }
-
+        
         if (error) throw error
         setSavedSearches(data || [])
       } catch (error) {
@@ -242,13 +243,11 @@ export default function DataExplorer() {
     try {
       const { error } = await supabase.from('saved_searches').insert({
         user_id: user.id,
-        name: searchName,
-        search_type: 'tribunal_cases',
-        query_text: filters.searchTerm || null,
-        filters: filters,
-        is_favorite: false,
-        use_count: 1,
-        last_used_at: new Date().toISOString(),
+        organization_id: user.user_metadata?.organization_id || user.id,
+        search_name: searchName,
+        search_query: filters.searchTerm || '',
+        search_filters: filters,
+        alert_enabled: false,
       })
 
       if (error) throw error
@@ -258,9 +257,8 @@ export default function DataExplorer() {
         .from('saved_searches')
         .select('*')
         .eq('user_id', user.id)
-        .eq('search_type', 'tribunal_cases')
         .is('deleted_at', null)
-        .order('last_used_at', { ascending: false, nullsFirst: false })
+        .order('created_at', { ascending: false })
 
       setSavedSearches(data || [])
       setSearchName('')
@@ -272,17 +270,16 @@ export default function DataExplorer() {
   }
 
   const handleLoadSearch = async (search: SavedSearch) => {
-    if (search.filters) {
-      setFilters(search.filters as FilterState)
+    if (search.search_filters) {
+      setFilters(search.search_filters as FilterState)
       setVisibleCount(12)
 
-      // Update last_used_at and use_count
+      // Update last_used_at
       if (user) {
         await supabase
           .from('saved_searches')
           .update({
             last_used_at: new Date().toISOString(),
-            use_count: search.use_count + 1,
           })
           .eq('id', search.id)
       }
@@ -304,27 +301,6 @@ export default function DataExplorer() {
     } catch (error) {
       logger.error('Error deleting search:', { error: error, context: 'DataExplorer' })
       alert('Failed to delete search. Please try again.')
-    }
-  }
-
-  const handleToggleFavorite = async (searchId: string) => {
-    const search = savedSearches.find((s) => s.id === searchId)
-    if (!search) return
-
-    try {
-      const { error } = await supabase
-        .from('saved_searches')
-        .update({ is_favorite: !search.is_favorite })
-        .eq('id', searchId)
-
-      if (error) throw error
-
-      // Update local state
-      setSavedSearches(
-        savedSearches.map((s) => (s.id === searchId ? { ...s, is_favorite: !s.is_favorite } : s))
-      )
-    } catch (error) {
-      logger.error('Error toggling favorite:', { error: error, context: 'DataExplorer' })
     }
   }
 
@@ -537,16 +513,10 @@ export default function DataExplorer() {
                       {savedSearches.slice(0, 5).map((search) => (
                         <div key={search.id} className="flex items-center gap-2 text-sm">
                           <button
-                            onClick={() => handleToggleFavorite(search.id)}
-                            className="text-gray-400 hover:text-yellow-500"
-                          >
-                            {search.is_favorite ? 'â˜…' : 'â˜†'}
-                          </button>
-                          <button
                             onClick={() => handleLoadSearch(search)}
                             className="flex-1 truncate text-left text-teal-600 hover:text-teal-700"
                           >
-                            {search.name}
+                            {search.search_name}
                           </button>
                           <button
                             onClick={() => handleDeleteSearch(search.id)}

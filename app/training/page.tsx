@@ -146,9 +146,11 @@ export default function TrainingHubPage() {
         course.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         course.description?.toLowerCase().includes(searchTerm.toLowerCase())
 
-      const matchesCategory = selectedCategory === 'all' || course.category_id === selectedCategory
+      const matchesCategory =
+        selectedCategory === 'all' || course.category_id === selectedCategory
       const matchesLevel =
-        selectedLevel === 'all' || course.level?.toLowerCase() === selectedLevel.toLowerCase()
+        selectedLevel === 'all' ||
+        course.level?.toLowerCase() === selectedLevel.toLowerCase()
 
       return matchesSearch && matchesCategory && matchesLevel
     })
@@ -402,10 +404,31 @@ export default function TrainingHubPage() {
                   const hasAccess = canAccessCourse(course)
                   const isCompleted = progress === 100
 
+                  // Don't render card until entitlements are loaded
+                  if (entitlementsLoading) {
+                    return (
+                      <div
+                        key={course.id}
+                        className="overflow-hidden rounded-lg bg-white shadow-md"
+                      >
+                        <div className="animate-pulse">
+                          <div className="h-48 bg-gray-200" />
+                          <div className="p-6">
+                            <div className="mb-2 h-6 bg-gray-200 rounded" />
+                            <div className="mb-4 h-4 bg-gray-200 rounded" />
+                            <div className="h-10 bg-gray-200 rounded" />
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  }
+
                   return (
                     <Link
                       key={course.id}
-                      href={hasAccess ? `/courses/${course.slug}/player` : '/pricing'}
+                      href={
+                        hasAccess ? `/courses/${course.slug}/player` : '/pricing'
+                      }
                       className="group overflow-hidden rounded-lg bg-white shadow-md transition-all hover:shadow-xl"
                     >
                       <div className="relative">
