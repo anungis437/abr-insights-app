@@ -72,7 +72,6 @@ const learnerNav: SidebarNavItem[] = [
     children: [
       { label: 'Explore Cases', href: '/cases/explore', icon: Search },
       { label: 'Browse All', href: '/cases/browse', icon: FileText },
-      { label: 'Tribunal Cases', href: '/tribunal-cases', icon: Briefcase },
     ],
   },
   {
