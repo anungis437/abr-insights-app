@@ -11,6 +11,7 @@ import { logger } from '@/lib/utils/production-logger'
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useEntitlements } from '@/hooks/use-entitlements'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
@@ -39,6 +40,7 @@ interface Course {
   level: string
   estimated_duration_minutes: number | null
   is_published: boolean
+  required_tier: string
 }
 
 interface Lesson {
@@ -91,6 +93,7 @@ interface QuizQuestion {
 export default function CoursePlayerPage({ params }: { params: { slug: string } }) {
   const router = useRouter()
   const supabase = createClient()
+  const { entitlements, loading: entitlementsLoading } = useEntitlements()
 
   // State
   const [user, setUser] = useState<User | null>(null)
@@ -105,6 +108,7 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
   const [quizAnswers, setQuizAnswers] = useState<number[]>([])
   const [quizSubmitted, setQuizSubmitted] = useState(false)
   const [quizScore, setQuizScore] = useState<number | null>(null)
+  const [accessDenied, setAccessDenied] = useState(false)
 
   // Load user
   useEffect(() => {
@@ -142,6 +146,26 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
         }
 
         setCourse(courseData)
+
+        // Check subscription tier access
+        if (!entitlementsLoading && entitlements && courseData.required_tier) {
+          const tierHierarchy: Record<string, number> = {
+            FREE: 0,
+            PROFESSIONAL: 1,
+            BUSINESS: 2,
+            BUSINESS_PLUS: 3,
+            ENTERPRISE: 4,
+          }
+
+          const userTierLevel = tierHierarchy[entitlements.tier.toUpperCase()] ?? 0
+          const requiredTierLevel = tierHierarchy[courseData.required_tier.toUpperCase()] ?? 0
+
+          if (userTierLevel < requiredTierLevel) {
+            setAccessDenied(true)
+            setLoading(false)
+            return
+          }
+        }
 
         // Get lessons
         const { data: lessonsData, error: lessonsError } = await supabase
@@ -357,6 +381,47 @@ export default function CoursePlayerPage({ params }: { params: { slug: string } 
         <div className="text-center">
           <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-teal-500"></div>
           <p className="text-gray-600">Loading course...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Access denied state
+  if (accessDenied && course) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 pt-16">
+        <div className="mx-auto max-w-md rounded-lg bg-white p-8 shadow-lg">
+          <div className="mb-6 flex justify-center">
+            <div className="rounded-full bg-yellow-100 p-4">
+              <Lock className="h-12 w-12 text-yellow-600" />
+            </div>
+          </div>
+          <h1 className="mb-3 text-center text-2xl font-bold text-gray-900">Upgrade Required</h1>
+          <p className="mb-4 text-center text-gray-600">
+            This course requires a{' '}
+            <strong className="text-gray-900">{course.required_tier.toUpperCase()}</strong>{' '}
+            subscription or higher.
+          </p>
+          <div className="mb-6 rounded-lg bg-gray-50 p-4">
+            <p className="text-center text-sm text-gray-600">
+              Your current plan:{' '}
+              <strong className="text-gray-900">
+                {entitlements?.tier.toUpperCase() || 'FREE'}
+              </strong>
+            </p>
+          </div>
+          <div className="space-y-3">
+            <Link href="/pricing">
+              <button className="w-full rounded-lg bg-gradient-to-r from-teal-500 to-teal-600 px-6 py-3 font-semibold text-white transition-all hover:from-teal-600 hover:to-teal-700 hover:shadow-lg">
+                View Pricing Plans
+              </button>
+            </Link>
+            <Link href="/training">
+              <button className="w-full rounded-lg border border-gray-300 bg-white px-6 py-3 font-semibold text-gray-700 transition-colors hover:bg-gray-50">
+                Browse Other Courses
+              </button>
+            </Link>
+          </div>
         </div>
       </div>
     )

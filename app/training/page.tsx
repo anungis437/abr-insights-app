@@ -4,6 +4,7 @@ import { logger } from '@/lib/utils/production-logger'
 
 import { useState, useEffect, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useEntitlements } from '@/hooks/use-entitlements'
 import Image from 'next/image'
 import {
   GraduationCap,
@@ -49,6 +50,8 @@ interface UserProgress {
 }
 
 export default function TrainingHubPage() {
+  const supabase = createClient()
+  const { entitlements, loading: entitlementsLoading } = useEntitlements()
   const [user, setUser] = useState<User | null>(null)
   const [courses, setCourses] = useState<Course[]>([])
   const [userProgress, setUserProgress] = useState<UserProgress[]>([])
@@ -56,8 +59,6 @@ export default function TrainingHubPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [selectedLevel, setSelectedLevel] = useState('all')
-
-  const supabase = createClient()
 
   useEffect(() => {
     const loadUser = async () => {
@@ -154,8 +155,29 @@ export default function TrainingHubPage() {
   }
 
   const canAccessCourse = (course: Course): boolean => {
+    // Not logged in - only free courses
     if (!user) return course.required_tier === 'free'
-    return true
+
+    // Waiting for entitlements to load
+    if (entitlementsLoading || !entitlements) return false
+
+    const userTier = entitlements.tier.toUpperCase()
+    const requiredTier = course.required_tier.toUpperCase()
+
+    // Tier hierarchy: FREE < PROFESSIONAL < BUSINESS < BUSINESS_PLUS < ENTERPRISE
+    const tierHierarchy: Record<string, number> = {
+      FREE: 0,
+      PROFESSIONAL: 1,
+      BUSINESS: 2,
+      BUSINESS_PLUS: 3,
+      ENTERPRISE: 4,
+    }
+
+    const userTierLevel = tierHierarchy[userTier] ?? 0
+    const requiredTierLevel = tierHierarchy[requiredTier] ?? 0
+
+    // User must have tier >= required tier
+    return userTierLevel >= requiredTierLevel
   }
 
   const categories = useMemo(() => {
@@ -422,33 +444,30 @@ export default function TrainingHubPage() {
                           </div>
                         )}
 
-                        <Link href={`/courses/${course.slug}/player`}>
-                          <button
-                            className={`flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2 font-medium transition-colors ${
-                              hasAccess
-                                ? 'bg-gradient-to-r from-teal-500 to-teal-600 text-white hover:from-teal-600 hover:to-teal-700'
-                                : 'cursor-not-allowed bg-gray-300 text-gray-600'
-                            }`}
-                            disabled={!hasAccess}
-                          >
-                            {!hasAccess ? (
-                              <>
-                                <Lock className="h-4 w-4" />
-                                Upgrade to Access
-                              </>
-                            ) : progress > 0 ? (
-                              <>
-                                <Play className="h-4 w-4" />
-                                Continue Course
-                              </>
-                            ) : (
-                              <>
-                                <Play className="h-4 w-4" />
-                                Start Course
-                              </>
-                            )}
-                          </button>
-                        </Link>
+                        {hasAccess ? (
+                          <Link href={`/courses/${course.slug}/player`}>
+                            <button className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-teal-500 to-teal-600 px-4 py-2 font-medium text-white transition-colors hover:from-teal-600 hover:to-teal-700">
+                              {progress > 0 ? (
+                                <>
+                                  <Play className="h-4 w-4" />
+                                  Continue Course
+                                </>
+                              ) : (
+                                <>
+                                  <Play className="h-4 w-4" />
+                                  Start Course
+                                </>
+                              )}
+                            </button>
+                          </Link>
+                        ) : (
+                          <Link href="/pricing">
+                            <button className="flex w-full items-center justify-center gap-2 rounded-lg bg-gray-300 px-4 py-2 font-medium text-gray-600 transition-colors hover:bg-gray-400">
+                              <Lock className="h-4 w-4" />
+                              Upgrade to {course.required_tier.toUpperCase()}
+                            </button>
+                          </Link>
+                        )}
                       </div>
                     </div>
                   )
