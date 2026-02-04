@@ -134,7 +134,7 @@ async function setupOrgAdminWithDemoOrg() {
     }
 
     console.log()
-    console.log('=' .repeat(50))
+    console.log('='.repeat(50))
     console.log('✅ Setup Complete!')
     console.log()
     console.log('Test Login Credentials:')
