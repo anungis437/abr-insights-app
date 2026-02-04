@@ -60,7 +60,7 @@ interface Certificate {
   id: string
   user_id: string
   course_id: string
-  issued_at: string
+  issue_date: string
   user_name: string
   course_title: string
 }
@@ -159,13 +159,13 @@ export default function OrgDashboardPage() {
           id,
           user_id,
           course_id,
-          issued_at,
+          issue_date,
           recipient_name,
           courses(title)
         `
         )
         .in('user_id', memberIds)
-        .order('issued_at', { ascending: false })
+        .order('issue_date', { ascending: false })
 
       if (certsError) throw certsError
 
@@ -173,7 +173,7 @@ export default function OrgDashboardPage() {
         id: cert.id,
         user_id: cert.user_id,
         course_id: cert.course_id,
-        issued_at: cert.issued_at,
+        issue_date: cert.issue_date,
         user_name: cert.recipient_name || 'Unknown',
         course_title: cert.courses?.title || 'Unknown Course',
       }))
