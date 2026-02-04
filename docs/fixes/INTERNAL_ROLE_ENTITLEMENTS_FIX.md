@@ -54,11 +54,12 @@ if (profile && isInternalRole(profile.role)) {
 ### File: `lib/services/entitlements.ts`
 
 1. **Import Internal Role Helper**:
+
    ```typescript
    import { isInternalRole } from '@/lib/types/roles'
    ```
 
-2. **Add Internal Role Bypass**: 
+2. **Add Internal Role Bypass**:
    - Check profile role before organization membership query
    - If `isInternalRole(role)` returns true, immediately return ENTERPRISE entitlements
    - Skip all organization_subscriptions and seat_allocations queries
@@ -84,12 +85,14 @@ The following roles now bypass subscription checks:
 ### Verification Steps
 
 1. **Login as Analyst**:
+
    ```
    Email: analyst@abr-insights.com
    Expected: Access /dashboard without premium prompt
    ```
 
 2. **Check Entitlements**:
+
    ```typescript
    const entitlements = await getUserEntitlements(userId)
    // Should return:
@@ -136,6 +139,7 @@ The following roles now bypass subscription checks:
 ## Documentation
 
 The fix is documented in:
+
 - This file: `docs/fixes/INTERNAL_ROLE_ENTITLEMENTS_FIX.md`
 - Role configuration: `docs/security/ROLE_CONFIGURATION.md`
 - Entitlements architecture: `docs/architecture/ENTITLEMENTS_SOURCE_OF_TRUTH.md`
