@@ -36,6 +36,11 @@ interface Course {
   created_at: string
 }
 
+interface Category {
+  id: string
+  name: string
+}
+
 interface UserProgress {
   id: string
   user_id: string
@@ -54,6 +59,7 @@ export default function TrainingHubPage() {
   const { entitlements, loading: entitlementsLoading } = useEntitlements()
   const [user, setUser] = useState<User | null>(null)
   const [courses, setCourses] = useState<Course[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
   const [userProgress, setUserProgress] = useState<UserProgress[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
@@ -93,6 +99,27 @@ export default function TrainingHubPage() {
   }, [supabase])
 
   useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('course_categories')
+          .select('id, name')
+          .order('name')
+
+        if (error) throw error
+        setCategories(data || [])
+      } catch (error) {
+        logger.error('Error fetching categories:', {
+          error: error,
+          context: 'TrainingHubPage',
+        })
+      }
+    }
+
+    fetchCategories()
+  }, [supabase])
+
+  useEffect(() => {
     if (!user) return
 
     const fetchUserProgress = async () => {
@@ -119,8 +146,9 @@ export default function TrainingHubPage() {
         course.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         course.description?.toLowerCase().includes(searchTerm.toLowerCase())
 
-      const matchesCategory = selectedCategory === 'all'
-      const matchesLevel = selectedLevel === 'all' || course.level === selectedLevel
+      const matchesCategory = selectedCategory === 'all' || course.category_id === selectedCategory
+      const matchesLevel =
+        selectedLevel === 'all' || course.level?.toLowerCase() === selectedLevel.toLowerCase()
 
       return matchesSearch && matchesCategory && matchesLevel
     })
@@ -180,11 +208,7 @@ export default function TrainingHubPage() {
     return userTierLevel >= requiredTierLevel
   }
 
-  const categories = useMemo(() => {
-    return []
-  }, [courses])
-
-  const levels = ['Introductory', 'Intermediate', 'Advanced', 'Specialized']
+  const levels = ['Beginner', 'Intermediate', 'Advanced', 'Expert']
 
   const inProgressCourses = getInProgressCourses()
 
@@ -276,8 +300,8 @@ export default function TrainingHubPage() {
               >
                 <option value="all">All Categories</option>
                 {categories.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
                   </option>
                 ))}
               </select>
