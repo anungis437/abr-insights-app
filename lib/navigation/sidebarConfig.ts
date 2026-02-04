@@ -101,17 +101,16 @@ const learnerNav: SidebarNavItem[] = [
 const educatorNav: SidebarNavItem[] = [
   {
     label: 'Home',
-    href: '/dashboard',
+    href: '/instructor/dashboard',
     icon: Home,
   },
   {
-    label: 'Content',
+    label: 'Courses',
     icon: BookOpen,
     children: [
-      { label: 'My Courses', href: '/instructor/courses', icon: BookOpen },
+      { label: 'All Courses', href: '/instructor/courses', icon: BookOpen },
       { label: 'Create Course', href: '/admin/courses/create', icon: GraduationCap },
-      { label: 'Content Library', href: '/resources', icon: Database },
-      { label: 'Course Analytics', href: '/instructor/analytics', icon: BarChart3 },
+      { label: 'Analytics', href: '/instructor/analytics', icon: BarChart3 },
     ],
   },
   {
@@ -124,12 +123,9 @@ const educatorNav: SidebarNavItem[] = [
     ],
   },
   {
-    label: 'Learning',
-    icon: GraduationCap,
-    children: [
-      { label: 'My Courses', href: '/training', icon: BookOpen },
-      { label: 'Browse Catalog', href: '/courses', icon: Search },
-    ],
+    label: 'Resources',
+    href: '/resources',
+    icon: Database,
   },
   {
     label: 'Profile',
