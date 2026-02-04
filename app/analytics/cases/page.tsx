@@ -97,7 +97,7 @@ export default function CaseAnalyticsPage() {
       // Calculate stats
       const totalCases = cases.length
       const raceRelatedCases = cases.filter((c: any) => c.is_race_related === true).length
-      
+
       // Count anti-Black cases from summary/title
       const antiBlackCases = cases.filter(
         (c: any) =>
@@ -108,9 +108,7 @@ export default function CaseAnalyticsPage() {
       ).length
 
       // Calculate average resolution time (using created_at and decision_date as proxy)
-      const casesWithDates = cases.filter(
-        (c: any) => c.decision_date && c.created_at
-      )
+      const casesWithDates = cases.filter((c: any) => c.decision_date && c.created_at)
       let avgResolutionDays = 0
       if (casesWithDates.length > 0) {
         const totalDays = casesWithDates.reduce((sum: number, c: any) => {
@@ -124,12 +122,9 @@ export default function CaseAnalyticsPage() {
 
       // Calculate upheld rate
       const casesWithOutcome = cases.filter((c: any) => c.outcome)
-      const upheldCases = casesWithOutcome.filter(
-        (c: any) => c.outcome?.includes('Upheld')
-      ).length
-      const upheldRate = casesWithOutcome.length > 0 
-        ? Math.round((upheldCases / casesWithOutcome.length) * 100) 
-        : 0
+      const upheldCases = casesWithOutcome.filter((c: any) => c.outcome?.includes('Upheld')).length
+      const upheldRate =
+        casesWithOutcome.length > 0 ? Math.round((upheldCases / casesWithOutcome.length) * 100) : 0
 
       setStats({
         totalCases,
@@ -267,9 +262,7 @@ export default function CaseAnalyticsPage() {
     <div className="container-custom py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Case Analytics</h1>
-        <p className="mt-2 text-gray-600">
-          Analyze tribunal case processing, trends, and outcomes
-        </p>
+        <p className="mt-2 text-gray-600">Analyze tribunal case processing, trends, and outcomes</p>
       </div>
 
       {/* Stats Grid */}
@@ -386,7 +379,8 @@ export default function CaseAnalyticsPage() {
                       />
                     </div>
                     <p className="mt-1 text-xs text-gray-500">
-                      {item.upheld} upheld ({item.cases > 0 ? Math.round((item.upheld / item.cases) * 100) : 0}% success)
+                      {item.upheld} upheld (
+                      {item.cases > 0 ? Math.round((item.upheld / item.cases) * 100) : 0}% success)
                     </p>
                   </div>
                 </div>
@@ -401,7 +395,9 @@ export default function CaseAnalyticsPage() {
       {/* Protected Grounds */}
       {protectedGrounds.length > 0 && (
         <div className="mb-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-xl font-semibold text-gray-900">Key Themes & Protected Grounds</h2>
+          <h2 className="mb-4 text-xl font-semibold text-gray-900">
+            Key Themes & Protected Grounds
+          </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             {protectedGrounds.map((item) => (
               <div key={item.ground} className="rounded-lg border border-gray-100 p-4">

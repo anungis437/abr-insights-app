@@ -79,11 +79,11 @@ export default function AnalyticsTrendsPage() {
       cases.forEach((c: any) => {
         const date = new Date(c.decision_date || c.created_at)
         const year = date.getFullYear()
-        
+
         if (!yearlyData[year]) {
           yearlyData[year] = { year, cases: 0, raceRelated: 0, upheld: 0, dismissed: 0 }
         }
-        
+
         yearlyData[year].cases += 1
         if (c.is_race_related) yearlyData[year].raceRelated += 1
         if (c.outcome?.includes('Upheld')) yearlyData[year].upheld += 1
@@ -120,7 +120,10 @@ export default function AnalyticsTrendsPage() {
       setMonthlyTrends(last12Months)
 
       // Calculate tribunal trends
-      const tribunalData: Record<string, { current: number; previous: number; upheld: number; total: number }> = {}
+      const tribunalData: Record<
+        string,
+        { current: number; previous: number; upheld: number; total: number }
+      > = {}
       const currentYear = now.getFullYear()
       const previousYear = currentYear - 1
 
@@ -140,12 +143,9 @@ export default function AnalyticsTrendsPage() {
 
       const tribunalTrendsData = Object.entries(tribunalData)
         .map(([tribunal, data]) => {
-          const change = data.previous > 0
-            ? ((data.current - data.previous) / data.previous) * 100
-            : 0
-          const successRate = data.total > 0
-            ? (data.upheld / data.total) * 100
-            : 0
+          const change =
+            data.previous > 0 ? ((data.current - data.previous) / data.previous) * 100 : 0
+          const successRate = data.total > 0 ? (data.upheld / data.total) * 100 : 0
           return {
             tribunal,
             totalCases: data.total,
@@ -174,9 +174,8 @@ export default function AnalyticsTrendsPage() {
 
       const outcomeData = Object.entries(outcomeCounts)
         .map(([outcome, data]) => {
-          const change = data.previous > 0
-            ? ((data.current - data.previous) / data.previous) * 100
-            : 0
+          const change =
+            data.previous > 0 ? ((data.current - data.previous) / data.previous) * 100 : 0
           let trend: 'up' | 'down' | 'stable' = 'stable'
           if (Math.abs(change) > 5) trend = change > 0 ? 'up' : 'down'
 
@@ -236,7 +235,9 @@ export default function AnalyticsTrendsPage() {
                   <div className="relative h-8 rounded-full bg-gray-100">
                     <div
                       className="absolute h-8 rounded-full bg-primary-600"
-                      style={{ width: `${trend.cases > 0 ? (trend.cases / Math.max(...yearlyTrends.map(t => t.cases))) * 100 : 0}%` }}
+                      style={{
+                        width: `${trend.cases > 0 ? (trend.cases / Math.max(...yearlyTrends.map((t) => t.cases))) * 100 : 0}%`,
+                      }}
                     />
                     <div className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-medium text-white">
                       Upheld: {trend.upheld} | Dismissed: {trend.dismissed}
@@ -253,7 +254,9 @@ export default function AnalyticsTrendsPage() {
 
       {/* Monthly Trends (Last 12 months) */}
       <div className="mb-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="mb-4 text-xl font-semibold text-gray-900">Monthly Filing Trends (Last 12 Months)</h2>
+        <h2 className="mb-4 text-xl font-semibold text-gray-900">
+          Monthly Filing Trends (Last 12 Months)
+        </h2>
         <div className="grid gap-2 sm:grid-cols-6 lg:grid-cols-12">
           {monthlyTrends.map((trend) => (
             <div key={trend.month} className="text-center">
@@ -289,8 +292,8 @@ export default function AnalyticsTrendsPage() {
                           trend.yearOverYearChange > 0
                             ? 'text-green-600'
                             : trend.yearOverYearChange < 0
-                            ? 'text-red-600'
-                            : 'text-gray-600'
+                              ? 'text-red-600'
+                              : 'text-gray-600'
                         }`}
                       >
                         {trend.yearOverYearChange > 0 ? '+' : ''}
@@ -327,8 +330,8 @@ export default function AnalyticsTrendsPage() {
                           trend.trend === 'up'
                             ? 'text-green-600'
                             : trend.trend === 'down'
-                            ? 'text-red-600'
-                            : 'text-gray-600'
+                              ? 'text-red-600'
+                              : 'text-gray-600'
                         }`}
                       >
                         {trend.changePercent > 0 ? '+' : ''}
@@ -355,10 +358,16 @@ export default function AnalyticsTrendsPage() {
         <ul className="space-y-2 text-sm text-primary-800">
           {yearlyTrends.length >= 2 && (
             <li>
-              • Case volume {yearlyTrends[yearlyTrends.length - 1].cases > yearlyTrends[yearlyTrends.length - 2].cases ? 'increased' : 'decreased'} by{' '}
+              • Case volume{' '}
+              {yearlyTrends[yearlyTrends.length - 1].cases >
+              yearlyTrends[yearlyTrends.length - 2].cases
+                ? 'increased'
+                : 'decreased'}{' '}
+              by{' '}
               {Math.abs(
                 Math.round(
-                  ((yearlyTrends[yearlyTrends.length - 1].cases - yearlyTrends[yearlyTrends.length - 2].cases) /
+                  ((yearlyTrends[yearlyTrends.length - 1].cases -
+                    yearlyTrends[yearlyTrends.length - 2].cases) /
                     yearlyTrends[yearlyTrends.length - 2].cases) *
                     100
                 )
@@ -367,10 +376,15 @@ export default function AnalyticsTrendsPage() {
             </li>
           )}
           {tribunalTrends.length > 0 && (
-            <li>• {tribunalTrends[0].tribunal} leads with {tribunalTrends[0].totalCases} total cases</li>
+            <li>
+              • {tribunalTrends[0].tribunal} leads with {tribunalTrends[0].totalCases} total cases
+            </li>
           )}
           {outcomeTrends.length > 0 && (
-            <li>• Most common outcome: {outcomeTrends[0].outcome} ({outcomeTrends[0].count} cases this year)</li>
+            <li>
+              • Most common outcome: {outcomeTrends[0].outcome} ({outcomeTrends[0].count} cases this
+              year)
+            </li>
           )}
           <li>• Race-related cases represent a significant portion of tribunal decisions</li>
         </ul>
