@@ -187,7 +187,7 @@ export default function Sidebar({ items, role }: SidebarProps) {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 overflow-y-auto p-4">
+          <nav className="flex-1 overflow-y-auto p-4 scrollbar-hide">
             <div className="space-y-1">{items.map((item) => renderNavItem(item))}</div>
           </nav>
 

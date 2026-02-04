@@ -46,6 +46,16 @@
     }
   }
 
+  /* Hide scrollbar for sidebar navigation */
+  .scrollbar-hide {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+
   /* Sidebar navigation indentation based on nesting level */
   [style*='--indent-level'] {
     padding-left: calc(0.75rem + var(--indent-level, 0) * 1rem);
