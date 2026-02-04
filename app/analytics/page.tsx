@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth/AuthContext'
 import { useEntitlements } from '@/hooks/use-entitlements'
-import { isInternalRole } from '@/lib/types/roles'
+import { isInternalRole, type UserRole } from '@/lib/types/roles'
 import { BarChart3, Lock, Sparkles, CheckCircle, ArrowRight } from 'lucide-react'
 
 type PlanTier = 'free' | 'professional' | 'enterprise'
@@ -16,7 +16,7 @@ export default function AnalyticsPage() {
   const hasAdvancedAnalytics = entitlements?.features.advancedAnalytics || false
 
   // Internal staff roles should always see analytics
-  const isInternalStaff = profile?.role && isInternalRole(profile.role)
+  const isInternalStaff = profile?.role && isInternalRole(profile.role as UserRole)
 
   // Redirect internal staff to main analytics dashboard
   if (isInternalStaff) {
