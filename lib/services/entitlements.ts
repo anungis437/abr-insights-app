@@ -11,6 +11,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { isInternalRole } from '@/lib/types/roles'
 
 export interface UserEntitlements {
   organizationId: string
@@ -150,6 +151,9 @@ const TIER_CONFIG: Record<string, TierLimits> = {
  * This function queries organization_subscriptions as the single source of truth
  * and returns a comprehensive entitlements object.
  *
+ * IMPORTANT: Internal staff roles (super_admin, compliance_officer, investigator, analyst)
+ * bypass all subscription checks and get ENTERPRISE-level access automatically.
+ *
  * @param userId - User ID to check entitlements for
  * @param client - Optional Supabase client (for admin/webhook contexts)
  * @returns UserEntitlements object or null if user has no organization
@@ -159,6 +163,30 @@ export async function getUserEntitlements(
   client?: SupabaseClient
 ): Promise<UserEntitlements | null> {
   const supabase = client || (await createClient())
+
+  // 0. CHECK FOR INTERNAL STAFF ROLES FIRST - BYPASS SUBSCRIPTION SYSTEM
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role, organization_id')
+    .eq('id', userId)
+    .single()
+
+  if (profile && isInternalRole(profile.role)) {
+    // Internal staff roles (super_admin, compliance_officer, investigator, analyst)
+    // get ENTERPRISE-level access without subscription checks
+    return {
+      organizationId: profile.organization_id || userId,
+      tier: 'ENTERPRISE',
+      status: 'active',
+      seatCount: -1, // Unlimited
+      seatsUsed: 0,
+      seatsAvailable: -1, // Unlimited
+      hasSeat: true,
+      inGracePeriod: false,
+      gracePeriodEndsAt: null,
+      features: TIER_CONFIG.ENTERPRISE.features,
+    }
+  }
 
   // 1. Get user's organization membership
   const { data: membership, error: membershipError } = await supabase
