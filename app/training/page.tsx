@@ -5,6 +5,7 @@ import { logger } from '@/lib/utils/production-logger'
 import { useState, useEffect, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useEntitlements } from '@/hooks/use-entitlements'
+import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import {
   GraduationCap,
@@ -55,6 +56,7 @@ interface UserProgress {
 }
 
 export default function TrainingHubPage() {
+  const router = useRouter()
   const supabase = createClient()
   const { entitlements, loading: entitlementsLoading } = useEntitlements()
   const [user, setUser] = useState<User | null>(null)
@@ -206,6 +208,24 @@ export default function TrainingHubPage() {
 
     // User must have tier >= required tier
     return userTierLevel >= requiredTierLevel
+  }
+
+  const handleCourseClick = (course: Course, hasAccess: boolean) => {
+    if (hasAccess) {
+      logger.info('Navigating to course player', {
+        context: 'TrainingHubPage',
+        courseSlug: course.slug,
+        courseId: course.id,
+      })
+      router.push(`/courses/${course.slug}/player`)
+    } else {
+      logger.info('Redirecting to pricing for locked course', {
+        context: 'TrainingHubPage',
+        courseSlug: course.slug,
+        requiredTier: course.required_tier,
+      })
+      router.push('/pricing')
+    }
   }
 
   const levels = ['Beginner', 'Intermediate', 'Advanced', 'Expert']
@@ -422,10 +442,10 @@ export default function TrainingHubPage() {
                   }
 
                   return (
-                    <Link
+                    <div
                       key={course.id}
-                      href={hasAccess ? `/courses/${course.slug}/player` : '/pricing'}
-                      className="group overflow-hidden rounded-lg bg-white shadow-md transition-all hover:shadow-xl"
+                      onClick={() => handleCourseClick(course, hasAccess)}
+                      className="group cursor-pointer overflow-hidden rounded-lg bg-white shadow-md transition-all hover:shadow-xl"
                     >
                       <div className="relative">
                         {course.thumbnail_url ? (
@@ -509,7 +529,7 @@ export default function TrainingHubPage() {
                           </div>
                         )}
                       </div>
-                    </Link>
+                    </div>
                   )
                 })}
               </div>
