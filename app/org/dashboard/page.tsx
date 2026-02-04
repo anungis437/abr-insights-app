@@ -60,7 +60,6 @@ interface Certificate {
   id: string
   user_id: string
   course_id: string
-  completion_score: number
   issued_at: string
   user_name: string
   course_title: string
@@ -160,7 +159,6 @@ export default function OrgDashboardPage() {
           id,
           user_id,
           course_id,
-          completion_score,
           issued_at,
           recipient_name,
           courses(title)
@@ -175,7 +173,6 @@ export default function OrgDashboardPage() {
         id: cert.id,
         user_id: cert.user_id,
         course_id: cert.course_id,
-        completion_score: cert.completion_score,
         issued_at: cert.issued_at,
         user_name: cert.recipient_name || 'Unknown',
         course_title: cert.courses?.title || 'Unknown Course',
