@@ -222,14 +222,14 @@ const investigatorNav: SidebarNavItem[] = [
 const orgAdminNav: SidebarNavItem[] = [
   {
     label: 'Home',
-    href: '/admin/dashboard',
+    href: '/org/dashboard',
     icon: Home,
   },
   {
     label: 'Organization',
     icon: Building2,
     children: [
-      { label: 'Overview', href: '/admin/dashboard', icon: LayoutDashboard },
+      { label: 'Overview', href: '/org/dashboard', icon: LayoutDashboard },
       { label: 'Team Management', href: '/admin/team', icon: Users },
       { label: 'Settings', href: '/admin/org-settings', icon: Settings },
       { label: 'Usage Analytics', href: '/admin/analytics', icon: BarChart3 },
