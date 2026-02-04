@@ -65,17 +65,24 @@ export default function DiscussionsPage() {
                 <input
                   type="text"
                   placeholder="Search discussions..."
+                  aria-label="Search discussions"
                   className="w-full rounded-lg border border-gray-200 py-3 pl-10 pr-4 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </div>
             </div>
-            <select className="rounded-lg border border-gray-200 px-4 py-3 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500">
+            <select
+              aria-label="Filter by topic"
+              className="rounded-lg border border-gray-200 px-4 py-3 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            >
               <option>All Topics</option>
               <option>Courses</option>
               <option>Cases</option>
               <option>General</option>
             </select>
-            <select className="rounded-lg border border-gray-200 px-4 py-3 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500">
+            <select
+              aria-label="Sort discussions"
+              className="rounded-lg border border-gray-200 px-4 py-3 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            >
               <option>Latest</option>
               <option>Popular</option>
               <option>Unanswered</option>
