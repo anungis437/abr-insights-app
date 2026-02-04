@@ -48,6 +48,57 @@ ON ai_usage_logs(user_id, created_at DESC)
 WHERE organization_id IS NULL;
 
 -- ============================================================================
+-- CREATE/UPDATE HELPER FUNCTIONS (BEFORE RLS POLICIES)
+-- ============================================================================
+
+-- Update user_organization_id to return NULL instead of failing
+CREATE OR REPLACE FUNCTION auth.user_organization_id()
+RETURNS UUID AS $$
+BEGIN
+    -- Returns NULL for individual users instead of failing
+    RETURN (
+        SELECT organization_id
+        FROM profiles
+        WHERE id = auth.uid()
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
+
+COMMENT ON FUNCTION auth.user_organization_id IS 
+'Get the organization ID for the current user. Returns NULL for individual users.';
+
+-- Function to check if user is an individual (not part of organization)
+CREATE OR REPLACE FUNCTION auth.is_individual_user(p_user_id UUID)
+RETURNS BOOLEAN AS $$
+BEGIN
+    RETURN NOT EXISTS (
+        SELECT 1
+        FROM profiles
+        WHERE id = p_user_id
+        AND organization_id IS NOT NULL
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
+
+COMMENT ON FUNCTION auth.is_individual_user IS 
+'Check if user is an individual user (no organization). Returns true if user has no organization_id in profile.';
+
+-- Function to get user's organization or null for individuals
+CREATE OR REPLACE FUNCTION auth.user_org_or_null()
+RETURNS UUID AS $$
+BEGIN
+    RETURN (
+        SELECT organization_id
+        FROM profiles
+        WHERE id = auth.uid()
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
+
+COMMENT ON FUNCTION auth.user_org_or_null IS 
+'Get user organization ID or NULL for individual users. Does not throw error if no org.';
+
+-- ============================================================================
 -- UPDATE RLS POLICIES TO SUPPORT INDIVIDUAL USERS
 -- ============================================================================
 
@@ -139,61 +190,6 @@ WITH CHECK (
     )
   )
 );
-
--- ============================================================================
--- CREATE HELPER FUNCTION FOR INDIVIDUAL USER CHECKS
--- ============================================================================
-
--- Function to check if user is an individual (not part of organization)
-CREATE OR REPLACE FUNCTION auth.is_individual_user(p_user_id UUID)
-RETURNS BOOLEAN AS $$
-BEGIN
-    RETURN NOT EXISTS (
-        SELECT 1
-        FROM profiles
-        WHERE id = p_user_id
-        AND organization_id IS NOT NULL
-    );
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
-
-COMMENT ON FUNCTION auth.is_individual_user IS 
-'Check if user is an individual user (no organization). Returns true if user has no organization_id in profile.';
-
--- Function to get user's organization or null for individuals
-CREATE OR REPLACE FUNCTION auth.user_org_or_null()
-RETURNS UUID AS $$
-BEGIN
-    RETURN (
-        SELECT organization_id
-        FROM profiles
-        WHERE id = auth.uid()
-    );
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
-
-COMMENT ON FUNCTION auth.user_org_or_null IS 
-'Get user organization ID or NULL for individual users. Does not throw error if no org.';
-
--- ============================================================================
--- UPDATE EXISTING HELPER FUNCTIONS TO HANDLE NULL ORG
--- ============================================================================
-
--- Update user_organization_id to return NULL instead of failing
-CREATE OR REPLACE FUNCTION auth.user_organization_id()
-RETURNS UUID AS $$
-BEGIN
-    -- Returns NULL for individual users instead of failing
-    RETURN (
-        SELECT organization_id
-        FROM profiles
-        WHERE id = auth.uid()
-    );
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
-
-COMMENT ON FUNCTION auth.user_organization_id IS 
-'Get the organization ID for the current user. Returns NULL for individual users.';
 
 -- ============================================================================
 -- VERIFICATION QUERIES
