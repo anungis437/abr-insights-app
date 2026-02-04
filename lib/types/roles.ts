@@ -115,7 +115,7 @@ export const ROLE_CONFIG: Record<UserRole, RoleMetadata> = {
     level: 10,
     isInternal: false, // Default public role
     isSystem: false,
-    defaultLandingPage: '/', // Homepage with course catalog
+    defaultLandingPage: '/dashboard', // Learner dashboard with course progress
     icon: 'BookOpen',
   },
   viewer: {

@@ -143,7 +143,7 @@ const educatorNav: SidebarNavItem[] = [
 const analystNav: SidebarNavItem[] = [
   {
     label: 'Home',
-    href: '/dashboard',
+    href: '/analytics',
     icon: Home,
   },
   {
@@ -180,7 +180,7 @@ const analystNav: SidebarNavItem[] = [
 const investigatorNav: SidebarNavItem[] = [
   {
     label: 'Home',
-    href: '/dashboard',
+    href: '/analytics',
     icon: Home,
   },
   {
@@ -425,7 +425,7 @@ const viewerNav: SidebarNavItem[] = [
 const guestNav: SidebarNavItem[] = [
   {
     label: 'Home',
-    href: '/dashboard',
+    href: '/',
     icon: Home,
   },
   {
