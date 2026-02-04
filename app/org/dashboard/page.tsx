@@ -46,8 +46,14 @@ interface CourseProgress {
   id: string
   user_id: string
   course_id: string
-  completion_percentage: number
+  progress_percentage: number // enrollments table uses progress_percentage
+  completion_percentage?: number // Keep for backwards compatibility
   last_accessed_at: string
+  status: string
+  courses?: {
+    id: string
+    title: string
+  }
 }
 
 interface Certificate {
@@ -137,14 +143,14 @@ export default function OrgDashboardPage() {
       // Get member IDs for queries
       const memberIds = (orgMembers || []).map((m: any) => m.id)
 
-      // Get all progress for organization members
-      const { data: progress, error: progressError } = await supabase
-        .from('user_progress')
-        .select('*')
+      // Get all enrollments (course progress) for organization members
+      const { data: enrollments, error: enrollmentsError } = await supabase
+        .from('enrollments')
+        .select('*, courses(id, title)')
         .in('user_id', memberIds)
 
-      if (progressError) throw progressError
-      setAllProgress(progress || [])
+      if (enrollmentsError) throw enrollmentsError
+      setAllProgress(enrollments || [])
 
       // Get all certificates for organization members
       const { data: certs, error: certsError } = await supabase
@@ -252,16 +258,21 @@ export default function OrgDashboardPage() {
     )
   }
 
+  // Helper function to get completion percentage (handles both progress_percentage and completion_percentage)
+  const getCompletionPercentage = (progress: CourseProgress): number => {
+    return progress.progress_percentage ?? progress.completion_percentage ?? 0
+  }
+
   // Calculate metrics
   const totalMembers = members.length
   const seatCount = entitlements?.seatCount ?? organization.seat_limit
   const seatsUsed = entitlements?.seatsUsed ?? totalMembers
   const seatsAvailable = entitlements?.seatsAvailable ?? Math.max(0, seatCount - totalMembers)
-  const completedCourses = allProgress.filter((p) => p.completion_percentage === 100).length
+  const completedCourses = allProgress.filter((p) => getCompletionPercentage(p) === 100).length
   const totalCertificates = certificates.length
   const avgCompletion =
     allProgress.length > 0
-      ? allProgress.reduce((sum, p) => sum + p.completion_percentage, 0) / allProgress.length
+      ? allProgress.reduce((sum, p) => sum + getCompletionPercentage(p), 0) / allProgress.length
       : 0
 
   // Course progress breakdown
@@ -269,7 +280,7 @@ export default function OrgDashboardPage() {
     const courseProgressRecords = allProgress.filter((p) => p.course_id === course.id)
     const avgProgress =
       courseProgressRecords.length > 0
-        ? courseProgressRecords.reduce((sum, p) => sum + p.completion_percentage, 0) /
+        ? courseProgressRecords.reduce((sum, p) => sum + getCompletionPercentage(p), 0) /
           courseProgressRecords.length
         : 0
     return {
@@ -280,7 +291,7 @@ export default function OrgDashboardPage() {
   })
 
   // Engagement data
-  const activeLearners = allProgress.filter((p) => p.completion_percentage > 0).length
+  const activeLearners = allProgress.filter((p) => getCompletionPercentage(p) > 0).length
   const notStarted = totalMembers - activeLearners
 
   return (
