@@ -124,11 +124,12 @@ async function setupOrgAdminWithDemoOrg() {
       console.log(`     Email: ${verifyProfile.email}`)
       console.log(`     Role: ${verifyProfile.role}`)
       console.log(`     Organization ID: ${verifyProfile.organization_id}`)
-      if (verifyProfile.organizations) {
-        console.log(`     Organization Name: ${verifyProfile.organizations.name}`)
-        console.log(`     Organization Tier: ${verifyProfile.organizations.subscription_tier}`)
-        console.log(`     Organization Status: ${verifyProfile.organizations.subscription_status}`)
-        console.log(`     Seat Limit: ${verifyProfile.organizations.seat_limit}`)
+      if (verifyProfile.organizations && !Array.isArray(verifyProfile.organizations)) {
+        const org = verifyProfile.organizations as any
+        console.log(`     Organization Name: ${org.name}`)
+        console.log(`     Organization Tier: ${org.subscription_tier}`)
+        console.log(`     Organization Status: ${org.subscription_status}`)
+        console.log(`     Seat Limit: ${org.seat_limit}`)
       }
     }
 
