@@ -121,17 +121,42 @@ export function withOrg(handler: GuardedHandler): GuardedHandler {
 }
 
 /**
+ * Optional organization context guard - gets org context without throwing
+ * Use this for APIs that support both individual and organization users
+ * Must be used AFTER withAuth
+ */
+export function withOptionalOrg(handler: GuardedHandler): GuardedHandler {
+  return async (request: NextRequest, context: GuardedContext = {}) => {
+    try {
+      if (!context.user) {
+        throw new AuthError('withOptionalOrg must be used after withAuth')
+      }
+
+      const organizationId = await getOptionalOrgContext(context.user, request)
+
+      return await handler(request, {
+        ...context,
+        organizationId: organizationId || undefined,
+      })
+    } catch (error) {
+      return errorResponse(error as Error)
+    }
+  }
+}
+
+/**
  * Permission guard - ensures user has a specific permission
- * Must be used AFTER withAuth and withOrg
+ * Must be used AFTER withAuth and withOrg (or withOptionalOrg)
+ * For individual users without org, this will throw PermissionError
  */
 export function withPermission(permissionSlug: string, handler: GuardedHandler): GuardedHandler {
   return async (request: NextRequest, context: GuardedContext = {}) => {
     try {
-      if (!context.user || !context.organizationId) {
+      if (!context.user) {
         throw new AuthError('withPermission must be used after withAuth and withOrg')
       }
 
-      await requirePermission(context.user.id, context.organizationId, permissionSlug)
+      await requirePermission(context.user.id, context.organizationId || null, permissionSlug)
 
       return await handler(request, context)
     } catch (error) {
@@ -149,11 +174,11 @@ export function withAnyPermission(
 ): GuardedHandler {
   return async (request: NextRequest, context: GuardedContext = {}) => {
     try {
-      if (!context.user || !context.organizationId) {
+      if (!context.user) {
         throw new AuthError('withAnyPermission must be used after withAuth and withOrg')
       }
 
-      await requireAnyPermission(context.user.id, context.organizationId, permissionSlugs)
+      await requireAnyPermission(context.user.id, context.organizationId || null, permissionSlugs)
 
       return await handler(request, context)
     } catch (error) {
@@ -172,6 +197,7 @@ export function withAnyPermission(
 export interface GuardOptions {
   requireAuth?: boolean
   requireOrg?: boolean
+  optionalOrg?: boolean // Allow org context but don't require it (for individual users)
   permissions?: string[]
   anyPermissions?: string[] // OR logic for permissions
 }
@@ -190,7 +216,9 @@ export function guardedRoute(handler: GuardedHandler, options: GuardOptions = {}
     guardedHandler = withAnyPermission(options.anyPermissions, guardedHandler)
   }
 
-  if (options.requireOrg) {
+  if (options.optionalOrg) {
+    guardedHandler = withOptionalOrg(guardedHandler)
+  } else if (options.requireOrg) {
     guardedHandler = withOrg(guardedHandler)
   }
 

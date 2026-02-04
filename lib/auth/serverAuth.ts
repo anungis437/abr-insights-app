@@ -66,15 +66,19 @@ export async function requireUser(request: NextRequest): Promise<User> {
 }
 
 /**
- * Resolve and validate user's organization context
+ * Get user's organization context without throwing errors
+ * Returns null for individual users (not part of any organization)
  * Priority order:
  *   1. Request header: X-Organization-Id
  *   2. Query param: ?organization_id=...
  *   3. User's default organization from profile
  *
- * @throws {OrgContextError} If organization context cannot be resolved or user lacks access
+ * @returns Organization ID or null for individual users
  */
-export async function requireOrgContext(user: User, request: NextRequest): Promise<string> {
+export async function getOptionalOrgContext(
+  user: User,
+  request: NextRequest
+): Promise<string | null> {
   const supabase = await createClient()
 
   // Try header first
@@ -88,34 +92,52 @@ export async function requireOrgContext(user: User, request: NextRequest): Promi
 
   // Fall back to user's default organization
   if (!orgId) {
-    const { data: profile, error } = await supabase
+    const { data: profile } = await supabase
       .from('profiles')
       .select('organization_id')
       .eq('id', user.id)
       .single()
 
-    if (error || !profile?.organization_id) {
-      throw new OrgContextError('User has no organization assigned')
-    }
-
-    orgId = profile.organization_id
+    orgId = profile?.organization_id || null
   }
 
-  // At this point, orgId must be non-null or an error was thrown
+  // If still no org, user is an individual - return null
   if (!orgId) {
-    throw new OrgContextError('Organization ID could not be resolved')
+    return null
   }
 
-  // Verify user has access to this organization
-  const { data: membership, error: membershipError } = await supabase
+  // Verify user has access to this organization (if specified)
+  const { data: membership } = await supabase
     .from('user_roles')
     .select('id')
     .eq('user_id', user.id)
     .eq('organization_id', orgId)
     .single()
 
-  if (membershipError || !membership) {
+  if (!membership) {
+    // User specified org they don't have access to
     throw new OrgContextError(`User does not have access to organization: ${orgId}`)
+  }
+
+  return orgId
+}
+
+/**
+ * Resolve and validate user's organization context
+ * Priority order:
+ *   1. Request header: X-Organization-Id
+ *   2. Query param: ?organization_id=...
+ *   3. User's default organization from profile
+ *
+ * @throws {OrgContextError} If organization context cannot be resolved or user lacks access
+ */
+export async function requireOrgContext(user: User, request: NextRequest): Promise<string> {
+  const orgId = await getOptionalOrgContext(user, request)
+
+  if (!orgId) {
+    throw new OrgContextError(
+      'User has no organization assigned. Organization context required for this operation.'
+    )
   }
 
   return orgId
@@ -124,14 +146,20 @@ export async function requireOrgContext(user: User, request: NextRequest): Promi
 /**
  * Check if user has a specific permission in the given organization
  * Uses the RBAC permission system (roles → permissions)
+ * For individual users (organizationId = null), always returns false
  *
  * @throws {PermissionError} If user lacks the required permission
  */
 export async function requirePermission(
   userId: string,
-  organizationId: string,
+  organizationId: string | null,
   permissionSlug: string
 ): Promise<void> {
+  // Individual users (no org) don't have organization-based permissions
+  if (!organizationId) {
+    throw new PermissionError(`Permission ${permissionSlug} requires organization membership`)
+  }
+
   const supabase = await createClient()
 
   // Call RPC function to check effective permissions
@@ -158,9 +186,16 @@ export async function requirePermission(
  */
 export async function requireAnyPermission(
   userId: string,
-  organizationId: string,
+  organizationId: string | null,
   permissionSlugs: string[]
 ): Promise<void> {
+  // Individual users (no org) don't have organization-based permissions
+  if (!organizationId) {
+    throw new PermissionError(
+      `Permissions require organization membership: ${permissionSlugs.join(', ')}`
+    )
+  }
+
   const supabase = await createClient()
 
   for (const slug of permissionSlugs) {
@@ -225,7 +260,7 @@ export async function requireAdminRole(userId: string, organizationId?: string):
  */
 export async function requireAllPermissions(
   userId: string,
-  organizationId: string,
+  organizationId: string | null,
   permissionSlugs: string[]
 ): Promise<void> {
   for (const slug of permissionSlugs) {

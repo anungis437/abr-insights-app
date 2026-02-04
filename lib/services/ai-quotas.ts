@@ -40,13 +40,13 @@ const ORG_MONTHLY_LIMITS: Record<string, number> = {
  * Check if user and organization are within AI usage quotas
  *
  * @param userId - User ID to check
- * @param orgId - Organization ID to check
+ * @param orgId - Organization ID to check (null for individual users)
  * @param operation - Type of AI operation ('chat' | 'coach' | 'embeddings')
  * @returns QuotaCheckResult with allowed status and usage details
  */
 export async function checkAIQuota(
   userId: string,
-  orgId: string,
+  orgId: string | null,
   operation: 'chat' | 'coach' | 'embeddings' = 'chat'
 ): Promise<QuotaCheckResult> {
   const supabase = await createClient()
@@ -88,7 +88,18 @@ export async function checkAIQuota(
       }
     }
 
-    // Check org monthly limit
+    // Check org monthly limit (skip for individual users with no org)
+    if (!orgId) {
+      // Individual users only have user daily limit, no org limits
+      return {
+        allowed: true,
+        userTokensUsed,
+        userDailyLimit: USER_DAILY_LIMIT,
+        orgTokensUsed: 0,
+        orgMonthlyLimit: 0,
+      }
+    }
+
     const { data: subscription, error: subError } = await supabase
       .from('organization_subscriptions')
       .select('tier')

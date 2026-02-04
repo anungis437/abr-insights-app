@@ -19,9 +19,9 @@ import { sanitizeError } from '@/lib/utils/error-responses'
  *
  * Protected by:
  * - Authentication: Required (withAuth)
- * - Organization Context: Required (withOrg)
- * - Permission: 'ai.chat.use' or 'admin.ai.manage'
- * - AI Usage Quotas: Per-user daily + per-org monthly limits
+ * - Organization Context: Optional (withOptionalOrg) - supports individual users
+ * - Permission: 'ai.chat.use' or 'admin.ai.manage' (org users only)
+ * - AI Usage Quotas: Per-user daily + per-org monthly limits (if org member)
  */
 
 async function chatHandler(request: NextRequest, context: GuardedContext) {
@@ -33,7 +33,8 @@ async function chatHandler(request: NextRequest, context: GuardedContext) {
     }
 
     // Check AI usage quotas (cost control)
-    const quotaCheck = await checkAIQuota(context.user!.id, context.organizationId!, 'chat')
+    // For individual users, organizationId will be null
+    const quotaCheck = await checkAIQuota(context.user!.id, context.organizationId || null, 'chat')
     if (!quotaCheck.allowed) {
       logger.warn('AI quota exceeded', {
         userId: context.user!.id,
@@ -225,7 +226,7 @@ Respond in a helpful, conversational tone with actionable insights.`
 export const POST = withMultipleRedisRateLimits(
   guardedRoute(chatHandler, {
     requireAuth: true,
-    requireOrg: true,
+    optionalOrg: true, // Changed to optionalOrg to support individual users
     anyPermissions: ['ai.chat.use', 'admin.ai.manage'],
   }),
   [RateLimitPresets.aiChat, RateLimitPresets.aiChatOrg]
