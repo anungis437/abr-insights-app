@@ -23,7 +23,7 @@ interface Certificate {
   course: {
     title: string
     description: string | null
-  } | null
+  }[] | null
 }
 
 export default function CertificatesPage() {
@@ -158,11 +158,11 @@ export default function CertificatesPage() {
                         <div className="mb-2 flex items-start justify-between">
                           <div>
                             <h3 className="text-xl font-semibold text-gray-900">
-                              {cert.course?.title || 'Course Certificate'}
+                              {cert.course?.[0]?.title || 'Course Certificate'}
                             </h3>
-                            {cert.course?.description && (
+                            {cert.course?.[0]?.description && (
                               <p className="mt-1 line-clamp-2 text-sm text-gray-600">
-                                {cert.course.description}
+                                {cert.course[0].description}
                               </p>
                             )}
                           </div>
