@@ -26,6 +26,7 @@ import {
   Activity,
   Trophy,
   LogOut,
+  CreditCard,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -89,6 +90,7 @@ const learnerNav: SidebarNavItem[] = [
     children: [
       { label: 'My Profile', href: '/profile', icon: Users },
       { label: 'Settings', href: '/profile', icon: Settings },
+      { label: 'Billing', href: '/dashboard/billing', icon: CreditCard },
       { label: 'Certificates', href: '/certificates', icon: Award },
       { label: 'Sign Out', href: '/auth/signout', icon: LogOut },
     ],
@@ -135,6 +137,7 @@ const educatorNav: SidebarNavItem[] = [
     children: [
       { label: 'My Profile', href: '/profile', icon: Users },
       { label: 'Settings', href: '/profile', icon: Settings },
+      { label: 'Billing', href: '/dashboard/billing', icon: CreditCard },
       { label: 'Sign Out', href: '/auth/signout', icon: LogOut },
     ],
   },
@@ -178,6 +181,7 @@ const analystNav: SidebarNavItem[] = [
     children: [
       { label: 'My Profile', href: '/profile', icon: Users },
       { label: 'Settings', href: '/profile', icon: Settings },
+      { label: 'Billing', href: '/dashboard/billing', icon: CreditCard },
       { label: 'Sign Out', href: '/auth/signout', icon: LogOut },
     ],
   },
@@ -220,6 +224,7 @@ const investigatorNav: SidebarNavItem[] = [
     children: [
       { label: 'My Profile', href: '/profile', icon: Users },
       { label: 'Settings', href: '/profile', icon: Settings },
+      { label: 'Billing', href: '/dashboard/billing', icon: CreditCard },
       { label: 'Sign Out', href: '/auth/signout', icon: LogOut },
     ],
   },
@@ -274,6 +279,7 @@ const orgAdminNav: SidebarNavItem[] = [
     children: [
       { label: 'My Profile', href: '/profile', icon: Users },
       { label: 'Settings', href: '/profile', icon: Settings },
+      { label: 'Billing', href: '/dashboard/billing', icon: CreditCard },
       { label: 'Sign Out', href: '/auth/signout', icon: LogOut },
     ],
   },
@@ -317,6 +323,7 @@ const complianceNav: SidebarNavItem[] = [
     children: [
       { label: 'My Profile', href: '/profile', icon: Users },
       { label: 'Settings', href: '/profile', icon: Settings },
+      { label: 'Billing', href: '/dashboard/billing', icon: CreditCard },
       { label: 'Sign Out', href: '/auth/signout', icon: LogOut },
     ],
   },
@@ -390,6 +397,7 @@ const superAdminNav: SidebarNavItem[] = [
     children: [
       { label: 'My Profile', href: '/profile', icon: Users },
       { label: 'Settings', href: '/profile', icon: Settings },
+      { label: 'Billing', href: '/dashboard/billing', icon: CreditCard },
       { label: 'Sign Out', href: '/auth/signout', icon: LogOut },
     ],
   },
@@ -417,6 +425,7 @@ const viewerNav: SidebarNavItem[] = [
     children: [
       { label: 'My Profile', href: '/profile', icon: Users },
       { label: 'Settings', href: '/profile', icon: Settings },
+      { label: 'Billing', href: '/dashboard/billing', icon: CreditCard },
       { label: 'Sign Out', href: '/auth/signout', icon: LogOut },
     ],
   },
