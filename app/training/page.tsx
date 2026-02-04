@@ -410,8 +410,6 @@ export default function TrainingHubPage() {
                           {course.description || 'No description available'}
                         </p>
 
-
-
                         {progress > 0 && (
                           <div className="mb-4">
                             <div className="mb-1 h-2 w-full rounded-full bg-gray-200">
