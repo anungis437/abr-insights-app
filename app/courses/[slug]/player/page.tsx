@@ -213,21 +213,35 @@ export default function CoursePlayerPage({
         let enrollmentData = initialEnrollmentData
 
         if (!enrollmentData) {
+          // Get user's organization_id from profile
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('organization_id')
+            .eq('id', user.id)
+            .single()
+
           // Create enrollment
           const { data: newEnrollment, error: createError } = await supabase
             .from('enrollments')
             .insert({
               user_id: user.id,
               course_id: courseData.id,
-              organization_id:
-                user.user_metadata?.organization_id || '00000000-0000-0000-0000-000000000000',
+              organization_id: profileData?.organization_id || null,
               status: 'active',
               progress_percentage: 0,
             })
             .select()
             .single()
 
-          if (createError) throw createError
+          if (createError) {
+            logger.error('Failed to create enrollment', {
+              context: 'CoursePlayerPage',
+              error: createError,
+              userId: user.id,
+              courseId: courseData.id,
+            })
+            throw createError
+          }
           enrollmentData = newEnrollment
         }
 
