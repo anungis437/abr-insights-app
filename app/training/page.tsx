@@ -97,7 +97,7 @@ export default function TrainingHubPage() {
     const fetchUserProgress = async () => {
       try {
         const { data, error } = await supabase
-          .from('course_progress')
+          .from('lesson_progress')
           .select('*')
           .eq('user_id', user.id)
 
@@ -409,6 +409,8 @@ export default function TrainingHubPage() {
                         <p className="mb-4 line-clamp-3 text-sm text-gray-600">
                           {course.description || 'No description available'}
                         </p>
+
+
 
                         {progress > 0 && (
                           <div className="mb-4">

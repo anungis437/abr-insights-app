@@ -345,7 +345,7 @@ class DataExportService {
   ): Promise<void> {
     const supabase = await createClient()
     const { data: progress, error } = await supabase
-      .from('course_progress')
+      .from('lesson_progress')
       .select(
         `
         *,

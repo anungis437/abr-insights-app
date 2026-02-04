@@ -138,6 +138,12 @@ export default function DataExplorer() {
           .order('last_used_at', { ascending: false, nullsFirst: false })
           .order('created_at', { ascending: false })
 
+        // Silently handle missing table - feature not yet deployed
+        if (error && error.code === 'PGRST205') {
+          setSavedSearches([])
+          return
+        }
+        
         if (error) throw error
         setSavedSearches(data || [])
       } catch (error) {

@@ -80,7 +80,7 @@ export class AchievementsService {
       .from('achievements')
       .select('*')
       .eq('is_active', true)
-      .order('points', { ascending: false })
+      .order('points_value', { ascending: false })
 
     if (error) throw error
     return data as Achievement[]

@@ -186,7 +186,7 @@ export default function TeamManagementPage() {
         setCertificates(certs || [])
 
         const { data: prog } = await supabase
-          .from('course_progress')
+          .from('lesson_progress')
           .select('*')
           .in('user_email', memberEmails)
         setProgress(prog || [])
