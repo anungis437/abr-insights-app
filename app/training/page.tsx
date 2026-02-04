@@ -25,14 +25,13 @@ interface Course {
   title: string
   slug: string
   description: string | null
-  category: string
+  category_id: string | null
   level: string
-  duration_minutes: number
+  estimated_duration_minutes: number | null
   thumbnail_url: string | null
   is_featured: boolean
-  tier_required: string
-  instructor_name: string | null
-  order_index: number
+  required_tier: string
+  instructor_id: string | null
   created_at: string
 }
 
@@ -78,7 +77,7 @@ export default function TrainingHubPage() {
           .select('*')
           .eq('is_published', true)
           .is('deleted_at', null)
-          .order('order_index', { ascending: true })
+          .order('created_at', { ascending: false })
 
         if (error) throw error
         setCourses(data || [])
@@ -98,10 +97,9 @@ export default function TrainingHubPage() {
     const fetchUserProgress = async () => {
       try {
         const { data, error } = await supabase
-          .from('progress')
+          .from('course_progress')
           .select('*')
           .eq('user_id', user.id)
-          .is('deleted_at', null)
 
         if (error) throw error
         setUserProgress(data || [])
@@ -137,7 +135,7 @@ export default function TrainingHubPage() {
   }
 
   const getTotalHours = (): number => {
-    return courses.reduce((sum, c) => sum + (c.duration_minutes || 0), 0) / 60
+    return courses.reduce((sum, c) => sum + (c.estimated_duration_minutes || 0), 0) / 60
   }
 
   const getCertificateCount = (): number => {
@@ -156,7 +154,7 @@ export default function TrainingHubPage() {
   }
 
   const canAccessCourse = (course: Course): boolean => {
-    if (!user) return course.tier_required === 'free'
+    if (!user) return course.required_tier === 'free'
     return true
   }
 
@@ -400,7 +398,7 @@ export default function TrainingHubPage() {
                           </span>
                           <span className="flex items-center gap-1 rounded border border-gray-200 bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700">
                             <Clock className="h-3 w-3" />
-                            {course.duration_minutes} min
+                            {course.estimated_duration_minutes} min
                           </span>
                         </div>
 
