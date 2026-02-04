@@ -44,32 +44,56 @@ export default function BillingPage() {
       } = await supabase.auth.getUser()
       if (!user) return
 
-      // Get user's profile for organization_id
+      // Get user's profile for organization_id and individual subscription
       const { data: profile } = await supabase
         .from('profiles')
-        .select('organization_id')
+        .select('organization_id, stripe_customer_id, subscription_tier, subscription_status')
         .eq('id', user.id)
         .single()
 
-      if (!profile?.organization_id) return
+      // Priority 1: Check for organization subscription
+      if (profile?.organization_id) {
+        const { data: subscription } = await supabase
+          .from('organization_subscriptions')
+          .select('*')
+          .eq('organization_id', profile.organization_id)
+          .single()
 
-      // Get organization subscription
-      const { data: subscription } = await supabase
-        .from('organization_subscriptions')
-        .select('*')
-        .eq('organization_id', profile.organization_id)
-        .single()
-
-      if (subscription) {
-        setBillingInfo({
-          tier: subscription.tier,
-          status: subscription.status,
-          currentPeriodEnd: subscription.current_period_end,
-          seatCount: subscription.seat_count,
-          seatsUsed: subscription.seats_used,
-          stripeCustomerId: subscription.stripe_customer_id,
-        })
+        if (subscription) {
+          setBillingInfo({
+            tier: subscription.tier,
+            status: subscription.status,
+            currentPeriodEnd: subscription.current_period_end,
+            seatCount: subscription.seat_count,
+            seatsUsed: subscription.seats_used,
+            stripeCustomerId: subscription.stripe_customer_id,
+          })
+          return
+        }
       }
+
+      // Priority 2: Individual user subscription (from profile)
+      if (profile?.stripe_customer_id) {
+        setBillingInfo({
+          tier: profile.subscription_tier || 'FREE',
+          status: profile.subscription_status || 'active',
+          currentPeriodEnd: null, // Individual subscriptions don't track period
+          seatCount: 1, // Individual = 1 seat
+          seatsUsed: 1,
+          stripeCustomerId: profile.stripe_customer_id,
+        })
+        return
+      }
+
+      // No subscription found - show free tier
+      setBillingInfo({
+        tier: 'FREE',
+        status: 'active',
+        currentPeriodEnd: null,
+        seatCount: 1,
+        seatsUsed: 1,
+        stripeCustomerId: null,
+      })
     }
 
     loadBillingInfo()
@@ -210,46 +234,76 @@ export default function BillingPage() {
         <Card className="p-6">
           <div className="mb-4 flex items-start justify-between">
             <div>
-              <h2 className="mb-2 text-xl font-semibold">Team Usage</h2>
-              <p className="text-sm text-gray-600">Current seat utilization</p>
+              <h2 className="mb-2 text-xl font-semibold">
+                {billingInfo?.seatCount === 1 ? 'Usage' : 'Team Usage'}
+              </h2>
+              <p className="text-sm text-gray-600">
+                {billingInfo?.seatCount === 1
+                  ? 'Your subscription details'
+                  : 'Current seat utilization'}
+              </p>
             </div>
             <Users className="h-8 w-8 text-gray-400" />
           </div>
 
           {billingInfo && !isFreeTier ? (
             <div className="space-y-4">
-              <div>
-                <div className="mb-2 flex justify-between text-sm">
-                  <span className="text-gray-600">Seats Used</span>
-                  <span className="font-semibold">
-                    {billingInfo.seatsUsed} / {billingInfo.seatCount}
-                  </span>
-                </div>
-                <div className="h-2 w-full rounded-full bg-gray-200">
-                  <div
-                    className="h-2 rounded-full bg-blue-600 transition-all"
-                    style={{
-                      width: `${(billingInfo.seatsUsed / billingInfo.seatCount) * 100}%`,
-                    }}
-                  />
-                </div>
-              </div>
+              {billingInfo.seatCount > 1 ? (
+                <>
+                  <div>
+                    <div className="mb-2 flex justify-between text-sm">
+                      <span className="text-gray-600">Seats Used</span>
+                      <span className="font-semibold">
+                        {billingInfo.seatsUsed} / {billingInfo.seatCount}
+                      </span>
+                    </div>
+                    <div className="h-2 w-full rounded-full bg-gray-200">
+                      <div
+                        className="h-2 rounded-full bg-blue-600 transition-all"
+                        style={{
+                          width: `${(billingInfo.seatsUsed / billingInfo.seatCount) * 100}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
 
-              {billingInfo.seatsUsed >= billingInfo.seatCount && (
-                <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-3">
-                  <p className="text-sm text-yellow-800">
-                    You've reached your seat limit. Upgrade to add more team members.
-                  </p>
+                  {billingInfo.seatsUsed >= billingInfo.seatCount && (
+                    <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-3">
+                      <p className="text-sm text-yellow-800">
+                        You've reached your seat limit. Upgrade to add more team members.
+                      </p>
+                    </div>
+                  )}
+
+                  <Button
+                    variant="outline"
+                    onClick={() => router.push('/admin/team')}
+                    className="w-full"
+                  >
+                    Manage Team Members
+                  </Button>
+                </>
+              ) : (
+                <div className="space-y-3">
+                  <div className="rounded-lg border border-blue-100 bg-blue-50 p-4">
+                    <p className="text-sm font-medium text-blue-900">Individual Subscription</p>
+                    <p className="mt-1 text-sm text-blue-700">
+                      You have full access to all {tierName} features.
+                    </p>
+                  </div>
+                  {billingInfo.stripeCustomerId && (
+                    <Button
+                      variant="outline"
+                      onClick={handleManageSubscription}
+                      disabled={portalLoading}
+                      className="w-full"
+                    >
+                      <ExternalLink className="mr-2 h-4 w-4" />
+                      {portalLoading ? 'Loading...' : 'View Billing Details'}
+                    </Button>
+                  )}
                 </div>
               )}
-
-              <Button
-                variant="outline"
-                onClick={() => router.push('/admin/team')}
-                className="w-full"
-              >
-                Manage Team Members
-              </Button>
             </div>
           ) : (
             <div className="py-8 text-center">
