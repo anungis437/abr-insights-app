@@ -471,9 +471,6 @@ export default function OrgDashboardPage() {
                               </p>
                             </div>
                           </div>
-                          <Badge className="bg-green-100 text-green-800">
-                            {cert.completion_score}%
-                          </Badge>
                         </div>
                       ))}
                     </div>
