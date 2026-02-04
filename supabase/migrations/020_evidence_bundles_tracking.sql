@@ -28,6 +28,7 @@ CREATE INDEX IF NOT EXISTS idx_evidence_bundle_pdfs_created_at ON evidence_bundl
 ALTER TABLE evidence_bundle_pdfs ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policy: Users can view PDF bundles from their organization
+DROP POLICY IF EXISTS "Users can view their org's evidence PDF bundles" ON evidence_bundle_pdfs;
 CREATE POLICY "Users can view their org's evidence PDF bundles"
   ON evidence_bundle_pdfs FOR SELECT
   USING (
@@ -43,6 +44,7 @@ CREATE POLICY "Users can view their org's evidence PDF bundles"
   );
 
 -- RLS Policy: Authenticated users can create PDF bundles
+DROP POLICY IF EXISTS "Authenticated users can create evidence PDF bundles" ON evidence_bundle_pdfs;
 CREATE POLICY "Authenticated users can create evidence PDF bundles"
   ON evidence_bundle_pdfs FOR INSERT
   WITH CHECK (auth.uid() = created_by);

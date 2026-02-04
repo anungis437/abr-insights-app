@@ -226,6 +226,7 @@ ALTER TABLE identity_provider_mapping ENABLE ROW LEVEL SECURITY;
 ALTER TABLE sso_login_attempts ENABLE ROW LEVEL SECURITY;
 
 -- SSO Providers: Admins can manage, others can view their org's providers
+DROP POLICY IF EXISTS "Organization admins can manage SSO providers" ON sso_providers;
 CREATE POLICY "Organization admins can manage SSO providers"
     ON sso_providers
     FOR ALL
@@ -240,6 +241,7 @@ CREATE POLICY "Organization admins can manage SSO providers"
         )
     );
 
+DROP POLICY IF EXISTS "Users can view their organization's SSO providers" ON sso_providers;
 CREATE POLICY "Users can view their organization's SSO providers"
     ON sso_providers
     FOR SELECT
@@ -250,11 +252,13 @@ CREATE POLICY "Users can view their organization's SSO providers"
     );
 
 -- Enterprise Sessions: Users can only access their own sessions
+DROP POLICY IF EXISTS "Users can manage their own SSO sessions" ON enterprise_sessions;
 CREATE POLICY "Users can manage their own SSO sessions"
     ON enterprise_sessions
     FOR ALL
     USING (user_id = auth.uid());
 
+DROP POLICY IF EXISTS "Admins can view all organization sessions" ON enterprise_sessions;
 CREATE POLICY "Admins can view all organization sessions"
     ON enterprise_sessions
     FOR SELECT
@@ -270,17 +274,20 @@ CREATE POLICY "Admins can view all organization sessions"
     );
 
 -- Identity Provider Mapping: Users can only access their own mappings
+DROP POLICY IF EXISTS "Users can view their own identity mappings" ON identity_provider_mapping;
 CREATE POLICY "Users can view their own identity mappings"
     ON identity_provider_mapping
     FOR SELECT
     USING (user_id = auth.uid());
 
+DROP POLICY IF EXISTS "System can manage identity mappings" ON identity_provider_mapping;
 CREATE POLICY "System can manage identity mappings"
     ON identity_provider_mapping
     FOR ALL
     USING (true); -- Managed by service layer with service role key
 
 -- SSO Login Attempts: Admins only
+DROP POLICY IF EXISTS "Admins can view SSO login attempts" ON sso_login_attempts;
 CREATE POLICY "Admins can view SSO login attempts"
     ON sso_login_attempts
     FOR SELECT

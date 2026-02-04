@@ -34,12 +34,14 @@ CREATE INDEX idx_ai_usage_logs_org_created ON public.ai_usage_logs(organization_
 ALTER TABLE public.ai_usage_logs ENABLE ROW LEVEL SECURITY;
 
 -- Policy: Users can view their own AI usage
+DROP POLICY IF EXISTS ai_usage_logs_select_own ON public.ai_usage_logs;
 CREATE POLICY ai_usage_logs_select_own
   ON public.ai_usage_logs
   FOR SELECT
   USING (user_id = auth.uid());
 
 -- Policy: Org admins can view all usage in their org
+DROP POLICY IF EXISTS ai_usage_logs_select_org_admin ON public.ai_usage_logs;
 CREATE POLICY ai_usage_logs_select_org_admin
   ON public.ai_usage_logs
   FOR SELECT
@@ -54,6 +56,7 @@ CREATE POLICY ai_usage_logs_select_org_admin
   );
 
 -- Policy: System can insert (service role only)
+DROP POLICY IF EXISTS ai_usage_logs_insert_service ON public.ai_usage_logs;
 CREATE POLICY ai_usage_logs_insert_service
   ON public.ai_usage_logs
   FOR INSERT

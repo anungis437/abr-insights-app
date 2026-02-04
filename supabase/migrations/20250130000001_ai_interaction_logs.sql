@@ -36,13 +36,13 @@ CREATE TABLE IF NOT EXISTS ai_interaction_logs (
 );
 
 -- Indexes for efficient querying
-CREATE INDEX idx_ai_logs_organization_id ON ai_interaction_logs(organization_id);
-CREATE INDEX idx_ai_logs_user_id ON ai_interaction_logs(user_id);
-CREATE INDEX idx_ai_logs_session_id ON ai_interaction_logs(session_id);
-CREATE INDEX idx_ai_logs_interaction_type ON ai_interaction_logs(interaction_type);
-CREATE INDEX idx_ai_logs_created_at ON ai_interaction_logs(created_at DESC);
-CREATE INDEX idx_ai_logs_human_reviewed ON ai_interaction_logs(human_reviewed) WHERE human_reviewed = FALSE;
-CREATE INDEX idx_ai_logs_flags ON ai_interaction_logs USING GIN(flags) WHERE flags IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_ai_logs_organization_id ON ai_interaction_logs(organization_id);
+CREATE INDEX IF NOT EXISTS idx_ai_logs_user_id ON ai_interaction_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_ai_logs_session_id ON ai_interaction_logs(session_id);
+CREATE INDEX IF NOT EXISTS idx_ai_logs_interaction_type ON ai_interaction_logs(interaction_type);
+CREATE INDEX IF NOT EXISTS idx_ai_logs_created_at ON ai_interaction_logs(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_ai_logs_human_reviewed ON ai_interaction_logs(human_reviewed) WHERE human_reviewed = FALSE;
+CREATE INDEX IF NOT EXISTS idx_ai_logs_flags ON ai_interaction_logs USING GIN(flags) WHERE flags IS NOT NULL;
 
 -- RLS Policies
 ALTER TABLE ai_interaction_logs ENABLE ROW LEVEL SECURITY;

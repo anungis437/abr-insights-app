@@ -46,11 +46,11 @@ CREATE TABLE IF NOT EXISTS organization_subscriptions (
 );
 
 -- Indexes
-CREATE INDEX idx_org_subscriptions_organization ON organization_subscriptions(organization_id);
-CREATE INDEX idx_org_subscriptions_stripe_sub ON organization_subscriptions(stripe_subscription_id);
-CREATE INDEX idx_org_subscriptions_stripe_customer ON organization_subscriptions(stripe_customer_id);
-CREATE INDEX idx_org_subscriptions_status ON organization_subscriptions(status);
-CREATE INDEX idx_org_subscriptions_grace_period ON organization_subscriptions(grace_period_ends_at) WHERE grace_period_ends_at IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_org_subscriptions_organization ON organization_subscriptions(organization_id);
+CREATE INDEX IF NOT EXISTS idx_org_subscriptions_stripe_sub ON organization_subscriptions(stripe_subscription_id);
+CREATE INDEX IF NOT EXISTS idx_org_subscriptions_stripe_customer ON organization_subscriptions(stripe_customer_id);
+CREATE INDEX IF NOT EXISTS idx_org_subscriptions_status ON organization_subscriptions(status);
+CREATE INDEX IF NOT EXISTS idx_org_subscriptions_grace_period ON organization_subscriptions(grace_period_ends_at) WHERE grace_period_ends_at IS NOT NULL;
 
 -- Updated timestamp trigger
 CREATE TRIGGER update_organization_subscriptions_updated_at
@@ -85,9 +85,9 @@ CREATE TABLE IF NOT EXISTS seat_allocations (
 );
 
 -- Indexes
-CREATE INDEX idx_seat_allocations_subscription ON seat_allocations(subscription_id);
-CREATE INDEX idx_seat_allocations_user ON seat_allocations(user_id);
-CREATE INDEX idx_seat_allocations_status ON seat_allocations(status);
+CREATE INDEX IF NOT EXISTS idx_seat_allocations_subscription ON seat_allocations(subscription_id);
+CREATE INDEX IF NOT EXISTS idx_seat_allocations_user ON seat_allocations(user_id);
+CREATE INDEX IF NOT EXISTS idx_seat_allocations_status ON seat_allocations(status);
 
 -- Updated timestamp trigger
 CREATE TRIGGER update_seat_allocations_updated_at
@@ -129,10 +129,10 @@ CREATE TABLE IF NOT EXISTS subscription_invoices (
 );
 
 -- Indexes
-CREATE INDEX idx_subscription_invoices_subscription ON subscription_invoices(subscription_id);
-CREATE INDEX idx_subscription_invoices_stripe_invoice ON subscription_invoices(stripe_invoice_id);
-CREATE INDEX idx_subscription_invoices_status ON subscription_invoices(status);
-CREATE INDEX idx_subscription_invoices_date ON subscription_invoices(invoice_date DESC);
+CREATE INDEX IF NOT EXISTS idx_subscription_invoices_subscription ON subscription_invoices(subscription_id);
+CREATE INDEX IF NOT EXISTS idx_subscription_invoices_stripe_invoice ON subscription_invoices(stripe_invoice_id);
+CREATE INDEX IF NOT EXISTS idx_subscription_invoices_status ON subscription_invoices(status);
+CREATE INDEX IF NOT EXISTS idx_subscription_invoices_date ON subscription_invoices(invoice_date DESC);
 
 -- Updated timestamp trigger
 CREATE TRIGGER update_subscription_invoices_updated_at
