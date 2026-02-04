@@ -167,13 +167,7 @@ const analystNav: SidebarNavItem[] = [
     children: [
       { label: 'All Cases', href: '/cases/browse', icon: FileText },
       { label: 'Tribunal Cases', href: '/tribunal-cases', icon: Briefcase },
-      { label: 'Case Analytics', href: '/analytics/cases', icon: BarChart3 },
     ],
-  },
-  {
-    label: 'Team',
-    href: '/admin/team',
-    icon: Users,
   },
   {
     label: 'Profile',
