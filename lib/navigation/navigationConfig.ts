@@ -13,6 +13,7 @@ import {
   GraduationCap,
   Search,
   Home,
+  CreditCard,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -234,6 +235,7 @@ const roleSpecificNavigation: Record<UserRole, NavLink[]> = {
 const userMenuItems: NavLink[] = [
   { label: 'My Profile', href: '/profile', icon: Users },
   { label: 'Settings', href: '/profile', icon: Settings },
+  { label: 'Billing', href: '/dashboard/billing', icon: CreditCard },
   { label: 'Achievements', href: '/achievements', icon: Shield },
   { label: 'My Analytics', href: '/analytics', icon: BarChart3 },
   { label: 'Help & Support', href: '/help', icon: FileText },
