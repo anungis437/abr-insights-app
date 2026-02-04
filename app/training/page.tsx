@@ -470,7 +470,7 @@ export default function TrainingHubPage() {
                         )}
 
                         {hasAccess ? (
-                          <button className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-teal-500 to-teal-600 px-4 py-2 font-medium text-white transition-colors hover:from-teal-600 hover:to-teal-700">
+                          <div className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-teal-500 to-teal-600 px-4 py-2 font-medium text-white transition-colors group-hover:from-teal-600 group-hover:to-teal-700">
                             {progress > 0 ? (
                               <>
                                 <Play className="h-4 w-4" />
@@ -482,12 +482,12 @@ export default function TrainingHubPage() {
                                 Start Course
                               </>
                             )}
-                          </button>
+                          </div>
                         ) : (
-                          <button className="flex w-full items-center justify-center gap-2 rounded-lg bg-gray-300 px-4 py-2 font-medium text-gray-600 transition-colors hover:bg-gray-400">
+                          <div className="flex w-full items-center justify-center gap-2 rounded-lg bg-gray-300 px-4 py-2 font-medium text-gray-600 transition-colors group-hover:bg-gray-400">
                             <Lock className="h-4 w-4" />
                             Upgrade to {course.required_tier.toUpperCase()}
-                          </button>
+                          </div>
                         )}
                       </div>
                     </Link>
