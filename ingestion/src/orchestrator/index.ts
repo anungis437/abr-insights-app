@@ -468,23 +468,22 @@ export class IngestionOrchestrator {
     sourceConfig: SourceConfig,
     options: OrchestrationOptions
   ): Promise<string> {
-    const job: Partial<IngestionJob> = {
-      jobType: options.jobType || 'manual',
-      sourceSystem,
-      sourceConfig,
-      status: 'running',
-      startedAt: new Date(),
-      casesDiscovered: 0,
-      casesFetched: 0,
-      casesClassified: 0,
-      casesStored: 0,
-      casesFailed: 0,
-      highConfidenceCount: 0,
-      mediumConfidenceCount: 0,
-      lowConfidenceCount: 0,
-      triggeredBy: options.triggeredBy || 'unknown',
-      executionEnvironment: 'local',
-      pipelineVersion: '1.0.0',
+    const job = {
+      job_type: options.jobType || 'manual',
+      source_system: sourceSystem,
+      source_config: sourceConfig,
+      status: 'running' as const,
+      started_at: new Date().toISOString(),
+      cases_discovered: 0,
+      cases_fetched: 0,
+      cases_classified: 0,
+      cases_stored: 0,
+      cases_failed: 0,
+      high_confidence_count: 0,
+      medium_confidence_count: 0,
+      low_confidence_count: 0,
+      execution_environment: 'local',
+      pipeline_version: '1.0.0',
     }
 
     const { data, error } = await this.supabase
@@ -507,8 +506,8 @@ export class IngestionOrchestrator {
     await this.supabase
       .from('ingestion_jobs')
       .update({
-        lastProcessedUrl: lastUrl,
-        checkpointData: { lastUpdate: new Date().toISOString() },
+        last_processed_url: lastUrl,
+        checkpoint_data: { lastUpdate: new Date().toISOString() },
       })
       .eq('id', jobId)
   }
@@ -523,16 +522,16 @@ export class IngestionOrchestrator {
     duration: number,
     errorMessage?: string
   ): Promise<void> {
-    const updates: Partial<IngestionJob> = {
+    const updates = {
       status,
-      completedAt: new Date(),
-      durationSeconds: duration,
-      casesDiscovered: metrics.discovered,
-      casesFetched: metrics.fetched,
-      casesClassified: metrics.classified,
-      casesStored: metrics.stored,
-      casesFailed: metrics.failed,
-      errorMessage,
+      completed_at: new Date().toISOString(),
+      duration_seconds: duration,
+      cases_discovered: metrics.discovered,
+      cases_fetched: metrics.fetched,
+      cases_classified: metrics.classified,
+      cases_stored: metrics.stored,
+      cases_failed: metrics.failed,
+      error_message: errorMessage,
     }
 
     // Calculate confidence distribution
@@ -544,10 +543,12 @@ export class IngestionOrchestrator {
 
       if (data) {
         const confidences = data.map((r) => r.final_confidence || 0)
-        updates.avgConfidenceScore = confidences.reduce((a, b) => a + b, 0) / confidences.length
-        updates.highConfidenceCount = confidences.filter((c) => c >= 0.8).length
-        updates.mediumConfidenceCount = confidences.filter((c) => c >= 0.5 && c < 0.8).length
-        updates.lowConfidenceCount = confidences.filter((c) => c < 0.5).length
+        Object.assign(updates, {
+          avg_confidence_score: confidences.reduce((a, b) => a + b, 0) / confidences.length,
+          high_confidence_count: confidences.filter((c) => c >= 0.8).length,
+          medium_confidence_count: confidences.filter((c) => c >= 0.5 && c < 0.8).length,
+          low_confidence_count: confidences.filter((c) => c < 0.5).length,
+        })
       }
     }
 
