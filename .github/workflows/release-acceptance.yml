@@ -115,7 +115,11 @@ jobs:
           docker ps --filter "name=abr-app"
           
           chmod +x scripts/release-acceptance.sh
-          BASE_URL=http://localhost:3000 VERBOSE=true ./scripts/release-acceptance.sh
+          BASE_URL=http://localhost:3000 VERBOSE=true ./scripts/release-acceptance.sh || {
+            echo "❌ Tests failed! Showing container logs:"
+            docker logs abr-app 2>&1 | tail -100
+            exit 1
+          }
         env:
           BASE_URL: ${{ github.event.inputs.base_url || 'http://localhost:3000' }}
 
