@@ -48,14 +48,14 @@ jobs:
         run: |
           docker run -d \
             -p 3000:3000 \
-            -e NEXT_PUBLIC_SUPABASE_URL="${NEXT_PUBLIC_SUPABASE_URL}" \
-            -e NEXT_PUBLIC_SUPABASE_ANON_KEY="${NEXT_PUBLIC_SUPABASE_ANON_KEY}" \
             -e SUPABASE_SERVICE_ROLE_KEY="${SUPABASE_SERVICE_ROLE_KEY}" \
             -e NEXTAUTH_URL=http://localhost:3000 \
             -e NEXTAUTH_SECRET=test-secret-minimum-32-characters-long-for-ci \
             -e NODE_ENV=production \
             --name abr-app \
             abr-insights-app:ci
+          
+          # Note: NEXT_PUBLIC_* vars are baked into the build and cannot be overridden at runtime
 
           echo "Waiting for application to be ready..."
           for i in {1..30}; do
@@ -83,12 +83,9 @@ jobs:
             exit 1
           fi
         env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co' }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsYWNlaG9sZGVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NDUxOTI4MDAsImV4cCI6MTk2MDc2ODgwMH0.placeholder' }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsYWNlaG9sZGVyIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY0NTE5MjgwMCwiZXhwIjoxOTYwNzY4ODAwfQ.placeholder' }}
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: test-secret-minimum-32-characters-long-for-ci
-          NODE_ENV: production
 
       - name: Install jq for JSON parsing
         run: sudo apt-get update && sudo apt-get install -y jq
