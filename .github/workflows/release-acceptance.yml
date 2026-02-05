@@ -17,6 +17,8 @@ jobs:
     name: Release Acceptance Validation
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # Skip if Supabase secrets are not configured (e.g., in forks)
+    if: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL != '' && secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY != '' }}
 
     steps:
       - name: Checkout code
@@ -50,7 +52,7 @@ jobs:
             -p 3000:3000 \
             -e SUPABASE_SERVICE_ROLE_KEY="${SUPABASE_SERVICE_ROLE_KEY}" \
             -e NEXTAUTH_URL=http://localhost:3000 \
-            -e NEXTAUTH_SECRET=test-secret-minimum-32-characters-long-for-ci \
+            -e NEXTAUTH_SECRET=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 \
             -e NODE_ENV=production \
             --name abr-app \
             abr-insights-app:ci
@@ -85,7 +87,7 @@ jobs:
         env:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsYWNlaG9sZGVyIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY0NTE5MjgwMCwiZXhwIjoxOTYwNzY4ODAwfQ.placeholder' }}
           NEXTAUTH_URL: http://localhost:3000
-          NEXTAUTH_SECRET: test-secret-minimum-32-characters-long-for-ci
+          NEXTAUTH_SECRET: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
 
       - name: Install jq for JSON parsing
         run: sudo apt-get update && sudo apt-get install -y jq
