@@ -176,19 +176,19 @@ export default function TeamManagementPage() {
       setMembers(orgMembers || [])
 
       // Fetch certificates for all members
-      const memberEmails = (orgMembers || []).map((m: any) => m.email).filter(Boolean)
+      const memberIds = (orgMembers || []).map((m: any) => m.id).filter(Boolean)
 
-      if (memberEmails.length > 0) {
+      if (memberIds.length > 0) {
         const { data: certs } = await supabase
           .from('certificates')
           .select('*')
-          .in('user_email', memberEmails)
+          .in('user_id', memberIds)
         setCertificates(certs || [])
 
         const { data: prog } = await supabase
-          .from('lesson_progress')
+          .from('enrollments')
           .select('*')
-          .in('user_email', memberEmails)
+          .in('user_id', memberIds)
         setProgress(prog || [])
       } else {
         setCertificates([])
