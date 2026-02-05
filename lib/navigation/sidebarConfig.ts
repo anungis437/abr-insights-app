@@ -71,8 +71,8 @@ const learnerNav: SidebarNavItem[] = [
     label: 'Cases',
     icon: FileText,
     children: [
-      { label: 'Explore Cases', href: '/cases/explore', icon: Search },
-      { label: 'Browse All', href: '/cases/browse', icon: FileText },
+      { label: 'Browse Cases', href: '/cases/browse', icon: FileText },
+      { label: 'Tribunal Cases', href: '/tribunal-cases', icon: Scale },
     ],
   },
   {
@@ -161,6 +161,7 @@ const analystNav: SidebarNavItem[] = [
     label: 'Cases',
     icon: FileText,
     children: [
+      { label: 'Case Explorer', href: '/cases/explore', icon: Search },
       { label: 'All Cases', href: '/cases/browse', icon: FileText },
       { label: 'Tribunal Cases', href: '/tribunal-cases', icon: Briefcase },
     ],
@@ -187,6 +188,7 @@ const investigatorNav: SidebarNavItem[] = [
     label: 'Cases',
     icon: FileText,
     children: [
+      { label: 'Case Explorer', href: '/cases/explore', icon: Search },
       { label: 'All Cases', href: '/cases/browse', icon: FileText },
       { label: 'My Cases', href: '/cases/my-cases', icon: Briefcase },
       { label: 'Tribunal Cases', href: '/tribunal-cases', icon: Briefcase },
@@ -405,7 +407,7 @@ const viewerNav: SidebarNavItem[] = [
     icon: Search,
     children: [
       { label: 'Courses', href: '/courses', icon: GraduationCap },
-      { label: 'Cases', href: '/cases/browse', icon: FileText },
+      { label: 'Browse Cases', href: '/cases/browse', icon: FileText },
       { label: 'Resources', href: '/resources', icon: Database },
     ],
   },
@@ -433,7 +435,7 @@ const guestNav: SidebarNavItem[] = [
     icon: Search,
     children: [
       { label: 'Courses', href: '/courses', icon: GraduationCap },
-      { label: 'Public Cases', href: '/cases/browse', icon: FileText },
+      { label: 'Browse Cases', href: '/cases/browse', icon: FileText },
     ],
   },
   {

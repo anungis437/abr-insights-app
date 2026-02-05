@@ -109,10 +109,9 @@ const authenticatedBaseNavigation: NavLink[] = [
     label: 'Cases',
     href: '#',
     icon: FileText,
-    description: 'Explore and manage cases',
+    description: 'Browse and explore cases',
     children: [
-      { label: 'Explore Cases', href: '/cases/explore' },
-      { label: 'Browse All', href: '/cases/browse' },
+      { label: 'Browse Cases', href: '/cases/browse' },
       { label: 'Tribunal Cases', href: '/tribunal-cases' },
     ],
   },
@@ -150,6 +149,7 @@ const roleSpecificNavigation: Record<UserRole, NavLink[]> = {
         { label: 'Dashboard', href: '/analytics' },
         { label: 'Create Report', href: '/analytics/create' },
         { label: 'Data Explorer', href: '/analytics/explore' },
+        { label: 'Case Explorer', href: '/cases/explore' },
       ],
     },
   ],
@@ -162,6 +162,7 @@ const roleSpecificNavigation: Record<UserRole, NavLink[]> = {
       description: 'View analytics and reports',
       children: [
         { label: 'Dashboard', href: '/analytics' },
+        { label: 'Case Explorer', href: '/cases/explore' },
         { label: 'Case Analysis', href: '/analytics/cases' },
         { label: 'Data Explorer', href: '/analytics/explore' },
       ],
