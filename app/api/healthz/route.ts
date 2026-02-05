@@ -32,12 +32,16 @@ export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
 export async function GET() {
+  // Generate correlation ID for observability
+  const correlationId = crypto.randomUUID()
+
   return NextResponse.json(
     {
       status: 'ok',
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
       service: 'abr-insights-app',
+      correlationId,
     },
     {
       status: 200,

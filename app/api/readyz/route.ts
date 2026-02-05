@@ -54,33 +54,40 @@ interface ReadinessResponse {
   timestamp: string
   checks: HealthCheck[]
   environment: ReturnType<typeof getEnvironmentInfo>
+  correlationId: string
 }
 
 /**
- * Check database connectivity
+ * Check database connectivity with timeout
  */
 async function checkDatabase(): Promise<HealthCheck> {
   const startTime = Date.now()
+  const timeout = 2000 // 2 second timeout
 
   try {
     const supabase = await createClient()
 
-    // Simple query to verify connection
-    const { error } = await supabase.from('profiles').select('id').limit(1)
+    // Race between query and timeout
+    const result = await Promise.race([
+      supabase.from('profiles').select('id').limit(1),
+      new Promise<{ error: any }>((_, reject) =>
+        setTimeout(() => reject(new Error('Database check timeout')), timeout)
+      ),
+    ])
 
     const duration = Date.now() - startTime
 
-    if (error) {
+    if (result.error) {
       // Check if it's a "relation does not exist" error (table not found)
       // This is acceptable for readiness (schema might not be initialized yet)
-      if (error.code === '42P01' || error.code === 'PGRST301') {
+      if (result.error.code === '42P01' || result.error.code === 'PGRST301') {
         return {
           name: 'database',
           status: 'warning',
           message: 'Database connected but schema not initialized',
           duration_ms: duration,
           details: {
-            error_code: error.code,
+            error_code: result.error.code,
           },
         }
       }
@@ -88,10 +95,10 @@ async function checkDatabase(): Promise<HealthCheck> {
       return {
         name: 'database',
         status: 'unhealthy',
-        message: error.message,
+        message: result.error.message,
         duration_ms: duration,
         details: {
-          error_code: error.code,
+          error_code: result.error.code,
         },
       }
     }
@@ -109,6 +116,111 @@ async function checkDatabase(): Promise<HealthCheck> {
 
     return {
       name: 'database',
+      status: 'unhealthy',
+      message: error instanceof Error ? error.message : 'Unknown error',
+      duration_ms: duration,
+    }
+  }
+}
+
+/**
+ * Check Redis connectivity (if configured for production rate limiting)
+ */
+async function checkRedis(): Promise<HealthCheck | null> {
+  // Redis is optional - only check if configured
+  const isRedisConfigured =
+    (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) ||
+    process.env.REDIS_URL
+
+  if (!isRedisConfigured) {
+    // In production, Redis should be configured for rate limiting
+    if (process.env.NODE_ENV === 'production') {
+      return {
+        name: 'redis',
+        status: 'warning',
+        message: 'Redis not configured (rate limiting will use in-memory fallback)',
+      }
+    }
+    // In dev/test, Redis is optional
+    return null
+  }
+
+  const startTime = Date.now()
+  const timeout = 1000 // 1 second timeout for Redis
+
+  try {
+    // Try to initialize and ping Redis
+    let client: any = null
+
+    if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+      const { Redis } = await import('@upstash/redis')
+      client = new Redis({
+        url: process.env.UPSTASH_REDIS_REST_URL,
+        token: process.env.UPSTASH_REDIS_REST_TOKEN,
+      })
+
+      // Upstash Redis ping
+      const pingResult = await Promise.race([
+        client.ping(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Redis timeout')), timeout)),
+      ])
+
+      const duration = Date.now() - startTime
+
+      if (pingResult === 'PONG') {
+        return {
+          name: 'redis',
+          status: 'healthy',
+          message: 'Connected',
+          duration_ms: duration,
+          details: { type: 'upstash' },
+        }
+      }
+    } else if (process.env.REDIS_URL) {
+      const { createClient } = await import('redis')
+      client = createClient({
+        url: process.env.REDIS_URL,
+        password: process.env.REDIS_PASSWORD,
+        socket: {
+          connectTimeout: timeout,
+        },
+      })
+
+      await Promise.race([
+        client.connect(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Redis timeout')), timeout)),
+      ])
+
+      const pingResult = await client.ping()
+      await client.quit()
+
+      const duration = Date.now() - startTime
+
+      if (pingResult === 'PONG') {
+        return {
+          name: 'redis',
+          status: 'healthy',
+          message: 'Connected',
+          duration_ms: duration,
+          details: { type: 'standard' },
+        }
+      }
+    }
+
+    const duration = Date.now() - startTime
+    return {
+      name: 'redis',
+      status: 'unhealthy',
+      message: 'Redis ping failed',
+      duration_ms: duration,
+    }
+  } catch (error) {
+    const duration = Date.now() - startTime
+
+    logger.error('Redis health check failed', { error })
+
+    return {
+      name: 'redis',
       status: 'unhealthy',
       message: error instanceof Error ? error.message : 'Unknown error',
       duration_ms: duration,
@@ -164,17 +276,26 @@ async function performReadinessChecks(): Promise<ReadinessResponse> {
   // 2. Database check (async, may take time)
   checks.push(await checkDatabase())
 
+  // 3. Redis check (optional, only if configured)
+  const redisCheck = await checkRedis()
+  if (redisCheck) {
+    checks.push(redisCheck)
+  }
+
   // Determine overall status
+  // - Unhealthy checks block readiness
+  // - Warnings allow traffic but indicate potential issues
   const hasUnhealthy = checks.some((check) => check.status === 'unhealthy')
-  const allHealthyOrWarning = checks.every(
-    (check) => check.status === 'healthy' || check.status === 'warning'
-  )
+
+  // Include correlation ID in response
+  const correlationId = crypto.randomUUID()
 
   return {
     status: hasUnhealthy ? 'not_ready' : 'ready',
     timestamp: new Date().toISOString(),
     checks,
     environment: getEnvironmentInfo(),
+    correlationId,
   }
 }
 
