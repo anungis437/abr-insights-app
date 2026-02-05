@@ -30,7 +30,7 @@ describe('Server Initialization', () => {
   describe('Idempotency', () => {
     it('should run initialization only once', () => {
       // Set up valid environment
-      process.env.NODE_ENV = 'production'
+      ;(process.env as any).NODE_ENV = 'production'
       process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'eyJtest'
       process.env.SUPABASE_SERVICE_ROLE_KEY = 'eyJtest'
@@ -48,7 +48,7 @@ describe('Server Initialization', () => {
     })
 
     it('should allow re-initialization after reset in test env', () => {
-      process.env.NODE_ENV = 'test'
+      ;(process.env as any).NODE_ENV = 'test'
       process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'eyJtest'
 
@@ -63,7 +63,7 @@ describe('Server Initialization', () => {
     })
 
     it('should not allow reset in non-test environments', () => {
-      process.env.NODE_ENV = 'production'
+      ;(process.env as any).NODE_ENV = 'production'
 
       expect(() => resetInitialization()).toThrow(
         'resetInitialization can only be called in test environment'
@@ -73,14 +73,14 @@ describe('Server Initialization', () => {
 
   describe('Production Environment Validation', () => {
     it('should throw in production with missing required env vars', () => {
-      process.env.NODE_ENV = 'production'
+      ;(process.env as any).NODE_ENV = 'production'
       // Missing all required vars
 
       expect(() => initializeServer()).toThrow()
     })
 
     it('should throw in production with missing SUPABASE_URL', () => {
-      process.env.NODE_ENV = 'production'
+      ;(process.env as any).NODE_ENV = 'production'
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'eyJtest'
       process.env.SUPABASE_SERVICE_ROLE_KEY = 'eyJtest'
       process.env.NEXTAUTH_SECRET = 'a'.repeat(32) + Math.random().toString(36)
@@ -91,7 +91,7 @@ describe('Server Initialization', () => {
     })
 
     it('should throw in production with insecure NEXTAUTH_SECRET', () => {
-      process.env.NODE_ENV = 'production'
+      ;(process.env as any).NODE_ENV = 'production'
       process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'eyJtest'
       process.env.SUPABASE_SERVICE_ROLE_KEY = 'eyJtest'
@@ -102,7 +102,7 @@ describe('Server Initialization', () => {
     })
 
     it('should succeed in production with all valid env vars', () => {
-      process.env.NODE_ENV = 'production'
+      ;(process.env as any).NODE_ENV = 'production'
       process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'eyJtest'
       process.env.SUPABASE_SERVICE_ROLE_KEY = 'eyJtest'
@@ -115,7 +115,7 @@ describe('Server Initialization', () => {
 
   describe('Development/Test Environment Validation', () => {
     it('should not throw in development with missing env vars', () => {
-      process.env.NODE_ENV = 'development'
+      ;(process.env as any).NODE_ENV = 'development'
       // Missing all required vars
 
       // Should log warnings but not throw
@@ -123,7 +123,7 @@ describe('Server Initialization', () => {
     })
 
     it('should not throw in test with missing env vars', () => {
-      process.env.NODE_ENV = 'test'
+      ;(process.env as any).NODE_ENV = 'test'
       // Missing all required vars
 
       // Should log warnings but not throw
@@ -131,7 +131,7 @@ describe('Server Initialization', () => {
     })
 
     it('should succeed in development with partial env vars', () => {
-      process.env.NODE_ENV = 'development'
+      ;(process.env as any).NODE_ENV = 'development'
       process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
       // Other vars missing
 
@@ -142,7 +142,7 @@ describe('Server Initialization', () => {
   describe('Edge Cases', () => {
     it('should handle undefined NODE_ENV gracefully', () => {
       // Set NODE_ENV to undefined
-      delete process.env.NODE_ENV
+      delete (process.env as any).NODE_ENV
       process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'eyJtest'
 
@@ -151,7 +151,7 @@ describe('Server Initialization', () => {
     })
 
     it('should handle empty string env vars', () => {
-      process.env.NODE_ENV = 'production'
+      ;(process.env as any).NODE_ENV = 'production'
       process.env.NEXT_PUBLIC_SUPABASE_URL = ''
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = ''
 
