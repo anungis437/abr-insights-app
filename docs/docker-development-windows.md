@@ -65,16 +65,16 @@ Open your browser to: **http://localhost:3000**
 
 The `docker-dev.ps1` script simplifies Docker operations:
 
-| Command | Description |
-|---------|-------------|
-| `.\docker-dev.ps1 build` | Build the Docker image |
-| `.\docker-dev.ps1 start` | Start the container |
-| `.\docker-dev.ps1 stop` | Stop the container |
-| `.\docker-dev.ps1 restart` | Restart the container |
-| `.\docker-dev.ps1 logs` | Show live logs (Ctrl+C to exit) |
-| `.\docker-dev.ps1 status` | Show container status |
-| `.\docker-dev.ps1 clean` | Stop and remove container |
-| `.\docker-dev.ps1 rebuild` | Full rebuild and restart |
+| Command                    | Description                     |
+| -------------------------- | ------------------------------- |
+| `.\docker-dev.ps1 build`   | Build the Docker image          |
+| `.\docker-dev.ps1 start`   | Start the container             |
+| `.\docker-dev.ps1 stop`    | Stop the container              |
+| `.\docker-dev.ps1 restart` | Restart the container           |
+| `.\docker-dev.ps1 logs`    | Show live logs (Ctrl+C to exit) |
+| `.\docker-dev.ps1 status`  | Show container status           |
+| `.\docker-dev.ps1 clean`   | Stop and remove container       |
+| `.\docker-dev.ps1 rebuild` | Full rebuild and restart        |
 
 ## Development Workflow
 
@@ -134,6 +134,7 @@ taskkill /PID <process-id> /F
 ### Environment Variables Not Working
 
 Ensure `.env.docker` is properly formatted:
+
 - No spaces around `=`
 - No quotes unless value contains spaces
 - One variable per line
@@ -147,6 +148,7 @@ docker logs abr-dev
 ```
 
 Common issues:
+
 - Missing environment variables in `.env.docker`
 - Insufficient Docker memory (increase in Docker Desktop settings)
 - Network issues during `npm install`
@@ -154,6 +156,7 @@ Common issues:
 ### Supabase Connection Errors
 
 The application requires valid Supabase credentials. Verify:
+
 1. `NEXT_PUBLIC_SUPABASE_URL` points to your Supabase project
 2. `NEXT_PUBLIC_SUPABASE_ANON_KEY` is correct
 3. `SUPABASE_SERVICE_ROLE_KEY` is correct
@@ -163,6 +166,7 @@ Get these from: https://supabase.com/dashboard/project/_/settings/api
 ### Server Initialization Failures
 
 If you see "Environment Variable Validation Failed":
+
 - In **production** mode (NODE_ENV=production), the server requires all critical environment variables
 - In **development** mode, missing optional variables only show warnings
 
@@ -178,6 +182,7 @@ Write-Host $secret
 The application validates environment variables at startup:
 
 **Required Variables:**
+
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
@@ -185,6 +190,7 @@ The application validates environment variables at startup:
 - `NEXTAUTH_URL`
 
 **Optional Variables** (warnings only):
+
 - `RESEND_API_KEY`
 - `STRIPE_SECRET_KEY`
 - `OPENAI_API_KEY`
@@ -194,6 +200,7 @@ The application validates environment variables at startup:
 ### Fail-Fast Behavior
 
 In production mode, the server will refuse to start if:
+
 - Required variables are missing
 - `NEXTAUTH_SECRET` appears to be a default/insecure value
 
@@ -202,15 +209,19 @@ This prevents deployment with invalid configuration.
 ## Performance Considerations
 
 ### Initial Build Time
+
 First build takes 3-5 minutes due to:
+
 - Downloading Node.js base image
 - Installing npm dependencies
 - Compiling Next.js application
 
 ### Subsequent Builds
+
 Faster (30-60 seconds) thanks to Docker layer caching.
 
 ### Runtime Performance
+
 Docker adds minimal overhead (~5-10ms latency). Performance is similar to native execution.
 
 ## Alternatives to Docker Development
@@ -259,6 +270,7 @@ Docker images built for development work for production deployment with proper e
 ## Getting Help
 
 If you encounter issues:
+
 1. Check Docker Desktop is running
 2. Verify `.env.docker` is configured correctly
 3. Check Docker logs: `.\docker-dev.ps1 logs`
