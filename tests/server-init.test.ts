@@ -84,6 +84,7 @@ describe('Server Initialization', () => {
     })
 
     it('should throw in production with missing SUPABASE_URL', () => {
+      delete (process.env as any).NEXT_PUBLIC_SUPABASE_URL // Ensure it's missing
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'eyJtest'
       process.env.SUPABASE_SERVICE_ROLE_KEY = 'eyJtest'
       process.env.NEXTAUTH_SECRET = 'a'.repeat(32) + Math.random().toString(36)
