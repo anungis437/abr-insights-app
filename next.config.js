@@ -55,12 +55,9 @@ const nextConfig = {
     minimumCacheTTL: 60,
   },
 
-  env: {
-    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
-    NEXT_PUBLIC_ENVIRONMENT: process.env.NEXT_PUBLIC_ENVIRONMENT,
-  },
+  // Note: Removed explicit env config - NEXT_PUBLIC_* variables are automatically
+  // available in the browser and can be configured at runtime in Docker containers.
+  // This allows dynamic configuration without rebuilding.
 
   trailingSlash: true,
 
