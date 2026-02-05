@@ -18,7 +18,7 @@
     "npm": ">=9.0.0"
   },
   "scripts": {
-    "dev": "next dev --turbo",
+    "dev": "next dev",
     "build": "next build --experimental-build-mode=compile",
     "build:webpack": "next build",
     "build:analyze": "cross-env ANALYZE=true next build",
