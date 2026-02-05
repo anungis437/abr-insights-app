@@ -183,7 +183,7 @@ export default function OrgDashboardPage() {
       const { data: allCourses, error: coursesError } = await supabase
         .from('courses')
         .select('id, title, description')
-        .eq('published', true)
+        .eq('is_published', true)
 
       if (coursesError) throw coursesError
       setCourses(allCourses || [])
