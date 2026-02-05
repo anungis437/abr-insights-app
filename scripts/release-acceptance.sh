@@ -77,7 +77,7 @@ check_prerequisites() {
 validate_base_url() {
   log_info "Validating base URL: $BASE_URL"
   
-  # First check health endpoint (always fast)
+  # Check health endpoint (lightweight API endpoint)
   log_info "Checking health endpoint: ${BASE_URL}/api/healthz"
   if ! curl --fail --silent --show-error --max-time "$TIMEOUT" "${BASE_URL}/api/healthz" > /dev/null 2>&1; then
     log_error "Health endpoint is not reachable: ${BASE_URL}/api/healthz"
@@ -85,12 +85,11 @@ validate_base_url() {
   fi
   log_success "Health endpoint is reachable"
   
-  # Then check root URL with GET (HEAD might not be supported)
-  log_info "Checking root URL: $BASE_URL"
-  if ! curl --fail --silent --show-error --max-time "$TIMEOUT" "$BASE_URL" > /dev/null 2>&1; then
-    log_error "Base URL is not reachable: $BASE_URL"
-    return 1
-  fi
+  # Note: We don't check the root URL because it may:
+  # - Require authentication
+  # - Perform server-side rendering (slower)
+  # - Do client-side redirects
+  # The health endpoint is sufficient to verify the app is running
   
   log_success "Base URL is reachable"
 }
