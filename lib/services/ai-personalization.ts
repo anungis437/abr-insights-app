@@ -247,7 +247,7 @@ export async function generateLearningPathRecommendations(
   const skillProfile = await analyzeUserSkillProfile(userId)
 
   // Fetch all available courses
-  const { data: courses } = await supabase.from('courses').select('*').eq('published', true)
+  const { data: courses } = await supabase.from('courses').select('*').eq('is_published', true)
 
   if (!courses) return []
 
