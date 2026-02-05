@@ -27,6 +27,7 @@ import {
   Trophy,
   LogOut,
   CreditCard,
+  Scale,
   type LucideIcon,
 } from 'lucide-react'
 
