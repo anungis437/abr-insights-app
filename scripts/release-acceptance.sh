@@ -77,7 +77,14 @@ check_prerequisites() {
 validate_base_url() {
   log_info "Validating base URL: $BASE_URL"
   
-  if ! curl --fail --silent --show-error --max-time "$TIMEOUT" --head "$BASE_URL" > /dev/null 2>&1; then
+  # First check health endpoint (always fast)
+  if ! curl --fail --silent --show-error --max-time "$TIMEOUT" "${BASE_URL}/api/healthz" > /dev/null 2>&1; then
+    log_error "Health endpoint is not reachable: ${BASE_URL}/api/healthz"
+    return 1
+  fi
+  
+  # Then check root URL with GET (HEAD might not be supported)
+  if ! curl --fail --silent --show-error --max-time "$TIMEOUT" "$BASE_URL" > /dev/null 2>&1; then
     log_error "Base URL is not reachable: $BASE_URL"
     return 1
   fi
