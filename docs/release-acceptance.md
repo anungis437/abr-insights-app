@@ -10,8 +10,9 @@ The release gate validates:
 
 1. **Security Posture**: Runtime enforcement of security headers (CSP with nonce, correlation IDs)
 2. **Operational Readiness**: Health and readiness endpoints respond correctly
-3. **Infrastructure Correctness**: Headers are propagated correctly through redirects and middleware
-4. **Compliance**: Security controls remain active and properly configured
+3. **Environment Validation**: Required environment variables are validated at server startup (fail-fast in production)
+4. **Infrastructure Correctness**: Headers are propagated correctly through redirects and middleware
+5. **Compliance**: Security controls remain active and properly configured
 
 ## Components
 
@@ -303,6 +304,68 @@ netstat -an | findstr 3000  # Windows
 3. Review `/api/readyz` response JSON for specific check failures
 
 ## Maintenance
+
+### Verifying Server Initialization
+
+The application validates environment variables automatically when the server starts. This happens in `instrumentation.ts` during the Node.js runtime initialization.
+
+#### How to Verify Locally
+
+**Test 1: Production with missing env vars (should fail)**
+
+```bash
+# Unset required env vars
+unset NEXT_PUBLIC_SUPABASE_URL
+unset NEXTAUTH_SECRET
+
+# Set NODE_ENV to production
+export NODE_ENV=production
+
+# Try to start the server - should fail immediately
+npm run start
+
+# Expected: Server crashes with error message about missing env vars
+# Error will be logged before any requests are processed
+```
+
+**Test 2: Development with missing env vars (should warn, not crash)**
+
+```bash
+# Unset required env vars
+unset NEXT_PUBLIC_SUPABASE_URL
+
+# Set NODE_ENV to development
+export NODE_ENV=development
+
+# Start the server - should start with warnings
+npm run dev
+
+# Expected: Server starts successfully but logs warnings about missing vars
+```
+
+**Test 3: Verify initialization runs only once**
+
+```bash
+# Start server normally
+npm run start
+
+# Check logs - should see exactly ONE "Server runtime initialized" message
+# Even with multiple requests, initialization should not repeat
+```
+
+**What Gets Validated at Startup**:
+
+- Required environment variables are present
+- Secrets meet security requirements (length, randomness)
+- URLs use HTTPS in production
+- JWT tokens have valid format
+
+**Fail-Fast Behavior**:
+
+- **Production**: Server crashes immediately if validation fails (before accepting any traffic)
+- **Development/Test**: Server starts with warnings only (allows local development)
+
+This ensures that misconfigurations are caught immediately in production, rather than causing runtime errors after deployment.
 
 ### Adding New Checks
 
