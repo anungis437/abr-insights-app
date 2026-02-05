@@ -15,11 +15,14 @@ describe('Server Initialization', () => {
   const originalEnv = { ...process.env }
 
   beforeEach(() => {
-    // Reset initialization state before each test
-    resetInitialization()
-
     // Clear all env vars for clean slate
     process.env = { ...originalEnv }
+
+    // Ensure we're in test mode so we can reset
+    ;(process.env as any).NODE_ENV = 'test'
+
+    // Reset initialization state before each test
+    resetInitialization()
   })
 
   afterEach(() => {
