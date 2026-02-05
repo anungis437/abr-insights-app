@@ -76,41 +76,45 @@ describe('Server Initialization', () => {
 
   describe('Production Environment Validation', () => {
     it('should throw in production with missing required env vars', () => {
-      ;(process.env as any).NODE_ENV = 'production'
       // Missing all required vars
+      // Reset while still in test mode, then switch to production
+      ;(process.env as any).NODE_ENV = 'production'
 
       expect(() => initializeServer()).toThrow()
     })
 
     it('should throw in production with missing SUPABASE_URL', () => {
-      ;(process.env as any).NODE_ENV = 'production'
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'eyJtest'
       process.env.SUPABASE_SERVICE_ROLE_KEY = 'eyJtest'
       process.env.NEXTAUTH_SECRET = 'a'.repeat(32) + Math.random().toString(36)
       process.env.NEXTAUTH_URL = 'https://test.com'
       // Missing NEXT_PUBLIC_SUPABASE_URL
+      // Switch to production after reset
+      ;(process.env as any).NODE_ENV = 'production'
 
       expect(() => initializeServer()).toThrow()
     })
 
     it('should throw in production with insecure NEXTAUTH_SECRET', () => {
-      ;(process.env as any).NODE_ENV = 'production'
       process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'eyJtest'
       process.env.SUPABASE_SERVICE_ROLE_KEY = 'eyJtest'
       process.env.NEXTAUTH_SECRET = 'test-secret-minimum-32-characters-long-for-test' // Insecure
       process.env.NEXTAUTH_URL = 'https://test.com'
+      // Switch to production after reset
+      ;(process.env as any).NODE_ENV = 'production'
 
       expect(() => initializeServer()).toThrow()
     })
 
     it('should succeed in production with all valid env vars', () => {
-      ;(process.env as any).NODE_ENV = 'production'
       process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co'
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'eyJtest'
       process.env.SUPABASE_SERVICE_ROLE_KEY = 'eyJtest'
       process.env.NEXTAUTH_SECRET = 'a'.repeat(32) + Math.random().toString(36)
       process.env.NEXTAUTH_URL = 'https://test.com'
+      // Switch to production after reset
+      ;(process.env as any).NODE_ENV = 'production'
 
       expect(() => initializeServer()).not.toThrow()
     })
