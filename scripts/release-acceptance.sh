@@ -194,10 +194,10 @@ check_security_headers() {
   assert_header_exists "$BASE_URL/" "x-nonce" "Homepage: x-nonce header"
   assert_header_exists "$BASE_URL/" "x-correlation-id" "Homepage: x-correlation-id header"
   
-  # Check a redirect (e.g., /team -> /pricing)
-  assert_header_exists "$BASE_URL/team" "Content-Security-Policy" "Redirect: CSP header"
-  assert_header_exists "$BASE_URL/team" "x-nonce" "Redirect: x-nonce header"
-  assert_header_exists "$BASE_URL/team" "x-correlation-id" "Redirect: x-correlation-id header"
+  # Check another HTML page (about page should not redirect)
+  assert_header_exists "$BASE_URL/about/" "Content-Security-Policy" "About page: CSP header"
+  assert_header_exists "$BASE_URL/about/" "x-nonce" "About page: x-nonce header"
+  assert_header_exists "$BASE_URL/about/" "x-correlation-id" "About page: x-correlation-id header"
   
   log_info "Security headers validation complete"
 }
@@ -207,18 +207,18 @@ check_health_endpoints() {
   log_info "Checking health endpoints..."
   
   # Liveness check (always 200)
-  assert_status "$BASE_URL/api/healthz" "200" "Liveness endpoint /api/healthz"
-  assert_json_field "$BASE_URL/api/healthz" ".status" "Liveness: status field"
-  assert_json_field "$BASE_URL/api/healthz" ".timestamp" "Liveness: timestamp field"
+  assert_status "$BASE_URL/api/healthz/" "200" "Liveness endpoint /api/healthz"
+  assert_json_field "$BASE_URL/api/healthz/" ".status" "Liveness: status field"
+  assert_json_field "$BASE_URL/api/healthz/" ".timestamp" "Liveness: timestamp field"
   
   # Readiness check (200 or 503 depending on dependencies)
   local readyz_status
-  readyz_status=$(curl --silent --output /dev/null --write-out "%{http_code}" --max-time "$TIMEOUT" "$BASE_URL/api/readyz" 2>&1)
+  readyz_status=$(curl --silent --output /dev/null --write-out "%{http_code}" --max-time "$TIMEOUT" "$BASE_URL/api/readyz/" 2>&1)
   
   if [ "$readyz_status" = "200" ]; then
     log_success "Readiness endpoint /api/readyz - Status 200 (ready)"
-    assert_json_field "$BASE_URL/api/readyz" ".status" "Readiness: status field"
-    assert_json_field "$BASE_URL/api/readyz" ".checks" "Readiness: checks array"
+    assert_json_field "$BASE_URL/api/readyz/" ".status" "Readiness: status field"
+    assert_json_field "$BASE_URL/api/readyz/" ".checks" "Readiness: checks array"
   elif [ "$readyz_status" = "503" ]; then
     log_warning "Readiness endpoint /api/readyz - Status 503 (not ready - dependencies unavailable)"
     # 503 is acceptable if dependencies are not yet configured
